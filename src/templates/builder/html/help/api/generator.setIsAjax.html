@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_setIsAjax"><span/></a>setIsAjax</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Sets the current page as being an AJAX page and thus won't decorate it with the base template.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>void setIsAjax($bol_ajax = true)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table4">
+            <colgroup>
+                <col width="99"/><col width="644"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.254cm; " class="Table4_A1">
+                    <p class="Table_20_Contents">
+                        $bol_ajax
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.744cm; " class="Table4_B1">
+                    <p class="Table_20_Contents">
+                        Set to true, if the page should be treated like an AJAX page and not be decorated, else false
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            The following code fragment shows the use of that function within an event's printer:
+        </p>
+        <pre>
+			$obj_gen = Generator::getInstance();
+			if ($arr_param["ajaxRequest"]) {
+				$obj_gen-&gt;setIsAjax();
+			}
+			return $obj_gen-&gt;includeTemplate("templates/user/html/view.html", $arr_param);
+        </pre>
+    </body>
+</html>

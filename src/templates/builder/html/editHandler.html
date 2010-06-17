@@ -1,0 +1,198 @@
+<div style="padding:20px;" id="container_h_#handler.handler_id">
+<form id="hformh<?=(int)$arr_param["handler"]["handler_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hHtmlCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=editor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();$('hCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();invoke(null, 'builder:editHandler&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
+	<div style="float:left;width:49%;margin-right:1%;">
+		<label for="name">Name of event handler</label><br/>
+		<input id="h_event_#handler.handler_id" type="text" name="handler[event]" value="#handler.event" /><br/><br/>
+		<input id="h_eventh_#handler.handler_id" type="hidden" value="#handler.event" />
+	</div>
+	<div style="float:left;width:50%;">
+		<br/><input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
+		<label for="ajax_#handler.handler_id">is AJAX event</label><br/><br/>
+	</div>
+	<div style="clear:both;"></div>
+	<div style="float:left;margin-right:1%;width:49%;position:relative;">
+		<div style="position:absolute;right:0px;">
+			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
+			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
+		</div>
+		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code:</label><br/>
+		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
+		<div style="border:1px solid #ccc;"><!--[noeval]-->
+			<textarea id="codeh<?=(int)$arr_param["handler"]["handler_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["handler"]["code"])?></textarea>
+			<!--[/noeval]-->
+		</div>
+	</div>
+	<div style="float:left;width:50%;position:relative;">
+		<div style="position:absolute;right:0px;">
+			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
+			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
+		</div>
+		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code:</label><br/>
+		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
+		<div style="border:1px solid #ccc;"><!--[noeval]-->
+			<textarea id="html_codeh<?=(int)$arr_param["handler"]["handler_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["handler"]["html_code"])?></textarea>
+			<!--[/noeval]-->
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+	<br/>
+	<script type="text/javascript">
+	//<![CDATA[
+		window.keywords = [	"list", "foreach", "array", "in", "include", "die", "echo", "empty", "exit", "eval", "include_once", "isset",
+							"require", "require_once", "return", "print", "unset", "case", "class", "abstract", "and", "as", "break",
+							"catch", "clone", "const", "continue", "declare", "default", "do", "else", "elseif", "enddeclare", "endfor",
+							"endforeach", "endif", "endswitch", "endwhile", "extends", "final", "for", "foreach", "function", "global",
+							"goto", "if", "implements", "interface", "instanceof", "namespace", "new", "or", "private", "protected",
+							"public", "static", "switch", "throw", "try", "use", "var", "while", "xor"
+		];
+		setTimeout(function(){
+			window.editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?> = CodeMirror.fromTextArea('html_codeh<?=(int)$arr_param["handler"]["handler_id"]?>', {
+				height: "100%",
+				parserfile: ["../../main/js/scriptaculous/lib/prototype.js", "shortcuts.js","parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "tokenizephp.js", "parsephp.js", "parsephphtmlmixed.js"],
+				stylesheet: ["templates/builder/css/xmlcolors.css","templates/builder/css/jscolors.css", "templates/builder/css/csscolors.css", "templates/builder/css/phpcolors.css"],
+				path: "templates/builder/js/",
+				textWrapping: false,
+				crc32: <?=crc32($arr_param["handler"]["html_code"])?>,
+				crc32Id: "h_html_code_#handler.handler_id",
+				mergeUrl: "?event=builder:editHandler&check=2&type=html_code&handler_id=<?=(int)$arr_param['handler']['handler_id']?>",	
+				autoMatchParens: true,
+				saveFunction: function() {
+					if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
+						$("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
+					}
+					$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
+					$('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
+					invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
+							var name = $("h_event_#handler.handler_id").getValue();
+							var id = req.responseText.split(/\s/g)[0];
+							var mid = <?=(int)$_SESSION["module_id"]?>;
+							var module = Builder.root.findChild("id", mid);
+							Builder.closeTab("h_0");
+							var n = new Ext.tree.TreeNode({
+								text: name,
+								leaf: true,
+								id: "h_"+id,
+								allowChildren: false
+							});
+							module.handlers.push(n);
+							Builder.editHandler(n);
+							Builder.resetTree(Builder.handlerRoot, module.handlers);
+						}
+					});
+					return false;			
+				}
+			});
+			window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?> = CodeMirror.fromTextArea('codeh<?=(int)$arr_param["handler"]["handler_id"]?>', {
+				height: "100%",
+				parserfile: ["../../main/js/scriptaculous/lib/prototype.js", "shortcuts.js","tokenizephp.js", "parsephp.js"],
+				stylesheet: ["templates/builder/css/phpcolors.css"],
+				path: "templates/builder/js/",
+				textWrapping: false,
+				autoMatchParens: true,
+				crc32: <?=crc32($arr_param["handler"]["code"])?>,
+				crc32Id: "h_code_#handler.handler_id",
+				mergeUrl: "?event=builder:editHandler&check=2&type=code&handler_id=<?=(int)$arr_param['handler']['handler_id']?>",	
+				saveFunction: function() {
+					if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
+						$("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
+					}
+					$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
+					$('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
+					invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param["handler"]["fk_module_id"], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
+							var name = $("h_event_#handler.handler_id").getValue();
+							var id = req.responseText.split(/\s/g)[0];
+							var mid = <?=(int)$_SESSION["module_id"]?>;
+							var module = Builder.root.findChild("id", mid);
+							Builder.closeTab("h_0");
+							var n = new Ext.tree.TreeNode({
+								text: name,
+								leaf: true,
+								id: "h_"+id,
+								allowChildren: false
+							});
+							module.handlers.push(n);
+							Builder.editHandler(n);
+							Builder.resetTree(Builder.handlerRoot, module.handlers);
+						}
+					});
+					return false;			
+				}
+			});
+
+			$("codeh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+			$("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+			Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().add({
+				xtype: "button",
+				text: "Save",
+				iconCls: "save",
+				handler: function(e) {
+					window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.options.saveFunction();
+				}
+			}, "-", {
+				xtype: "button",
+				text: "Run",
+				tooltip: "Ctrl+Shift+X",
+				iconCls: "run",
+				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> == 0 ? true : false),
+				handler: function(e) {
+					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
+				}
+			}, "-", {
+				xtype: "button",
+				text: "Apply History",
+				id: "handler.#handler.handler_id_applyHistory.button",
+				iconCls: "apply",
+				disabled: true,
+				handler: function(e) {
+					Builder.historyCleanFields([
+						window.editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.editor, 
+						window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.editor, 
+						$('h_event_#handler.handler_id')
+					]);
+					window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.options.saveFunction();
+				}	
+			}, "-", {
+				xtype: "button",
+				id: "handler.#handler.handler_id_viewHistory.button",
+				text: "View History",
+				iconCls: "history",
+				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 ? true : false),
+				handler: function(e) {
+					if ($("ha_#handler.handler_id") != null) {
+						$("ha_#handler.handler_id").fisheye.dispose();
+						$("ha_#handler.handler_id").remove();
+						Ext.getCmp("handler.#handler.handler_id_applyHistory.button").disable();
+						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("View History");
+					} else {
+						Builder.browseHandlerHistory(#handler.handler_id);
+						Ext.getCmp("handler.#handler.handler_id_applyHistory.button").enable();
+						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("Leave History");
+					}
+				}
+			});
+			Ext.QuickTips.init();			
+		}, 10);
+		//*
+		<? if ((int)$arr_param["handler"]["handler_id"] > 0) { ?>
+		new PeriodicalExecuter(function(pe){
+			if (window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null && window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null) {
+				pe.stop();  
+				window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.parent = window;
+				window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.run = function() {
+					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
+				};			
+				window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.parent = window;
+				window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.run = function() {
+					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
+				};			
+			}
+		}, 0.2);
+		<? } ?>//*/
+	//]]>
+	</script>
+</form>
+</div>

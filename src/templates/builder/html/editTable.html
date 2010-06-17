@@ -1,0 +1,196 @@
+<div style="padding:20px;">
+<label for="table_name_#table.table_id">Table Name</label><br/>
+<input type="text" name="name" id="table_name_#table.table_id" value="#table.name" style="width:220px;padding:5px;" /><br/><br/>
+<div id="table_#table.table_id"></div>
+<select name="types#table.table_id" id="types#table.table_id" style="display:none;">
+	<option value="DOUBLE">Double</option>
+	<option value="INT(1) NOT NULL">Flag</option>
+	<option value="FLOAT">Float</option>
+	<option value="INT(11) NOT NULL">Foreign Key</option>
+	<option value="INT(11)">Integer</option>
+	<option value="VARCHAR(1024)">Long String</option>
+	<option value="LONGTEXT">Long Text</option>
+	<option value="VARCHAR(255)">String</option>
+	<option value="TEXT">Text</option>
+	<option value="INT(20)">Timestamp</option>
+</select>
+<c:if cond="$arr_param['table']['table_id'] <= 0"><c:then>
+	<fieldset>
+		<div class="">
+			<input type="checkbox" name="scaffold_data" value="1" id="sfd" onchange="$('data_scaffold').toggle();if(this.checked||$('sfh').checked)$('sel_module').disabled=false;else $('sel_module').disabled=true;" />
+			<label for="sfd">also create data queries</label>
+		</div>
+		<div id="data_scaffold" class="scaffold" style="display:none;">
+			<h3>Create Data Queries For: </h3>
+			<input type="checkbox" class="tosave" name="d_scaffold[list]" value="1" id="list" checked="checked" />
+			<label for="list">list</label>
+			<input type="checkbox" class="tosave" name="d_scaffold[select]" value="1" id="select" checked="checked" />
+			<label for="select">select</label> 
+			<input type="checkbox" class="tosave" name="d_scaffold[insert]" value="1" id="insert" checked="checked" />
+			<label for="insert">insert</label> 
+			<input type="checkbox" class="tosave" name="d_scaffold[update]" value="1" id="update" checked="checked" />
+			<label for="update">update</label> 
+			<input type="checkbox" class="tosave" name="d_scaffold[delete]" value="1" id="delete" checked="checked" />
+			<label for="delete">delete</label> 
+		</div>
+		<div class="">
+			<input type="checkbox" name="scaffold_handlers" value="1" id="sfh" onchange="$('handler_scaffold').toggle();if(this.checked||$('sfd').checked)$('sel_module').disabled=false;else $('sel_module').disabled=true;" />
+			<label for="sfh">also create event handlers</label>
+		</div>
+		<div id="handler_scaffold" class="scaffold" style="display:none;">
+			<h3>Create Event Handlers For: </h3>
+			<input type="checkbox" class="tosave" name="h_scaffold[list]" value="1" id="hlist" checked="checked" />
+			<label for="hlist">overview</label>
+			<input type="checkbox" class="tosave" name="h_scaffold[view]" value="1" id="view" checked="checked" />
+			<label for="view">detail view</label> 
+			<input type="checkbox" class="tosave" name="h_scaffold[edit]" value="1" id="edit" checked="checked" />
+			<label for="edit">edit / insert</label> 
+			<input type="checkbox" class="tosave" name="h_scaffold[delete]" value="1" id="remove" checked="checked" />
+			<label for="remove">delete</label> 
+		</div>
+		<div class="">
+			<label for="sel_module">create in module</label>			
+			<select id="sel_module" class="tosave" name="scaffold[fk_module_id]" size="1" disabled="true">
+				<option value="0" disabled="true" selected="selected">Please choose</option>
+				<c:foreach var="modules" name="module">
+					<option value="#module.module_id">#module.name</option>
+				</c:foreach>
+			</select>
+		</div>
+	</fieldset>
+	</c:then>
+</c:if>
+<? $fields = (strlen($arr_param["table"]["field_names"]) > 0 ? explode(":", $arr_param["table"]["field_names"]) : Array()); ?>
+<? $types = (strlen($arr_param["table"]["field_types"]) > 0 ? explode(":", $arr_param["table"]["field_types"]) : Array()); ?>
+<script type="text/javascript">
+	//<![CDATA[
+	(function(){
+		var grid = new Ext.grid.EditorGridPanel({
+			store: gridStore = new Ext.data.Store({
+				reader: new Ext.data.ArrayReader({
+					idIndex: 0
+				}, Ext.data.Record.create([
+					{name: "field"},
+					{name: "type"}
+				]))
+			}),
+			cm: new Ext.grid.ColumnModel({
+				defaults: {
+					sortable: true
+				},
+				columns: [
+					{
+						header: "Name",
+						dataIndex: "field",
+						editor: new Ext.form.TextField({allowBlank: false})
+					}, {
+						header: "Field Type",
+						dataIndex: "type",
+						editor: new Ext.form.ComboBox({
+							typeAhead: true,
+							triggerAction: "all",
+							transform: "types#table.table_id",
+							lazyRender: true,
+		                    listClass: 'x-combo-list-small'
+						})						
+					}
+				]
+			}),
+			renderTo: "table_#table.table_id",
+			title: "#table.name",
+			autoHeight: true,
+			clicksToEdit: 1,
+			tbar: [
+			{
+				text: 'Add Field',
+			    handler : function(){
+	                // access the Record constructor through the grid's store
+	                var Field = grid.getStore().recordType;
+	                var p = new Field({
+	                    field: 'fieldname',
+	                    type: 'VARCHAR(255)'
+	                });
+	                grid.stopEditing();
+	                grid.getStore().insert(0, p);
+	                grid.startEditing(0, 0);
+	            }
+	        },{
+				text: "Remove Field",
+				handler: function() {
+					grid.getStore().remove(grid.getSelectionModel().selection.record);
+				}
+			}]			
+		});
+		
+		gridStore.loadData([
+			<? foreach ($fields as $i=>$field) { ?>
+				<? if ($i > 0) { ?>,<? } ?>
+				["<?=$field?>", "<?=$types[$i]?>"]
+			<? } ?>
+		]);
+		
+		Ext.getCmp("portlet_content_db_<?=(int)$arr_param['table']['table_id']?>").getTopToolbar().add({
+			xtype: "button",
+			text: "Save",
+			iconCls: "save",
+			handler: function(e) {
+				var fields = "";
+				var types = "";
+				var list = grid.getStore().data.items;
+				for (var i = 0; i < list.length; i++) {
+					var item = list[i];
+					if (fields.length > 0) fields += ":";
+					if (types.length > 0) types += ":";
+					fields += item.data.field;
+					types += item.data.type;
+				}
+				var params = {
+					"table[name]": $("table_name_#table.table_id").getValue(),
+					"table[field_names]": fields,
+					"table[field_types]": types
+				};
+				var added = false;
+				if ("#table.table_id" == "" || "#table.table_id" == 0) {
+					$$("fieldset input[type='checkbox'].tosave, fieldset select.tosave").each(function(item) {
+						if ((item.nodeName.toLowerCase() == "select" && !item.disabled) || 
+						   (item.checked && item.parentNode.visible())) {
+							params[item.name] = item.value;
+							added = true;
+						}
+					});
+				}
+				if (parseInt("0"+params["scaffold[fk_module_id]"]) <= 0) {
+					Ext.Msg.alert("Status", "Please provide the module you want to generate the data queries / event handlers in.").setIcon(Ext.Msg.ERROR);
+					return;
+				}
+				new Ajax.Request("?event=builder:editTable&check=1",{
+					parameters: params,
+					onSuccess: function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						if (added) {
+							location.reload();
+							return;
+						}
+						if (<?=(int)$arr_param["table"]["table_id"]?> == 0) {
+							try{
+								var name = $("table_name_#table.table_id").getValue();
+								var id = req.responseText.split(/\s/g)[0];
+								Builder.closeTab("db_0");
+							} catch(e){console.log(e);}
+							var n = new Ext.tree.TreeNode({
+								text: name,
+								leaf: true,
+								id: "db_"+id,
+								allowChildren: false
+							});
+							Builder.dbRoot.appendChild(n);
+							Builder.editTable(n);
+						}
+					}
+				});
+			}
+		},"-");			
+	})();
+	//]]>
+</script>
+</div>

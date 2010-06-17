@@ -1,0 +1,196 @@
+<style type="text/css">
+	.table {
+		position:absolute;
+		border: 1px solid #999;
+	}
+	
+	.table_head {
+		font-weight: bold;
+		border-bottom: 1px solid #999;
+	}
+	
+	.field, .table_head {
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+	
+	.field:hover {
+		background-color: #efefef;
+	}
+	
+	.selected {
+		background-color: #aaf;
+	}
+	.line {
+		position: absolute;
+		background-color: #999; 
+	}
+	.line-selected {
+		background-color: #009;
+	}
+</style>
+<select size="1" onchange="$('t_'+this.value).show();">
+    <? foreach ($arr_param["db"] as $table=>$fields) { ?>
+    <option value="<?=$table?>">
+        <?= $table ?>
+    </option>
+    <? } ?>
+</select>
+<div id="table_list" style="position:relative;">
+<? foreach ($arr_param["db"] as $table=>$fields) { ?>
+	<div id="t_<?=$table?>" class="table" style="display:none;">
+		<div class="table_head"><?=$table?></div>
+		<? foreach ($fields as $field=>$type) { ?>
+			<div id="f_<?=$field?>" class="field"><span style="width:100px;display:inline-block;"><?=$field?></span><span style=""><?=$type?></span></div>
+		<? } ?>
+	</div>
+<? } ?>
+</div>
+<script type="text/javascript">
+(function(){
+	window.selectedNode = null;
+	
+	window.refreshQuery = function() {
+		$$(".field").each(function(item)  {
+			if (item.targets) {
+				$A(item.targets).each(function(el){
+					
+				});
+			}
+		});
+	};
+    window.drawLine = function(startEl, endEl){
+        startEl = $(startEl);
+        endEl = $(endEl);
+		var parent = $("table_list");
+        var start = {
+            x: startEl.cumulativeOffset().left - parent.cumulativeOffset().left,
+            y: startEl.cumulativeOffset().top - parent.cumulativeOffset().top + (startEl.getHeight() / 2)
+        };
+        var end = {
+            x: endEl.cumulativeOffset().left - parent.cumulativeOffset().left,
+            y: endEl.cumulativeOffset().top - parent.cumulativeOffset().top + (endEl.getHeight() / 2)
+        };
+		if (start.x < end.x) {
+			start.x += startEl.getWidth();
+		} else {
+			end.x += endEl.getWidth();
+		}
+		var diff = {
+			x: end.x - start.x,
+			y: end.y - start.y
+		};
+		//*
+		if (diff.x < 0) {
+			start.x ^= end.x ^= start.x ^= end.x;
+			start.y ^= end.y ^= start.y ^= end.y;
+			diff.x *= -1;
+			diff.y *= -1;
+		}//*/
+		var line1 = new Element("div", {"class": "line", style: "height:1px;width:"+Math.abs(Math.round(diff.x / 2))+"px;left:"+(start.x)+"px;top:"+(start.y)+"px"});
+		var line2 = new Element("div", {"class": "line", style: "height:"+Math.abs(diff.y)+"px;width:1px;left:"+(start.x+(diff.x / 2))+"px;top:"+Math.min(start.y, end.y)+"px"});
+		var line3 = new Element("div", {"class": "line", style: "height:1px;width:"+Math.abs(Math.round(diff.x / 2))+"px;left:"+(start.x+(diff.x / 2))+"px;top:"+(end.y)+"px"});
+		var lines = {
+			list: [line1, line2, line3],
+			start: startEl,
+			end: endEl
+		};
+		var cfn = function(){
+			this.start.targets.without({target: this.end, isDrawn: true});
+			this.list[2].remove();
+			this.list[1].remove();			
+			this.list[0].remove();
+		}.bind(lines);
+		var hfn = function() {
+			this.list[2].addClassName("line-selected");
+			this.list[1].addClassName("line-selected");
+			this.list[0].addClassName("line-selected");
+		}.bind(lines);
+		var lfn = function() {
+			this.list[2].removeClassName("line-selected");
+			this.list[1].removeClassName("line-selected");
+			this.list[0].removeClassName("line-selected");
+		}.bind(lines);
+		line1.onclick = line2.onclick = line3.onclick = cfn;
+		line1.onmouseover = line2.onmouseover = line3.onmouseover = hfn;
+		line1.onmouseout = line2.onmouseout = line3.onmouseout = lfn;
+		parent.appendChild(line1);
+		parent.appendChild(line2);
+		parent.appendChild(line3);
+		
+		if (!startEl.targets) startEl.targets = [];
+		var isNew = true;
+		$A(startEl.targets).each(function(item){
+			if (item.target == endEl) {
+				item.isDrawn = true;
+				isNew = false;
+				throw $break;
+			}
+		});
+		if (isNew) startEl.targets.push({target: endEl, isDrawn: true});
+/*
+		if (!endEl.targets) endEl.targets = [];
+		isNew = true;
+		$A(endEl.targets).each(function(item){
+			if (item.target == startEl) {
+				item.isDrawn = true;
+				isNew = false;
+				throw $break;
+			}
+		});
+		if (isNew) endEl.targets.push({target: startEl, isDrawn: true}); //*/
+    };
+	
+	window.redrawLines = function() {
+		$$(".line").each(function(item){
+			item.remove();
+		});
+		// first invalidate all connections
+		$$(".field").each(function(item)  {
+			if (item.targets) {
+				$A(item.targets).each(function(el){
+					el.isDrawn = false;
+				});
+			}
+		});
+		// draw connection
+		$$(".field").each(function(item)  {
+			if (item.targets) {
+				$A(item.targets).each(function(el){
+					if (el.isDrawn == false) {
+						drawLine(item, el.target);
+					}
+				});
+			}
+		});
+	};
+	
+	$$(".table").each(function(item){
+		new Draggable(item, {
+			ghosting: true, 
+			onEnd: function() {
+				redrawLines();
+			}
+		});
+	});
+	$$(".field").each(function(item) {
+		item.onclick = function() {
+			if (window.selectedNode == this) {
+				this.removeClassName("selected");
+				window.selectedNode = null;
+			} else {
+				this.addClassName("selected");
+				if (window.selectedNode != null) {
+					drawLine(window.selectedNode, this);
+					this.removeClassName("selected");
+					window.selectedNode.removeClassName("selected");
+					window.selectedNode = null;
+					refreshQuery();
+				} else {
+					window.selectedNode = this;
+				}
+			}
+		}.bind(item);
+	});
+})();
+</script>

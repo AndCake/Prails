@@ -1,0 +1,49 @@
+<ul class="historyList" id="h_#session.module_id" style="display:none;">
+	<? if (is_array($arr_param["history"])) foreach ($arr_param["history"] as $history) { ?>
+	<? $name = unserialize(base64_decode($history['name'])); ?>
+	<? $js = unserialize(base64_decode($history['js_code'])); ?>
+	<? $css = unserialize(base64_decode($history['style_code'])); ?>
+	<li><a href="" onclick="showHistory($('m_name_#session.module_id'), this.down('code'));showHistory(window.editorm#session.module_id, this.down('code', 1));showHistory(window.phpEditorm#session.module_id, this.down('code', 2));return false;">
+		<?=date("H:i:s - d.m.Y", $history["change_time"])?>
+		<code style="display:none;"><? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?></code>
+		<code style="display:none;"><? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=($entry["d"])?></del><br/><?} if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><ins><?=($line)?></ins><br/><? } else if (strlen($entry["i"])>0) {?><ins><?=($entry["i"])?></ins><br/><?}} else { echo ($entry)."<br/>"; }} ?></code>
+		<code style="display:none;"><? if (is_array($css)) foreach ($css as $entry) { if (is_array($entry)) { if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=($entry["d"])?></del><br/><?} if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><ins><?=($line)?></ins><br/><? } else if (strlen($entry["i"])>0) {?><ins><?=($entry["i"])?></ins><br/><?}} else { echo ($entry)."<br/>"; }} ?></code>
+	</a></li>
+	<? } ?>
+	<li><a href="" onclick="showHistory($('m_name_#session.module_id'), $('m_nameh_#session.module_id'));showHistory(window.editorm#session.module_id, $('js_code#session.module_id'));showHistory(window.phpEditorm#session.module_id, $('code#session.module_id'));return false;">now</a></li>
+</ul>
+<script type="text/javascript">
+//<![CDATA[
+	(function(){
+		
+		window.showHistory = function(target, source) {
+			if (source.tagName.toLowerCase() == "textarea") {
+				target.setCode(source.value);
+			} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
+				target.value = source.value;
+			} else {
+				var pos = 0;
+				source.up().childElements().each(function(item, key){
+					if (item == source) pos = key;
+				});
+				while (source != null && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
+				if (source != null) {
+					if (target.tagName != null && target.tagName.toLowerCase() == "input") {
+						target.value = source.innerHTML || source.value;
+					} else {
+						target.editor.doc.body.innerHTML = source.innerHTML;
+					}
+				}
+			}
+		};
+				
+		$("container_m_#session.module_id").observe("history:loaded", function(event){
+			$("h_#session.module_id").fisheye = new FishEye($("h_#session.module_id").select("li a"), {
+				container: $("h_#session.module_id"),
+				big: {width: 210, height:20}, 
+				small: {width:40, height: 5}
+			});
+		});
+	})();
+//]]>
+</script>

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_SelectQuery"><span/></a>SelectQuery</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            A SQL select is executed on the specified tables.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>
+                Array SelectQuery($arr_tables, $str_where = "1", $str_id = "", $str_selection="*")
+            </code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table15">
+            <colgroup>
+                <col width="117"/><col width="626"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table15_A1">
+                    <p class="Table_20_Contents">
+                        $arr_tables
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table15_B1">
+                    <p class="P1">
+                        list of tables to be joined. For LEFT JOINs the array's entry is itself an array where the first field is the table's name and the second field the ON condition)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table15_A2">
+                    <p class="Table_20_Contents">
+                        $str_where
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table15_B2">
+                    <p class="Table_20_Contents">
+                        WHERE clause condition
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table15_A2">
+                    <p class="Table_20_Contents">
+                        $str_id
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table15_B2">
+                    <p class="Table_20_Contents">
+                        Name of the field, the result array should be re-arranged by
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table15_A2">
+                    <p class="Table_20_Contents">
+                        $str_selection
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table15_B2">
+                    <p class="Table_20_Contents">
+                        Selection part of the query
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4><pre>
+            $arr_result = $this-&gt;SelectQuery(Array("tbl_user", Array("tbl_story", "fk_user_id=user_id")), "NOT ISNULL(photo)", "user_id");
+        </pre>
+        <p class="Text_20_body">
+            <code>
+                $arr_result 
+            </code>will look like this:
+        </p>
+        <pre>
+            $arr_result = Array(
+                "4" =&gt; Array(
+                    "user_id" =&gt; "4",
+                    "photo" =&gt; "test.jpg",
+                    "story_id" =&gt; "",
+                    "fk_user_id" =&gt; "",
+                    "title" =&gt; ""
+                ),
+                "19" =&gt; Array(
+                    "user_id" =&gt; "19",
+                    "photo" =&gt; "mypicture.jpg",
+                    "story_id" =&gt; "25",
+                    "fk_user_id" =&gt; "19",
+                    "title" =&gt; "My Test Story"    
+                ),
+                ...
+            );
+		</pre>
+    </body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_UpdateQuery"><span/></a>UpdateQuery</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Update one or more tupel of a specified table and returns the number of rows updated.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>Integer UpdateQuery($str_table, $arr_data, $str_where = "1", $bol_enclose = true)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table17">
+            <colgroup>
+                <col width="371"/><col width="371"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table17_A1">
+                    <p class="Table_20_Contents">
+                        $str_table
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table17_B1">
+                    <p class="Table_20_Contents">
+                        Name of the table to be updated
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table17_A2">
+                    <p class="Table_20_Contents">
+                        $arr_data
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table17_B2">
+                    <p class="Table_20_Contents">
+                        Data to be updated. Only entries, whose key matches one of the table's field names, are used.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table17_A2">
+                    <p class="Table_20_Contents">
+                        $str_where
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table17_B2">
+                    <p class="Table_20_Contents">
+                        WHERE condition to decide what to update
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table17_A2">
+                    <p class="Table_20_Contents">
+                        $bol_enclose
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table17_B2">
+                    <p class="Table_20_Contents">
+                        false, if the values should not be enclosed by '.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+            $id = func_get_arg(0);
+            $arr_data["first_name"] = "Test";
+            $arr_data["name"] = "User";
+            $this-&gt;UpdateQuery("tbl_user", $arr_data, "user_id='".$id."'");
+        </pre>
+    </body>
+</html>

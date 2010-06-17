@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_foreach_"><span/></a>foreach </h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Foreach gives an easy way to iterate over arrays. If the array turns out to be empty or not being an array, you can handle this via the &lt;else&gt; part.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>&lt;c:foreach var="{array}" [key="{keyname}"] name="{loop var}"&gt;{content}&lt;/c:foreach&gt;[&lt;c:else&gt; {else content}&lt;/c:else&gt;]</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table10">
+            <colgroup>
+                <col width="115"/><col width="628"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.626cm; " class="Table10_A1">
+                    <p class="Table_20_Contents">
+                        {array}
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.372cm; " class="Table10_B1">
+                    <p class="Table_20_Contents">
+                        Array to be looped over; if it is no array or empty, then the optional else trunk (if existent) will be executed.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.626cm; " class="Table10_A2">
+                    <p class="Table_20_Contents">
+                        {keyname}
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.372cm; " class="Table10_B2">
+                    <p class="Table_20_Contents">
+                        Index of the current element in the array (if the index is a string, then this will be a string too). Within the foreach loop content area, the key name (if specified) can be accessed either via <code>$arr_param["local"]["{keyname}"]</code>
+                        or via 
+                    </p>
+                    <p class="Table_20_Contents">
+                        <code>${keyname}</code>
+                        (only within PHP blocks) or via <code>#local.{keyname}</code>.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.626cm; " class="Table10_A2">
+                    <p class="Table_20_Contents">
+                        {loop var}
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.372cm; " class="Table10_B2">
+                    <p class="Table_20_Contents">
+                        The current element in the array. Within the foreach loop content area, the loop var can be accessed either via <code>$arr_param["local"]["{loop var}"] </code>or via <code>${loop var}</code>
+                        (only within PHP block) or via <code>#local.{loop var}</code>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.626cm; " class="Table10_A2">
+                    <p class="Table_20_Contents">
+                        {content}
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.372cm; " class="Table10_B2">
+                    <p class="Table_20_Contents">
+                        Content of any kind to be repeated for each element of the array
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.626cm; " class="Table10_A2">
+                    <p class="Table_20_Contents">
+                        {else content}
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.372cm; " class="Table10_B2">
+                    <p class="Table_20_Contents">
+                        Content of any kind to be executed/shown only once if the array is no array or empty.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            This example will loop over all items of the users array. Every second row will be colored light grey, and contain two columns: the first containing the user's name, the second the user's age. If the array is empty, the message "No users there..." will be shown (as one row in the table).
+        </p>
+        <pre>
+            &lt;h1&gt;Headline&lt;/h1&gt;
+        	&lt;table&gt;
+        		&lt;c:foreach var="users" key="i" name="user"&gt;
+        			&lt;c:if cond="$i%2 == 0"&gt;
+        				&lt;c:then&gt;
+        					&lt;tr bgcolor="#efefef"&gt;
+        				&lt;/c:then&gt;&lt;c:else&gt;
+        					&lt;tr bgcolor="#ffffff"&gt;
+        				&lt;/c:else&gt;
+        			&lt;/c:if&gt;
+        			&lt;td&gt;#user.name&lt;/td&gt;
+        			&lt;td&gt;#user.age&lt;/td&gt;
+        			&lt;/tr&gt;
+        		&lt;/c:foreach&gt;
+        		&lt;c:else&gt;
+        			&lt;tr&gt;&lt;td&gt;No users there...&lt;/td&gt;&lt;/tr&gt;
+        		&lt;/c:else&gt;
+        	&lt;/table&gt;
+        </pre>
+    </body>
+</html>

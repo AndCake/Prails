@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_checkFields"><span/></a>checkFields</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Checks whether all named items of an array have a value (especially useful to check for valid user input after form submission)
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>bool checkFields($arr_toCheck, $arr_keys)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table18">
+            <colgroup>
+                <col width="137"/><col width="606"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:3.14cm; " class="Table18_A1">
+                    <p class="Table_20_Contents">
+                        $arr_toCheck
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.859cm; " class="Table18_B1">
+                    <p class="Table_20_Contents">
+                        array that contains the data to be checked
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:3.14cm; " class="Table18_A2">
+                    <p class="Table_20_Contents">
+                        $arr_keys
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.859cm; " class="Table18_B2">
+                    <p class="Table_20_Contents">
+                        keys in the array whose values should be checked
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            <code>true</code>, if all specified fields have a value, else <code>false</code>
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            In this example the "<code>last_name</code>" and the "<code>email</code>" fields of the array are checked whether they are populated.
+        </p>
+        <pre>
+            $bol_valid = checkFields( Array(
+                "first_name"=&gt;"",
+                "last_name"=&gt;"Name",
+                "email"=&gt;"test@test.com"
+             ), Array(
+                "last_name", "email"
+             ));
+        </pre>
+        <p class="Text_20_body">
+            So in this case the return value of <code>checkFields</code>
+            would be <code>true</code>. If we would include "<code>first_name</code>" in the second parameter, <code>checkFields</code>
+            would return <code>false</code>, because the <code>first_name</code>
+            is empty.
+        </p>
+    </body>
+</html>

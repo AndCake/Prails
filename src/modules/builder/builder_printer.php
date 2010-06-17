@@ -1,0 +1,131 @@
+<?php
+
+class BuilderPrinter
+{
+    var $obj_lang;
+    var $str_base;
+
+    function BuilderPrinter($str_lang)
+    {
+        $this->obj_lang = new LangData("builder", $str_lang);
+        $obj_gen = Generator::getInstance();
+		
+	$event = explode(":", $_GET["event"]);
+	if ($event[0] == "builder") {
+	        $obj_gen->addJavaScript("templates/builder/js/ext.js");
+	        $obj_gen->addJavaScript("templates/builder/js/ux.util.js");
+		$obj_gen->addJavaScript("templates/builder/js/fisheye_menu.js");
+		$obj_gen->addJavaScript("templates/builder/js/fileselector.js");
+	
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.methods.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.module.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.resource.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.tag.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.table.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.data.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.handler.js");
+	        $obj_gen->addJavaScript("templates/builder/js/builder/builder.library.js");
+	
+	        $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
+	        $obj_gen->addStyleSheet("templates/builder/css/xtheme-slate.css");
+	        $obj_gen->addJavaScript("templates/builder/js/codemirror.js");
+	        $obj_gen->addJavaScript("templates/builder/js/mirrorframe.js");
+	        $obj_gen->addStyleSheet("templates/builder/css/builder.css");
+	        $obj_gen->str_template = "templates/builder/template.html";
+	}
+        $this->str_base = "?module=builder";
+    }
+
+    function home($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/home.html", $arr_param);
+    }
+
+    /*<PRINTER-METHODS>*/
+    function listModules($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/listModules.html", $arr_param);
+    }
+    function editModule($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editModule.html", $arr_param);
+    }
+	function moduleHistory($arr_param) 
+	{
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/moduleHistory.html", $arr_param);	
+	}
+    function listHandlers()
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/listHandlers.html", $arr_param);
+    }
+    function editHandler($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editHandler.html", $arr_param);
+    }
+	function handlerHistory($arr_param) 
+	{
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/handlerHistory.html", $arr_param);	
+	}
+    function listDatas()
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/listDatas.html", $arr_param);
+    }
+    function editData($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editData.html", $arr_param);
+    }
+	function dataModel($arr_param)
+	{
+		return Generator::getInstance()->includeTemplate("templates/builder/html/dataModel.html", $arr_param);
+	}
+	function dataHistory($arr_param) 
+	{
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/dataHistory.html", $arr_param);	
+	}	
+    function editLibrary($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editLibrary.html", $arr_param);
+    }
+    function editTag($arr_param)
+    {
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editTag.html", $arr_param);
+    }
+
+    function listResources($arr_param)
+    {
+        $arr_param["session"] = $_SESSION;
+        return Generator::getInstance()->includeTemplate("templates/builder/html/listResources.html", $arr_param);
+    }
+ 
+    function editResource($arr_param)
+    {
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/editResource.html", $arr_param);
+    }
+	
+	function editTable($arr_param)
+	{
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/editTable.html", $arr_param);
+	}
+	
+	function editConfiguration($arr_param)
+	{
+    	$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/editConfiguration.html", $arr_param);
+	}
+	
+	function queryTest($arr_param)
+	{
+		$arr_param["session"] = $_SESSION;
+		return Generator::getInstance()->includeTemplate("templates/builder/html/queryTest.html", $arr_param);		
+	}
+	
+    /*</PRINTER-METHODS>*/
+}
+
+?>

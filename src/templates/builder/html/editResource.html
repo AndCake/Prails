@@ -1,0 +1,68 @@
+<div id="rm_#resource.resource_id[int]_mediator_container" style="">
+<div style="padding:20px;">
+	<form method="post" action="?event=builder:editResource&resource_id=#resource.resource_id[int]&check=1" id="resForm#resource.resource_id[int]" callback="uploaded()">
+		<div style="float:left;">
+			<label for="name">Name of resource</label><br/>
+			<input type="text" name="resource[name]" value="#resource.name" style="width:200px;" />
+		</div>
+		<div style="float:left;margin-left:20px;">
+			<label>Image Size</label><br/><span id="width#resource.resource_id[int]">...</span> x <span id="height#resource.resource_id[int]">...</span>
+		</div>
+		<div style="clear:both;"></div>
+		<br/>
+		<label>Change Image</label><br/>
+		<FileSelector name="resource[file]" value="#resource.name" class="upload" form="resForm#resource.resource_id[int]">
+			<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&resource_id=#resource.resource_id" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){setImageSizes#resource.resource_id[int](me);}, 100);" />
+		</FileSelector>
+		<? if ($arr_param["resource"]["resource_id"] > 0) { ?>
+		<br/>
+		<label>Resource Path</label><br/>
+		<span style="font-size:11px;"><b>HTML: </b><pre>templates/#module.name/images/<span>#resource.name</span></pre><br/>
+		<b>CSS:</b> <pre>../images/<span>#resource.name</span></pre></span>
+		<? } ?>
+		<script type="text/javascript">
+		//<![CDATA[
+			(function(){
+				
+				window.uploaded = function() {
+					var img = $$("#selectedFile0 img")[0];
+					window.setImageSizes#resource.resource_id[int](img);
+					<? if ((int)$arr_param["resource"]["resource_id"] <= 0) { ?>
+						// reload tab if new resource
+						Builder.reloadTab("rm_#session.module_id");
+					<? } ?>
+				};
+				
+				window.setImageSizes#resource.resource_id[int] = function(img) {
+					$("width#resource.resource_id[int]").innerHTML = img.naturalWidth;
+					$("height#resource.resource_id[int]").innerHTML = img.naturalHeight;					
+				};
+
+				FileSelector.find();
+				var mybar = Ext.getCmp("rm_#session.module_id_container").getTopToolbar();
+				while (mybar.tr.children.length > 0) { 
+					mybar.tr.removeChild(mybar.tr.childNodes[0]);
+				}
+				Ext.getCmp("rm_#session.module_id_container").getTopToolbar().add({
+						xtype: "button",
+						text: "Save",
+						iconCls: "save",
+						handler: function(e) {
+							invoke(null, 'builder:editResource&resource_id=#resource.resource_id[int]&check=1', $("resForm#resource.resource_id[int]").serialize(), true, function(req){
+								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+								if (#resource.resource_id[int] == 0) {
+									Builder.reloadTab("rm_#session.module_id");
+								} else {
+									$$("span pre span").each(function(item){
+										item.innerHTML = $$("#resForm#resource.resource_id[int] input[type='text']")[0].value;
+									});
+								}
+							});						
+						}
+				},"-");
+			})();
+		//]]>
+		</script>		
+	</form>
+</div>
+</div>

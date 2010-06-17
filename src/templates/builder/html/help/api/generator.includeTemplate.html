@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_includeTemplate"><span/></a>includeTemplate</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Includes a template from a specified path, compiles any contained tags from the TagLib and evaluates it. The resulting block is surrounded by HTML comments which indicate what template has been included and how long it took to evaluate. Within the template, special tags from the TagLib can be used (prefixed by 
+            <code>
+                &lt;c:
+            </code>). Also a short version (
+            <code>
+                #varname*[.varname]
+            </code>) is provided for accessing properties of the context.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>
+                String includeTemplate($str_name, $arr_param = null)
+            </code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table5">
+            <colgroup>
+                <col width="111"/><col width="632"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table5_A1">
+                    <p class="Table_20_Contents">
+                        $str_name
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table5_B1">
+                    <p class="Table_20_Contents">
+                        Complete path to the template to be included; if the file is neither a .html nor a .xml file, the additional HTML comments are stripped from the result
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table5_A2">
+                    <p class="Table_20_Contents">
+                        $arr_param
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table5_B2">
+                    <p class="Table_20_Contents">
+                        An array of parameters passed as context into the template.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            the evaluated template.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4><pre>
+            $obj_gen = Generator::getInstance();
+            $arr_param = Array();
+            $_SESSION["user"]["name"] = "My Name";
+            $arr_param["local"]["url"] = "<a href="http://www.google.com/">http://www.google.com/</a>";
+            $arr_param["session"] = &amp;$_SESSION;
+            return $obj_gen-&gt;includeTemplate("templates/user/html/edit.html", $arr_param);
+        </pre>
+        <p class="Text_20_body">
+            The template could look like this:
+        </p>
+        <pre>
+            &lt;div class="profile"&gt;
+            	&lt;c:box title="My Profile"&gt;
+            		&lt;label for="name"&gt;User's name:&lt;/label&gt;
+                    &lt;input type="text" name="name" id="name" 
+                            value="#session.user.name" /&gt;&lt;br/&gt;
+                    &lt;label for="site"&gt;Homepage:&lt;/label&gt;
+                    &lt;a href="#local.url"&gt;&lt;?=$arr_param["local"]["url"]?&gt;&lt;/a&gt;
+               &lt;/c:box&gt;
+           &lt;/div&gt;
+		</pre>
+        <p class="Text_20_body">
+            This would produce the following HTML code (if &lt;c:box&gt; is defined accordingly):
+        </p>
+        <pre>
+			&lt;!-- TEMPLATE templates/user/html/edit.html (0.06s) --&gt;
+			&lt;div class="profile"&gt;
+				&lt;fieldset&gt;&lt;legend&gt;My Profile&lt;/legend&gt;
+					&lt;label for="name"&gt;User's name:&lt;/label&gt;
+					&lt;input type="text" name="name" id="name" value="My Name" /&gt;&lt;br/&gt;
+					&lt;label for="site"&gt;Homepage:&lt;/label&gt;
+					&lt;a href="http://www.google.com/"&gt;http://www.google.com/&lt;/a&gt;
+				&lt;/fieldset&gt;
+			&lt;/div&gt;
+			&lt;!-- END TEMPLATE templates/user/html/edit.html --&gt;
+		</pre>
+    </body>
+</html>

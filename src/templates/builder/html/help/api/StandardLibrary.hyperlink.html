@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_hyperlink"><span/></a>hyperlink</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Replaces in-text URLs by real hyperlinks.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>String hyperlink($str_text)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table23">
+            <colgroup>
+                <col width="117"/><col width="626"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $str_text
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                        text to scan for URLs
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            text with all URLs replaced by real links.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+            $text = "Go here: <a href="http://www.google.com/#q=The+question+of+life+the+universe+and+everything">http://www.google.com/#q=The+question+of+life+the+universe+and+everything</a>
+            to see more about it...";
+            echo hyperlink($text);
+        </pre>
+        <p class="Text_20_body">
+            This example will produce: 
+        </p>
+        <pre>
+            "Go here: &lt;a href='<a href="http://www.google.com/#q=The+question+of+life+the+universe+and+everything">http://www.google.com/#q=The+question+of+life+the+universe+and+everything</a>'&gt;www.google.com&lt;/a&gt; to see more about it..."
+        </pre>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+<div style="padding:20px;">
+<form id="hformt<?=(int)$arr_param["tag"]["tag_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hCodet<?=(int)$arr_param["tag"]["tag_id"]?>').value=phpEditort<?=(int)$arr_param["tag"]["tag_id"]?>.getCode();invoke(null, 'builder:editTag&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
+	<label for="name">Name of Tag</label><br/>
+	<input type="text" id="tag_name_#tag.tag_id" name="tag[name]" value="#tag.name" /><br/><br/>
+
+	<label for="codet<?=(int)$arr_param["tag"]["tag_id"]?>">Tag Code:</label><br/>
+	<input type="hidden" id="hCodet<?=(int)$arr_param["tag"]["tag_id"]?>" name="tag[html_code]" value="" />
+	<div style="border:1px solid #ccc;">
+		<textarea id="codet<?=(int)$arr_param["tag"]["tag_id"]?>" cols="60" rows="30">#tag.html_code</textarea>
+	</div>
+	<div style="clear:both;"></div>
+	<br/>
+	<script type="text/javascript">
+	//<![CDATA[
+		setTimeout(function() {
+			window.phpEditort<?=(int)$arr_param["tag"]["tag_id"]?> = CodeMirror.fromTextArea('codet<?=(int)$arr_param["tag"]["tag_id"]?>', {
+				height: "100%",
+				parserfile: ["parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "tokenizephp.js", "parsephp.js", "parsephphtmlmixed.js"],
+				stylesheet: ["templates/builder/css/xmlcolors.css","templates/builder/css/jscolors.css", "templates/builder/css/csscolors.css", "templates/builder/css/phpcolors.css"],
+				path: "templates/builder/js/",
+				textWrapping: false,
+				crc32: <?=crc32($arr_param["tag"]["html_code"])?>,
+				crc32Id: "t_html_code_#tag.tag_id",
+				mergeUrl: "?event=builder:editTag&check=2&type=html_code&tag_id=<?=(int)$arr_param['tag']['tag_id']?>",					
+				autoMatchParens: true,
+				saveFunction: function() {
+					$('hCodet<?=(int)$arr_param["tag"]["tag_id"]?>').value=phpEditort<?=(int)$arr_param["tag"]["tag_id"]?>.getCode();
+					invoke(null, 'builder:editTag&check=1&tag_id=<?=(int)$arr_param['tag']['tag_id']?>', $('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').serialize(), true, function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						if (<?=(int)$arr_param["tag"]["tag_id"]?> == 0) {
+							var name = $("tag_name_#tag.tag_id").getValue();
+							var id = req.responseText.split(/\s/g)[0];
+							Builder.closeTab("t_0");
+							var n = new Ext.tree.TreeNode({
+								text: name,
+								leaf: true,
+								id: "t_"+id,
+								allowChildren: false
+							});
+							Builder.tagRoot.appendChild(n);
+							Builder.editTag(n);
+						}
+					});
+					return false;			
+				}			
+			});
+			$("codet<?=(int)$arr_param['tag']['tag_id']?>").parentNode.style.height = (parseInt($("hformt<?=(int)$arr_param['tag']['tag_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+			Ext.getCmp("portlet_content_t_<?=(int)$arr_param['tag']['tag_id']?>").getTopToolbar().add([{
+				xtype: "button",
+				text: "Save",
+				iconCls: "save",
+				handler: function(e) {
+					window.phpEditort<?=(int)$arr_param["tag"]["tag_id"]?>.options.saveFunction();
+				}
+			},"-"]);			
+		}, 100);
+	//]]>
+	</script>
+</form>
+</div>

@@ -1,0 +1,54 @@
+#page {
+	padding: 10px;
+}
+
+p.success {
+	color: #0a0;
+}
+
+p.error {
+	color: #a00;
+}
+
+.form-entry {
+	margin-bottom: 10px;
+}
+
+.form-entry label {
+	display: block;
+}
+
+.form-entry input[type="text"] {
+	width: 200px;
+}
+
+a, a:visited, a:link {
+	color: #000;
+}
+
+a:hover {
+	background-color: #000;
+	color: #fff;
+	text-decoration: none;
+}
+
+fieldset {
+	border: 0px;
+	display: inline-block;
+}
+
+.global-home-left-nav {
+	float: left;
+	width: 200px;
+	background-color: #efefef;
+	border: 1px solid #369;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-o-border-radius: 10px;
+	padding: 10px;
+	padding-top: 0px;
+}
+
+.global-home-left-nav dt {
+	margin-top: 20px;
+}

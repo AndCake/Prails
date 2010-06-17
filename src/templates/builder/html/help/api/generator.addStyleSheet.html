@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_addStyleSheet"><span/></a>addStyleSheet</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            addStyleSheet is used to register CSS files for the current request. Unlike the Javascript registration, the CSS files are not packed together nor minimized, they are currently only internally collected and handed over to the Generator's Template Engine agent
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>addStyleSheet($str_path, $str_media="screen", $mix_browser="all")</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table2">
+            <colgroup>
+                <col width="118"/><col width="624"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.711cm; " class="Table2_A1">
+                    <p class="Table_20_Contents">
+                        $str_path
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.288cm; " class="Table2_B1">
+                    <p class="Text_20_body">
+                        the path to stylesheet file; this file does not need to be on the same server
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.711cm; " class="Table2_A2">
+                    <p class="Table_20_Contents">
+                        $str_media
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.288cm; " class="Table2_B2">
+                    <p class="Table_20_Contents">
+                        Target media for the stylesheet; standard CSS media formats are supported Ð like "print", "screen", "handheld", etc...
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.711cm; " class="Table2_A2">
+                    <p class="Table_20_Contents">
+                        $mix_browser
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.288cm; " class="Table2_B2">
+                    <p class="Text_20_body">
+                        defines what browser this stylesheet is for (valid values are: "all", "IE" and an Array, having a "version" key with the value of the supported IE version)
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            The following example will include a template, that will only be applied to users using the Internet Explorer 7:
+        </p>
+        <pre>
+            $obj_gen = Generator::getInstance();
+            $obj_gen-&gt;addStyleSheet(
+				"templates/main/css/main.css", 
+				"screen", 
+				Array("version"=&gt;7)
+            );
+        </pre>
+        <p class="Text_20_body">
+            you can specify the path to stylesheet file, what media it is for () and last but not least you can also define for what browser this stylesheet is for (supported values are "<code>all</code>", "<code>IE</code>" and <code>Array("version"=&gt;[IE version])</code>
+            )
+        </p>
+    </body>
+</html>

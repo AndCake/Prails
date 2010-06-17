@@ -1,0 +1,163 @@
+<div id="header" style="display:none;">
+<h1 style="letter-spacing:0.75em;text-transform:uppercase; padding-left:10px;">PHP On Rails Online Development Environment</h1>
+</div>
+<div id="help" style="display:none;">
+	<div style="padding:10px;width:400px;">
+		<h1>Prails IDE - Online Help</h1><br/>
+		<p>Welcome to the Prails Framework. On the left hand side you can see your personal navigation area. Under "Modules" you can see all modules that do exist.
+		By double clicking an entry you edit this module. By right clicking you can change the module's options. </p>
+		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
+		can edit it.</p>
+		<p><br/><h2>Short Cuts:</h2>
+		<table>
+			<tr><td>move one tab left</td><td>Ctrl+Shift+Left</td></tr>
+			<tr><td>move one tab right</td><td>Ctrl+Shift+Right</td></tr>
+			<tr><td>close current tab</td><td>Ctrl+Shift+Q</td></tr>
+			<tr><td>execute event / sql query</td><td>Ctrl+Shift+X</td></tr>
+			<tr><td>open item...</td><td>Ctrl+Shift+D</td></tr>
+			<tr><td>sql query tab</td><td>Ctrl+Shift+A</td></tr>
+			<tr><td>save current item</td><td>Ctrl+S</td></tr>
+		</table>
+		</p>
+	</div>
+</div>
+<div id="shoutbox" style="display:none;">
+	<div style="margin-left:3px;margin-top:3px;">
+	<form method="post" action="?event=builder:shout" onsubmit="try{window.dold = (new Date()).getTime();invoke('sbmsglist', 'builder:shout', this.serialize(), true);$('sbmsg').value='';$('sbmsg').blur();}catch(e){console.log(e);};return false;">
+		<input type="text" name="msg" id="sbmsg" value="GURU MEDITATION" style="width:190px;" onfocus="if(this.value == 'GURU MEDITATION')this.value='';" />
+		<input type="image" src="templates/builder/images/comment.png" style="margin-left:-20px;vertical-align:middle;" />
+	</form></div>
+	<div id="sbmsglist"></div>
+</div>
+
+<script type="text/javascript">
+	//<![CDATA[
+	Ext.onReady(function() {
+		window.dold = 0;
+		window.firstCall = true;
+		window.detag = "";
+		new PeriodicalExecuter(function(pe){
+			new Ajax.Updater("sbmsglist", "shout.box", {
+				method: "get",
+				requestHeaders: {
+					"If-Modified-Since": (new Date(window.dold)).toGMTString(),
+					"If-None-Match": window.detag 
+				}, 
+				onSuccess: function(req) {
+					var date = new Date(req.getHeader("Last-Modified"));
+					var dnew = date.getTime();
+					if (dnew <= window.dold) {
+						req.responseText = $("sbmsglist").innerHTML;
+					} else {
+						window.dold = dnew;
+						window.detag = req.getHeader("Etag");
+						if (!window.firstCall) {
+							Sound.enable();
+							Sound.play("templates/builder/snd/newmsg.mp3", {
+								replace: true
+							});
+							if ($("sb_panel-xcollapsed").visible() && $("sb_panel").hasClassName("x-panel-collapsed")) {
+								new PeriodicalExecuter(function(pe) {
+									if ($("sb_panel-xcollapsed").visible() && $("sb_panel").hasClassName("x-panel-collapsed")) {
+										$("sb_panel-xcollapsed").toggleClassName("x-layout-collapsed-over");
+									} else {
+										pe.stop();
+									}
+								}, 1);
+							}
+						}
+					}
+					window.firstCall = false;
+				},
+				on304: function(req) {
+					req.responseText = $("sbmsglist").innerHTML;
+				}
+			});
+		}, 4);
+		module = new Ext.tree.TreeNode({
+			text: "Global",
+			leaf: true,
+			cls: "x-tree-node-collapsed",
+			id: "-1",
+			allowChildren: false
+		});
+		module.handlers = [];
+		module.handlers.push(new Ext.tree.TreeNode({
+			text: "home",
+			leaf: true,
+			id: "h_-1",
+			allowChildren: false
+		}));
+		module.datas = [];
+		Builder.root.appendChild(module);		
+		<c:foreach var="modules" name="module">
+			module = new Ext.tree.TreeNode({
+				text: "#module.name",
+				leaf: true,
+				cls: "x-tree-node-collapsed",
+				id: "#module.module_id",
+				allowChildren: false
+			});
+			module.handlers = [];
+			<c:foreach var="module.handlers" name="handler">
+				module.handlers.push(new Ext.tree.TreeNode({
+					text: "#handler.event",
+					leaf: true,
+					id: "h_#handler.handler_id",
+					allowChildren: false
+				}));
+			</c:foreach>
+			module.datas = [];
+			<c:foreach var="module.datas" name="data">
+				var data = new Ext.tree.TreeNode({
+					text: "#data.name",
+					leaf: true,
+					id: "d_#data.data_id",
+					allowChildren: false
+				});
+				data.cls = "query";
+				module.datas.push(data);
+			</c:foreach>
+			Builder.root.appendChild(module);
+		</c:foreach>
+		<c:foreach var="libraries" name="library">
+			lib = new Ext.tree.TreeNode({
+				text: "#library.name",
+				leaf: true,
+				iconCls: "library",
+				id: "l_#library.library_id",
+				allowChildren: false
+			});
+			Builder.libRoot.appendChild(lib);
+		</c:foreach>
+		<c:foreach var="tags" name="tag">
+			tag = new Ext.tree.TreeNode({
+				text: "#tag.name",
+				leaf: true,
+				iconCls: "tagLib",
+				id: "t_#tag.tag_id",
+				allowChildren: false
+			});
+			Builder.tagRoot.appendChild(tag);
+		</c:foreach>
+		<c:foreach var="tables" name="table">
+			table = new Ext.tree.TreeNode({
+				text: "#table.name",
+				leaf: true,
+				iconCls: "table",
+				id: "db_#table.table_id",
+				allowChildren: false
+			});
+			Builder.dbRoot.appendChild(table);
+		</c:foreach>		
+		Ext.BLANK_IMAGE_URL = function() {
+			if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
+				return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+			} else {
+				return "templates/builder/images/default/s.gif";
+			}			
+		}();
+		Builder.init();
+	});
+	//]]>
+</script>

@@ -1,0 +1,129 @@
+<? if (strlen($_GET["check"])>0) { ?>
+	<table border="0" cellspacing="1"><tr><th></th>
+	<? if (is_array($arr_param["result"][0])) foreach ($arr_param["result"][0] as $field=>$value) { if (is_numeric($field)) continue; ?>
+		<th><?=$field?></th>
+	<? } ?>
+	</tr>
+	<? if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
+		<tr class="<?=$line%2==0?'':'grey'?>">
+			<td><?=($line+1)?></td>
+			<? foreach ($arr_entry as $key=>$value) { if (is_numeric($key)) continue; ?>
+				<td>
+					<pre style="padding:0px;margin:0px;"><?=htmlspecialchars($value)?></pre>
+				</td>
+			<? } ?>
+		</tr>
+	<? } else { ?>
+		<tr><td>Your query did not return a result.</td></tr>
+	<? } ?>
+	</table>
+	<script type="text/javascript">
+		(function(){
+			$$("#result tr td").each(function(item){
+				item.observe("click", function(event){
+					this.up().toggleClassName("selected");
+					event.stop();
+				}.bindAsEventListener(item));
+			});
+		})();
+	</script>
+<? } else { ?>
+	<style type="text/css">
+		#result table tr th {
+			background: url(templates/builder/images/slate/grid/grid3-hrow.gif) repeat-x; 
+			border-left: 1px solid #eee;
+			border-right: 1px solid #d0d0d0;
+			font-size: 11px;
+			padding: 5px;
+		}
+		#result table tr td {
+			background-color: #ddd;
+			padding: 5px;
+			font-size: 11px;
+		}
+		#result table tr.grey td {
+			background-color: #ccc;
+		}
+		#result table tr:hover td {
+			background-color: #ffffcc;
+		}
+		#result table tr.selected td {
+			background-color: #ffffaa;
+		}
+	</style>
+	<div style="padding:20px;">
+	<div style="float:left;width:49%;position:relative;">
+		Query
+		<div id="query_container" style="padding:2px 3px;border:1px solid #9ab;"></div>
+	</div>
+	<div style="float:left;margin-left:1%;width:49%;position:relative;">
+		Clipboard
+		<div id="clip_container"></div>
+	</div>
+	<div style="clear:both;margin-bottom:3px;"></div>
+	<div id="result_container" style=""></div>
+	<script type="text/javascript">
+		(function(){
+							
+			window.runQuery = function() {
+				invoke("result", "builder:queryTest&check=1", {
+					"query": window.sqlQuery.getCode()
+				}, true);				
+			};
+
+			new Ext.form.TextArea({
+				fieldLabel: "Query",
+				grow: true,
+				id: "query",
+				width: "100%",
+				renderTo: "query_container",
+				anchor:'95%'
+			});
+			new Ext.form.TextArea({
+				grow: true,
+				fieldLabel: "Clipboard",
+				width: "100%",
+				renderTo: "clip_container",
+				anchor:'95%'
+			});
+			new Ext.Panel({
+				title: "Query Result",
+				layout: "fit",
+				height: $("result_container").up().up().getHeight() - $("result_container").offsetTop - 40,
+				autoScroll: true,
+				renderTo: "result_container",
+				items:[{
+					xtype: 'panel',
+					html: "",
+					id: "result"
+				}]
+			});
+			Ext.getCmp("portlet_content_query_test").getTopToolbar().add({
+				xtype: "button",
+				text: "Execute Query",
+				iconCls: "run",
+				tooltip: "Ctrl+Shift+X",
+				handler: function(e){
+					window.runQuery();
+				}
+			});
+			Ext.QuickTips.init();
+			window.sqlQuery = CodeMirror.fromTextArea('query', {
+				height: "100%",
+				parserfile: ["parsesparql.js", "../../main/js/scriptaculous/lib/prototype.js", "shortcuts.js"],
+				stylesheet: ["templates/builder/css/sparqlcolors.css"],
+				path: "templates/builder/js/",
+				textWrapping: true
+			});
+			new PeriodicalExecuter(function(pe) {
+				if (window.sqlQuery.editor != null) {
+					pe.stop();
+					window.sqlQuery.editor.doc.parent = window;
+					window.sqlQuery.editor.doc.run = function(){
+						window.runQuery();
+					};
+				}
+			}, 0.5);
+		})();
+	</script></div>
+<? } ?>

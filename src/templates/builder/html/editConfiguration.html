@@ -1,0 +1,94 @@
+<div style="padding:20px;">
+<div id="config_#module.module_id"></div>
+<script type="text/javascript">
+	//<![CDATA[
+	(function(){
+		var grid = new Ext.grid.EditorGridPanel({
+			store: gridStore = new Ext.data.Store({
+				reader: new Ext.data.ArrayReader({
+					idIndex: 0
+				}, Ext.data.Record.create([
+					{name: "key"},
+					{name: "value"}
+				]))
+			}),
+			cm: new Ext.grid.ColumnModel({
+				defaults: {
+					sortable: true
+				},
+				columns: [
+					{
+						header: "Option",
+						dataIndex: "key",
+						<?=($arr_param["module"]["module_id"] < 0 ? "noeditor: true" : "editor: new Ext.form.TextField({allowBlank: false})")?>
+					}, {
+						header: "Value",
+						dataIndex: "value",
+						editor: new Ext.form.TextField({allowBlank: false})
+					}
+				]
+			}),
+			renderTo: "config_#module.module_id",
+			autoHeight: true,
+			viewConfig: {forceFit: true},
+			clicksToEdit: 2,
+			tbar: [
+			{
+				text: 'Add Entry',
+				disabled: <?=$arr_param["module"]["module_id"] < 0 ? "true" : "false"?>,
+			    handler : function(){
+	                // access the Record constructor through the grid's store
+	                var Field = grid.getStore().recordType;
+	                var p = new Field({
+	                    field: 'key',
+	                    type: 'value'
+	                });
+	                grid.stopEditing();
+	                grid.getStore().insert(0, p);
+	                grid.startEditing(0, 0);
+	            }
+	        },{
+				text: "Remove Entry",
+				disabled: <?=$arr_param["module"]["module_id"] < 0 ? "true" : "false"?>,
+				handler: function() {
+					grid.getStore().remove(grid.getSelectionModel().selection.record);
+				}
+			}]			
+		});
+		
+		grid.on("afteredit", function(event){
+			event.record.data.key = event.record.data.key.toUpperCase();
+			event.grid.getView().refresh();
+		}, this);
+		
+		gridStore.loadData([
+			<? foreach ($arr_param["configuration"] as $i=>$arr_config) { ?>
+				<? if ($i > 0) { ?>,<? } ?>
+				['<?=$arr_config["name"]?>', '<?=str_replace("'", "\'", $arr_config["value"])?>']
+			<? } ?>
+		]);
+		
+		Ext.getCmp("portlet_content_c_<?=(int)$arr_param['module']['module_id']?>").getTopToolbar().add({
+			xtype: "button",
+			text: "Save",
+			iconCls: "save",
+			handler: function(e) {
+				var list = grid.getStore().data.items;
+				var params = {};
+				for (var i = 0; i < list.length; i++) {
+					var item = list[i];
+					params["configuration["+i+"][name]"] = item.data.key;
+					params["configuration["+i+"][value]"] = item.data.value;
+				}
+				new Ajax.Request("?event=builder:editConfiguration&check=1",{
+					parameters: params,
+					onSuccess: function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+					}
+				});
+			}
+		},"-");			
+	})();
+	//]]>
+</script>
+</div>

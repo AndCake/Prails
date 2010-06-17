@@ -1,0 +1,60 @@
+<div style="background-color:#fff;" id="kmdtk">
+	<h1>Quixotic Worx Module Development Toolkit</h1>
+	<table border="0" width="100%">
+	  <tr><td valign="top" width="20%">
+	  <ul style="margin-left:20px;padding-left:0px;">
+	<? if (is_array($arr_param["modules"])) foreach ($arr_param["modules"] as $arr_module) { ?>
+		<li>
+			<div style="float:right;">
+				<a href="" onclick="invoke(null, 'builder:resetModule', {module_id:'<?=$arr_module["module_id"]?>'});return false;"><img src="templates/builder/images/refresh.gif" border="0" alt="republish"></a>
+				<a href="" onclick="invoke('editContent', 'builder:editModule', {module_id:'<?=$arr_module["module_id"]?>'});return false;"><img src="templates/builder/images/edit.gif" border="0" alt="edit"></a>
+				<a href="" onclick="invoke(null, 'builder:deleteModule', {module_id:'<?=$arr_module["module_id"]?>'});return false;"><img src="templates/builder/images/delete.gif" border="0" alt="delete"></a>
+			</div>
+		
+			<a href="" onclick="$('mod_<?=$arr_module["module_id"]?>').toggle();Cookie.create('klatcher[kmdtk][module][<?=$arr_module["module_id"]?>]',$('mod_<?=$arr_module["module_id"]?>').visible()?'1':'0');return false;"><?=$arr_module["name"]?></a>&nbsp;
+			<ul id="mod_<?=$arr_module["module_id"]?>" style="<?=$_COOKIE["klatcher"]["kmdtk"]["module"][$arr_module["module_id"]] == "1"?"":"display:none;"?>">
+				<li><a href="" onclick="$('handlers_<?=$arr_module["module_id"]?>').toggle();Cookie.create('klatcher[kmdtk][handler][<?=$arr_module["module_id"]?>]',$('handlers_<?=$arr_module["module_id"]?>').visible()?'1':'0');return false;">Event Handlers</a>
+					<ul id="handlers_<?=$arr_module["module_id"]?>" style="<?=$_COOKIE["klatcher"]["kmdtk"]["handler"][$arr_module["module_id"]] == "1"?"":"display:none;"?>">
+					<? if (is_array($arr_module["handlers"])) foreach ($arr_module["handlers"] as $arr_handler) { ?>
+						<li>
+							<div style="float:right;">
+								<a href="" onclick="invoke('editContent', 'builder:editHandler', {module_id:'<?=$arr_module["module_id"]?>', handler_id:'<?=$arr_handler["handler_id"]?>'});return false;"><img src="templates/builder/images/edit.gif" border="0" alt="edit"></a>
+								<a href="" onclick="invoke(null, 'builder:deleteHandler', {handler_id:'<?=$arr_handler["handler_id"]?>'});return false;"><img src="templates/builder/images/delete.gif" border="0" alt="delete"></a>
+							</div>
+							<a href="?event=<?=$arr_module["name"]?>:<?=$arr_handler["event"]?>" target="preview"><?=$arr_handler["event"]?></a>&nbsp;
+						</li>
+					<? } ?>
+						<li style="border-top:1px dashed #000;">
+							<a href="" onclick="invoke('editContent', 'builder:editHandler', {module_id:'<?=$arr_module["module_id"]?>', handler_id:'0'});return false;">add event handler</a>
+						</li>
+					</ul>
+				</li>
+				<li><a href="" onclick="$('datas_<?=$arr_module["module_id"]?>').toggle();Cookie.create('klatcher[kmdtk][data][<?=$arr_module["module_id"]?>]',$('datas_<?=$arr_module["module_id"]?>').visible()?'1':'0');return false;">Data Queries</a>
+					<ul id="datas_<?=$arr_module["module_id"]?>" style="<?=$_COOKIE["klatcher"]["kmdtk"]["data"][$arr_module["module_id"]] == "1"?"":"display:none;"?>">
+					<? if (is_array($arr_module["datas"])) foreach ($arr_module["datas"] as $arr_data) { ?>
+						<li>
+							<div style="float:right;">
+								<a href="" onclick="invoke('editContent', 'builder:editData', {module_id:'<?=$arr_module["module_id"]?>', data_id:'<?=$arr_data["data_id"]?>'});return false;"><img src="templates/builder/images/edit.gif" border="0" alt="edit"></a>
+								<a href="" onclick="invoke(null, 'builder:deleteData', {data_id:'<?=$arr_data["data_id"]?>'});return false;"><img src="templates/builder/images/delete.gif" border="0" alt="delete"></a>
+							</div>
+							<a><?=$arr_data["name"]?></a>&nbsp;
+						</li>
+					<? } ?>
+						<li style="border-top:1px dashed #000;">
+							<a href="" onclick="invoke('editContent', 'builder:editData', {module_id:'<?=$arr_module["module_id"]?>', data_id:'0'});return false;">add data query</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	<? } ?>
+		<li style="border-top:1px dashed #000;">
+			<a href="" onclick="invoke('editContent', 'builder:editModule', {module_id:'0'});return false;">add module</a>		
+		</li>
+	  </ul>
+	  </td><td valign="top" width="80%">
+	  	<div id="editContent" style="width:100%;background-color:#fff;">
+	  	</div>
+	  </td></tr>
+	</table>
+</div>

@@ -1,0 +1,77 @@
+div#qwbuilder_handlerPanel {
+	width: auto !important;
+}
+
+div#qwbuilder_headerPanel {
+	background: #efefef url(../images/slate/panel/white-top-bottom.gif) top left repeat-x;
+	color: #fff;
+	font-weight: bold;
+	padding:5px;
+}
+
+div#qwbuilder_headerPanel .x-panel-body {
+	background: transparent;
+}
+
+button.add {
+	background-image: url(../images/add.png);
+}
+
+button.delete, .delete {
+	background-image: url(../images/delete.png);
+}
+
+#msg-div {
+	position:absolute;
+	left:35%;
+	top:10px;
+	width:250px;
+	z-index:20000;
+}
+
+.folder { background-image: url(../images/default/tree/folder.gif); }
+.edit { background-image: url(../images/edit.png) !important; }
+.save { background-image: url(../images/save.gif) !important; }
+.options { background-image: url(../images/editModule.png) !important; }
+.config { background-image: url(../images/settings.png) !important; }
+.x-tree-node .query img.x-tree-node-icon, .data { background-image: url(../images/default/grid/columns.gif) !important; } 
+.handler { background-image: url(../images/default/tree/leaf.gif) !important; }
+.tagLib { background-image: url(../images/taglib.gif) !important; }
+.library { background-image: url(../images/library.png) !important; }
+.run { background-image: url(../images/run.png) !important; }
+.resource { background-image: url(../images/resource.png) !important; }
+.HelpTabIcon { background-image: url(../images/help.png) !important; }
+.history { background-image: url(../images/history.gif) !important; }
+.table { background-image: url(../images/table.gif) !important; }
+.apply { background-image: url(../images/apply.png) !important; }
+
+ul.historyList li a {
+	background: url(../images/slate/toolbar/bg.gif) repeat-x;
+	color: #fff;
+	padding-right:5px;
+	text-decoration: none;
+}
+
+div#shoutbox { position:absolute; right: 10px;width: 200px; }
+div#sbmsglist p { margin: 1em 0 0 1em; }
+span.sbuser { font-weight:bold; color: #556677; }
+span.sbdate { font-size: 10px; vertical-align:middle; color: #999; }
+span.sbtext { font-size: 12px; font-family: "Courier New", "Lucida Console", monospace; }
+
+body a:hover {
+	background: transparent;
+}
+
+.scaffold {
+	padding: 5px 20px 20px;
+}
+
+.scaffold input[type="checkbox"] {
+	margin-left: 10px;
+}
+
+fieldset {
+	border: 1px solid #ccc;
+	margin-top: 10px;
+	padding: 10px;
+}

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_setIsCachable"><span/></a>setIsCachable</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Marks the runlet, that is currently being rendered to be cacheable. Once it's cached, only the cached version will be evaluated. If the cache cleaner is activated, an automatic flush of the cache is done every 30 minutes. 
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+			<code>void setIsCachable($bol_cachable = true)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table3">
+            <colgroup>
+                <col width="136"/><col width="607"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:3.112cm; " class="Table3_A1">
+                    <p class="Table_20_Contents">
+                        $bol_cachable
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.887cm; " class="Table3_B1">
+                    <p class="Table_20_Contents">
+                        Defines that the current runlet will be cached or not
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            The following template fragment will enable caching of the resulting runlet. The runlet will show a welcome sequence, if the user is logged in. 
+        </p>
+        <pre>
+			&lt;? $this-&gt;setIsCachable(); ?&gt;
+			&lt;!! if ($_SESSION["user"]["user_id"] &gt; 0 { !!&gt;
+				Welcome, &lt;!!=$_SESSION["user"]["name"]!!&gt;.
+			&lt;!! } !!&gt;
+        </pre>
+        <p class="Text_20_body">
+            Notice the <code>&lt;!! ... !!&gt;</code>
+            syntax which is used to skip evaluation of the contained code until the execution of the runlet. 
+        </p>
+    </body>
+</html>

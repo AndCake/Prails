@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_wordCut"><span/></a>wordCut</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Function to cut text after a specified number of characters. With this function words remain complete (it won't be cut in the middle of a word).
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>String wordCut($str_text, $int_limit, $str_app)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table22">
+            <colgroup>
+                <col width="111"/><col width="632"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A1">
+                    <p class="Table_20_Contents">
+                        $str_text
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B1">
+                    <p class="Table_20_Contents">
+                        Text to cut
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $int_limit
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                        Maximum number of characters after which to cut
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $str_app
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                        Text to be appended after the text has been shortened
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <b>Returns:</b>
+            the shortened version of the text
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+            $text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer scelerisque massa ipsum. Nullam massa tortor, tempus et lobortis a, consequat a tellus.";
+            echo wordCut($text, 55, "...");
+        </pre>
+        <p class="Text_20_body">
+            This example will produce the output: "Lorem ipsum dolor sit amet, consectetur adipiscing...". 
+        </p>
+    </body>
+</html>

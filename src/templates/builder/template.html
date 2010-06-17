@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   	<head>
+		<title><?=$this->getTitle()?></title>
+		<meta name="description" content="<?=$this->getDescription()?>" />
+		<meta name="keywords" content="<?=$this->getKeywords()?>" />
+		<meta name="robots" content="index, follow" />
+		<meta name="googlebot" content="index, follow" />
+		<meta http-equiv="content-encoding" content="compress, gzip" />
+		<meta http-equiv="expires" content="never" />
+		<meta name="author" content="Quixotic Worx" />
+		<meta http-equiv="content-language" content="en-us" />
+		<meta name="distribution" value="global" />
+       	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+       	<link rel="shortcut icon" href="favicon.ico" />
+       	<meta name="publisher" content="Quixotic Worx" />
+    	<base href="<?=$SERVER?>" /> 
+    	<link rev="made" href="mailto:robert@quixotic-worx.de" />
+    	<meta name="revisit-after" content="1 day" />
+      	<style type="text/css">
+      	/*<![CDATA[*/
+	        @encoding 'UTF-8';
+	    /*]]>*/
+	    </style>
+      	<script type="text/javascript" src="templates/user/flash/uploadmessage.js"></script>
+      	<?=$this->getStyleSheets()?>
+      	<?=$this->getJavaScripts()?>
+   	</head>
+	<body>
+		<?=$str_content?>
+	</body>
+</html>
+	

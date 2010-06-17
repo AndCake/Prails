@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_DeleteQuery"><span/></a>DeleteQuery</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Deletes one or more tupel from a table.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>void DeleteQuery($str_table, $str_where = "0")</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table13">
+            <colgroup>
+                <col width="112"/><col width="631"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.568cm; " class="Table13_A1">
+                    <p class="Table_20_Contents">
+                        $str_table
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.43cm; " class="Table13_B1">
+                    <p class="Table_20_Contents">
+                        Name of the table, from which the tupel should be removed
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.568cm; " class="Table13_A2">
+                    <p class="Table_20_Contents">
+                        $str_where
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.43cm; " class="Table13_B2">
+                    <p class="Table_20_Contents">
+                        SQL condition to be applied for which tupel to remove.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            This example - to be run within a data query of a module - removes the story with the ID passed to this function.
+        </p>
+        <pre>
+            $id = func_get_arg(0);
+            $this-&gt;DeleteQuery("tbl_story", "story_id='".$id."'");
+        </pre>
+    </body>
+</html>

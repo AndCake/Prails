@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_if"><span/></a>if</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            The if construct is one of the most important features of many languages. It allows for conditional execution of code fragments.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>&lt;c:if cond="{php cond}"&gt;&lt;c:then&gt;{true block content}&lt;/c:then&gt;[&lt;c:else&gt;{false block content}&lt;/c:else&gt;]&lt;/c:if&gt;</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table11">
+            <colgroup>
+                <col width="371"/><col width="371"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table11_A1">
+                    <p class="Table_20_Contents">
+                        {php cond}
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table11_B1">
+                    <p class="Table_20_Contents">
+                        The condition in pure PHP Ð no need to explicitly declare a PHP area within this condition. If the condition evaluates to true, then the true block content is executed/displayed. If it is not true and Êthe optional else block is specified, the false block content will be executed/displayed.
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table11_A2">
+                    <p class="Table_20_Contents">
+                        {true block content}
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table11_B2">
+                    <p class="Table_20_Contents">
+                        Content of any kind that is to be executed if the condition evaluates to true
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:8.498cm; " class="Table11_A2">
+                    <p class="Table_20_Contents">
+                        {false block content}
+                    </p>
+                </td>
+                <td style="text-align:left;width:8.5cm; " class="Table11_B2">
+                    <p class="Table_20_Contents">
+                        Content of any kind that is to be executed if the condition evaluates to false.
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            This example prints out "Hello Sir!", if <code>$arr_param["user"]["gender"]</code>
+            is "m" and else it will print out "Hello, Madam!"
+        </p>
+        <pre>
+            Hello,
+            &lt;c:if cond="$arr_param['user']['gender'] == 'm'"&gt;
+            	&lt;c:then&gt;
+            		&lt;b&gt;Sir&lt;/b&gt;
+            	&lt;/c:then&gt;
+            	&lt;c:else&gt;
+            		&lt;b&gt;Madam&lt;/b&gt;
+            	&lt;/c:else&gt;
+            &lt;/c:if&gt;!
+        </pre>
+    </body>
+</html>

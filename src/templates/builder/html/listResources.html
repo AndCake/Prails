@@ -1,0 +1,83 @@
+<script type="text/javascript">
+//<![CDATA[
+	(function() {
+		var root#session.module_id = new Ext.tree.TreeNode();
+		var r = root#session.module_id;
+		Ext.getCmp("portlet_content_rm_#session.module_id").add(
+			new Ext.Panel({
+				layout: "border",
+				items: [
+					new Ext.tree.TreePanel({
+						root: r,
+						rootVisible: false,
+						region: "west",
+						width: 200,
+						autoScroll: true,
+						split: true,
+						id: "rm_#session.module_id_tree",
+						tbar: [{
+							xtype: "button",
+							text: "Add",
+							iconCls: "add",
+							handler: function(e) {
+								Builder.editModuleResourceItem({id: "r_0"}, "#session.module_id");
+							}
+						},"-",{
+							xtype: "button",
+							text: "Delete",
+							iconCls: "delete",
+							handler: function(e) {
+								Builder.delModuleResourceItem(Ext.getCmp("rm_#session.module_id_tree").getSelectionModel().getSelectedNode(), "#session.module_id");
+							}
+						}, "-"],
+						listeners: {
+							dblclick: function(n) {
+								Builder.editModuleResourceItem(n, "#session.module_id");
+							},
+							contextmenu: function(n, e) {
+								e.preventDefault();
+								var menu = new Ext.menu.Menu({
+									items: [{
+										text: "Edit Resource",
+										iconCls: "edit",
+										handler: function() {
+											Builder.editModuleResourceItem(n, "#session.module_id");
+											this.hide();
+										}
+									},{
+										text: "Delete Resource",
+										iconCls: "delete",
+										handler: function() {
+											Builder.delModuleResourceItem(n, "#session.module_id");
+											this.hide();
+										}
+									}]
+								}).showAt(e.getXY());	
+							}
+						}										
+					}),
+					new Ext.Panel({
+						region: "center",
+						layout: "fit",
+						autoScroll: true,
+						id: "rm_#session.module_id_container",
+						tbar: new Ext.Toolbar()
+					})
+				]
+			})
+		);
+		Ext.getCmp("portlet_content_rm_#session.module_id").doLayout();
+		
+		<c:foreach var="resources" name="resource">
+			c = new Ext.tree.TreeNode({
+				text: "#resource.name",
+				leaf: true,
+				iconCls: "resource",
+				id: "r_#resource.resource_id",
+				allowChildren: false
+			});
+			r.appendChild(c);
+		</c:foreach>
+	})();
+//]]>
+</script>

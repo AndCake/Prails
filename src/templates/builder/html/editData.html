@@ -1,0 +1,127 @@
+<div style="padding:20px;" id="container_d_#data.data_id">
+<form id="hformd<?=(int)$arr_param["data"]["data_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value=phpEditord<?=(int)$arr_param["data"]["data_id"]?>.getCode();invoke(null, 'builder:editData&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
+	<label for="name">Name of Data Query</label><br/>
+	<input id="d_name_#data.data_id" type="text" name="data[name]" value="#data.name" /><br/><br/>
+	<input id="d_nameh_#data.data_id" type="hidden" value="#data.name" />
+
+	<label for="coded<?=(int)$arr_param["data"]["data_id"]?>">Data Code:</label><br/>
+	<input type="hidden" id="hCoded<?=(int)$arr_param["data"]["data_id"]?>" name="data[code]" value="" />
+	<div style="border:1px solid #ccc;">
+		<textarea id="coded<?=(int)$arr_param["data"]["data_id"]?>" cols="60" rows="30">#data.code</textarea>
+	</div>
+	<div style="clear:both;"></div>
+	<br/>
+	<script type="text/javascript">
+	//<![CDATA[
+		window.keywords = [	"list", "foreach", "array", "in", "include", "die", "echo", "empty", "exit", "eval", "include_once", "isset",
+							"require", "require_once", "return", "print", "unset", "case", "class", "abstract", "and", "as", "break",
+							"catch", "clone", "const", "continue", "declare", "default", "do", "else", "elseif", "enddeclare", "endfor",
+							"endforeach", "endif", "endswitch", "endwhile", "extends", "final", "for", "foreach", "function", "global",
+							"goto", "if", "implements", "interface", "instanceof", "namespace", "new", "or", "private", "protected",
+							"public", "static", "switch", "throw", "try", "use", "var", "while", "xor"
+		];
+	
+		setTimeout(function() {
+			window.phpEditord<?=(int)$arr_param["data"]["data_id"]?> = CodeMirror.fromTextArea('coded<?=(int)$arr_param["data"]["data_id"]?>', {
+				height: "100%",
+				parserfile: ["tokenizephp.js", "parsephp.js"],
+				stylesheet: ["templates/builder/css/phpcolors.css"],
+				path: "templates/builder/js/",
+				textWrapping: false,
+				crc32: <?=crc32($arr_param["data"]["code"])?>,
+				crc32Id: "d_code_#data.data_id",
+				mergeUrl: "?event=builder:editData&check=2&type=code&data_id=<?=(int)$arr_param['data']['data_id']?>",	
+				autoMatchParens: true,				
+				saveFunction: function() {
+					if (window.keywords.indexOf($("d_name_#data.data_id").getValue()) >= 0) {
+						$("d_name_#data.data_id").value = "_"+$("d_name_#data.data_id").getValue();
+					}
+					$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value=phpEditord<?=(int)$arr_param["data"]["data_id"]?>.getCode();
+					invoke(null, 'builder:editData&check=1&module_id=<?=if_set($arr_param['data']['fk_module_id'], $_SESSION["module_id"])?>&data_id=<?=(int)$arr_param['data']['data_id']?>', $('hformd<?=(int)$arr_param["data"]["data_id"]?>').serialize(), true, function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						if (<?=(int)$arr_param["data"]["data_id"]?> == 0) {
+							var name = $("d_name_#data.data_id").getValue();
+							var id = req.responseText.split(/\s/g)[0];
+							var mid = <?=(int)$_SESSION["module_id"]?>;
+							var module = Builder.root.findChild("id", mid);
+							Builder.closeTab("d_0");
+							var n = new Ext.tree.TreeNode({
+								text: name,
+								leaf: true,
+								id: "d_"+id,
+								allowChildren: false
+							});
+							n.cls = "query";
+							module.datas.push(n);
+							Builder.editData(n);
+							Builder.resetTree(Builder.dataRoot, module.datas);
+						}
+					});
+					return false;			
+				}			
+			});
+			$("coded<?=(int)$arr_param['data']['data_id']?>").parentNode.style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+			Ext.getCmp("portlet_content_d_<?=(int)$arr_param['data']['data_id']?>").getTopToolbar().add({
+				xtype: "button",
+				text: "Save",
+				iconCls: "save",
+				handler: function(e) {
+					window.phpEditord<?=(int)$arr_param["data"]["data_id"]?>.options.saveFunction();
+				}
+			}, "-", {
+				xtype: "button",
+				text: "Apply History",
+				id: "data.#data.data_id_applyHistory.button",
+				iconCls: "apply",
+				disabled: true,
+				handler: function(e) {
+					Builder.historyCleanFields([
+						window.phpEditord<?=(int)$arr_param["data"]["data_id"]?>.editor, 
+						$('d_name_#data.data_id')
+					]);
+					window.phpEditord<?=(int)$arr_param["data"]["data_id"]?>.options.saveFunction();
+				}	
+			},"-", {
+				xtype: "button",
+				id: "data.#data.data_id_viewHistory.button",
+				text: "View History",
+				iconCls: "history",
+				disabled: (<?=(int)$arr_param["data"]["data_id"]?> == 0 ? true : false),
+				handler: function(e) {
+					if ($("d_#data.data_id") != null) {
+						$("d_#data.data_id").fisheye.dispose();
+						$("d_#data.data_id").remove();
+						Ext.getCmp("data.#data.data_id_applyHistory.button").disable();
+						Ext.getCmp("data.#data.data_id_viewHistory.button").setText("View History");
+					} else {
+						Builder.browseDataHistory(<?=(int)$arr_param["data"]["data_id"]?>);
+						Ext.getCmp("data.#data.data_id_applyHistory.button").enable();
+						Ext.getCmp("data.#data.data_id_viewHistory.button").setText("Leave History");
+					}
+				}
+			}, "-", {
+				xtype: "button",
+				text: "SQL Query",
+				iconCls: "run",
+				handler: function(e) {
+					Builder.queryTest();
+				}
+			}/*, "-", {
+				xtype: "button",
+				text: "Model View",
+				id: "data.#data.data_id_viewModel.button",
+				iconCls: "model",
+				handler: function(e) {
+					new Ajax.Request("?event=builder:dataModel&data_id=#data.data_id", {
+						evalJS: true,
+						onSuccess: function(req) {
+							$("container_d_#data.data_id").update(req.responseText);
+						}
+					});
+				}
+			}*/);			
+		}, 100);
+	//]]>
+	</script>
+</form>
+</div>

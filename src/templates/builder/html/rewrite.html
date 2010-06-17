@@ -1,0 +1,95 @@
+<? global $SERVER; ?>
+<?=$SERVER?><input type="text" name="target" id="target#handler.handler_id" value="?event=<?=$arr_param['module']['name']?>:<?=$arr_param['handler']['event']?>" />
+<select size="1" id="parameters#handler.handler_id" style="display:none;">
+	<option value="Value">Value</option>
+	<option value="Name+Value">Name+Value</option>
+	<option value="None">None</option>
+</select>
+<div id="rewrite_#handler.handler_id">
+	<!-- enter a property grid here, containing the parameters and whether they should be value/name&value/none -->
+</div>
+<span>
+	<!-- put the rewritten URL here -->
+</span>
+<script type="text/javascript">
+//<![CDATA[
+	(function(){
+		var grid = new Ext.grid.EditorGridPanel({
+			store: gridStore = new Ext.data.Store({
+				reader: new Ext.data.ArrayReader({
+					idIndex: 0
+				}, Ext.data.Record.create([
+					{name: "parameter"},
+					{name: "display"},
+					{name: "prefix"},
+					{name: "suffix"},
+					{name: "delimiter"}
+				]))
+			}),
+			cm: new Ext.grid.ColumnModel({
+				defaults: {
+					sortable: true
+				},
+				columns: [
+					{
+						header: "Parameter",
+						dataIndex: "parameter",
+						editor: new Ext.form.TextField({allowBlank: false, readOnly: true})
+					}, {
+						header: "Display",
+						dataIndex: "display",
+						editor: new Ext.form.ComboBox({
+							typeAhead: true,
+							triggerAction: "all",
+							transform: "parameters#handler.handler_id",
+							lazyRender: true,
+		                    listClass: 'x-combo-list-small'
+						})						
+					}, {
+						header: "Prefix",
+						dataIndex: "prefix",
+						editor: new Ext.form.TextField({allowBlank: true})
+					}, {
+						header: "Suffix",
+						dataIndex: "suffix",
+						editor: new Ext.form.TextField({allowBlank: true})
+					}, {
+						header: "Delimiter",
+						dataIndex: "delimiter",
+						editor: new Ext.form.TextField({allowBlank: false})
+					}
+				]
+			}),
+			renderTo: "rewrite_#handler.handler_id",
+			autoHeight: true,
+			clicksToEdit: 1,
+			listeners: {
+				afteredit: function(e) {
+					// use the e.record field to compute the result
+				}
+			}
+		});
+		
+		new PeriodicalExecuter(function(pe){
+			if ($("target#handler.handler_id") != null) {
+				if (!$("target#handler.handler_id").oldValue) $("target#handler.handler_id").oldValue = null; 
+				var value = $("target#handler.handler_id").value;
+				if (value != $("target#handler.handler_id").oldValue) {
+					$("target#handler.handler_id").oldValue = value;
+					var parts = value.split(/&/g);
+					if (parts[0].charAt(0) == '?') {
+						parts[0] = parts[0].substr(1);
+					}
+					var result = [];
+					for (var all in parts) {
+						obj = [nameValue[0], "Value", "", "", "/"];
+						result.push(obj);
+					}
+					this.loadData(result);
+				}
+			} else pe.stop();
+		}.bindAsEventListener(gridStore), 1); 
+	})();
+//]]>	
+</script>	
+

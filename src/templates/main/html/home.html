@@ -1,0 +1,29 @@
+<div class="global-home-left-nav">
+   <h3>Application Status</h3>
+   <dl>
+      <dt>Framework Version</dt>
+      <dd><?=FRAMEWORK_VERSION?></dd>
+      <dt>PHP Version</dt>
+      <dd><?=phpversion()?></dd>
+      <dt>Modules Available:</dt>
+      <dd><?=count($arr_param["modules"])?></dd>
+   </dl>
+</div>
+<div style="float: left;max-width: 700px;padding: 20px;padding-top: 0px;">
+   <h1>Welcome to the <?=PROJECT_NAME?></h1>
+	
+   <p>Congratulations! You have successfully started your first <?=PROJECT_NAME?> application! 
+   At the moment this is the default page, feel free to modify it or redirect it to another module's 
+   event handler or display whatever content you may choose. Below is a list of the currently installed
+   modules. Click on them to call it's default event.</p>
+	
+   <h3>Available Modules:</h3>
+   <ul>
+   <c:foreach var="modules" name="module">
+      <li>
+         <a href="#module.name/home">#module.name</a>
+      </li>
+   </c:foreach>
+   </ul>
+</div>
+<div style="clear: both;"></div>

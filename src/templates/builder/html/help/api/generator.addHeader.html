@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_addHeader"><span/></a>addHeader</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Adds a custom string into the <code>&lt;head&gt;</code>
+            tag of the resulting HTML document. This applies only runlets, that have been decorated using the base template. Subsequent calls will add content to the header area, instead of replacing it.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>void addHeader($str_header)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table9">
+            <colgroup>
+                <col width="105"/><col width="638"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.397cm; " class="Table9_A1">
+                    <p class="Table_20_Contents">
+                        $str_header
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.601cm; " class="Table9_B1">
+                    <p class="Table_20_Contents">
+                        The HTML content to be added to the header area of the HTML document. 
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4>
+            Example:
+        </h4>
+        <p class="Text_20_body">
+            The following example adds an RSS link header to the resulting HTML document:
+        </p>
+        <pre>
+            $obj_gen = Generator::getInstance();
+            $obj_gen-&gt;addHeader('&lt;link rel="alternate" type="application/rss+xml" href="http://www.xul.fr/rss.xml" title="XUL RSS feed"&gt;');
+        </pre>
+    </body>
+</html>

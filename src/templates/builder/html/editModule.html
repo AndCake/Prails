@@ -1,0 +1,198 @@
+<div style="padding:20px;" id="container_m_#module.module_id">
+<form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
+	<label for="name">Name of Module</label><br/>
+	<input type="text" id="m_name_#module.module_id" name="module[name]" value="#module.name" />
+	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/><br/>
+	<div style="float:left;margin-right:1%;width:49%;position:relative;">
+		<div style="position:absolute;right:0px;">
+			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
+			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
+		</div>
+		<label for="style_code">CSS styles</label>
+        <input type="hidden" id="hCode<?=(int)$arr_param['module']['module_id']?>" name="module[style_code]" value="" />
+        <div style="border:1px solid #ccc;"><!--[noeval]-->
+                <textarea id="code<?=(int)$arr_param['module']['module_id']?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["module"]["style_code"])?></textarea>
+				<!--[/noeval]-->
+        </div>
+	</div>
+	<div style="float:left;width:50%;position:relative;">
+		<div style="position:absolute;right:0px;">
+			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
+			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
+		</div>
+		<label for="js_code<?=(int)$arr_param['module']['module_id']?>">Javascript Code: </label><br/>
+		<input type="hidden" id="hJsCodem<?=(int)$arr_param["module"]["module_id"]?>" name="module[js_code]" value="" />
+		<div style="border:1px solid #ccc;"><!--[noeval]-->
+			<textarea id="js_code<?=(int)$arr_param["module"]["module_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["module"]["js_code"])?></textarea>
+			<!--[/noeval]-->
+		</div>
+	</div>
+	<div style="clear:both;"></div>
+
+        <script type="text/javascript">
+        	//<![CDATA[
+				setTimeout(function() {
+					window.editorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?> = CodeMirror.fromTextArea('js_code<?=(int)$arr_param["module"]["module_id"]?>', {
+						height: "100%",
+						parserfile: ["tokenizejavascript.js", "parsejavascript.js"],
+						stylesheet: ["templates/builder/css/jscolors.css"],
+						path: "templates/builder/js/",
+						crc32: <?=crc32($arr_param["module"]["js_code"])?>,
+						crc32Id: "m_js_code_#module.module_id",
+						mergeUrl: "?event=builder:editModule&check=2&type=js_code&module_id=<?=(int)$arr_param['module']['module_id']?>",	
+						textWrapping: false,
+						autoMatchParens: true,
+						saveFunction: function() {
+							$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=editorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.getCode();
+							$("hCode<?=(int)$arr_param['module']['module_id']?>").value=phpEditorm<?=str_replace("-", "_", "".((int)$arr_param['module']['module_id']))?>.getCode();
+							invoke(null, 'builder:editModule&check=1&module_id=<?=$arr_param['module']['module_id']?>', $('hform<?=(int)$arr_param["module"]["module_id"]?>').serialize(), true, function(req) {
+								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+								if (<?=(int)$arr_param["module"]["module_id"]?> == 0) {
+									var name = $("m_name_#module.module_id").getValue();
+									var id = req.responseText.split(/\n/g)[0];
+									// replace this tab and add a new entry in the tree list
+									Builder.closeTab("m_<?=(int)$arr_param["module"]["module_id"]?>");
+									module = new Ext.tree.TreeNode({
+													text: name,
+													leaf: true,
+													cls: "x-tree-node-collapsed",
+													id: id,
+													allowChildren: false
+												});
+									module.handlers = [];
+									module.datas = [];
+									Builder.root.appendChild(module);
+									Builder.editModuleOptions(module);						
+									//location.reload();
+								}
+							});
+							return false;			
+						}
+					});					
+	                window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param['module']['module_id']))?> = CodeMirror.fromTextArea('code<?=(int)$arr_param['module']['module_id']?>', {
+	                    height: "100%",
+	                    parserfile: ["parsecss.js"],
+	                    stylesheet: ["templates/builder/css/csscolors.css"],
+	                    path: "templates/builder/js/",
+	                    textWrapping: false,
+						crc32: <?=crc32($arr_param["module"]["style_code"])?>,
+						crc32Id: "m_style_code_#module.module_id",
+						mergeUrl: "?event=builder:editModule&check=2&type=style_code&module_id=<?=(int)$arr_param['module']['module_id']?>",	
+						autoMatchParens: true,						
+	                    saveFunction: function() {
+							$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=editorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.getCode();
+							$("hCode<?=(int)$arr_param['module']['module_id']?>").value=phpEditorm<?=str_replace("-", "_", "".((int)$arr_param['module']['module_id']))?>.getCode();
+							invoke(null, 'builder:editModule&check=1', $('hform<?=(int)$arr_param['module']['module_id']?>').serialize(), true, function(req){
+								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+								if (<?=(int)$arr_param["module"]["module_id"]?> == 0) {
+									var name = $("m_name_#module.module_id").getValue();
+									var id = req.responseText.split(/\n/g)[0];
+									// replace this tab and add a new entry in the tree list
+									Builder.closeTab("m_<?=(int)$arr_param["module"]["module_id"]?>");
+									module = new Ext.tree.TreeNode({
+													text: name,
+													leaf: true,
+													cls: "x-tree-node-collapsed",
+													id: id,
+													allowChildren: false
+												});
+									module.handlers = [new Ext.tree.TreeNode({
+										text: "home",
+										leaf: true,
+										id: "h_"+req.responseText.split(/\n/)[1],
+										allowChildren: false
+									})];
+									module.datas = [];
+									Builder.root.appendChild(module);
+									Builder.editModuleOptions(module);						
+									//location.reload();
+								}
+							});
+                            return false;
+                        }
+	                });
+/*
+					window.cursor1 = new Element("div", {style: "position:absolute;background-color:#ff0;width:200px;height:11px;display:none;opacity:0.4;"});
+					window.cursor2 = new Element("div", {style: "position:absolute;background-color:#000;width:10px;height:11px;display:none;"});
+					$("container_m_#module.module_id").appendChild(window.cursor1);
+					$("container_m_#module.module_id").appendChild(window.cursor2);
+					var pos = window["editorm<?=str_replace("-", "_", "".($arr_param['module']['module_id']))?>"].frame.offsetTop;
+					var padding = 4;
+					new PeriodicalExecuter(function(pe) {
+						if (window["editorm#module.module_id"].editor.doc.hasFocus()) {
+							var line = window["editorm#module.module_id"].currentLine();
+							line = line - 1;
+							window.cursor1.setStyle({left: (window["editorm#module.module_id"].frame.offsetLeft - 10)+"px", top: (line*11 + pos - window["editorm#module.module_id"].editor.doc.body.scrollTop + padding)+"px"});
+							if (parseInt(window.cursor1.style.top) < pos) {
+								window.cursor1.hide();
+							} else 
+								window.cursor1.show();
+						}
+					}, 0.2);
+*/					
+					$("code<?=(int)$arr_param['module']['module_id']?>").parentNode.style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+					$("js_code<?=(int)$arr_param['module']['module_id']?>").parentNode.style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+					Ext.getCmp("portlet_content_m_<?=(int)$arr_param["module"]["module_id"]?>").getTopToolbar().add({
+						xtype: "button",
+						text: "Save",
+						iconCls: "save",
+						handler: function(e) {
+							window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.options.saveFunction();
+						}
+					},"-", {
+						xtype: "button",
+						text: "Edit Resources",
+						iconCls: "resource",
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),
+						handler: function(e){
+							Builder.editModuleResource({id: <?=(int)$arr_param["module"]["module_id"]?>, text: "<?=$arr_param["module"]["name"]?>"});
+						}						
+					}, "-", {
+						xtype: "button",
+						id: "module.#module.module_id_viewConfig.button",
+						text: "Edit Configuration",
+						iconCls: "config",
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> == 0 ? true : false),
+						handler: function(e) {
+							Builder.editConfiguration({id: <?=(int)$arr_param["module"]["module_id"]?>, text: "#module.name Configuration"});
+						}
+					}, "-", {
+						xtype: "button",
+						text: "Apply History",
+						id: "module.#module.module_id_applyHistory.button",
+						iconCls: "apply",
+						disabled: true,
+						handler: function(e) {
+							Builder.historyCleanFields([
+								window["editorm#session.module_id"].editor, 
+								window["phpEditorm#session.module_id"].editor, 
+								$('m_name_#session.module_id')
+							]);
+							window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.options.saveFunction();
+						}	
+					}, "-", {
+						xtype: "button",
+						id: "module.#module.module_id_viewHistory.button",
+						text: "View History",
+						iconCls: "history",
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),
+						handler: function(e) {
+							if ($("h_#module.module_id") != null) {
+								$("h_#module.module_id").fisheye.dispose();
+								$("h_#module.module_id").remove();
+								Ext.getCmp("module.#module.module_id_applyHistory.button").disable();
+								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("View History");
+							} else {
+								Builder.browseModuleHistory(#module.module_id);
+								Ext.getCmp("module.#module.module_id_applyHistory.button").enable();
+								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("Leave History");
+							}
+						}
+					});
+				}, 100);
+				
+			//]]>
+        </script>
+
+</form>
+</div>

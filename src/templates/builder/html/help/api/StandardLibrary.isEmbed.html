@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_isEmbed"><span/></a>isEmbed</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            Checks whether a string contains HTML code.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>
+                bool isEmbed($str_embed)
+            </code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table19">
+            <colgroup>
+                <col width="130"/><col width="613"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.969cm; " class="Table19_A1">
+                    <p class="Table_20_Contents">
+                        $str_embed
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.03cm; " class="Table19_B1">
+                    <p class="Table_20_Contents">
+                        Embed content to check
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            <code>
+                true
+            </code>, if it contains HTML code, else 
+            <code>
+                false
+            </code>
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+		<pre>
+            if( isEmbed("This is just a normal, simple test embed here... ".
+                    "&lt;embed height='150' width='300' ".                             
+                    "src='http://www.example.org/test.swf' wmode='window' ".                 
+                    "type='application/x-shockwave-flash' /&gt;") ) {
+                echo "Embedding of dynamic content is not allowed here...";
+            }
+        </pre>
+        <p class="Text_20_body">
+            The 
+            <code>
+                isEmbed
+            </code>
+            call will evaluate to 
+            <code>
+                true
+            </code>
+            and thus the warning text will be printed.
+        </p>
+    </body>
+</html>

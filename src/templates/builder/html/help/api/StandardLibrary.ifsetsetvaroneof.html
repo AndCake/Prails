@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>Untitled Document</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_if_set__set_var__one_of"><span/></a>if_set, set_var, one_of</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            A kind of COALESCE function collection for PHP, whereas it does not simply check for NULL/not NULL but for real contents. <code>if_set</code>
+            simply checks two strings and returns the first one set. <code>set_var</code>
+            sets the value of the first parameter to the value of the first parameter which is set. <code>one_of</code>
+            takes any number of arguments and returns the first which is set.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>String if_set($str_a, $str_b)</code>
+        </p>
+        <p class="Text_20_body">
+            <code>Mixed one_of([$mix_a [, $mix_b [, É]]])</code>
+        </p>
+        <p class="Text_20_body">
+            <code>void set_var(&amp;$mix_a, &amp;$mix_b)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table20">
+            <colgroup>
+                <col width="185"/><col width="558"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:4.225cm; " class="Table20_A1">
+                    <p class="Table_20_Contents">
+                        $str_a / $mix_a
+                    </p>
+                </td>
+                <td style="text-align:left;width:12.774cm; " class="Table20_B1">
+                    <p class="Table_20_Contents">
+                        First parameter to check for
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:4.225cm; " class="Table20_A2">
+                    <p class="Table_20_Contents">
+                        $str_b / $mix_b
+                    </p>
+                </td>
+                <td style="text-align:left;width:12.774cm; " class="Table20_B2">
+                    <p class="Table_20_Contents">
+                        Second parameter to check for
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example__"><span/></a>Example: </h4>
+        <p class="Text_20_body">
+            The following example does in all three cases exactly the same:
+        </p>
+        <pre>
+            $_SESSION["user"] = if_set(
+                $_GET["new_user"], 
+                if_set($_GET["old_user"], $_SESSION["user"])
+            );
+
+            set_var($_SESSION["user"], $_GET["old_user"]); 
+            set_var($_SESSION["user"], $_GET["new_user"]);
+
+            $_SESSION["user"] = one_of(
+                 $_GET["new_user"], 
+                 $_GET["old_user"], 
+                 $_SESSION["user"]
+            );
+        </pre>
+        <p class="Text_20_body">
+            So, if <code>$_GET["new_user"]</code>
+            is set, then that value will be used for <code>$_SESSION["user"]</code>, else if <code>$_GET["old_user"]</code>
+            is set, then that value will be used instead. And if none of these is set, then the session's old value remains the same.
+        </p>
+	</body>
+</html>
