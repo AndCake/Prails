@@ -1,0 +1,48 @@
+$Id$
+
+PRails - Readme
+===============
+
+    A PHP framework for developing web applications over the web.
+    
+    Version 1.0.2
+    -------------
+    http://code.google.com/p/prails/
+    
+        Copyright (C) 2003 - 2010 Robert Kunze <robert.kunze_at_quixotic-worx.de>
+        
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License version 2,
+        as published by the Free Software Foundation.
+
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+
+        You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+      Requirements:
+        PHP 5.1 or later
+        MySQL 5.0 or later
+        a web-browser (doh!)
+
+      Summary:
+        PRails let's you easily create complex PHP applications in almost no time.
+        For a summary of features, please see the documentation.
+
+      Download:
+        You can get the newest version at http://code.google.com/p/prails/.
+
+      Installation:
+        Please see the documentation.
+
+      Documentation:
+        Basic documentation available at http://code.google.com/p/prails/.
+
+
+    Enjoy!
+       Your PRails-"Team"
+        
