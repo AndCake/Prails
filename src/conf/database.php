@@ -35,6 +35,7 @@ $arr_database = Array
 		"fk_module_id"=>"INT(11) NOT NULL",		// link to parent module
 	    "fk_user_id"=>"INT(11) NOT NULL",
 	    "name"=>"VARCHAR(255)",
+		"header_info" => "TEXT",
 		"js_code"=>"TEXT",
 	    "style_code"=>"TEXT",
 	),

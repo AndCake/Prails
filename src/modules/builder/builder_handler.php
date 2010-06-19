@@ -153,6 +153,19 @@ class BuilderHandler
                 $c = Array(file_get_contents($path.$mod.".php"), file_get_contents($path.$mod."_data.php"),
                 	file_get_contents($path.$mod."_handler.php"), file_get_contents($path.$mod."_printer.php")
                 );
+				$jsinc = "";
+				$cssinc = "";
+				
+				$header = @unserialize($arr_module["header_info"]);
+				if (is_array($header)) {
+					if (is_array($header["js_includes"])) foreach ($header["js_includes"] as $entry) {
+						$jsinc .= "	  \$obj_gen->addJavaScript(\"".$entry."\");\n";
+					}
+					if (is_array($header["css_includes"])) foreach ($header["css_includes"] as $entry) {
+						$cssinc .= "	  \$obj_gen->addStyleSheet(\"".$entry."\");\n";
+					}
+				}
+				
                 $handler = "";
                 $printer = "";
                 $data = "";
@@ -180,8 +193,8 @@ class BuilderHandler
                     $data .= "\nfunction ".$arr_d["name"]."() {\n".$arr_d["code"]."\n}\n";
                 }
                 $c = str_replace(
-						Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/"),
-                		Array(strtolower($mod), ucfirst(strtolower($mod)), "/*<CONFIGURATION>*/".$config, "/*<LIBRARIES>*/".$libs, "/*<EVENT-HANDLERS>*/".$handler, "/*<PRINTER-METHODS>*/".$printer, "/*<DB-METHODS>*/".$data), 
+						Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/", "/*<JAVASCRIPT-INCLUDES>*/", "/*<CSS-INCLUDES>*/"),
+                		Array(strtolower($mod), ucfirst(strtolower($mod)), "/*<CONFIGURATION>*/".$config, "/*<LIBRARIES>*/".$libs, "/*<EVENT-HANDLERS>*/".$handler, "/*<PRINTER-METHODS>*/".$printer, "/*<DB-METHODS>*/".$data, "/*<JAVASCRIPT-INCLUDES>*/".$jsinc, "/*<CSS-INCLUDES>*/".$cssinc), 
 						$c
 					);
                 file_put_contents("templates/".$mod."/css/".$mod.".css", $arr_module["style_code"]);

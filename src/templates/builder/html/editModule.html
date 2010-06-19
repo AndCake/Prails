@@ -2,7 +2,10 @@
 <form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
 	<label for="name">Name of Module</label><br/>
 	<input type="text" id="m_name_#module.module_id" name="module[name]" value="#module.name" />
-	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/><br/>
+	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/>
+	<br/>
+	<!-- somehow need to manage the included JS and CSS libs -->
+	<!-- @todo -->
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">
 		<div style="position:absolute;right:0px;">
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>

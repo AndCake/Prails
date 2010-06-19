@@ -27,7 +27,10 @@ class DBEntry extends ArrayObject {
 	
 	function offsetGet($index) {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
-			return @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$index." WHERE ".$index."_id='".$id."'")); 
+			if (parent::offsetGet($index) == null) {
+				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$index." WHERE ".$index."_id='".$id."'")));
+			}
+			return parent::offsetGet($index); 
 		} else {
 			return parent::offsetGet($index);
 		}

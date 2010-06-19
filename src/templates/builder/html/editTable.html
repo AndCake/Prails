@@ -14,7 +14,7 @@
 	<option value="TEXT">Text</option>
 	<option value="INT(20)">Timestamp</option>
 </select>
-<c:if cond="$arr_param['table']['table_id'] <= 0"><c:then>
+<c:if cond="$arr_param['table']['table_id'] <= 0">
 	<fieldset>
 		<div class="">
 			<input type="checkbox" name="scaffold_data" value="1" id="sfd" onchange="$('data_scaffold').toggle();if(this.checked||$('sfh').checked)$('sel_module').disabled=false;else $('sel_module').disabled=true;" />
@@ -58,7 +58,6 @@
 			</select>
 		</div>
 	</fieldset>
-	</c:then>
 </c:if>
 <? $fields = (strlen($arr_param["table"]["field_names"]) > 0 ? explode(":", $arr_param["table"]["field_names"]) : Array()); ?>
 <? $types = (strlen($arr_param["table"]["field_types"]) > 0 ? explode(":", $arr_param["table"]["field_types"]) : Array()); ?>

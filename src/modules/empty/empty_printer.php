@@ -27,7 +27,11 @@ class EmptyPrinter
       $this->obj_lang = new LangData("empty", $str_lang);
       $obj_gen = Generator::getInstance();
       $obj_gen->addStyleSheet("templates/empty/css/empty.css");
+	  /*<CSS-INCLUDES>*/
+	  /*</CSS-INCLUDES>*/
 	  $obj_gen->addJavaScript("templates/empty/js/empty.js");
+	  /*<JAVASCRIPT-INCLUDES>*/
+	  /*</JAVASCRIPT-INCLUDES>*/
       $obj_gen->str_template = "templates/template.html";
       $this->str_base = "?module=empty";
    }

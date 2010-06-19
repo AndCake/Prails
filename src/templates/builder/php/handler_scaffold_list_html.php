@@ -28,6 +28,10 @@
          <? } ?>
       </td>
    </tr>
+   <c:else />
+   <tr>
+   	 <td colspan="<?=count($arr_fields)?>">Currently no <?=$name?>s here.</td>
+   </tr>
    </c:foreach>
 </table>
 

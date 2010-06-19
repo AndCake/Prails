@@ -1,1 +1,3 @@
-<@ if (<?=$tag["attributes"]["cond"]?>) @><?=$tag["body"]?>
+<@ if (<?=$tag["attributes"]["cond"]?>) { @>
+	<?=$tag["body"]?>
+<@ } @>

@@ -25,12 +25,9 @@
 ?>
 <h2>
    <c:if cond="$arr_param['<?=$arr_table['name']?>']['<?=$arr_table['name']?>_id'] > 0">
-      <c:then>
-         Edit
-      </c:then>
-      <c:else>
-         Create
-      </c:else>
+      Edit
+   <c:else />
+      Create
    </c:if>
    <?=$name?>
 </h2>
