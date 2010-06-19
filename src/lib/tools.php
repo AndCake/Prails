@@ -921,7 +921,7 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
  *
  * @return STRING data fetched from the (other) server
  */
-function doGet($url)
+function doGet($url, $includeHeaders = false)
 {
     if (!$url_info = parse_url($url))
     {
@@ -977,7 +977,16 @@ function doGet($url)
         }
         $content = implode("", $aux);
     }
-    return chop($content);
+	$result = chop($content);
+	if ($includeHeaders) {
+		$result = Array("body" => $result);
+		$headerList = explode("\r\n", $header);
+		foreach ($headerList as $entry) {
+			$param = explode(":", $entry);
+			$result["header"][trim($param[0])] = trim($param[1]);
+		}
+	}
+    return $result;
 }
 
 /**

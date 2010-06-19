@@ -217,7 +217,7 @@ class BuilderHandler
         return false;
     }
 
-    function resetModule()
+    function resetModule($die=true)
     {
         $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
 
@@ -227,7 +227,11 @@ class BuilderHandler
 	        removeDir("templates/".$arr_param["module"]["name"], true);
 		}
 
-        die ("success");
+		if ($die) {
+        	die ("success");
+		} else {
+			return "success";
+		}
     }
 
     function listModules()
@@ -263,12 +267,20 @@ class BuilderHandler
         if ($_GET["check"] == "1")
         {
             $arr_data = $_POST["module"];
-            $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
-            $arr_data["style_code"] = stripslashes($arr_data["style_code"]);
-            $arr_data["js_code"] = stripslashes($arr_data["js_code"]);
+			if (!$arr_data["header_info"]) {
+	            $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
+	            $arr_data["style_code"] = stripslashes($arr_data["style_code"]);
+	            $arr_data["js_code"] = stripslashes($arr_data["js_code"]);
+			} else if ($_SESSION["module_id"] >= 0) {
+				$this->resetModule(false);
+			}			
             if ($_SESSION["module_id"] > 0)
             {
                 $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+				if ($arr_data["header_info"]) {
+					$arr_data["header_info"] = @serialize(array_merge(@unserialize($arr_param["module"]["header_info"]), $arr_data["header_info"]));
+				}
+				print_r($arr_data);				
                 removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
                 removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
 
@@ -292,8 +304,33 @@ class BuilderHandler
 				));
             	$this->obj_data->insertHandlerHistory($hid, $arr_param["handler"], $arr_handler);
             } else if ($_SESSION["module_id"] < 0) {
-            	file_put_contents("templates/main/css/global.css", $arr_data["style_code"]);
-				file_put_contents("templates/main/js/global.js", $arr_data["js_code"]);
+				if (!$arr_data["header_info"]) {
+	            	file_put_contents("templates/main/css/global.css", $arr_data["style_code"]);
+					file_put_contents("templates/main/js/global.js", $arr_data["js_code"]);
+				} else {
+            		$content = file_get_contents("modules/main/main_printer.php");
+					if ($arr_data["header_info"]["js_includes"]) {
+						$pre = substr($content, 0, strpos($content, "/*<JAVASCRIPT-INCLUDES>*/")+strlen("/*<JAVASCRIPT-INCLUDES>*/"));
+						$post = substr($content, strpos($content, "/*</JAVASCRIPT-INCLUDES>*/"));
+						$content = $pre."\n";
+						foreach ($arr_data["header_info"]["js_includes"] as $inc) {
+							$content .= "        \$obj_gen->addJavaScript(\"".$inc."\");\n";
+						}
+						$content .= $post;
+					}
+					
+					if ($arr_data["header_info"]["css_includes"]) {
+						$pre = substr($content, 0, strpos($content, "/*<CSS-INCLUDES>*/")+strlen("/*<CSS-INCLUDES>*/"));
+						$post = substr($content, strpos($content, "/*</CSS-INCLUDES>*/"));
+						$content = $pre;
+						foreach ($arr_data["header_info"]["css_includes"] as $inc) {
+							$content .= "        \$obj_gen->addStyleSheet(\"".$inc."\");\n";
+						}
+						$content .= $post;
+					}
+					
+					file_put_contents("modules/main/main_printer.php", $content);
+				}
             }
             $this->obj_data->insertModuleHistory($_SESSION["module_id"], $arr_param["module"], $arr_data);
             setcookie("klatcher[kmdtk][module][".$_SESSION["module_id"]."]", 1);
@@ -326,8 +363,18 @@ class BuilderHandler
 				"js_code" => file_get_contents("templates/main/js/global.js"),
 				"style_code" => file_get_contents("templates/main/css/global.css")
 			);
+			$c = file_get_contents("modules/main/main_printer.php");
+			$jsinc = substr($c, $start = strpos($c, "/*<JAVASCRIPT-INCLUDES>*/")+strlen("/*<JAVASCRIPT-INCLUDES>*/"), strpos($c, "/*</JAVASCRIPT-INCLUDES>*/") - $start);
+			$jsinc = str_replace(Array("\$obj_gen->addJavaScript(\"", "\");"), "", $jsinc);
+			$cssinc = substr($c, $start = strpos($c, "/*<CSS-INCLUDES>*/")+strlen("/*<CSS-INCLUDES>*/"), strpos($c, "/*</CSS-INCLUDES>*/") - $start);
+			$cssinc = str_replace(Array("\$obj_gen->addStyleSheet(\"", "\");"), "", $cssinc);
+
+			$arr_param["module"]["header_info"] = Array();
+			$arr_param["module"]["header_info"]["js_includes"] = preg_split("/\\s*\n\\s+/", trim($jsinc));
+			$arr_param["module"]["header_info"]["css_includes"] = preg_split("/\\s*\n\\s+/", trim($cssinc));
 		} else {
         	$arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+			$arr_param["module"]["header_info"] = @unserialize($arr_param["module"]["header_info"]);
 		}
 
 		// create crc32 files
@@ -1015,6 +1062,11 @@ class BuilderHandler
 			}
 		}
 		return implode("\n", $result);
+	}
+	
+	function proxyRequest() {
+		$data = file_get_contents($_GET["url"]);
+		die($data);
 	}
 
     /*</EVENT-HANDLERS>*/

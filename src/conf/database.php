@@ -86,6 +86,7 @@ $arr_database = Array
 		"fk_original_id"=>"INT(11) NOT NULL",		// original module id
 		"fk_module_id"=>"INT(11) NOT NULL",
 		"name"=>"VARCHAR(255)",
+		"header_info" => "TEXT",
 		"style_code"=>"LONGTEXT",					// should store only the difference between previous and new state
 		"js_code"=>"LONGTEXT",						// should store only the difference between previous and new state
 		"change_time"=>"INT(20)",

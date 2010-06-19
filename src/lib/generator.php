@@ -268,12 +268,14 @@ class Generator {
 		}
 		
         foreach ($this->arr_styles as $css) {
-        	if (@filectime($css["path"]) > $time) {
-        		// we need to regenerate the javascript files
-				@unlink("cache/".$prefix.".".$time.".css");
-				$time = time();
-				break;				
-        	}
+        	if (strpos($css["path"], "http://") === false && strpos($css["path"], "ftp://") === false && strpos($css["path"], "https://") === false) { 
+	        	if (@filectime($css["path"]) > $time) {
+	        		// we need to regenerate the javascript files
+					@unlink("cache/".$prefix.".".$time.".css");
+					$time = time();
+					break;				
+	        	}
+			}
 		}
 		
 		$path = "cache/".$prefix.".".$time.".css";

@@ -212,7 +212,7 @@ class DBDeployer {
          
          $str_query = "CREATE TABLE IF NOT EXISTS tbl_".$table." (".$pk." INT(11) NOT NULL AUTO_INCREMENT, ";
          $arr_tbl = $obj_db->SqlQuery("SHOW TABLES FROM ".$obj_db->obj_mysql->arr_links[0]["name"]." LIKE \"tbl_".$table."\"");
-         $bol_exists = is_array($arr_tbl[0]);
+         $bol_exists = ($arr_tbl[0] != null);
          if ($bol_exists) $arr_fields = $obj_db->SqlQuery("SHOW COLUMNS FROM tbl_".$table);
          foreach ($arr_table as $key=>$value)
          {

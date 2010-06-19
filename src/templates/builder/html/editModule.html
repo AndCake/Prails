@@ -8,6 +8,9 @@
 	<!-- @todo -->
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">
 		<div style="position:absolute;right:0px;">
+			<? if ((int)$arr_param["module"]["module_id"] != 0) { ?>
+				<a href="#" onclick="cssLibOpen(); return false;" style="font-size: 11px; color: #369;">Stylesheet Management</a>
+			<? } ?>
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
@@ -20,6 +23,9 @@
 	</div>
 	<div style="float:left;width:50%;position:relative;">
 		<div style="position:absolute;right:0px;">
+			<? if ((int)$arr_param["module"]["module_id"] != 0) { ?>
+				<a href="#" onclick="jsLibOpen(); return false;" style="font-size: 11px; color: #369;">Javascript Management</a>
+			<? } ?>
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
@@ -193,6 +199,252 @@
 						}
 					});
 				}, 100);
+				
+				var jsLibOpen = function() {
+					var win=new Ext.Window({
+						title: "Javascript Management",
+						closable: true,
+						width: 400,
+						shadow: true,
+						height: 350,
+						modal: true, 
+						items: [
+							grid = new Ext.grid.EditorGridPanel({
+								store: gridStore = new Ext.data.Store({
+									reader: new Ext.data.ArrayReader({
+										idIndex: 0
+									}, Ext.data.Record.create([
+										{name: "file"},
+										{name: "size"}
+									]))
+								}),
+								cm: new Ext.grid.ColumnModel({
+									defaults: {
+										sortable: true
+									},
+									columns: [
+										{
+											header: "File",
+											width: 300,
+											dataIndex: "file",
+											editor: new Ext.form.TextField({allowBlank: false, listeners: {
+												change: function(el, newValue, oldValue) {
+													Ext.Ajax.request({
+														url: "?event=builder:proxyRequest&url="+encodeURIComponent(newValue),
+														success: function(req, opts) {
+															grid.getSelectionModel().selection.record.set("size", ""+Math.round(req.responseText.length / 1024)+" kB");
+														}
+													});
+												}
+											}})
+										}, {
+											header: "Size in kB",
+											width: 60,
+											dataIndex: "size"
+										}
+									]
+								}),
+								viewConfig: {
+									sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+									emptyText: "No Javascript Libraries found.",
+									forceFit: true
+								},
+								height: 320,
+								width: 385,
+								border: false,
+								autoScroll: true,
+								clicksToEdit: 2,
+								tbar: [
+								{
+									text: 'Add Library',
+									iconCls: "add",
+								    handler : function(){
+						                // access the Record constructor through the grid's store
+						                var Field = grid.getStore().recordType;
+						                var p = new Field({
+						                    file: '',
+						                    size: '0 kB'
+						                });
+						                grid.stopEditing();
+						                grid.getStore().insert(0, p);
+						                grid.startEditing(0, 0);
+						            }
+						        },{
+									text: "Remove Library",
+									iconCls: "delete",
+									handler: function() {
+										grid.getStore().remove(grid.getSelectionModel().selection.record);
+									}
+								}],
+								bbar: [{
+									xtype: "button",
+									iconCls: "save",									
+									text: "save",
+									handler: function() {
+										var list = grid.getStore().data.items;
+										window['jsStoreContent<?=$arr_param["module"]["module_id"]?>'] = [];
+										var params = {};
+										for (var i = 0; i < list.length; i++) {
+											var item = list[i];
+											window['jsStoreContent<?=$arr_param["module"]["module_id"]?>'].push([
+												item.data.file,
+												item.data.size
+											]);
+											params["module[header_info][js_includes]["+i+"]"] = item.data.file;
+										}
+										if (list.length <= 0) {
+											params["module[header_info][js_includes]"] = "1";											
+										}
+										// send post to save in module
+										Ext.Ajax.request({
+											method: "post",
+											url: "?event=builder:editModule&check=1&module_id=<?=$arr_param['module']['module_id']?>",
+											params: params
+										});
+										win.close();
+									}
+								}, {
+									xtype: "button",
+									text: "cancel",
+									handler: function() {
+										win.close();
+									}
+								}]
+							})
+						]
+					});
+					win.show(this);
+					
+					gridStore.loadData(window['jsStoreContent<?=$arr_param["module"]["module_id"]?>'] || [
+					<? if ($arr_param["module"]["header_info"]["js_includes"] && is_array($arr_param["module"]["header_info"]["js_includes"])) { foreach ($arr_param["module"]["header_info"]["js_includes"] as $i => $field) { ?>
+						<? if ($i > 0) { ?>,<? } ?>
+						["<?=$field?>", "<?=round((@parse_url($field) == false ? filesize($field) : 0) / 1024)?> kB"]
+					<? }} ?>
+					]);
+				};
+				
+				var cssLibOpen = function() {
+					var win=new Ext.Window({
+						title: "Stylesheet Management",
+						closable: true,
+						width: 400,
+						shadow: true,
+						height: 350,
+						modal: true, 
+						items: [
+							grid = new Ext.grid.EditorGridPanel({
+								store: gridStore = new Ext.data.Store({
+									reader: new Ext.data.ArrayReader({
+										idIndex: 0
+									}, Ext.data.Record.create([
+										{name: "file"},
+										{name: "size"}
+									]))
+								}),
+								cm: new Ext.grid.ColumnModel({
+									defaults: {
+										sortable: true
+									},
+									columns: [
+										{
+											header: "File",
+											width: 300,
+											dataIndex: "file",
+											editor: new Ext.form.TextField({allowBlank: false, listeners: {
+												change: function(el, newValue, oldValue) {
+													Ext.Ajax.request({
+														url: "?event=builder:proxyRequest&url="+encodeURIComponent(newValue),
+														success: function(req, opts) {
+															grid.getSelectionModel().selection.record.set("size", ""+Math.round(req.responseText.length / 1024)+" kB");
+														}
+													});
+												}
+											}})
+										}, {
+											header: "Size in kB",
+											width: 60,
+											dataIndex: "size"
+										}
+									]
+								}),
+								viewConfig: {
+									sm: new Ext.grid.RowSelectionModel({singleSelect: true}),
+									emptyText: "No Stylesheets found.",
+									forceFit: true
+								},
+								height: 320,
+								width: 385,
+								border: false,
+								autoScroll: true,
+								clicksToEdit: 2,
+								tbar: [
+								{
+									text: 'Add Stylesheet',
+									iconCls: "add",
+								    handler : function(){
+						                // access the Record constructor through the grid's store
+						                var Field = grid.getStore().recordType;
+						                var p = new Field({
+						                    file: '',
+						                    size: '0 kB'
+						                });
+						                grid.stopEditing();
+						                grid.getStore().insert(0, p);
+						                grid.startEditing(0, 0);
+						            }
+						        },{
+									text: "Remove Stylesheet",
+									iconCls: "delete",
+									handler: function() {
+										grid.getStore().remove(grid.getSelectionModel().selection.record);
+									}
+								}],
+								bbar: [{
+									xtype: "button",
+									iconCls: "save",									
+									text: "Save",
+									handler: function() {
+										var list = grid.getStore().data.items;
+										window['cssStoreContent<?=$arr_param["module"]["module_id"]?>'] = [];
+										var params = {};
+										for (var i = 0; i < list.length; i++) {
+											var item = list[i];
+											window['cssStoreContent<?=$arr_param["module"]["module_id"]?>'].push([
+												item.data.file,
+												item.data.size
+											]);
+											params["module[header_info][css_includes]["+i+"]"] = item.data.file;
+										}
+										if (list.length <= 0) {
+											params["module[header_info][css_includes]"] = "1";											
+										}
+										// send post to save in module
+										Ext.Ajax.request({
+											method: "post",
+											url: "?event=builder:editModule&check=1&module_id=<?=$arr_param['module']['module_id']?>",
+											params: params
+										});
+										win.close();
+									}
+								}, {
+									xtype: "button",
+									text: "Cancel",
+									handler: function() {
+										win.close();
+									}
+								}]
+							})
+						]
+					});
+					win.show(this);
+					
+					gridStore.loadData(window['cssStoreContent<?=$arr_param["module"]["module_id"]?>'] || [
+					<? if ($arr_param["module"]["header_info"]["css_includes"] && is_array($arr_param["module"]["header_info"]["css_includes"])) { foreach ($arr_param["module"]["header_info"]["css_includes"] as $i => $field) { ?>
+						<? if ($i > 0) { ?>,<? } ?>
+						["<?=$field?>", "<?=round((@parse_url($field) == false ? filesize($field) : 0) / 1024)?> kB"]
+					<? }} ?>
+					]);
+				};				
 				
 			//]]>
         </script>
