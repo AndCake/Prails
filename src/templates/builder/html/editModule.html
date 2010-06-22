@@ -9,7 +9,7 @@
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">
 		<div style="position:absolute;right:0px;">
 			<? if ((int)$arr_param["module"]["module_id"] != 0) { ?>
-				<a href="#" onclick="cssLibOpen(); return false;" style="font-size: 11px; color: #369;">Stylesheet Management</a>
+				<a href="#" onclick="cssLibOpen(); return false;" style="font-size: 11px;">Stylesheet Management</a>
 			<? } ?>
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
@@ -24,7 +24,7 @@
 	<div style="float:left;width:50%;position:relative;">
 		<div style="position:absolute;right:0px;">
 			<? if ((int)$arr_param["module"]["module_id"] != 0) { ?>
-				<a href="#" onclick="jsLibOpen(); return false;" style="font-size: 11px; color: #369;">Javascript Management</a>
+				<a href="#" onclick="jsLibOpen(); return false;" style="font-size: 11px;">Javascript Management</a>
 			<? } ?>
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>

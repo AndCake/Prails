@@ -75,3 +75,11 @@ fieldset {
 	margin-top: 10px;
 	padding: 10px;
 }
+
+#qwbuilder_contentPanel a {
+	color: #369;
+}
+#qwbuilder_contentPanel a:hover {
+	color: #47a;
+	text-decoration: none;
+}
