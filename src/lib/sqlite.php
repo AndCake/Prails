@@ -17,10 +17,10 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class MySQL {
+class SQLite {
 	
 	var $constructs = Array(
-		"pk" => "INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY"
+		"pk" => "INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL"
 	);
 	
 	static $instance = null;
@@ -31,39 +31,34 @@ class MySQL {
 	var $bol_stripSlashes = true;
 	var $str_cachePath = "";
 	
-	function MySQL() {
+	function SQLite() {
 		$this->arr_links = Array();
 		$this->str_cachePath = DB_CACHE;
 	}
 	
 	static function getInstance() {
-		if (MySQL::$instance == null) MySQL::$instance = new MySQL();
+		if (SQLite::$instance == null) SQLite::$instance = new SQLite();
 		
-		return MySQL::$instance;
+		return SQLite::$instance;
 	}
 	
 	function connect($str_db = "offline") {
 		global $arr_dbs;
      	$id = count($this->arr_links);
-        $this->arr_links[$id]["link"] = @mysql_connect($arr_dbs[$str_db]["host"], $arr_dbs[$str_db]["user"], $arr_dbs[$str_db]["pass"]);
         $this->arr_links[$id]["overrides"] = $arr_dbs[$str_db]["table_overrides"];
         $this->arr_links[$id]["name"] = $arr_dbs[$str_db]["name"];
-        if ($this->arr_links[$id]["link"]) {
-        	if ( @mysql_select_db ($arr_dbs[$str_db]["name"], $this->arr_links[$id]["link"]) ) {
-        		return (TRUE);
-	        } else {
-               	$str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
-               	$this->int_MySqlErrNo = mysql_errno ();
-            	pushError($str_mySqlError);
-               	return false;
-	        }
-		} else {
-        	// set error code and leave method
-            $str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
-			$this->int_MySqlErrNo = mysql_errno ();
-            pushError($str_mySqlError);
-        }
-		
+		try {
+	        $this->arr_links[$id]["link"] = new SQLite3($arr_dbs[$str_db]["name"].".".$arr_dbs[$str_db]["host"]);
+			$this->arr_links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
+			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
+		} catch (Exception $ex) {
+			pushError("Unable to connect to SQLite Database.\n".$ex);
+		}
+	}
+	
+	function _ext_concat() {
+		$arr_args = func_get_args();
+		return implode("", $arr_args);
 	}
 	
 
@@ -78,19 +73,6 @@ class MySQL {
 	  	return $str_query;
 	}
 	
-	function listColumns($str_table) {
-		return $this->query("SHOW COLUMNS FROM ".$str_table."");
-	}
-	
-	function tableExists($str_table) {
-		$res = $this->query("SHOW TABLES LIKE '".$str_table."'");
-		return (count($res) > 0);
-	}
-	
-	function escape($str) {
-		return mysql_escape_string($str);
-	}
-	
 	function cleanCacheBlock($str_table) {
 	    $name = $this->str_cachePath . $str_table;
         if (file_exists($name)) {
@@ -103,6 +85,40 @@ class MySQL {
             }
             closedir($dp);
         }
+	}
+	
+	function listColumns($str_table) {
+		$arr_cols = $this->query("PRAGMA table_info(".$str_table.")");
+		
+		$arr_result = Array();
+		$arr_mapping = Array("name" => "Field", "type" => "Type");
+		foreach ($arr_cols as $col) {
+			$line = Array();
+			foreach ($col as $key=>$value) {
+				if ($arr_mapping[$key]) {
+					$line[$arr_mapping[$key]] = $value;
+				} else {
+					$line[$key] = $value;
+				}
+			}
+			array_push($arr_result, $line);
+		}
+		
+		return $arr_result;
+	}
+	
+	function tableExists($str_table) {
+		$res = $this->query("SELECT name FROM sqlite_master WHERE name='" . $str_table . "'");
+		return (count($res) > 0);
+	}
+	
+	function escape($str) {
+     	$link = $this->arr_links[0]["link"];
+      	if (!$link) {
+      		$this->connect();
+	      	$link = $this->arr_links[0]["link"];
+		}
+		return $link->escapeString($str);
 	}
 	
 	function query($str_query, $cacheTime = 0) {
@@ -121,15 +137,20 @@ class MySQL {
 	      	}
 
 	      	// send SQL statement to database
-	      	$dbr_queryResult = @mysql_query ($str_query, $link);
+			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE "))) {
+				$dbr_queryResult = $link->exec($str_query);
+			} else {
+	      		$dbr_queryResult = $link->query($str_query);
+			}
+			debugLog($str_query.": last insert id: ".$link->lastInsertRowID()); 
 		    // if query successful
 			if ($dbr_queryResult) {
-			    $this->int_affectedId = @mysql_insert_id ();
-	         	$this->int_affectedRows = @mysql_num_rows ($dbr_queryResult);
+			    $this->int_affectedId = $link->lastInsertRowID();
+	         	$this->int_affectedRows = 0;
 		        $int_resultCounter = 0;
 	         	$arr_result = Array ();
-
-	         	while ($arr_fetchedResult = @mysql_fetch_array ($dbr_queryResult, MYSQL_ASSOC)) {
+				
+	         	while ($dbr_queryResult !== true && $arr_fetchedResult = $dbr_queryResult->fetchArray(SQLITE3_ASSOC)) {
 	            	// remove slashes if needed
 	            	if ($this->bol_stripSlashes) {
 	            		foreach ($arr_fetchedResult as &$mix_val) {
@@ -142,7 +163,6 @@ class MySQL {
 					$arr_result[] = new DBEntry($arr_fetchedResult);
 		            $int_resultCounter ++;
 		         }
-				 @mysql_free_result($dbr_queryResult);
 		         
 		         if (strtoupper(substr($str_query, 0, 7)) == "SELECT ") {
 		         	// cache result
@@ -159,9 +179,7 @@ class MySQL {
 		         
 		         return ($arr_result);
 	    	  } else {
-	         	$str_mySqlError .= mysql_error () . " Error-Code: " . mysql_errno ();
-	         	$this->int_MySqlErrNo = mysql_errno ();
-	         	pushError($str_mySqlError);
+	         	pushError($link->lastErrorMsg());
 	      	}
 	  	}
 	}

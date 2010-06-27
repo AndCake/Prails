@@ -198,62 +198,86 @@ class DBDeployer {
 		}
 	}
 	
-   static function deploy($arr_db)
-   {
-      $obj_db = new TblClass();
+	static function deploy($arr_db)
+	{
+		$obj_db = new TblClass();
+	  
+	  	if (FIRST_RUN) {
+	  		$cnt = file_get_contents("conf/configuration.php");
+			$pre = substr($cnt, 0, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
+			$post = substr($cnt, strpos($cnt, "/*</CUSTOM-SETTINGS>*/")-1);
+			$settings = substr($cnt, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
+			$settings = substr($settings, 0, strpos($settings, "/*</CUSTOM-SETTINGS>*/"));
+			$lines = explode("\n", trim($settings));
+			$bol_found = false;
+			foreach ($lines as &$line) {
+				if (strpos($line, "FIRST_RUN")) {
+					$line = "\"FIRST_RUN\" => false,";
+					$bol_found = true;
+					break;
+				}
+			}
+			if (!$bol_found) {
+				array_push($lines, "\"FIRST_RUN\" => false,");
+			}
+			file_put_contents("conf/configuration.php", $pre.implode("\n", $lines).$post);
+		}
       
-      foreach ($arr_db as $table=>$arr_table)
-      {
-         if (strpos($table, "_key") > 0) 
-            $pk = str_replace("_key", "_id", $table); 
-         else
-            $pk = $table."_id";
-            
-         
-         $str_query = "CREATE TABLE IF NOT EXISTS tbl_".$table." (".$pk." INT(11) NOT NULL AUTO_INCREMENT, ";
-         $arr_tbl = $obj_db->SqlQuery("SHOW TABLES FROM ".$obj_db->obj_mysql->arr_links[0]["name"]." LIKE \"tbl_".$table."\"");
-         $bol_exists = ($arr_tbl[0] != null);
-         if ($bol_exists) $arr_fields = $obj_db->SqlQuery("SHOW COLUMNS FROM tbl_".$table);
-         foreach ($arr_table as $key=>$value)
-         {
-            if (strpos($value, "_COLLECTION") !== false) continue;		// ignore keys with type COLLECTION
-         	if ($bol_exists) 
-            {
-               $int_isIn = -1;
-               foreach ($arr_fields as $id=>&$arr_field) 
-               {
-                  if ($arr_field["Field"] == $key) {
-                  	$int_isIn = $id;
-					$arr_field["isIn"] = true;
-				  }
-               }
-               if ($int_isIn >= 0) 
-               {
-                  if (strtoupper($arr_fields[$int_isIn]["Type"]) != strtoupper($value)) 
-                  {
-                     $obj_db->SqlQuery("ALTER TABLE tbl_".$table." CHANGE ".$key." ".$key." ".$value);
-                  }
-               } else if ($key != $pk)
-               {
-                  $obj_db->SqlQuery("ALTER TABLE tbl_".$table." ADD ".$key." ".$value);
-               }
-            } else
-            {
-               $str_query .= $key." ".$value.", ";
-            }
-         }
-		 if (is_array($arr_fields)) foreach ($arr_fields as $arr_field) {
-		 	if (!$arr_field["isIn"] && $arr_field["Field"] != $pk) {
-		 		$obj_db->SqlQuery("ALTER TABLE tbl_".$table." DROP ".$arr_field["Field"]);
-		 	}
-		 }
-         if (!$bol_exists) 
-         {
-            $str_query .= "PRIMARY KEY (".$pk."))";
-            $obj_db->SqlQuery($str_query);
-         }        
-      }
-   }
+	    foreach ($arr_db as $table=>$arr_table)
+	    {
+	        if (strpos($table, "_key") > 0) 
+	            $pk = str_replace("_key", "_id", $table); 
+	        else
+	            $pk = $table."_id";
+	            
+	         
+	        $str_query = "CREATE TABLE IF NOT EXISTS tbl_".$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
+	        $arr_tbl = $obj_db->obj_mysql->tableExists("tbl_".$table);
+	        $bol_exists = ($arr_tbl[0] != null);
+	        if ($bol_exists) $arr_fields = $obj_db->obj_mysql->listColumns("tbl_".$table);
+	        foreach ($arr_table as $key=>$value)
+	        {
+	            if (strpos($value, "_COLLECTION") !== false) continue;		// ignore keys with type COLLECTION
+	         	if ($bol_exists) 
+	            {
+	               $int_isIn = -1;
+	               foreach ($arr_fields as $id=>&$arr_field) 
+	               {
+	                  if ($arr_field["Field"] == $key) {
+	                  	$int_isIn = $id;
+						$arr_field["isIn"] = true;
+					  }
+	               }
+	               if ($int_isIn >= 0) 
+	               {
+	                  if (strtoupper($arr_fields[$int_isIn]["Type"]) != strtoupper($value)) 
+	                  {
+	                     $obj_db->SqlQuery("ALTER TABLE tbl_".$table." CHANGE ".$key." ".$key." ".$value);
+	                  }
+	               } else if ($key != $pk)
+	               {
+	                  $obj_db->SqlQuery("ALTER TABLE tbl_".$table." ADD ".$key." ".$value);
+	               }
+	            } else
+	            {
+	            	if (strpos($value, "NOT NULL") !== false) {
+	            		$value .= " DEFAULT 0";
+	            	}
+	               	$str_query .= $key." ".$value.", ";
+	            }
+	        }
+			if (is_array($arr_fields)) foreach ($arr_fields as $arr_field) {
+			 	if (!$arr_field["isIn"] && $arr_field["Field"] != $pk) {
+			 		$obj_db->SqlQuery("ALTER TABLE tbl_".$table." DROP ".$arr_field["Field"]);
+				}
+			}
+	        if (!$bol_exists) 
+	        {
+	            $str_query = substr($str_query, 0, -2).")";
+	            $obj_db->SqlQuery($str_query);
+	        }        
+		}
+	}
 }
 
 ?>

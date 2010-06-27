@@ -47,8 +47,21 @@ switch (DEBUG_LEVEL) {
 		$ARR_LOGGER_ENABLED_PROPERTIES[] = "fatal";
 }
 
+$arr_settings = Array(
+/*<CUSTOM-SETTINGS>*/
+/*</CUSTOM-SETTINGS>*/
+);
+
+foreach ($arr_settings as $key=>$value) {
+	define ($key, $value);
+}
+
+define ("SQLITE", "SQLite");
+define ("MYSQL", "MySQL");
+
+define ("DB_TYPE", SQLITE);
 define ("DB_CACHE", "cache/db/");
-define ("USE_AUTO_DEPLOY", false);
+define ("USE_AUTO_DEPLOY", false || FIRST_RUN);
 
 switch ($_SERVER["SERVER_ADDR"])
 {

@@ -1,5 +1,4 @@
 ServerSignature Off
-php_value auto_prepend_file auto_prepend.php
 <IfModule mod_rewrite.c>
 	RewriteEngine on
 	

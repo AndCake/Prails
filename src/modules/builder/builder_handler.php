@@ -228,9 +228,10 @@ class BuilderHandler
         return false;
     }
 
-    function resetModule($die = true)
+    function resetModule($die = true, $module_id)
     {
-        $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+    	$module_id = if_set($module_id, $_SESSION["module_id"]);
+        $arr_param["module"] = $this->obj_data->selectModule($module_id);
 
         if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0)
         {
@@ -914,6 +915,7 @@ class BuilderHandler
         if ($_GET["check"] == "1")
         {
             $arr_table = $_POST["table"];
+			$needFlush = false;
             if ($_SESSION["table_id"] > 0)
             {
                 $arr_param["table"] = $this->obj_data->selectTable($_SESSION["table_id"]);
@@ -928,6 +930,7 @@ class BuilderHandler
                 $arr_module["name"] = strtolower($arr_module["name"]);
                 if ($_POST["d_scaffold"])
                 {
+                	$needFlush = true;
                     foreach ($_POST["d_scaffold"] as $data=>$one)
                     {
                         ob_start();
@@ -943,6 +946,7 @@ class BuilderHandler
                 }
                 if ($_POST["h_scaffold"])
                 {
+                	$needFlush = true;                	
                     foreach ($_POST["h_scaffold"] as $handler=>$one)
                     {
                         ob_start();
@@ -960,6 +964,9 @@ class BuilderHandler
                         $this->obj_data->insertHandlerHistory($hid, null, $arr_data);
                     }
                 }
+				if ($needFlush) {
+					$this->resetModule(false, $_POST["scaffold"]["fk_module_id"]);
+				}
             }
             $this->obj_data->insertTableHistory($_SESSION["table_id"], $arr_param["table"], $arr_table);
 
@@ -1051,117 +1058,117 @@ class BuilderHandler
         if (!$chat)
             $chat = Array();
         else $chat = explode("\n", $chat);
-    array_unshift($chat, $entry);
-if (count($chat) > 100)array_pop($chat);
-file_put_contents("shout.box", $content = implode("\n", $chat));
-@chmod("shout.box", 0755);
-@touch("shout.box");
-die ($content);
-}
+    	array_unshift($chat, $entry);
+		if (count($chat) > 100)array_pop($chat);
+		file_put_contents("shout.box", $content = implode("\n", $chat));
+		@chmod("shout.box", 0755);
+		@touch("shout.box");
+		die ($content);
+	}
 
-function queryTest()
-{
-    $arr_param = Array();
+	function queryTest()
+	{
+    	$arr_param = Array();
 
-if ($_GET["check"] == "1")
-{
-    $query = stripslashes($_POST["query"]);
-$arr_param["result"] = $this->obj_data->SqlQuery($query);
-}
+		if ($_GET["check"] == "1")
+		{
+    		$query = stripslashes($_POST["query"]);
+			$arr_param["result"] = $this->obj_data->SqlQuery($query);
+		}
 
-die ($this->_callPrinter("queryTest", $arr_param));
-}
+		die ($this->_callPrinter("queryTest", $arr_param));
+	}
 
-function searchItem()
-{
-    $arr_param = Array();
+	function searchItem()
+	{
+	    $arr_param = Array();
 
-$query = $_POST["query"];
-$arr_param["handlerResult"] = $this->obj_data->findHandlerByName($query, $_SESSION["builder"]["user_id"]);
-$arr_param["dataResult"] = $this->obj_data->findDataByName($query, $_SESSION["builder"]["user_id"]);
-$arr_param["libraryResult"] = $this->obj_data->findLibByName($query, $_SESSION["builder"]["user_id"]);
-$arr_param["moduleResult"] = $this->obj_data->findModuleByName($query, $_SESSION["builder"]["user_id"]);
-$arr_param["tagResult"] = $this->obj_data->findTagByName($query, $_SESSION["builder"]["user_id"]);
-$arr_param["tableResult"] = $this->obj_data->findTableByName($query, $_SESSION["builder"]["user_id"]);
+		$query = $_POST["query"];
+		$arr_param["handlerResult"] = $this->obj_data->findHandlerByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["dataResult"] = $this->obj_data->findDataByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["libraryResult"] = $this->obj_data->findLibByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["moduleResult"] = $this->obj_data->findModuleByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["tagResult"] = $this->obj_data->findTagByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["tableResult"] = $this->obj_data->findTableByName($query, $_SESSION["builder"]["user_id"]);
 
-$arr_param["result"] = Array();
-if (is_array($arr_param["handlerResult"]))$arr_param["result"] = $arr_param["handlerResult"];
-if (is_array($arr_param["dataResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["dataResult"]);
-if (is_array($arr_param["libraryResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["libraryResult"]);
-if (is_array($arr_param["moduleResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["moduleResult"]);
-if (is_array($arr_param["tagResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tagResult"]);
-if (is_array($arr_param["tableResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tableResult"]);
-header("Content-Type: application/json");
-die (json_encode($arr_param["result"]));
-}
+		$arr_param["result"] = Array();
+		if (is_array($arr_param["handlerResult"]))$arr_param["result"] = $arr_param["handlerResult"];
+		if (is_array($arr_param["dataResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["dataResult"]);
+		if (is_array($arr_param["libraryResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["libraryResult"]);
+		if (is_array($arr_param["moduleResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["moduleResult"]);
+		if (is_array($arr_param["tagResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tagResult"]);
+		if (is_array($arr_param["tableResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tableResult"]);
+		header("Content-Type: application/json");
+		die (json_encode($arr_param["result"]));
+	}
 
-// merges the new changes with the unsaved changes of the user, so that the unsaved ones survive too
-function _mergeContent($oldDB, $newDB, $newUser)
-{
-    $userChanges = diff($oldDB, $newUser);
-$dbChanges = diff($oldDB, $newDB);
+	// merges the new changes with the unsaved changes of the user, so that the unsaved ones survive too
+	function _mergeContent($oldDB, $newDB, $newUser)
+	{
+	    $userChanges = diff($oldDB, $newUser);
+		$dbChanges = diff($oldDB, $newDB);
 
-$lines = Array();
-foreach ($userChanges as $line=>$change)
-{
-    if (is_array($change))
-    {
-        array_push($lines, $line);
-}
-}
-foreach ($lines as $line)
-{
-    $dbChanges[$line] = $userChanges[$line];
-}
+		$lines = Array();
+		foreach ($userChanges as $line=>$change)
+		{
+    		if (is_array($change))
+    		{
+        		array_push($lines, $line);
+			}
+		}
+		foreach ($lines as $line)
+		{
+    		$dbChanges[$line] = $userChanges[$line];
+		}
 
-$result = Array();
-foreach ($dbChanges as $line=>$content)
-{
-    if (is_array($content))
-    {
-        if ( isset ($content["i"]))
-        {
-            if (is_array($content["i"])) foreach ($content["i"] as $c)
-            {
-                array_push($result, $c);
-        } else
-        {
-            array_push($result, $content["i"]);
-    }
-}
-} else
-{
-    array_push($result, $content);
-}
-}
-return implode("\n", $result);
-}
+		$result = Array();
+		foreach ($dbChanges as $line=>$content)
+		{
+    		if (is_array($content))
+    		{
+        		if ( isset ($content["i"]))
+        		{
+            		if (is_array($content["i"])) foreach ($content["i"] as $c)
+            		{
+                		array_push($result, $c);
+        			} else
+        			{
+            			array_push($result, $content["i"]);
+    				}
+				}
+			} else
+			{
+    			array_push($result, $content);
+			}
+		}
+		return implode("\n", $result);
+	}
 
-function proxyRequest()
-{
-    $data = file_get_contents($_GET["url"]);
-die ($data);
-}
+	function proxyRequest()
+	{
+	    $data = file_get_contents($_GET["url"]);
+		die ($data);
+	}
 
 /*</EVENT-HANDLERS>*/
 
-/**
- * @desc calls the corresponding method in printer
- * @param $str_func [STRING]   function to call
- * @param $arr_param [ARRAY]   some data that may be needed
- * @returns [BOOLEAN]    TRUE if call successful, else FALSE
- */
-function _callPrinter($str_func, $arr_param)
-{
-    if (method_exists($this->obj_print, $str_func))
-    {
-        return $this->obj_print->$str_func($arr_param);
-} else
-{
-    pushError("Could not call ".$str_func." in BuilderPrinter.");
-return false;
-}
-}
+	/**
+ 	 * @desc calls the corresponding method in printer
+ 	 * @param $str_func [STRING]   function to call
+ 	 * @param $arr_param [ARRAY]   some data that may be needed
+	 * @returns [BOOLEAN]    TRUE if call successful, else FALSE
+	 */
+	function _callPrinter($str_func, $arr_param)
+	{
+    	if (method_exists($this->obj_print, $str_func))
+	    {
+        	return $this->obj_print->$str_func($arr_param);
+		} else
+		{
+    		pushError("Could not call ".$str_func." in BuilderPrinter.");
+			return false;
+		}
+	}
 }
 
 ?>

@@ -35,7 +35,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
 
    function TblClass () { ////////////////////////////////////////////////
    		// connect to mysql database
-		$this->obj_mysql = MySQL::getInstance();
+		$this->obj_mysql = call_user_func(Array(DB_TYPE, "getInstance"));
    	
    } // end TblClass ////////////////////////////////////////////////////
 
@@ -102,24 +102,23 @@ class TblClass { ///////////////////////////////////////////////////////////////
     * @return INT ID of the inserted tupel
     */
    function InsertQuery ($str_table, $arr_data, $bol_enclose=true, $bol_escape = true) {
-      $arr_columns = $this->SqlQuery("SHOW COLUMNS FROM ".$str_table." ");
+      $arr_columns = $this->obj_mysql->listColumns($str_table);
 
-      $str_query = "INSERT INTO ".$str_table." SET ";
+      $str_query = "INSERT INTO ".$str_table." (";
+	  $fields = Array();
+	  $values = Array();
       foreach ($arr_columns as $arr_col) {
-         if ($arr_data[$arr_col["Field"]]) {
+         if (isset($arr_data[$arr_col["Field"]])) {        	
+/*
          	 if (preg_match("/[^\\\]'/", $arr_data[$arr_col["Field"]]) && $bol_escape && $bol_enclose) {
          		 $arr_data[$arr_col["Field"]] = addslashes($arr_data[$arr_col["Field"]]);
-         	 }         	
-             if ($bol_enclose)
-                 $str_query .= $arr_col["Field"]."='".($bol_escape?addslashes($arr_data[$arr_col["Field"]]):$arr_data[$arr_col["Field"]])."', ";
-             else
-                 $str_query .= $arr_col["Field"]."=".$arr_data[$arr_col["Field"]].", ";
+         	 }*/         	
+			 array_push($fields, $arr_col["Field"]);
+			 array_push($values, ($bol_escape?$this->obj_mysql->escape($arr_data[$arr_col["Field"]]):$arr_data[$arr_col["Field"]]));
          }
       }
-      $str_query = substr($str_query, 0, -2);     // ", " abhacken
-
+      $str_query .= implode(", ", $fields) . ") VALUES ('" . implode("', '", $values)."')";
       $this->SqlQuery ( $str_query );
-      
       $this->remoteSqlQuery($str_query);
       
       return $this->int_affectedId;
@@ -135,7 +134,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
     * @return INT number of tupel changed
     */
    function UpdateQuery ($str_table, $arr_data, $str_where = "1", $bol_enclose=true) {
-      $arr_columns = $this->SqlQuery("SHOW COLUMNS FROM ".$str_table." ");
+      $arr_columns = $this->obj_mysql->listColumns($str_table);
 
       $str_query = "UPDATE ".$str_table." SET ";
 	  $i = 0;
@@ -144,7 +143,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
          	$i++;
          	if ($bol_enclose) {
          		if (preg_match("/[^\\\]'/", $arr_data[$arr_col["Field"]])) {
-	         		$arr_data[$arr_col["Field"]] = addslashes($arr_data[$arr_col["Field"]]);
+	         		$arr_data[$arr_col["Field"]] = $this->obj_mysql->escape($arr_data[$arr_col["Field"]]);
 	         	}
 	            $str_query .= $arr_col["Field"]."='".$arr_data[$arr_col["Field"]]."', ";
          	} else {

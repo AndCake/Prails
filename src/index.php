@@ -16,6 +16,7 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+include("auto_prepend.php");
 
 header('P3P: CP="CAO PSA OUR"');
 session_start();
