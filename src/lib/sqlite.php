@@ -142,7 +142,6 @@ class SQLite {
 			} else {
 	      		$dbr_queryResult = $link->query($str_query);
 			}
-			debugLog($str_query.": last insert id: ".$link->lastInsertRowID()); 
 		    // if query successful
 			if ($dbr_queryResult) {
 			    $this->int_affectedId = $link->lastInsertRowID();
