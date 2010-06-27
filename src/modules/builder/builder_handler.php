@@ -1149,6 +1149,122 @@ class BuilderHandler
 	    $data = file_get_contents($_GET["url"]);
 		die ($data);
 	}
+	
+	function export() {
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT\n");
+		header("Content-Transfer-Encoding: binary");
+		header("Content-type: application/octet-stream");
+		header("Content-Disposition: attachment; filename=\"".$_POST["file"]."\"");
+		$magic_border = md5(serialize($_POST));
+		if ($_POST["modules"]) {
+			echo "---".$magic_border."\n";
+			$modules = Array();
+			foreach ($_POST["modules"] as $mod) {
+				$arr_module = $this->obj_data->selectModule($mod);
+				$arr_module["handlers"] = $this->obj_data->listHandlers($mod);
+				$arr_module["datas"] = $this->obj_data->listDatas($mod);
+				$arr_module["configs"] = $this->obj_data->listConfigurationFromModule($mod);
+				$arr_module["resources"] = $this->obj_data->listResources($mod);
+				array_push($modules, $arr_module);				
+			}
+			echo "M";
+			echo gzcompress(serialize($modules), 9);
+			unset($modules);
+		}
+		if ($_POST["libraries"]) {
+			echo "---".$magic_border."\n";
+			$libraries = Array();
+			foreach ($_POST["libraries"] as $lib) {
+				$arr_library = $this->obj_data->selectLibrary($lib);
+				array_push($libraries, $arr_library);
+			}
+			echo "L";
+			echo gzcompress(serialize($libraries), 9);
+			unset($libraries);
+		}
+		if ($_POST["tags"]) {
+			echo "---".$magic_border."\n";
+			$tags = Array();
+			foreach ($_POST["tags"] as $tag) {
+				array_push($tags, $this->obj_data->selectTag($tag));
+			}
+			echo "T";
+			echo gzcompress(serialize($tags), 9);
+			unset($tags);
+		}
+		if ($_POST["tables"]) {
+			echo "---".$magic_border."\n";
+			$tables = Array();
+			foreach ($_POST["tables"] as $table) {
+				array_push($tables, $this->obj_data->selectTable($table));
+			}
+			echo "D";
+			echo gzcompress(serialize($tables), 9);
+			unset($tables);
+		}
+		die();
+	}
+	
+	function import() {
+		if ($_FILES["file"]) {
+			$content = file_get_contents($_FILES["file"]["tmp_name"]);
+		} else {
+			$content = file_get_contents("php://input");
+		}
+		if (isset($content) && !empty($content)) {
+			// import everything we find
+			if (substr($content, 0, 3) !== "---") {
+				die("error parsing input file...");
+			}
+			$magic = substr($content, 0, strpos($content, "\n")+1);
+			$sections = explode($magic, substr($content, strlen($magic)));
+			foreach ($sections as $section) {
+				$data = @unserialize(gzuncompress(substr($section, 1)));
+				if ($section[0] == "D") {
+					// import database table
+					foreach ($data as $arr_table) {
+						$this->obj_data->insertTable($arr_table);
+						// deploy table
+			            $arr_fields = Array();
+			            $items = explode(":", $arr_table["field_names"]);
+			            $types = explode(":", $arr_table["field_types"]);
+			            foreach ($items as $i=>$field)
+			            {
+			                $arr_fields[$field] = $types[$i];
+			            }
+			            $arr_db = Array();
+			            $arr_db[$arr_table["name"]] = $arr_fields;
+			            DBDeployer::deploy($arr_db);
+					}
+				} else if ($section[0] == "T") {
+					foreach ($data as $tag) {
+						$this->obj_data->insertTag($tag);
+					}
+				} else if ($section[0] == "L") {
+					foreach ($data as $library) {
+						$this->obj_data->insertLibrary($library);
+					}
+				} else if ($section[0] == "M") {
+					foreach ($data as $mod) {
+						$this->obj_data->insertModule($mod);
+						foreach ($mod["handlers"] as $handler) {
+							$this->obj_data->insertHandler($handler);
+						}
+						foreach ($mod["datas"] as $data) {
+							$this->obj_data->insertData($data);
+						}
+						foreach ($mod["configs"] as $config) {
+							$this->obj_data->insertConfiguration($config);
+						}
+						foreach ($mod["resources"] as $res) {
+							$this->obj_data->insertResource($res);
+						}
+					}
+				}
+			} 
+		}
+		die("success");
+	}
 
 /*</EVENT-HANDLERS>*/
 

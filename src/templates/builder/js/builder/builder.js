@@ -30,10 +30,51 @@ Builder = Object.extend(Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 213,
+				width: 290,
 				border: false,
+				layout: "table",
+				layoutConfig: {columns: 2},
 				region: "east",
 				items: [{
+					xtype: "button",
+					style: "margin-right: 10px;",
+					iconCls: "package",
+					text: "Package",
+					handler: function(){
+						new Ext.Window({
+							layout: "fit",
+							title: "Package",
+							iconCls: "package",
+							modal: true,
+							shadow: true,
+							width: 574,
+							height: 260,
+							plain: true,
+							items: [
+							        new Ext.TabPanel({
+							        	activeTab: 0,
+							        	border: false,
+							        	items: [{
+							        		title: "Export",
+							        		html: $("export_panel").innerHTML
+							        	},{
+							        		title: "Import",
+							        		id: "import",
+							        		html: $("import_panel").innerHTML.replace(/<!--|-->/gmi, "")
+							        	}],
+							        	listeners: {
+							        		tabchange: function(panel, tab) {
+							        			if (tab.getId() == "import") {
+							        				QuixoticWorxUpload.init();							        				
+							        			}
+							        		}
+							        	}
+							        })
+							]
+						}).show(this);
+						QuixoticWorxUpload.init();
+					}
+				}, {
 					xtype: "combo",
 					width: 200,
 					id: "item.quickOpen",

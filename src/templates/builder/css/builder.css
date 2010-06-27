@@ -44,6 +44,7 @@ button.delete, .delete {
 .history { background-image: url(../images/history.gif) !important; }
 .table { background-image: url(../images/table.gif) !important; }
 .apply { background-image: url(../images/apply.png) !important; }
+.package { background-image: url(../images/package.png) !important; }
 
 ul.historyList li a {
 	background: url(../images/slate/toolbar/bg.gif) repeat-x;
@@ -82,4 +83,21 @@ fieldset {
 #qwbuilder_contentPanel a:hover {
 	color: #47a;
 	text-decoration: none;
+}
+
+fieldset select.export {
+	width: 100px;
+}
+
+form .panel-bottom input[type="text"] {
+	margin-right: 10px; 
+	width: 250px;
+	padding: 2px; 
+}
+
+form .panel-bottom {
+	margin: 1em 0px; 
+	background-color: rgb(239, 239, 239); 
+	text-align: right; 
+	padding: 3px 10px; 
 }

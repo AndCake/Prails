@@ -26,6 +26,88 @@
 		</ul>		
 	</div>
 </div>
+<div id="export_panel" style="display: none;">
+	<div style="padding: 10px;">
+	<form method="post" action="?event=builder:export">
+		<fieldset>
+			<legend>Modules:</legend>
+			<select class="export" name="modules[]" multiple="multiple" size="5" id="modules">
+				<c:foreach var="modules" name="module">
+					<option selected="selected" value="#module.module_id">#module.name</option>
+				</c:foreach>
+			</select>
+			<div>
+				<a href="javascript:" onclick="$$('#modules option').each(function(item){item.selected=true;});">select all</a> | 
+				<a href="javascript:" onclick="$$('#modules option').each(function(item){item.selected=false;});">select none</a>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Libraries:</legend>
+			<select class="export" name="libraries[]" multiple="multiple" size="5" id="libraries">
+				<c:foreach var="libraries" name="library">
+					<option selected="selected" value="#library.library_id">#library.name</option>
+				</c:foreach>
+			</select>
+			<div>
+				<a href="javascript:" onclick="$$('#libraries option').each(function(item){item.selected=true;});">select all</a> | 
+				<a href="javascript:" onclick="$$('#libraries option').each(function(item){item.selected=false;});">select none</a>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Tags:</legend>
+			<select class="export" name="tags[]" multiple="multiple" size="5" id="tags">
+				<c:foreach var="tags" name="tag">
+					<option selected="selected" value="#tag.tag_id">#tag.name</option>
+				</c:foreach>
+			</select>
+			<div>
+				<a href="javascript:" onclick="$$('#tags option').each(function(item){item.selected=true;});">select all</a> | 
+				<a href="javascript:" onclick="$$('#tags option').each(function(item){item.selected=false;});">select none</a>
+			</div>
+		</fieldset>		
+		<fieldset>
+			<legend>Tables:</legend>
+			<select class="export" name="tables[]" multiple="multiple" size="5" id="tables">
+				<c:foreach var="tables" name="table">
+					<option selected="selected" value="#table.table_id">#table.name</option>
+				</c:foreach>
+			</select>
+			<div>
+				<a href="javascript:" onclick="$$('#tables option').each(function(item){item.selected=true;});">select all</a> | 
+				<a href="javascript:" onclick="$$('#tables option').each(function(item){item.selected=false;});">select none</a>
+			</div>
+		</fieldset>
+		<div class="panel-bottom"> Save to:
+		<input type="text" name="file" value="<?=preg_replace('/[^a-zA-Z0-9_.]/', '_', PROJECT_NAME)."-".date("Y-m-d").".prails"?>" />
+		<button type="submit">export</button>
+		</div>
+	</form>
+	</div>
+</div>
+<div id="import_panel" style="display: none;"><!--
+	<div style="padding: 10px;">
+	<h2>Import Package</h2>
+	<fieldset>
+		<legend>
+			File to import: 
+		</legend>
+		<qw:file 	
+			target="?event=builder:import&name=" 
+			progress="progress" 
+			onstart="$('currentFile').innerHTML='Uploading '+this.fileName+' ('+Math.round(this.fileSize / 1024)+'kB)...';" 
+			ondone="location.reload();"
+		>
+			<button>Click to upload</button>
+		</qw:file>
+		<div id="currentFile"></div>
+		<div style="position:relative;width:200px;height:10px;border:1px solid #ccc;background-color:#fff;display:none;">
+			<div id="progress" style="position:absolute;left:0px;top:0px;height:100%;width:0px;background-color:#cf9;border-right:1px solid #ccc;"></div>
+		</div>
+		
+		<p style="margin: 1em 0px;"><i>Please note:</i> you can only upload package files to a maximum size of <b><?=ini_get("post_max_size")?>B</b> each.</p>	
+	</fieldset>
+	</div>
+--></div>
 <div id="shoutbox" style="display:none;">
 	<div style="margin-left:3px;margin-top:3px;">
 	<form method="post" action="?event=builder:shout" onsubmit="try{window.dold = (new Date()).getTime();invoke('sbmsglist', 'builder:shout', this.serialize(), true);$('sbmsg').value='';$('sbmsg').blur();}catch(e){console.log(e);};return false;">
