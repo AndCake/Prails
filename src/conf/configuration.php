@@ -18,7 +18,7 @@
 */
 
 define ("PROJECT_NAME", "PRails Web Framework");
-define ("FRAMEWORK_VERSION", "1.0.2.1");
+define ("FRAMEWORK_VERSION", "1.0.3");
 define ("PROJECT_LOG", "log/framework.log");
 define ("ERROR_MAIL", "<enter your email here to get notified on errors>");
 
