@@ -28,6 +28,11 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 		event = element;
 		element = null;
 	}
+	if (event.indexOf("/") < 0) {
+		event = baseHref+"?event="+event;
+	} else {
+		event = baseHref + event;
+	}
 	if (element != null) {
 		if (showIndicator !== false) {
 			// show loading indicator...
@@ -47,19 +52,30 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 			$(element).insertBefore(div, $(element).firstChild);
 		}
 
-		new Ajax.Updater(element, baseHref + "?event=" + event + params, {
+		new Ajax.Updater(element, event, {
 			parameters : parameters,
 			evalScripts : true,
 			method : (post ? 'post' : 'get'),
 			onSuccess : onSuccess
 		});
 	} else {
-		new Ajax.Request(baseHref + "?event=" + event + params, {
+		new Ajax.Request(event, {
 			parameters : parameters,
 			method : (post ? 'post' : 'get'),
 			onSuccess : onSuccess
 		});
 	}
+}
+
+function initAjaxLinks() {
+	$$("a[rel]").each(function(item) {
+		if ($(item.rel) != null) {
+			item.observe("click", function(event) {
+				invoke(this.rel, this.href);
+				event.stop();
+			});
+		}
+	});
 }
 
 function addLoadEvent(func) {
@@ -81,3 +97,6 @@ function crc32(str) {
 	}
 	return crc ^ (-1);
 }
+
+// does not work while prototype is still not loaded!
+addLoadEvent(initAjaxLinks);

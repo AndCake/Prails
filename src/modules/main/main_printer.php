@@ -30,7 +30,6 @@ class MainPrinter
         $obj_gen->addStyleSheet("templates/main/css/global.css");
 
         /*<JAVASCRIPT-INCLUDES>*/
-        $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/lib/prototype.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/scriptaculous.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/builder.js");
@@ -40,6 +39,7 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/sound.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/slider.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/lib/control.modal.js");
+        $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/fileselector.js");
         $obj_gen->addJavaScript("templates/main/js/evalfields.js");
         $obj_gen->addJavaScript("templates/main/js/overlabels.js");
