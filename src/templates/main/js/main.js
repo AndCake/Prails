@@ -71,7 +71,12 @@ function initAjaxLinks() {
 	$$("a[rel]").each(function(item) {
 		if ($(item.rel) != null) {
 			item.observe("click", function(event) {
-				invoke(this.rel, this.href);
+				invoke(this.rel, this.href, null, false, function(req) {
+					setTimeout(function() {
+						document.fire("dom:loaded");	
+						try { eval(item.onload); } catch(e){};
+					}, 10);
+				});
 				event.stop();
 			});
 		}
@@ -98,5 +103,4 @@ function crc32(str) {
 	return crc ^ (-1);
 }
 
-// does not work while prototype is still not loaded!
 addLoadEvent(initAjaxLinks);

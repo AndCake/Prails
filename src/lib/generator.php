@@ -393,7 +393,9 @@ class Generator {
 		$fp = fopen($path, "w+");
 	        foreach ($this->arr_js as $js) {
 	        	$str = file_get_contents($js);
-			$str = JSMIN::minify($str);
+			if (ENV_PRODUCTION === true) {
+				$str = JSMIN::minify($str);
+			}
 	        	fwrite($fp, $str);
 	        }
 		fclose($fp);
