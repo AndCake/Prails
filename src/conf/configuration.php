@@ -1,6 +1,6 @@
 <?php
 /**
-    PRails Web Framework
+    Prails Web Framework
     Copyright (C) 2010  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("PROJECT_NAME", "PRails Web Framework");
+define ("PROJECT_NAME", "Prails Web Framework");
 define ("FRAMEWORK_VERSION", "1.0.3");
 define ("PROJECT_LOG", "log/framework.log");
 define ("ERROR_MAIL", "<enter your email here to get notified on errors>");

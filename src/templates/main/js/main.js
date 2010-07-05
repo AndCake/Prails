@@ -68,8 +68,23 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 }
 
 function initAjaxLinks() {
-	$$("a[rel]").each(function(item) {
-		if ($(item.rel) != null) {
+	$$("a[rel], a.modal").each(function(item) {
+		if (item.hasClassName("modal") && !item._ajaxified) {
+			var params = {};
+			item._ajaxified = true;
+			if (item.rel) {
+				var paramList = item.rel.split("|");
+				$A(paramList).each(function(p) {
+					var parts = p.split("=");
+					params[parts[0]] = parts[1];
+				});
+			}
+			if (item.href.indexOf(baseHref) < 0) {
+				params["iframe"] = true;
+			}
+			new Control.Modal(item, params);
+		} else if ($(item.rel) != null && !item._ajaxified) {
+			item._ajaxified = true;
 			item.observe("click", function(event) {
 				invoke(this.rel, this.href, null, false, function(req) {
 					setTimeout(function() {
@@ -80,6 +95,27 @@ function initAjaxLinks() {
 				event.stop();
 			});
 		}
+	});
+}
+
+function initWysiwyg() {
+	$$(".wysiwyg").each(function(item) {
+		if (item._wysiwygtified) return true;
+		item._wysiwygtified = true;
+		var params = {iconsPath: "templates/main/images/nicEditorIcons.gif", fullPanel: true};
+		if (item.rel) {
+			var paramList = item.rel.split("|");
+			$A(paramList).each(function(p) {
+				var parts = p.split("=");
+				if (parts[0] == "buttonList") {
+					params[parts[0]] = parts.slice(1).join("=").split(",");
+				} else {
+					params[parts[0]] = parts.slice(1).join("=");
+				}
+			});
+		}
+		if (item.onsave) params["onSave"] = function(content, id, instance) { eval(item.onsave); };
+		new nicEditor(params).panelInstance(item);
 	});
 }
 
@@ -104,3 +140,4 @@ function crc32(str) {
 }
 
 addLoadEvent(initAjaxLinks);
+addLoadEvent(initWysiwyg);

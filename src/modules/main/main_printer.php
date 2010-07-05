@@ -39,6 +39,7 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/sound.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/slider.js");
         $obj_gen->addJavaScript("templates/main/js/scriptaculous/lib/control.modal.js");
+	$obj_gen->addJavaScript("templates/main/js/nicedit.js");
         $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/fileselector.js");
         $obj_gen->addJavaScript("templates/main/js/evalfields.js");
