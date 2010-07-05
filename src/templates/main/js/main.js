@@ -103,18 +103,22 @@ function initWysiwyg() {
 		if (item._wysiwygtified) return true;
 		item._wysiwygtified = true;
 		var params = {iconsPath: "templates/main/images/nicEditorIcons.gif", fullPanel: true};
-		if (item.rel) {
-			var paramList = item.rel.split("|");
+		if (item.getAttribute("rel")) {
+			var paramList = item.getAttribute("rel").split("|");
 			$A(paramList).each(function(p) {
 				var parts = p.split("=");
 				if (parts[0] == "buttonList") {
 					params[parts[0]] = parts.slice(1).join("=").split(",");
 				} else {
-					params[parts[0]] = parts.slice(1).join("=");
+					try {
+						params[parts[0]] = eval(parts.slice(1).join("="));
+					} catch(e) {
+						params[parts[0]] = parts.slice(1).join("=");
+					}
 				}
 			});
 		}
-		if (item.onsave) params["onSave"] = function(content, id, instance) { eval(item.onsave); };
+		if (item.onsave || item.getAttribute("onsave")) params["onSave"] = function(content, id, instance) { eval(item.onsave || item.getAttribute("onsave")); };
 		new nicEditor(params).panelInstance(item);
 	});
 }

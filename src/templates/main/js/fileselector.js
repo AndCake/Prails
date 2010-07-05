@@ -333,15 +333,4 @@ QuixoticWorxUploadClass.prototype.addUpload = QuixoticWorxUpload.addUpload;
 QuixoticWorxUploadClass.prototype.upload = QuixoticWorxUpload.upload;
 QuixoticWorxUploadClass.prototype.initSingleUpload = QuixoticWorxUpload.initSingleUpload;
 
-//QuixoticWorxUpload.init();
-if (document.addEventListener) {
-	document.addEventListener("DOMContentLoaded", function() {
-		QuixoticWorxUpload.loaded = true;
-		QuixoticWorxUpload.init();
-	}, false);
-} else {
-	window.onload = function() {
-		QuixoticWorxUpload.loaded = true;
-		QuixoticWorxUpload.init();
-	};
-}
+addLoadEvent(QuixoticWorxUpload.init);
