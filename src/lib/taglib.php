@@ -126,8 +126,8 @@ class TagLib {
 	
 	private function startTag($tagName, $attributes, $startPos, $len) {
 		$cur = count($this->tagMatch[$tagName]);
-		if (is_array($this->tagMatch[$tagName][$cur - 1])) {
-			if ($this->tagMatch[$tagName][$cur - 1]["endPos"] <= $this->tagMatch[$tagName][$cur]["startPos"]) {
+		if (is_array($this->tagMatch[$tagName][$cur - 1]) && $this->tagMatch[$tagName][$cur - 1]["endPos"] > 0) {
+			if ($this->tagMatch[$tagName][$cur - 1]["endPos"] <= $startPos) {
 				return;
 			}
 		}

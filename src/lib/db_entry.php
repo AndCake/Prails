@@ -31,6 +31,24 @@ class DBEntry extends ArrayObject {
 				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$index." WHERE ".$index."_id='".$id."'")));
 			}
 			return parent::offsetGet($index); 
+		} else if (substr($index, -5) == "_list") {
+			$collection_name = preg_replace("/_list\$/", "", $index);
+			if (parent::offsetGet($index) == null) {
+				$cols = $this->obj_tbl->obj_mysql->listColumns("tbl_".$collection_name);
+				$lCols = Array();
+				foreach ($cols as $col) {
+					array_push($lCols, $col["Field"]);
+				}
+				$list = array_keys(parent::getArrayCopy());
+				$pairs = Array();
+				foreach ($list as $entry) {
+					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
+						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
+					}
+				}
+				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").")"));
+			}
+			return parent::offsetGet($index); 
 		} else {
 			return parent::offsetGet($index);
 		}
