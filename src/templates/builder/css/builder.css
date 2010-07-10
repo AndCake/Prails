@@ -101,3 +101,14 @@ form .panel-bottom {
 	text-align: right; 
 	padding: 3px 10px; 
 }
+
+textarea {
+	font-family: monospace !important;
+	font-size: 11px !important;
+	border: 0px solid #ccc;
+	white-space: pre !important;
+	width: 100%;
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+}

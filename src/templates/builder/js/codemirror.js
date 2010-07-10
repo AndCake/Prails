@@ -59,7 +59,7 @@ var CodeMirror = (function(){
     // display: block occasionally suppresses some Firefox bugs, so we
     // always add it, redundant as it sounds.
     frame.style.display = "block";
-
+    
     if (place.appendChild)
       place.appendChild(frame);
     else
@@ -70,6 +70,21 @@ var CodeMirror = (function(){
     frame.CodeMirror = this;
     this.win = frame.contentWindow;
 
+    if (navigator.userAgent.indexOf("iPad;") != -1) {
+    	setTimeout(function() {
+	    	frame.contentWindow.document.onmousedown = function() {
+	    		frame.style.display = "none";
+	    		options.area.style.display = "block";
+	    		options.area.focus();
+	    		return false;
+	    	};
+	    	frame.contentWindow.document.onmouseup = function() { return false; };
+	    	frame.contentWindow.document.onclick = function() { return false; };
+	    	frame.contentWindow.document.onfocus = function() { return false; };
+    	}, 500);
+    	options.area.frame = frame;
+    }
+    
     if (typeof options.parserfile == "string")
       options.parserfile = [options.parserfile];
     if (typeof options.stylesheet == "string")
@@ -168,6 +183,7 @@ var CodeMirror = (function(){
       area = document.getElementById(area);
 
     options = options || {};
+    options.area = area;
     if (area.style.width) options.width = area.style.width;
     if (area.style.height) options.height = area.style.height;
     if (options.content == null) options.content = area.value;
@@ -188,9 +204,20 @@ var CodeMirror = (function(){
       else
         area.parentNode.appendChild(frame);
     }
-
-    area.style.display = "none";
     var mirror = new CodeMirror(insert, options);
+
+    if (navigator.userAgent.indexOf("iPad;") != -1) {
+    	area.style.width = "100%";
+    	area.style.height = "100%";
+    	area.onblur = function() {
+    		this.frame.style.display = "block";
+    		this.style.display = "none";
+    	};
+    	area.onchange = function() {
+    		mirror.setCode(this.value);
+    	};
+    }
+    area.style.display = "none";
     return mirror;
   };
 

@@ -30,6 +30,7 @@ class SQLite {
 	var $int_affectedRows;
 	var $bol_stripSlashes = true;
 	var $str_cachePath = "";
+	var $lastError = "";
 	
 	function SQLite() {
 		$this->arr_links = Array();
@@ -50,6 +51,7 @@ class SQLite {
 		try {
 	        $this->arr_links[$id]["link"] = new SQLite3($arr_dbs[$str_db]["name"].".".$arr_dbs[$str_db]["host"]);
 			$this->arr_links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
+			$this->arr_links[$id]["link"]->createFunction("REPLACE", "str_replace");
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
 		} catch (Exception $ex) {
 			pushError("Unable to connect to SQLite Database.\n".$ex);
@@ -178,6 +180,7 @@ class SQLite {
 		         
 		         return ($arr_result);
 	    	  } else {
+	    	  	$this->lastError = $link->lastErrorMsg();
 	         	pushError($link->lastErrorMsg());
 	      	}
 	  	}

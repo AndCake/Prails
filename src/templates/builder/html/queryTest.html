@@ -1,10 +1,8 @@
 <? if (strlen($_GET["check"])>0) { ?>
 	<table border="0" cellspacing="1"><tr><th></th>
-	<? if (is_array($arr_param["result"][0])) foreach ($arr_param["result"][0] as $field=>$value) { if (is_numeric($field)) continue; ?>
-		<th><?=$field?></th>
-	<? } ?>
+	<? if ($arr_param["result"][0] != null) { ?><th><?=implode("</th><th>", array_keys($arr_param["result"][0]->getArrayCopy()))?></th><? } ?>
 	</tr>
-	<? if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
+	<? if (is_array($arr_param["result"]) && count($arr_param["result"])) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
 		<tr class="<?=$line%2==0?'':'grey'?>">
 			<td><?=($line+1)?></td>
 			<? foreach ($arr_entry as $key=>$value) { if (is_numeric($key)) continue; ?>
@@ -14,7 +12,11 @@
 			<? } ?>
 		</tr>
 	<? } else { ?>
+		<? if (strlen($arr_param["error"]) > 0) { ?>
+		<tr><td><?=$arr_param["error"]?></td></tr>
+		<? } else { ?>
 		<tr><td>Your query did not return a result.</td></tr>
+		<? } ?>
 	<? } ?>
 	</table>
 	<script type="text/javascript">
@@ -61,14 +63,58 @@
 		<div id="clip_container"></div>
 	</div>
 	<div style="clear:both;margin-bottom:3px;"></div>
+	<div id="first_result" style="display:none;">
+		<table border="0" cellspacing="1"><tr><th></th>
+		<? if ($arr_param["result"][0] != null) { ?><th><?=implode("</th><th>", array_keys($arr_param["result"][0]->getArrayCopy()))?></th><? } ?>
+		</tr>
+		<? if (is_array($arr_param["result"]) && count($arr_param["result"]) > 0) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
+			<tr class="<?=$line%2==0?'':'grey'?>">
+				<td><?=($line+1)?></td>
+				<? foreach ($arr_entry as $key=>$value) { if (is_numeric($key)) continue; ?>
+					<td>
+						<pre style="padding:0px;margin:0px;"><?=htmlspecialchars($value)?></pre>
+					</td>
+				<? } ?>
+			</tr>
+		<? } else { ?>
+			<tr><td>No tables created yet.</td></tr>
+		<? } ?>
+		</table>
+	</div>
 	<div id="result_container" style=""></div>
 	<script type="text/javascript">
 		(function(){
+			
+			window.initTableList = function() {
+				$$("#result tr td").each(function(item){
+					item.observe("click", function(event){
+						if (!this.up().down("td", 1)) return false;
+						var tbl = this.up().down("td", 1).innerHTML.stripTags().strip();
+						window.runQuery("SELECT * FROM tbl_"+tbl+" WHERE 1");
+						event.stop();
+					}.bindAsEventListener(item));
+				});				
+			};
 							
-			window.runQuery = function() {
+			window.runQuery = function(query, callback, hide) {
+				if ((query || window.sqlQuery.getCode()).strip().length <= 0) return false;
+				if (hide) {
+					Ext.getCmp("query_result_panel").setTitle("Table List");
+				} else {
+					var shortQuery = (query || window.sqlQuery.getCode());
+					if (shortQuery.length > 50) shortQuery = shortQuery.substr(0, 50);
+					Ext.getCmp("query_result_panel").setTitle("Query Result for: " + shortQuery);
+				}
 				invoke("result", "builder:queryTest&check=1", {
-					"query": window.sqlQuery.getCode()
-				}, true);				
+					"query": query || window.sqlQuery.getCode()
+				}, true, function(req){
+					if (typeof(callback) == "function") {
+						new PeriodicalExecuter(function(pe) {
+							callback();
+							pe.stop();
+						}, 0.5);
+					}
+				});				
 			};
 
 			new Ext.form.TextArea({
@@ -87,18 +133,19 @@
 				anchor:'95%'
 			});
 			new Ext.Panel({
-				title: "Query Result",
+				id: "query_result_panel",
+				title: "Table List",
 				layout: "fit",
 				height: $("result_container").up().up().getHeight() - $("result_container").offsetTop - 40,
 				autoScroll: true,
 				renderTo: "result_container",
 				items:[{
 					xtype: 'panel',
-					html: "",
+					html: $("first_result").innerHTML,
 					id: "result"
 				}]
 			});
-			Ext.getCmp("portlet_content_query_test").getTopToolbar().add({
+			Ext.getCmp("portlet_content_query_test").getTopToolbar().add([{
 				xtype: "button",
 				text: "Execute Query",
 				iconCls: "run",
@@ -106,7 +153,14 @@
 				handler: function(e){
 					window.runQuery();
 				}
-			});
+			},{
+				xtype: "button",
+				text: "Overview",
+				iconCls: "table",
+				handler: function(e) {
+					window.runQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
+				}
+			}]);
 			Ext.QuickTips.init();
 			window.sqlQuery = CodeMirror.fromTextArea('query', {
 				height: "100%",
@@ -122,6 +176,7 @@
 					window.sqlQuery.editor.doc.run = function(){
 						window.runQuery();
 					};
+					initTableList();
 				}
 			}, 0.5);
 		})();

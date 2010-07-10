@@ -30,6 +30,7 @@ class MySQL {
 	var $int_affectedRows;
 	var $bol_stripSlashes = true;
 	var $str_cachePath = "";
+	var $lastError = "";
 	
 	function MySQL() {
 		$this->arr_links = Array();
@@ -161,6 +162,7 @@ class MySQL {
 	    	  } else {
 	         	$str_mySqlError .= mysql_error () . " Error-Code: " . mysql_errno ();
 	         	$this->int_MySqlErrNo = mysql_errno ();
+				$this->lastError = $str_mySqlError;				
 	         	pushError($str_mySqlError);
 	      	}
 	  	}

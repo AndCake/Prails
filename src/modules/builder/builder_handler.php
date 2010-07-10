@@ -1009,6 +1009,22 @@ class BuilderHandler
             if ($_SESSION["module_id"] < 0)
             {
                 // store the changed data in our configuration.php
+				$cnt = file_get_contents("conf/configuration.php");
+				$settings = Array();
+				foreach ($arr_configuration as $conf) {
+					$value = $conf["value"];
+					$var = @eval("return (".$value.");");
+					if ($var != $value) $var = $value;
+					if (gettype($var) == "string") {
+						$var = "\"".$var."\"";
+					} else if (gettype($var) == "boolean") {
+						$var = $var ? "true" : "false";
+					}
+					array_push($settings, "\"".$conf["name"]."\" => ".$var);
+				}
+				$pre = substr($cnt, 0, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
+				$post = substr($cnt, strpos($cnt, "/*</CUSTOM-SETTINGS>*/")-1);
+				file_put_contents("conf/configuration.php", $pre.implode(",\n", $settings).$post);
             } else
             {
                 $this->obj_data->clearConfiguration($_SESSION["module_id"]);
@@ -1024,20 +1040,21 @@ class BuilderHandler
 
         if ($_SESSION["module_id"] < 0)
         {
+        	global $arr_settings;
             $arr_param["configuration"] = Array();
-            $conf = get_defined_constants(true);
-            foreach ($conf["user"] as $name=>$value)
+            foreach ($arr_settings as $name=>$value)
             {
+            	if (gettype($value) == "boolean") $value = ($value ? "true" : "false");
                 array_push($arr_param["configuration"], Array(
-                "fk_module_id"=>-1,
-                "flag_public"=>1,
-                "name"=>$name,
-                "value"=>$value
+                	"fk_module_id"=>-1,
+                	"flag_public"=>1,
+                	"name"=>$name,
+                	"value"=>$value
                 ));
             }
             $arr_param["module"] = Array(
-            "module_id"=>"-1",
-            "name"=>"Global"
+            	"module_id"=>"-1",
+            	"name"=>"Global"
             );
         } else
         {
@@ -1074,7 +1091,10 @@ class BuilderHandler
 		{
     		$query = stripslashes($_POST["query"]);
 			$arr_param["result"] = $this->obj_data->SqlQuery($query);
+		} else {
+			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
 		}
+		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 
 		die ($this->_callPrinter("queryTest", $arr_param));
 	}

@@ -28,13 +28,13 @@ class TagLib {
 	private $allowedPrefixes = Array("c");
 
 	private $tagMatch = Array();
-	private $pos = Array();
+	private $unclosedPos = Array();
 	private $html = "";
 	
 	public function compile($html) {
 		$this->html = $html;
 		$this->match($html);
-		
+
 		foreach ($this->tagMatch as $tag=>$arr_tag) {
 			foreach ($arr_tag as $entry) {
 				$rc = new TagLib();
@@ -49,7 +49,7 @@ class TagLib {
 		$html = $this->makeAllVars($html);
 		
 		$html = $this->integrate($html);
-		
+				
 		return $html;
 	}
 	
@@ -126,23 +126,21 @@ class TagLib {
 	
 	private function startTag($tagName, $attributes, $startPos, $len) {
 		$cur = count($this->tagMatch[$tagName]);
-		if (is_array($this->tagMatch[$tagName][$cur - 1]) && $this->tagMatch[$tagName][$cur - 1]["endPos"] > 0) {
-			if ($this->tagMatch[$tagName][$cur - 1]["endPos"] <= $startPos) {
-				return;
-			}
+		if (!is_array($this->unclosedPos[$tagName])) {
+			$this->unclosedPos[$tagName] = Array();
 		}
 		$this->tagMatch[$tagName][$cur]["attributes"] = $attributes;
 		$this->tagMatch[$tagName][$cur]["startPos"] = $startPos;
 		$this->tagMatch[$tagName][$cur]["startLen"] = $len;
-		$this->pos[$tagName] = $cur;
+		array_push($this->unclosedPos[$tagName], $cur);
 	}
 	
 	private function endTag($tagName, $endPos, $len) {
-		$this->tagMatch[$tagName][$this->pos[$tagName]]["endPos"] = $endPos;
-		$this->tagMatch[$tagName][$this->pos[$tagName]]["endLen"] = $len;
-		$this->tagMatch[$tagName][$this->pos[$tagName]]["body"] = $this->getBody($this->tagMatch[$tagName][$this->pos[$tagName]]);
-		$this->tagMatch[$tagName][$this->pos[$tagName]]["match"] = $this->getMatch($this->tagMatch[$tagName][$this->pos[$tagName]]);
-		$this->pos[$tagName]--;
+		$pos = array_pop($this->unclosedPos[$tagName]);
+		$this->tagMatch[$tagName][$pos]["endPos"] = $endPos;
+		$this->tagMatch[$tagName][$pos]["endLen"] = $len;
+		$this->tagMatch[$tagName][$pos]["body"] = $this->getBody($this->tagMatch[$tagName][$pos]);
+		$this->tagMatch[$tagName][$pos]["match"] = $this->getMatch($this->tagMatch[$tagName][$pos]);
 	}
 	
 	private function getAttribs($content) {

@@ -317,8 +317,8 @@
 					
 					gridStore.loadData(window['jsStoreContent<?=$arr_param["module"]["module_id"]?>'] || [
 					<? if ($arr_param["module"]["header_info"]["js_includes"] && is_array($arr_param["module"]["header_info"]["js_includes"])) { foreach ($arr_param["module"]["header_info"]["js_includes"] as $i => $field) { ?>
-						<? if ($i > 0) { ?>,<? } ?>
-						["<?=$field?>", "<?=round((@parse_url($field) == false ? filesize($field) : 0) / 1024)?> kB"]
+						<? if ($i > 0) { ?>,<? } $url = in_array(substr($field, 0, 6), Array("https:", "http:/", "ftp://")); ?>
+						["<?=$field?>", "<?=round((!$url ? filesize($field) : 0) / 1024)?> kB"]
 					<? }} ?>
 					]);
 				};
@@ -440,8 +440,8 @@
 					
 					gridStore.loadData(window['cssStoreContent<?=$arr_param["module"]["module_id"]?>'] || [
 					<? if ($arr_param["module"]["header_info"]["css_includes"] && is_array($arr_param["module"]["header_info"]["css_includes"])) { foreach ($arr_param["module"]["header_info"]["css_includes"] as $i => $field) { ?>
-						<? if ($i > 0) { ?>,<? } ?>
-						["<?=$field?>", "<?=round((@parse_url($field) == false ? filesize($field) : 0) / 1024)?> kB"]
+						<? if ($i > 0) { ?>,<? } $url = in_array(substr($field, 0, 6), Array("https:", "http:/", "ftp://")); ?>						
+						["<?=$field?>", "<?=round((!$url ? filesize($field) : 0) / 1024)?> kB"]
 					<? }} ?>
 					]);
 				};				

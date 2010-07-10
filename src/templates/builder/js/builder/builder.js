@@ -138,27 +138,19 @@ Builder = Object.extend(Builder || {}, {
 							switch (type) {
 								case "l":
 								case "t":
-									if (Ext.getCmp("qwbuilder_libraryPanel").collapsed) {
-										Ext.getCmp("qwbuilder_libraryPanel").expand(true);
-									}
+									Ext.getCmp("qwbuilder_navarea").getLayout().setActiveItem("qwbuilder_libsPanel");
 									break;
 								case "h":
 								case "d":
-									if (Ext.getCmp("qwbuilder_detailsPanel").collapsed) {
-										Ext.getCmp("qwbuilder_detailsPanel").expand(true);
-									}
+									Ext.getCmp("qwbuilder_navarea").getLayout().setActiveItem("qwbuilder_detailsPanel");
 									break;
 								case "c":
 								case "m":
 								case "rm":
-									if (Ext.getCmp("qwbuilder_modulePanel").collapsed) {
-										Ext.getCmp("qwbuilder_modulePanel").expand(true);
-									}
+									Ext.getCmp("qwbuilder_navarea").getLayout().setActiveItem("qwbuilder_modulePanel");
 									break;
 								case "db":
-									if (Ext.getCmp("qwbuilder_dbPanel").collapsed) {
-										Ext.getCmp("qwbuilder_dbPanel").expand(true);
-									}									
+									Ext.getCmp("qwbuilder_navarea").getLayout().setActiveItem("qwbuilder_dbPanel");
 									break;
 							}
 						}

@@ -17,7 +17,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("PROJECT_NAME", "Prails Web Framework");
 define ("FRAMEWORK_VERSION", "1.0.3");
 define ("PROJECT_LOG", "log/framework.log");
 define ("ERROR_MAIL", "<enter your email here to get notified on errors>");
@@ -49,6 +48,9 @@ switch (DEBUG_LEVEL) {
 
 $arr_settings = Array(
 /*<CUSTOM-SETTINGS>*/
+"PROJECT_NAME" => "Prails Web Framework",
+"ENV_PRODUCTION" => false,
+"DEBUG_LEVEL" => 2,
 /*</CUSTOM-SETTINGS>*/
 );
 
