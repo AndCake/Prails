@@ -369,6 +369,88 @@ class BuilderData extends Database
 	function findTableByName($name, $uid) {
 		return $this->SqlQuery("SELECT CONCAT('db_', table_id) AS id,  CONCAT(name,' (Database Table)') AS name, 'Database Table' AS type FROM tbl_table WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
 	}
+	
+	function listUrlRules() {
+		$file = file_get_contents(".htaccess");
+		$startMarker = "#--START_CUSTOM--#";
+		$endMarker = "#--END_CUSTOM--#";
+		$start = strpos($file, $startMarker) + strlen($startMarker);
+		$len = (strpos($file, $endMarker, $start) - 1) - $start;
+		$area = substr($file, $start, $len);
+		preg_match_all('@\s*RewriteRule\s+\^([^\s]+)\$\s+index.php\?([^\s]+)\s+\[.+\]@usix', $area, $matches);
+		$arr_result = Array();
+		// loop over all found rules
+		foreach ($matches[0] as $key => $match) {
+			$arr_result[$matches[1][$key]] = $matches[2][$key];
+		}
+		
+		return $arr_result;
+	}
+	
+	function listParametersFromRule($arr_rule) {
+		if ($arr_rule == null) return Array();
+		$nice = $arr_rule[0];
+		$target = $arr_rule[1];
+		
+		// find out what the delimiter in $nice is...
+		preg_match('/\[\^([\/\-.,_]+)\]/', $nice, $match);
+		if (strlen($match[1]) > 0) {
+			$delimiter = $match[1];
+		}
+	
+		// extract prefix and suffix in $nice for current url (not parameter-wise!)
+		preg_match('@^([^(]*)\(@', $nice, $match);
+		$prefix = $match[1];
+		preg_match('@\]\*\)([^'.$delimiter.']*)$@', $nice, $match);
+		// need to filter the suffix somehow (although this might be not possible!)
+		$suffix = $match[1];
+		
+		$arr_result = Array();
+		$parts = explode("&", $target);
+		$paramNum = 0;
+		foreach ($parts as $part) {
+			$nv = explode("=", $part);
+			if ($nv[0] == "event") continue;
+			$entry["name"] = $nv[0];
+			$entry["type"] = 0;
+			if (strpos($nice, $nv[0].$delimiter) !== false) {
+				$entry["type"] += 1;
+				if ($paramNum == 0) {
+					preg_match('@^([^'.$delimiter.']*)['.$delimiter.']@', str_replace($nv[0], "", $nice), $match);
+					$prefix = $match[1];
+				}
+			}
+			if ($nv[1][0] == '$') {
+				$entry["type"] += 2;
+			} else if ($nv[1].length > 0) {
+				$entry["value"] = $nv[1];
+			}
+			$entry["delimiter"] = $delimiter;
+			$entry["prefix"] = $prefix;
+			$entry["suffix"] = $suffix;
+			
+			array_push($arr_result, $entry);
+			$paramNum++;
+		}
+		
+		return $arr_result;
+	}
+	
+	function updateUrlRules($arr_data) {
+		$file = file_get_contents(".htaccess");
+		$startMarker = "#--START_CUSTOM--#";
+		$endMarker = "#--END_CUSTOM--#";
+		$start = strpos($file, $startMarker) + strlen($startMarker);
+		$len = (strpos($file, $endMarker, $start) - 1) - $start;
+
+		$newArea = Array();
+		foreach ($arr_data as $target) {
+			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\nRewriteCond %{REQUEST_FILENAME} !-f\n".
+						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]." [L]";
+		}
+		$file = substr($file, 0, $start)."\n".implode("\n\n", $newArea)."\n".substr($file, $start+$len);
+		@file_put_contents(".htaccess", $file);
+	}
     /*</DB-METHODS>*/
 }
 

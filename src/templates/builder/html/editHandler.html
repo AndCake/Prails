@@ -143,6 +143,14 @@
 				}
 			}, "-", {
 				xtype: "button",
+				text: "Edit URL",
+				iconCls: "urls",
+				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 ? true : false),
+				handler: function(e) {
+					Builder.editNiceUrl('#handler.event URL', '#handler.handler_id');
+				}
+			},"-", {
+				xtype: "button",
 				text: "Apply History",
 				id: "handler.#handler.handler_id_applyHistory.button",
 				iconCls: "apply",

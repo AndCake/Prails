@@ -1121,6 +1121,39 @@ class BuilderHandler
 		header("Content-Type: application/json");
 		die (json_encode($arr_param["result"]));
 	}
+	
+	function niceUrl() {
+		$arr_param = Array();
+		$arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
+		
+		if ($_GET["check"] == "1") {
+			// save rules
+			$arr_param["rules"] = $this->obj_data->listUrlRules();
+			$arr_rules = Array();	
+			
+			foreach ($arr_param["rules"] as $keys=>$rule) {
+				if (strpos($rule, "event=".$arr_param["handler"]["module"]["name"].":".$arr_param["handler"]["event"]) === false) {
+					array_push($arr_rules, Array("nice" => $keys, "original" => $rule));
+				}
+			}
+			array_push($arr_rules, $_POST["rule"]);
+			$this->obj_data->updateUrlRules($arr_rules);
+			
+			die("success");
+		}
+		
+		$arr_param["rules"] = $this->obj_data->listUrlRules();
+		$arr_rule = null;	
+		foreach ($arr_param["rules"] as $keys=>$rule) {
+			if (strpos($rule, "event=".$arr_param["handler"]["module"]["name"].":".$arr_param["handler"]["event"]) !== false) {
+				$arr_rule = Array($keys, $rule);
+				break;
+			}
+		}
+		$arr_param["parameters"] = $this->obj_data->listParametersFromRule($arr_rule);	
+		
+		die($this->_callPrinter("niceUrl", $arr_param));
+	}
 
 	// merges the new changes with the unsaved changes of the user, so that the unsaved ones survive too
 	function _mergeContent($oldDB, $newDB, $newUser)

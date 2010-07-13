@@ -1,0 +1,216 @@
+<? global $SERVER;
+	$types = Array(0 => "None", 1 => "Name", 2 => "Value", 3 => "Name+Value");
+ ?>
+<style type="text/css">
+	.inputfield {
+		float: left;
+		margin-right: 20px;
+	} 	
+	#preview#handler.handler_id { margin-top: 20px; }
+	#preview#handler.handler_id .item { color: #666; font-family: monospace; font-size: 10px; }
+	#preview#handler.handler_id .item .name { color: #00a; }
+	#preview#handler.handler_id .item .value { color: #0a0; }
+	#preview#handler.handler_id .item.middle { color: #333; font-family: inherit; font-size: inherit; } 
+</style>
+<div style="padding: 20px;">
+	<input type="hidden" id="nice#handler.handler_id" value="" />
+	<input type="hidden" id="original#handler.handler_id" value="" />
+	
+	<div class="inputfield">
+		<label for="delimiter#handler.handler_id">Delimiter</label>
+		<input type="text" size="1" ext:qtip="Tips and Hints: Do not use the delimiters that appear in the values of the parameters. Do not use many slashes as it will decrease the relevancy of the URL. Dash is better than underscore for separating keywords." value="<?=if_set($arr_param['parameters'][0]['delimiter'], '/')?>" id="delimiter#handler.handler_id" />
+	</div>
+	
+	<div class="inputfield">
+		<label for="prefix#handler.handler_id">Prefix</label>
+		<input type="text" size="10" ext:qtip="Tips and Hints: Include an additional keyword. Differenciate rewrite rules. If you have several rewrite rules for one site, you need to distinguish them. The prefix is a convenient tool for this purpose." value="<?=$arr_param['parameters'][0]['prefix']?>" id="prefix#handler.handler_id" />
+	</div>
+	
+	<div class="inputfield">
+		<label for="suffix#handler.handler_id">Suffix</label>
+		<input type="text" size="10" ext:qtip="Use .html if not sure. Include a keyword before the extension." value="<?=if_set($arr_param['parameters'][0]['suffix'], '.html')?>" id="suffix#handler.handler_id" />
+	</div>
+	
+	<div style="clear:both;"></div>
+	
+	<select size="1" id="parameters#handler.handler_id" style="display:none;">
+		<option value="Value">Value</option>
+		<option value="Name+Value">Name+Value</option>
+		<option value="None">None</option>
+	</select>
+	<div id="rewrite_#handler.handler_id" style="margin-top: 10px;">
+		<!-- enter a property grid here, containing the parameters and whether they should be value/name&value/none -->
+	</div>
+	
+	<div style="clear:both;"></div>
+	<div id="preview#handler.handler_id">
+		<div class="item" id="from#handler.handler_id"></div>
+		<div class="item middle"> will be translated to </div>
+		<div class="item" id="to#handler.handler_id"></div>
+		<div style="clear:both;"></div>
+	</div>
+	<div style="clear:both;"></div>	
+</div>
+<script type="text/javascript">
+//<![CDATA[
+	(function(){
+		$$(".inputfield input").each(function(item) {
+			item.observe("change", function(event) {
+				window.updatePreview#handler.handler_id();
+			});
+		});
+		var grid = new Ext.grid.EditorGridPanel({
+			store: gridStore = new Ext.data.Store({
+				reader: new Ext.data.ArrayReader({
+					idIndex: 0
+				}, Ext.data.Record.create([
+					{name: "parameter"},
+					{name: "display"},
+					{name: "value"}
+				]))
+			}),
+			cm: new Ext.grid.ColumnModel({
+				defaults: {
+					sortable: true
+				},
+				columns: [
+					{
+						header: "Parameter",
+						dataIndex: "parameter",
+						editor: new Ext.form.TextField({allowBlank: false, readOnly: false})
+					}, {
+						header: "Display",
+						dataIndex: "display",
+						editor: new Ext.form.ComboBox({
+							typeAhead: true,
+							triggerAction: "all",
+							transform: "parameters#handler.handler_id",
+							lazyRender: true,
+		                    listClass: 'x-combo-list-small'
+						})						
+					}, {
+						header: "Default Value",
+						dataIndex: "value",
+						editor: new Ext.form.TextField()
+					}
+				]
+			}),
+			renderTo: "rewrite_#handler.handler_id",
+			autoHeight: true,
+			id: "rewriteGrid#handler.handler_id",
+			clicksToEdit: 1,
+			listeners: {
+				afteredit: function(e) {
+					// use the e.record field to compute the result
+					window.updatePreview#handler.handler_id();
+				}
+			},
+			tbar: [
+			{
+				text: 'Add Parameter',
+			    handler : function(){
+	                // access the Record constructor through the grid's store
+	                var Field = grid.getStore().recordType;
+	                var p = new Field({
+	                    parameter: 'parameter',
+	                    display: 'Value',
+						value: ''
+	                });
+	                grid.stopEditing();
+	                grid.getStore().insert(0, p);
+					window.updatePreview#handler.handler_id();					
+	                grid.startEditing(0, 0);
+	            }
+	        },{
+				text: "Remove Parameter",
+				handler: function() {
+					grid.getStore().remove(grid.getSelectionModel().selection.record);
+					window.updatePreview#handler.handler_id();
+				}
+			}]		
+		});
+		
+		gridStore.loadData([
+			<? $i = 0; foreach ($arr_param["parameters"] as $param) { ?>
+				<? if ($i > 0) { ?>,<? } ?>
+				['<?=$param["name"]?>',
+				'<?=$types[$param["type"]]?>',
+				'<?=$arr_param["type"] == 0 ? $param["value"] : ""?>']
+			<? $i++; } ?>
+		]);
+		
+		Ext.getCmp("portlet_content_hr_#handler.handler_id").getTopToolbar().add({
+			xtype: "button",
+			text: "Save",
+			iconCls: "save",
+			handler: function(e) {
+				var params = {"rule[nice]": $("nice#handler.handler_id").value, "rule[original]": $("original#handler.handler_id").value};
+				new Ajax.Request("?event=builder:niceUrl&check=1", {
+					parameters: params,
+					onSuccess: function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+					}
+				});				
+			}
+		});		
+		
+		window.randomString = function(len) {
+			var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz";
+			var string_length = len;
+			var randomstring = '';
+			for (var i=0; i<string_length; i++) {
+				var rnum = Math.floor(Math.random() * chars.length);
+				randomstring += chars.substring(rnum,rnum+1);
+			}
+			return randomstring;
+		};
+		
+		window.updatePreview#handler.handler_id = function() {
+			var s = Ext.getCmp("rewriteGrid#handler.handler_id").getStore();
+			// implement the preview mode here...
+			var records = s.getRange(0, s.getCount() - 1);
+			var del = $("delimiter#handler.handler_id").value;
+			var pre = $("prefix#handler.handler_id").value;
+			var suf = $("suffix#handler.handler_id").value;
+			var from = "<?=$SERVER?><span class='prefix'>"+pre+"</span>";
+			var to = "<?=$SERVER?>?event=#handler.module.name:#handler.event";
+			var realFrom = pre;
+			var realTo = "event=#handler.module.name:#handler.event";
+			var index = 0;
+			$A(records).each(function(item) {
+				var val = window.randomString(Math.random()*8);
+				var p = item.data.parameter;
+				var t = item.data.display;
+				var v = item.data.value;
+				if (t == "None") {
+					to += "&<span class='name'>"+p+"</span>=<span class='value'>"+v+"</span>";
+					realTo += "&"+p+"="+v;
+					return true;					
+				}
+				index++;
+				if (t == "Value") {
+					from += (index > 1 ? del : '')+"<span class='value'>"+val+"</span>";
+					to += "&<span class='name'>"+p+"</span>=<span class='value'>"+val+"</span>";
+					realFrom += (index > 1 ? del : '')+"([^"+del+"]*)";
+					realTo += "&"+p+"=$"+index;
+				}
+				if (t == "Name+Value") {
+					from += (index > 1 ? del : '')+"<span class='name'>"+p+"</span>"+del+"<span class='value'>"+val+"</span>";
+					to += "&<span class='name'>"+p+"</span>=<span class='value'>"+val+"</span>";
+					realFrom += (index > 1 ? del : '')+p+del+"([^"+del+"]*)";
+					realTo += "&"+p+"=$"+index;
+				}
+			});
+			realFrom += suf;
+			from += suf;
+			$("from#handler.handler_id").update(from);
+			$("to#handler.handler_id").update(to);
+			$("nice#handler.handler_id").value = realFrom;
+			$("original#handler.handler_id").value = realTo;
+		};
+		
+		window.updatePreview#handler.handler_id();
+		Ext.QuickTips.init();		
+	})();
+//]]>	
+</script>

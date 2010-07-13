@@ -17,5 +17,8 @@ ServerSignature Off
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ([^/]+)/([^/]+)(/(.*))?$ index.php?event=$1:$2&$4 [L]
+	
+	#--START_CUSTOM--#
+	#--END_CUSTOM--#
 
 </IfModule>

@@ -45,6 +45,7 @@ button.delete, .delete {
 .table { background-image: url(../images/table.gif) !important; }
 .apply { background-image: url(../images/apply.png) !important; }
 .package { background-image: url(../images/package.png) !important; }
+.urls, .handler-url { background-image: url(../images/url.png) !important; }
 
 ul.historyList li a {
 	background: url(../images/slate/toolbar/bg.gif) repeat-x;

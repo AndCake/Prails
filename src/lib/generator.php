@@ -94,9 +94,9 @@ class Generator {
         if ($_SERVER["REQUEST_METHOD"] == "POST") $this->bol_isCachable = false;
         if ($this->bol_isAjax) {
             if (strlen($this->str_cacheId) > 0) {
-                $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["REQUEST_URI"]);
+                $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
             } else {
-                $cacheFile = "cache/".md5($_SERVER["REQUEST_URI"]);
+                $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
             }
             $content = $str_content;
             $content = str_replace("<!!", "<"."?", $content);
@@ -124,9 +124,9 @@ class Generator {
                 $content = str_replace("!!>", "?".">", $content);
                 
                 if (strlen($this->str_cacheId) > 0) {
-                    $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["REQUEST_URI"]);
+                    $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
                 } else {
-                    $cacheFile = "cache/".md5($_SERVER["REQUEST_URI"]);
+                    $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
                 }
                 
                 $fp = fopen($cacheFile, "w+");

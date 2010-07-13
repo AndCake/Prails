@@ -19,6 +19,9 @@ Builder = Object.extend(Builder || {}, {
 		}
 		win.focus();
 	},
+	editNiceUrl: function(name, id) {
+		Builder.addTab("?event=builder:niceUrl&handler_id="+id, name, "hr_"+id, "handler-url");
+	},
 	delHandler: function(n) {
 		var a_id = n.id.split(/_/gm);
 		var id = parseInt(a_id[1]);

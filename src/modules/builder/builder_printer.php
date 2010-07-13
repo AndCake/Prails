@@ -139,6 +139,12 @@ class BuilderPrinter
         $arr_param["session"] = $_SESSION;
         return Generator::getInstance()->includeTemplate("templates/builder/html/queryTest.html", $arr_param);
     }
+	
+	function niceUrl($arr_param) 
+	{
+        $arr_param["session"] = $_SESSION;
+        return Generator::getInstance()->includeTemplate("templates/builder/html/niceUrl.html", $arr_param);
+	}
 
     /*</PRINTER-METHODS>*/
 }

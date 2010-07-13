@@ -17,23 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 include("auto_prepend.php");
-
 header('P3P: CP="CAO PSA OUR"');
+
+// placeholder for overload fallback plugin
+// ...
+
 session_start();
+include("conf/includes.php");
 
-define ("HTML_CACHE_ENABLED", false);
+$log = new Logger();
 
-if (file_exists("cache/".urlencode($_SERVER["REQUEST_URI"])) && HTML_CACHE_ENABLED)
-{
-    require("cache/".urlencode($_SERVER["REQUEST_URI"]));
+if (!isset($_SESSION["last_access"]) || (time() - $_SESSION["last_access"]) > 60) {
+	$_SESSION["last_access"] = time();
+}
+
+if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && file_exists("cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"])) && HTML_CACHE_ENABLED) {
+    require("cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]));
 
     die();
 }
-
-// include everything we need
-include "conf/includes.php";
-
-$log = new Logger();
 
 if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database);
 
