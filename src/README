@@ -5,9 +5,9 @@ PRails - Readme
 
     A PHP framework for developing web applications over the web.
     
-    Version 1.0.2
+    Version 1.0.4
     -------------
-    http://code.google.com/p/prails/
+    http://prails.googlecode.com/
     
         Copyright (C) 2003 - 2010 Robert Kunze <robert.kunze_at_quixotic-worx.de>
         
@@ -25,8 +25,8 @@ PRails - Readme
         Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
       Requirements:
-        PHP 5.1 or later
-        MySQL 5.0 or later
+        Apache 2.x with mod_rewrite and PHP 5.1 or later
+        MySQL 5.0 or later or SQLite 3.x or later
         a web-browser (doh!)
 
       Summary:
@@ -34,13 +34,13 @@ PRails - Readme
         For a summary of features, please see the documentation.
 
       Download:
-        You can get the newest version at http://code.google.com/p/prails/.
+        You can get the newest version at http://prails.googlecode.com/.
 
       Installation:
         Please see the documentation.
 
       Documentation:
-        Basic documentation available at http://code.google.com/p/prails/.
+        Basic documentation available at http://prails.googlecode.com/.
 
 
     Enjoy!
