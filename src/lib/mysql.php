@@ -45,6 +45,7 @@ class MySQL {
 	
 	function connect($str_db = "offline") {
 		global $arr_dbs;
+		global $log;
      	$id = count($this->arr_links);
         $this->arr_links[$id]["link"] = @mysql_connect($arr_dbs[$str_db]["host"], $arr_dbs[$str_db]["user"], $arr_dbs[$str_db]["pass"]);
         $this->arr_links[$id]["overrides"] = $arr_dbs[$str_db]["table_overrides"];
@@ -55,14 +56,14 @@ class MySQL {
 	        } else {
                	$str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
                	$this->int_MySqlErrNo = mysql_errno ();
-            	pushError($str_mySqlError);
+	            $log->fatal($str_mySqlError);
                	return false;
 	        }
 		} else {
         	// set error code and leave method
             $str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
 			$this->int_MySqlErrNo = mysql_errno ();
-            pushError($str_mySqlError);
+            $log->fatal($str_mySqlError);
         }
 		
 	}

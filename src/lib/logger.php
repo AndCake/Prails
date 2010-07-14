@@ -70,6 +70,7 @@ class Logger {
 		if (in_array("fatal", $ARR_LOGGER_ENABLED_PROPERTIES)) {
 			$tag = "[FATAL]";
 			$this->addToLog($tag, $msg, $bol_strace);
+			throw new Exception("[FATAL] ".nl2br($msg));
 		}
 	}
 	

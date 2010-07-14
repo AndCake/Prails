@@ -54,7 +54,8 @@ class SQLite {
 			$this->arr_links[$id]["link"]->createFunction("REPLACE", "str_replace");
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
 		} catch (Exception $ex) {
-			pushError("Unable to connect to SQLite Database.\n".$ex);
+			global $log;
+			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory.\n\n");
 		}
 	}
 	
