@@ -62,6 +62,9 @@ class Logger {
 		if (in_array("error", $ARR_LOGGER_ENABLED_PROPERTIES)) {
 			$tag = "[ERROR]";
 			$this->addToLog($tag, $msg, $bol_strace);
+			if (ERROR_NOTIFICATION) {
+				fmail(ERROR_MAIL, "Error in project ".PROJECT_NAME, $msg."\n\n".$this->getStacktrace());
+			}
 		}
 	}
 	
@@ -70,6 +73,9 @@ class Logger {
 		if (in_array("fatal", $ARR_LOGGER_ENABLED_PROPERTIES)) {
 			$tag = "[FATAL]";
 			$this->addToLog($tag, $msg, $bol_strace);
+			if (ERROR_NOTIFICATION) {
+				fmail(ERROR_MAIL, "Fatal Error in project ".PROJECT_NAME, $msg."\n\n".$this->getStacktrace());
+			}
 			throw new Exception("[FATAL] ".nl2br($msg));
 		}
 	}

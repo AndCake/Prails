@@ -51,17 +51,4 @@ if ($_GET["event"]) {
 	throw new Exception("FATAL: Unable to call main home handler! Please make sure it exists!");
 }
 
-if (count($arr_errors) > 0)
-{
-    foreach ($arr_errors as $error)
-    {
-        $content .= $error."\n";
-        echo $error."<br/>";
-    }
-    if (DEBUG_EMAIL == "1")
-    {
-        @mail(ERROR_MAIL, "Error in project ".PROJECT_NAME, $error);
-    }
-}
-
 ?>

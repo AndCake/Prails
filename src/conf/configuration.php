@@ -17,9 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("FRAMEWORK_VERSION", "1.0.3");
+define ("FRAMEWORK_VERSION", "1.0.4");
 define ("PROJECT_LOG", "log/framework.log");
-define ("ERROR_MAIL", "<enter your email here to get notified on errors>");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
 $SERVER = substr($SERVER, 0, -strlen(basename($SERVER)));
@@ -27,9 +26,21 @@ $SECURE_SERVER = str_replace("http://", "https://", str_replace($_SERVER["SERVER
 
 define ("DEFAULT_TEMPLATE", "templates/template.html");
 
-define ("DEBUG_EMAIL", 0);
-define ("DEBUG_LEVEL", "2");
 define ("DEBUG_MYSQL", 0);
+
+$arr_settings = Array(
+/*<CUSTOM-SETTINGS>*/
+"PROJECT_NAME" => "Prails Web Framework",
+"ENV_PRODUCTION" => false,
+"DEBUG_LEVEL" => 2,
+"ERROR_NOTIFICATION" => false,
+"ERROR_EMAIL" => "notify@example.org",
+/*</CUSTOM-SETTINGS>*/
+);
+
+foreach ($arr_settings as $key=>$value) {
+	define ($key, $value);
+}
 
 $ARR_LOGGER_ENABLED_PROPERTIES = Array();
 switch (DEBUG_LEVEL) {
@@ -44,18 +55,6 @@ switch (DEBUG_LEVEL) {
 		$ARR_LOGGER_ENABLED_PROPERTIES[] = "error";
 	case "0":
 		$ARR_LOGGER_ENABLED_PROPERTIES[] = "fatal";
-}
-
-$arr_settings = Array(
-/*<CUSTOM-SETTINGS>*/
-"PROJECT_NAME" => "Prails Web Framework",
-"ENV_PRODUCTION" => false,
-"DEBUG_LEVEL" => 2,
-/*</CUSTOM-SETTINGS>*/
-);
-
-foreach ($arr_settings as $key=>$value) {
-	define ($key, $value);
 }
 
 define ("SQLITE", "SQLite");
