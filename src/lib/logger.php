@@ -97,8 +97,12 @@ class Logger {
 		)) . "\n";
 		
 		$fp = fopen($this->log_file, "a+");
-		fwrite($fp, $line);
-		fclose($fp);
+		if ($fp) {
+    		fwrite($fp, $line);
+    		fclose($fp);
+		} else {
+		    die("Error writing to log file. Please check permissions.<br/>");
+		}
 	}
 	
 	private function getTime() {

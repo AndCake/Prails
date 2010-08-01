@@ -122,3 +122,24 @@ input[type="date"] {
 input[type="date"] + img {
 	cursor:pointer;
 }
+
+/*****************************************
+ * Form Field Validation
+ ****************************************/
+.validate-invalid {
+    border: 1px solid #c00;
+}
+.validate-advice {
+    background: url(../images/error.gif) top left no-repeat;
+    padding-left: 20px;
+    color: #a00;
+}
+.validate-valid {
+    border: 1px solid #0c0;
+}
+.validate-valid-hint {
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+    background: url(../images/success.gif) center center no-repeat;
+}

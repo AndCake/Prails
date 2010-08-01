@@ -144,7 +144,8 @@ class MySQL {
 					$arr_result[] = new DBEntry($arr_fetchedResult);
 		            $int_resultCounter ++;
 		         }
-				 @mysql_free_result($dbr_queryResult);
+			 	 
+			 if (is_resource($dbr_queryResult)) @mysql_free_result($dbr_queryResult);
 		         
 		         if (strtoupper(substr($str_query, 0, 7)) == "SELECT ") {
 		         	// cache result

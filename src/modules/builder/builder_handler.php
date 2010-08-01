@@ -25,7 +25,7 @@ class BuilderHandler
         $this->obj_data = new BuilderData();
         $this->str_lang = $str_lang;
         $this->obj_print = new BuilderPrinter($str_lang);
-        //*
+        //
         if (!$_SESSION["builder"]["user_id"])
         {
             if (! isset ($_SERVER["PHP_AUTH_USER"]))
@@ -43,7 +43,7 @@ class BuilderHandler
                 foreach ($groups as $group)
                 {
                     list ($grp, $users) = explode("=", $group);
-                    $users = explode(",", $users);
+                    $users = explode(",", trim($users));
                     if (in_array($_SERVER["PHP_AUTH_USER"], $users))
                     {
                         $u_group = $grp;
@@ -136,7 +136,7 @@ class BuilderHandler
             $tagPath = "lib/tags/custom/";
             foreach ($arr_tags as $arr_tag)
             {
-                file_put_contents($tagPath.$arr_tag["name"].$arr_tag["fk_user_id"].".tag", $arr_tag["html_code"]);
+                file_put_contents($tagPath.$arr_tag["name"].(ENV_PRODUCTION===true ? "" : $arr_tag["fk_user_id"]).".tag", $arr_tag["html_code"]);
             }
 
             $arr_event = $this->obj_data->selectHandlerByNameAndModule($arr_module["module_id"], $handler);
@@ -228,7 +228,7 @@ class BuilderHandler
         return false;
     }
 
-    function resetModule($die = true, $module_id)
+    function resetModule($die = true, $module_id = "")
     {
     	$module_id = if_set($module_id, $_SESSION["module_id"]);
         $arr_param["module"] = $this->obj_data->selectModule($module_id);
@@ -285,8 +285,8 @@ class BuilderHandler
             if (!$arr_data["header_info"])
             {
                 $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
-                $arr_data["style_code"] = stripslashes($arr_data["style_code"]);
-                $arr_data["js_code"] = stripslashes($arr_data["js_code"]);
+                $arr_data["style_code"] = $arr_data["style_code"];
+                $arr_data["js_code"] = $arr_data["js_code"];
             } else if ($_SESSION["module_id"] >= 0)
             {
                 $this->resetModule(false);
@@ -376,8 +376,8 @@ class BuilderHandler
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
-            $arr_data["oldDB"] = stripslashes($arr_data["oldDB"]);
-            $arr_data["newUser"] = stripslashes($arr_data["newUser"]);
+            $arr_data["oldDB"] = ($arr_data["oldDB"]);
+            $arr_data["newUser"] = ($arr_data["newUser"]);
             $arr_data["newDB"] = $this->obj_data->selectModule($_GET["module_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
@@ -451,8 +451,8 @@ class BuilderHandler
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
             $arr_data["fk_module_id"] = $_SESSION["module_id"];
             $arr_data["flag_ajax"] = (int)$arr_data["flag_ajax"];
-            $arr_data["code"] = stripslashes($arr_data["code"]);
-            $arr_data["html_code"] = stripslashes($arr_data["html_code"]);
+            $arr_data["code"] = ($arr_data["code"]);
+            $arr_data["html_code"] = ($arr_data["html_code"]);
             if ($_SESSION["handler_id"] > 0)
             {
                 $arr_param["handler"] = $this->obj_data->selectHandler($_SESSION["handler_id"]);
@@ -499,8 +499,8 @@ class BuilderHandler
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
-            $arr_data["oldDB"] = stripslashes($arr_data["oldDB"]);
-            $arr_data["newUser"] = stripslashes($arr_data["newUser"]);
+            $arr_data["oldDB"] = ($arr_data["oldDB"]);
+            $arr_data["newUser"] = ($arr_data["newUser"]);
             $arr_data["newDB"] = $this->obj_data->selectHandler($_GET["handler_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
@@ -567,7 +567,7 @@ class BuilderHandler
             $arr_data = $_POST["data"];
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
             $arr_data["fk_module_id"] = $_SESSION["module_id"];
-            $arr_data["code"] = stripslashes($arr_data["code"]);
+            $arr_data["code"] = ($arr_data["code"]);
             if ($_SESSION["data_id"] > 0)
             {
                 $arr_param["data"] = $this->obj_data->selectData($_SESSION["data_id"]);
@@ -588,8 +588,8 @@ class BuilderHandler
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
-            $arr_data["oldDB"] = stripslashes($arr_data["oldDB"]);
-            $arr_data["newUser"] = stripslashes($arr_data["newUser"]);
+            $arr_data["oldDB"] = ($arr_data["oldDB"]);
+            $arr_data["newUser"] = ($arr_data["newUser"]);
             $arr_data["newDB"] = $this->obj_data->selectData($_GET["data_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
@@ -640,7 +640,7 @@ class BuilderHandler
         if ($_GET["check"] == "1")
         {
             $arr_library = $_POST["library"];
-            $arr_library["code"] = stripslashes($arr_library["code"]);
+            $arr_library["code"] = ($arr_library["code"]);
             if ($_SESSION["library_id"] > 0)
             {
                 $arr_param["library"] = $this->obj_data->selectLibrary($_SESSION["library_id"]);
@@ -667,8 +667,8 @@ class BuilderHandler
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
-            $arr_data["oldDB"] = stripslashes($arr_data["oldDB"]);
-            $arr_data["newUser"] = stripslashes($arr_data["newUser"]);
+            $arr_data["oldDB"] = ($arr_data["oldDB"]);
+            $arr_data["newUser"] = ($arr_data["newUser"]);
             $arr_data["newDB"] = $this->obj_data->selectLibrary($_GET["library_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
@@ -705,7 +705,7 @@ class BuilderHandler
             if ($_SESSION["tag_id"] > 0)
             {
                 $arr_param["tag"] = $this->obj_data->selectTag($_SESSION["tag_id"]);
-                $arr_param["tag"]["html_code"] = stripslashes($arr_param["tag"]["html_code"]);
+                $arr_param["tag"]["html_code"] = ($arr_param["tag"]["html_code"]);
                 $this->obj_data->updateTag($_SESSION["tag_id"], $arr_tag);
             } else
             {
@@ -725,8 +725,8 @@ class BuilderHandler
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
-            $arr_data["oldDB"] = stripslashes($arr_data["oldDB"]);
-            $arr_data["newUser"] = stripslashes($arr_data["newUser"]);
+            $arr_data["oldDB"] = ($arr_data["oldDB"]);
+            $arr_data["newUser"] = ($arr_data["newUser"]);
             $arr_data["newDB"] = $this->obj_data->selectTag($_GET["tag_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
@@ -890,7 +890,7 @@ class BuilderHandler
     {
         $_SESSION["builder"] = Array();
         session_destroy();
-        header('WWW-Authenticate: Basic realm="Quixotic Worx Framework Realm"');
+        header('WWW-Authenticate: Basic realm="Prails Web    Framework Realm"');
         header('HTTP/1.0 401 Unauthorized');
         require ("templates/builder/html/not_allowed.html");
         die ();
@@ -1013,8 +1013,9 @@ class BuilderHandler
 				$settings = Array();
 				foreach ($arr_configuration as $conf) {
 					$value = $conf["value"];
-					$var = @eval("return (".$value.");");
-					if ($var != $value) $var = $value;
+					if (is_numeric($value) || (strtolower($value) == "true" || strtolower($value) == "false")) {
+						$var = @eval("return (".$value.");");
+					} else $var = $value;
 					if (gettype($var) == "string") {
 						$var = "\"".$var."\"";
 					} else if (gettype($var) == "boolean") {
@@ -1068,7 +1069,7 @@ class BuilderHandler
     function shout()
     {
         $me = $_SESSION["builder"]["name"];
-        $msg = stripslashes($_POST["msg"]);
+        $msg = ($_POST["msg"]);
 
         $entry = "<p><span class='sbuser'>".$me."</span> <span class='sbdate'>(".date("H:i:s").")</span><br/><span class='sbtext'>".str_replace("\n", "<br/>", str_replace("\r\n", "<br/>", $msg))."</span></p>";
         $chat = @file_get_contents("shout.box");
@@ -1089,7 +1090,7 @@ class BuilderHandler
 
 		if ($_GET["check"] == "1")
 		{
-    		$query = stripslashes($_POST["query"]);
+    		$query = ($_POST["query"]);
 			$arr_param["result"] = $this->obj_data->SqlQuery($query);
 		} else {
 			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
@@ -1272,10 +1273,11 @@ class BuilderHandler
 			$magic = substr($content, 0, strpos($content, "\n")+1);
 			$sections = explode($magic, substr($content, strlen($magic)));
 			foreach ($sections as $section) {
-				$data = @unserialize(gzuncompress(substr($section, 1)));
+				$data = unserialize(gzuncompress(substr($section, 1)));
 				if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
+					    $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
 						$this->obj_data->insertTable($arr_table);
 						// deploy table
 			            $arr_fields = Array();
@@ -1291,14 +1293,17 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "T") {
 					foreach ($data as $tag) {
+                        $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
 						$this->obj_data->insertTag($tag);
 					}
 				} else if ($section[0] == "L") {
 					foreach ($data as $library) {
+ 					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
 						$this->obj_data->insertLibrary($library);
 					}
 				} else if ($section[0] == "M") {
 					foreach ($data as $mod) {
+					    $mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
 						$this->obj_data->insertModule($mod);
 						foreach ($mod["handlers"] as $handler) {
 							$this->obj_data->insertHandler($handler);

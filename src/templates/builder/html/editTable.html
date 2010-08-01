@@ -158,7 +158,7 @@
 						}
 					});
 				}
-				if (parseInt("0"+params["scaffold[fk_module_id]"]) <= 0 && !$("sel_module").disabled) {
+				if (parseInt("0"+params["scaffold[fk_module_id]"]) <= 0 && $('sel_module') && !$("sel_module").disabled) {
 					Ext.Msg.alert("Status", "Please provide the module you want to generate the data queries / event handlers in.").setIcon(Ext.Msg.ERROR);
 					return;
 				}

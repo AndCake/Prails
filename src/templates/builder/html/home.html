@@ -123,6 +123,7 @@
 		window.dold = 0;
 		window.firstCall = true;
 		window.detag = "";
+		<? if (DEVELOPER_CHAT_ENABLED) { ?>
 		new PeriodicalExecuter(function(pe){
 			new Ajax.Updater("sbmsglist", "shout.box", {
 				method: "get",
@@ -161,6 +162,7 @@
 				}
 			});
 		}, 4);
+		<? } ?>
 		module = new Ext.tree.TreeNode({
 			text: "Global",
 			leaf: true,

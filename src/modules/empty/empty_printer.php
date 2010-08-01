@@ -24,7 +24,7 @@ class EmptyPrinter
    
    function EmptyPrinter($str_lang)
    {
-      $this->obj_lang = new LangData("empty", $str_lang);
+      $this->obj_lang = new LangData($str_lang);
       $obj_gen = Generator::getInstance();
       $obj_gen->addStyleSheet("templates/empty/css/empty.css");
 	  /*<CSS-INCLUDES>*/

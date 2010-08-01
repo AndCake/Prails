@@ -29,17 +29,19 @@ class TagLib {
 
 	private $tagMatch = Array();
 	private $unclosedPos = Array();
+	private $depth = 0;
 	private $html = "";
 	
-	public function compile($html) {
+	public function compile($html, $allowedDepth = 0) {
 		$this->html = $html;
 		$this->match($html);
 
 		foreach ($this->tagMatch as $tag=>$arr_tag) {
 			foreach ($arr_tag as $entry) {
+				if ($entry["depth"] > $allowedDepth) continue;
 				$rc = new TagLib();
 				if (strlen($entry["body"]) > 0) {
-					$entry["body"] = $rc->compile($entry["body"]);
+					$entry["body"] = $rc->compile($entry["body"], $allowedDepth+1);
 				}
 				$content = $this->loadTagLib($tag, $entry);
 				$html = str_replace($entry["match"], $content, $html);
@@ -49,7 +51,7 @@ class TagLib {
 		$html = $this->makeAllVars($html);
 		
 		$html = $this->integrate($html);
-				
+			
 		return $html;
 	}
 	
@@ -79,13 +81,13 @@ class TagLib {
             }
             if ($found) continue;
             $parts = explode(".", $str_match);
-            if (strlen($arr_matches[3][$key]) > 0) {
-                if ($arr_matches[3][$key] == "price")
+            if (strlen($arr_matches[4][$key]) > 0) {
+                if ($arr_matches[4][$key] == "price")
                 {
                     $str_param = "sprintf(\"%.2f\", \$arr_param";
                 } else
                 {
-                    $str_param = "(" . substr($arr_matches[3][$key], 1, strlen($arr_matches[3][$key]) - 2) . ")\$arr_param";
+                    $str_param = "(" . substr($arr_matches[4][$key], 1, strlen($arr_matches[4][$key]) - 2) . ")\$arr_param";
                 }
             } else {
                 $str_param = "\$arr_param";
@@ -93,7 +95,7 @@ class TagLib {
             foreach ($parts as $part) {
                 $str_param .= "[\"" . $part . "\"]";
             }
-            if ($arr_matches[3][$key] == "price") $str_param .= ")";
+            if ($arr_matches[4][$key] == "price") $str_param .= ")";
 			if ($arr_matches[1][$key] == "@") {
 				$buffer = str_replace($arr_matches[0][$key], $str_param, $buffer);
 			} else {
@@ -132,7 +134,9 @@ class TagLib {
 		$this->tagMatch[$tagName][$cur]["attributes"] = $attributes;
 		$this->tagMatch[$tagName][$cur]["startPos"] = $startPos;
 		$this->tagMatch[$tagName][$cur]["startLen"] = $len;
+		$this->tagMatch[$tagName][$cur]["depth"] = $this->depth;
 		array_push($this->unclosedPos[$tagName], $cur);
+		$this->depth++;
 	}
 	
 	private function endTag($tagName, $endPos, $len) {
@@ -141,6 +145,7 @@ class TagLib {
 		$this->tagMatch[$tagName][$pos]["endLen"] = $len;
 		$this->tagMatch[$tagName][$pos]["body"] = $this->getBody($this->tagMatch[$tagName][$pos]);
 		$this->tagMatch[$tagName][$pos]["match"] = $this->getMatch($this->tagMatch[$tagName][$pos]);
+		$this->depth--;
 	}
 	
 	private function getAttribs($content) {

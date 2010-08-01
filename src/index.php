@@ -23,6 +23,21 @@ header('P3P: CP="CAO PSA OUR"');
 // ...
 
 session_start();
+// clean up env vars
+if (get_magic_quotes_gpc() === 1) {
+    function stripslashes_deep(&$value) { 
+        $value = is_array($value) ? 
+                array_map('stripslashes_deep', $value) : 
+                stripslashes($value); 
+
+        return $value; 
+    }
+    $_GET = stripslashes_deep($_GET);
+    $_POST = stripslashes_deep($_POST);
+    $_COOKIE = stripslashes_deep($_COOKIE);
+    $_REQUEST = stripslashes_deep($_REQUEST);
+}
+
 include("conf/includes.php");
 
 $log = new Logger();

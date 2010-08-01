@@ -368,16 +368,16 @@ class Generator {
 
     function getJavaScripts() {
     	$str_js = "";
-	$time = time();
-	$prefix = md5(implode("", $this->arr_js));
-	$dp = opendir("cache/");
-	while (($file = readdir($dp)) !== false) {
-		if (strpos($file, $prefix) !== false) {
-			$points = explode(".", $file);
-			$time = (int)$points[1];
-			break;
-		}
-	}
+    	$time = time();
+        $prefix = md5(implode("", $this->arr_js));
+    	$dp = opendir("cache/");
+        while (($file = readdir($dp)) !== false) {
+    		if (strpos($file, $prefix) !== false) {
+    			$points = explode(".", $file);
+    			$time = (int)$points[1];
+    			break;
+    		}
+    	}
 		
         foreach ($this->arr_js as $js) {
         	if (@filectime($js) > $time) {
@@ -386,23 +386,23 @@ class Generator {
 				$time = time();
 				break;				
         	}
-	}
-		
-	$path = "cache/".$prefix.".".$time.".js";
-	if (!file_exists($path)) {
-		$fp = fopen($path, "w+");
-	        foreach ($this->arr_js as $js) {
-	        	$str = file_get_contents($js);
-			if (ENV_PRODUCTION === true) {
-				$str = JSMIN::minify($str);
-			}
-	        	fwrite($fp, $str);
-	        }
-		fclose($fp);
-		@chmod($path, 0755);
-	}
+    	}
+    		
+    	$path = "cache/".$prefix.".".$time.".js";
+    	if (!file_exists($path)) {
+    		$fp = fopen($path, "w+");
+            foreach ($this->arr_js as $js) {
+            	$str = file_get_contents($js);
+                if (ENV_PRODUCTION === true) {
+    			    $str = JSMIN::minify($str);
+    			}
+            	fwrite($fp, $str);
+            }
+    		fclose($fp);
+           	@chmod($path, 0755);
+        }
         $str_js .= "<script src='" . $path . "' type='text/javascript'></script>\n";
-		
+    		
         return $str_js;
     }
 
@@ -410,7 +410,7 @@ class Generator {
         // check if stylesheet has already been loaded
         if (!in_array($path, $this->arr_js)) {
         	array_push($this->arr_js, $path);
-	}
+    	}
     }
 
     function getHeaders() {

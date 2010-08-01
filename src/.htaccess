@@ -2,6 +2,9 @@ ServerSignature Off
 <IfModule mod_rewrite.c>
 	RewriteEngine on
 	
+	#--START_CUSTOM--#
+	#--END_CUSTOM--#
+
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule templates/([^/]*)/images/(.*)$ index.php?event=builder:createResource&mod=$1&resource=$2 [L]
@@ -18,7 +21,4 @@ ServerSignature Off
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ([^/]+)/([^/]+)(/(.*))?$ index.php?event=$1:$2&$4 [L]
 	
-	#--START_CUSTOM--#
-	#--END_CUSTOM--#
-
 </IfModule>

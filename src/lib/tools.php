@@ -815,49 +815,10 @@ function send_mail($to, $body, $subject, $fromaddress, $fromname, $attachments=f
     $headers .= "Return-Path: ".$fromname."<".$fromaddress.">".$eol;    // these two to set reply address
     $headers .= "Message-ID: <".time()."-".$fromaddress.">".$eol;
     $headers .= "Content-Type: text/plain; charset=\"UTF-8\"".$eol;
-    $headers .= "X-Mailer: Klatcher Mailer v".phpversion().$eol;          // These two to help avoid spam-filters
+    $headers .= "X-Mailer: Prails Mailer v".phpversion().$eol;          // These two to help avoid spam-filters
 
     # Text Version
     $msg = strip_tags(str_ireplace("<br>", "\n", str_ireplace("<br/>", "\n", $body))).$eol.$eol;
-    /*
-     # HTML Version
-     $msg .= "--".$htmlalt_mime_boundary.$eol;
-     $msg .= "Content-Type: text/html; charset=utf-8".$eol;
-     $msg .= "Content-Transfer-Encoding: 8bit".$eol.$eol;
-     $msg .= $body.$eol.$eol;
-
-     //close the html/plain text alternate portion
-     $msg .= "--".$htmlalt_mime_boundary."--".$eol.$eol;
-
-     if ($attachments !== false)
-     {
-     for($i=0; $i < count($attachments); $i++)
-     {
-     if (is_file($attachments[$i]["file"]))
-     {
-     # File for Attachment
-     $file_name = substr($attachments[$i]["file"], (strrpos($attachments[$i]["file"], "/")+1));
-
-     $handle=fopen($attachments[$i]["file"], 'rb');
-     $f_contents=fread($handle, filesize($attachments[$i]["file"]));
-     $f_contents=chunk_split(base64_encode($f_contents));    //Encode The Data For Transition using base64_encode();
-     $f_type=filetype($attachments[$i]["file"]);
-     fclose($handle);
-
-     # Attachment
-     $msg .= "--".$mime_boundary.$eol;
-     $msg .= "Content-Type: ".$attachments[$i]["content_type"]."; name=\"".$file_name."\"".$eol;  // sometimes i have to send MS Word, use 'msword' instead of 'pdf'
-     $msg .= "Content-Transfer-Encoding: base64".$eol;
-     $msg .= "Content-Description: ".$file_name.$eol;
-     $msg .= "Content-Disposition: attachment; filename=\"".$file_name."\"".$eol.$eol; // !! This line needs TWO end of lines !! IMPORTANT !!
-     $msg .= $f_contents.$eol.$eol;
-     }
-     }
-     }
-
-     # Finished
-     $msg .= "--".$mime_boundary."--".$eol.$eol;  // finish with two eol's for better security. see Injection.
-     //*/
     # SEND THE EMAIL
     ini_set(sendmail_from,$fromaddress);  // the INI lines are to force the From Address to be used !
     $mail_sent = fmail($to, $subject, $msg, $headers);
@@ -1107,25 +1068,6 @@ function code2utf($num)
     return '';
 }
 
-function PostToRapLeaf($data_to_send, $host="api.rapleaf.com", $path="/v2/abook") {
-    $fp = fsockopen($host, 80);
-
-    if(!$fp) return false;
-
-    fputs($fp, "POST $path HTTP/1.1\r\n");
-    fputs($fp, "Host: $host\r\n");
-    fputs($fp, "Authorization: 31f6b1583aa7023d84c243a98630585c\r\n");
-    fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-    fputs($fp, "Content-length: ". strlen($data_to_send) ."\r\n");
-    fputs($fp, "Connection: close\r\n\r\n");
-    fputs($fp, $data_to_send);
-    while(!feof($fp)) {
-        $res .= fgets($fp);
-    }
-    fclose($fp);
-    return $res;
-}
-
 /**
  * rotates every single character of a string by a specified number of characters
  *
@@ -1256,36 +1198,6 @@ function invoke($str_event, $arr_param = null)
     }
 
     return false;
-}
-
-/**
- * returns all files that have been uploaded at once
- * 
- * @param object $path path of the file(s) that have been uploaded
- * @param object $cid identificator of the upload
- * @param object $maxWidth[optional]
- * @param object $maxHeight[optional]
- * @param object $thumbnail[optional]
- * 
- * @return list of images, if successful, else false
- */
-function getUploadedFile($path, $cid, $maxWidth = -1, $maxHeight = -1, $thumbnail = false) {
-	$images = doGet(IMAGE_SERVICE."getImage.php?path=".$path."&cid=".$cid."&maxWidth=".$maxWidth."&maxHeight=".$maxHeight.($thumbnail?"&thumbnail=1":""));
-	$arr_images = explode("\n", $images);
-	if (is_array($arr_images) && count($arr_images) > 0 && strlen($arr_images[0]) > 0) {
-		return $arr_images;
-	} else {
-		return false;
-	}
-}
-
-/**
- * removes a previously uploaded file
- * @param object $file
- * @param object $thumbnail[optional]	true, if the thumbnail should be removed too
- */
-function delUploadedFile($file, $thumbnail = false) {
-	doGet(IMAGE_SERVICE."delImage.php?file=".$file.($thumbnail?"&thumbnail=1":""));
 }
 
 function writeLog($logText,$severity=0)

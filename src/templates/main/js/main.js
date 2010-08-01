@@ -56,7 +56,26 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 			parameters : parameters,
 			evalScripts : true,
 			method : (post ? 'post' : 'get'),
-			onSuccess : onSuccess
+			onSuccess : function(req) {
+				// eval script tags without content, but src
+				var match = req.responseText.match(/<script\s+([^>]*)>([^<]|<[^\/]|<\/[^s]|<\/s[^c]|<\/sc[^r]|<\/scr[^i]|<\/scri[^p]|<\/scrip[^t]|<\/script[^>])*<\/script>/gi);
+				if (match) {
+					setTimeout(function() {
+						for (var i = 0; i < match.length; i++) {
+							if (match[i].search(/\s+src=/gi) >= 0) {
+								var span = new Element("span");
+								span.innerHTML = match[i];
+								var s = new Element("script");
+								s.type = "text/javascript";
+								s.src = span.down("script").getAttribute("src");
+								s.innerHTML = span.down("script").innerHTML;
+								document.getElementsByTagName("head")[0].appendChild(s);
+							}
+						}
+					}, 100);
+				}
+				onSuccess(req);
+			}	
 		});
 	} else {
 		new Ajax.Request(event, {

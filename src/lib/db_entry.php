@@ -17,7 +17,102 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class DBEntry extends ArrayObject {
+class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Countable {
+    private $arr_data;
+    private $iterator_class;
+    
+    public function __construct($input = Array(), $flag = 0, $iterator_class = "ArrayIterator") {
+        $this->arr_data = $input;
+        $this->iterator_class = $iterator_class;
+    }
+    
+    public function append($value) {
+        $this->arr_data[] = $value;
+    }
+    
+    public function asort() {
+        asort($this->arr_data);
+    }
+    
+    public function count() {
+        return count($this->arr_data);
+    }
+
+    public function exchangeArray($input) {
+        $arr_result = $this->getArrayCopy();
+        $this->arr_data = $input;
+        
+        return $arr_result;
+    }
+    
+    public function getArrayCopy() {
+        $arr_result = Array();
+        
+        foreach ($this->arr_data as $key => $value) {
+            $arr_result[$key] = $value;
+        }
+        return $arr_result;
+    }
+    
+    public function getIterator() {
+        $it = $this->iterator_class;
+        return new $it($this->arr_data);
+    }
+    
+    public function getIteratorClass() {
+        return $this->iterator_class;
+    }
+    
+    public function ksort() {
+        ksort($this->arr_data);
+    }
+
+    public function natcasesort() {
+        natcasesort($this->arr_data);
+    }
+
+    public function natsort() {
+        natsort($this->arr_data);
+    }
+
+    public function offsetExists($index) {
+        return isset($this->arr_data[$index]);
+    }
+
+    public function offsetGet($index) {
+        return $this->arr_data[$index];
+    }
+    
+    public function offsetSet($index, $newval) {
+        $this->arr_data[$index] = $newval;
+    }
+
+    public function offsetUnset($index) {
+        unset($this->arr_data[$index]);
+    }    
+    
+    public function serialize() {
+        return serialize($this->arr_data);
+    }
+    
+    public function unserialize($serialized) {
+        $this->arr_data = unserialize($serialized);
+    }
+
+    public function setIteratorClass($iterator_class) {
+        $this->iterator_class = $iterator_class;
+    }
+
+    public function uasort($cmp_function) {
+        uasort($this->arr_data, $cmp_function);
+    }
+    
+    public function uksort($cmp_function) {
+        uksort($this->arr_data, $cmp_function);
+    }
+}
+
+class DBEntry extends DBEntryObject {
 	private $obj_tbl = null;
 	
 	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator") {
