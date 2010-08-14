@@ -121,7 +121,7 @@ function initWysiwyg() {
 	$$(".wysiwyg").each(function(item) {
 		if (item._wysiwygtified) return true;
 		item._wysiwygtified = true;
-		var params = {iconsPath: "templates/main/images/nicEditorIcons.gif", fullPanel: true};
+		var params = {iconsPath: "templates/main/images/nicEditorIcons.gif", fullPanel: true, uploadURI: "templates/nicupload.php"};
 		if (item.getAttribute("rel")) {
 			var paramList = item.getAttribute("rel").split("|");
 			$A(paramList).each(function(p) {
@@ -138,7 +138,7 @@ function initWysiwyg() {
 			});
 		}
 		if (item.onsave || item.getAttribute("onsave")) params["onSave"] = function(content, id, instance) { eval(item.onsave || item.getAttribute("onsave")); };
-		new nicEditor(params).panelInstance(item);
+		item._editor = new nicEditor(params).panelInstance(item);
 	});
 }
 

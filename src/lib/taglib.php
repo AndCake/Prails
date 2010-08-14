@@ -72,7 +72,7 @@ class TagLib {
 	}
 	
 	private function makeAllVars($buffer) {
-        preg_match_all("/(#|@)([a-zA-Z]+[.][.A-Za-z0-9_]*[a-zA-Z0-9]*)(\[([a-zA-Z0-9]+)\])*/", $buffer, $arr_matches);
+        preg_match_all("/(#|@)([a-zA-Z]+[.][.A-Za-z0-9_]*[a-zA-Z0-9]*)(\[([a-zA-Z0-9]+)\])?/", $buffer, $arr_matches);
         foreach ($arr_matches[2] as $key => $str_match) {
             preg_match_all('/<!--\[noeval\]-->.*<!--\[\/noeval\]-->/sU', $buffer, $arr_test);
             $found = false;
@@ -87,7 +87,7 @@ class TagLib {
                     $str_param = "sprintf(\"%.2f\", \$arr_param";
                 } else
                 {
-                    $str_param = "(" . substr($arr_matches[4][$key], 1, strlen($arr_matches[4][$key]) - 2) . ")\$arr_param";
+                    $str_param = "(" . $arr_matches[4][$key] . ")\$arr_param";
                 }
             } else {
                 $str_param = "\$arr_param";

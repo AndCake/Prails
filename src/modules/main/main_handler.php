@@ -24,7 +24,7 @@ class MainHandler
     var $str_lang;
     var $arr_param;
 
-    function MainHandler($str_lang = "en")
+    function MainHandler($str_lang = "")
     {
         $this->obj_data = new MainData();
         $this->str_lang = $str_lang;
@@ -56,6 +56,17 @@ class MainHandler
    return $this->_callPrinter("home", $arr_param);
 
 /** END_CODE **/
+    }
+    
+    
+    function cmsHandler() {
+        $arr_param["text"] = Generator::getInstance()->getLanguage()->selectTextByIdentifier("cms.".str_replace("/", ".", $_GET["page"]));
+        
+        if (!$arr_param["text"]["texts_id"]) {
+            return $this->home();
+        }
+        
+        return $this->_callPrinter("cmsHandler", $arr_param);
     }
 
    	/**

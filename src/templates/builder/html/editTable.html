@@ -167,7 +167,7 @@
 					onSuccess: function(req) {
 						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 						if (added) {
-							location.reload();
+							loadURL("?event=builder:home&open_nav=qwbuilder_dbPanel");
 							return;
 						}
 						if (<?=(int)$arr_param["table"]["table_id"]?> == 0) {

@@ -65,5 +65,15 @@ class MainPrinter
         $str_content = Generator::getInstance()->includeTemplate("templates/main/html/home.html", $arr_param);
         return $str_content;
     }
+    
+    function cmsHandler($arr_param) {
+        
+        $decorator = "<!--[content]-->";
+        if (strlen($arr_param["text"]["decorator"]) > 0) {
+            $decorator = invoke($arr_param["text"]["decorator"]);
+        }
+        
+        return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
+    }
 }
 ?>

@@ -41,6 +41,7 @@ class BuilderPrinter
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.data.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.handler.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.library.js");
+            $obj_gen->addJavaScript("templates/builder/js/builder/builder.lang.js");            
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
             $obj_gen->addStyleSheet("templates/builder/css/xtheme-slate.css");
@@ -145,6 +146,12 @@ class BuilderPrinter
         $arr_param["session"] = $_SESSION;
         return Generator::getInstance()->includeTemplate("templates/builder/html/niceUrl.html", $arr_param);
 	}
+    function editText($arr_param)
+    {
+        $arr_param["session"] = $_SESSION;
+        Generator::getInstance()->setIsAjax(true);
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editText.html", $arr_param);
+    }
 
     /*</PRINTER-METHODS>*/
 }

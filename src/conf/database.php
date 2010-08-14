@@ -23,11 +23,14 @@ $arr_database = Array
 	"language"=>Array(
 		"name"=>"VARCHAR(255)",
 		"abbreviation"=>"VARCHAR(255)",
+	    "default" => "INT(1) NOT NULL",
 	),
 	"texts"=>Array(
 		"fk_language_id"=>"INT(11) NOT NULL",
 		"identifier"=>"VARCHAR(255)",
 		"content"=>"TEXT",
+		"type" => "INT(1) NOT NULL",
+		"decorator" => "VARCHAR(255)",
 	),
 	
 	// builder tables

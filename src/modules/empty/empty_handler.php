@@ -20,7 +20,7 @@
 class EmptyHandler extends AbstractHandler
 {
 
-   function EmptyHandler($str_lang = "en")
+   function EmptyHandler($str_lang = "")
    {
       $this->obj_data = new EmptyData();
       $this->str_lang = $str_lang;

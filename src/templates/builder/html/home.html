@@ -239,6 +239,38 @@
 			});
 			Builder.dbRoot.appendChild(table);
 		</c:foreach>		
+		Builder.langRoot.createSubNode = function(nodeName, subNodes, parentNode) {
+		    if (parentNode == Builder.langRoot) {
+		      pid = "text_";
+		    } else pid = parentNode.id;
+	        var node = new Ext.tree.TreeNode({
+	           text: nodeName,
+	           id: pid+"."+nodeName,
+	           allowChildren: (typeof(subNodes) != "string"),
+	           leaf: (typeof(subNodes) == "string"),
+	           iconCls: (typeof(subNodes) == "string" ? "locale" : null),
+	           listeners: {
+	               dblclick: function(n) {
+	                   if (n.isLeaf()) {
+	                       // open that text...
+	                       Builder.editText(n);
+	                   }
+	               }
+	           }
+	        });
+	        node.subNodes = subNodes;
+	        parentNode.appendChild(node);
+	        if (subNodes && typeof(subNodes) != "string") {
+    	        for (var each in subNodes) {
+    	           if (typeof(subNodes[each]) != "function") {
+    	               Builder.langRoot.createSubNode(each, subNodes[each], node);
+    	           }
+    	        }
+	        }
+	    }
+		<c:foreach var="texts" name="text" key="section">
+		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
+		</c:foreach>
 		Ext.BLANK_IMAGE_URL = function() {
 			if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
 				return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
@@ -246,7 +278,7 @@
 				return "templates/builder/images/default/s.gif";
 			}			
 		}();
-		Builder.init();
+		Builder.init('<?=$_GET["open_nav"]?>');
 	});
 	//]]>
 </script>

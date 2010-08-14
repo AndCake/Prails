@@ -73,13 +73,7 @@ class Generator {
     }
 
     function getLanguage() {
-        $lang = new LangData(0);
-        $arr_langs = $lang->listLanguages();
-        foreach ($arr_langs as $arr_lang) {
-            $str_content .= "<a href='" . $_SERVER["REQUEST_URI"] . (strpos($_SERVER["REQUEST_URI"], "?") !== false ? "&" : "?") . "lang=" . strtolower($arr_lang["abbreviation"]) . "'><img src='templates/main/" . strtolower($arr_lang["abbreviation"]) . ".gif' border='0' alt='" . $arr_lang["name"] . "' /></a>&nbsp;";
-        }
-
-        return $str_content;
+        return $this->obj_lang;
     }
 
 
@@ -94,9 +88,9 @@ class Generator {
         if ($_SERVER["REQUEST_METHOD"] == "POST") $this->bol_isCachable = false;
         if ($this->bol_isAjax) {
             if (strlen($this->str_cacheId) > 0) {
-                $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
             } else {
-                $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
             }
             $content = $str_content;
             $content = str_replace("<!!", "<"."?", $content);
@@ -124,9 +118,9 @@ class Generator {
                 $content = str_replace("!!>", "?".">", $content);
                 
                 if (strlen($this->str_cacheId) > 0) {
-                    $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                    $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
                 } else {
-                    $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+                    $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
                 }
                 
                 $fp = fopen($cacheFile, "w+");
@@ -194,6 +188,7 @@ class Generator {
 		
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
+		$str_content = $this->parseApplyLanguage($str_content);
 		file_put_contents("cache/".md5($str_name), $str_content);		
 		
         ob_start();
@@ -203,9 +198,9 @@ class Generator {
 		$endTime = time()+microtime();
 
         if (substr(basename($str_name), -5) == ".html" || substr(basename($str_name), -4) == ".xml" ) {
-            return "<!-- TEMPLATE " . $str_name . " (".round($endTime - $startTime, 4)."s) -->\n" . $this->parseApplyLanguage($str_content)."\n<!-- END TEMPLATE ".$str_name." -->\n";
+            return "<!-- TEMPLATE " . $str_name . " (".round($endTime - $startTime, 4)."s) -->\n" . $str_content."\n<!-- END TEMPLATE ".$str_name." -->\n";
         } else {
-            return $this->parseApplyLanguage($str_content);
+            return $str_content;
         }
     }
 

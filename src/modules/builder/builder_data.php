@@ -101,6 +101,10 @@ class BuilderData extends Database
 	function deleteHandlerFromModule($module_id) {
 		return $this->DeleteQuery(tbl_handler, "fk_module_id='".$module_id."'");
 	}
+	
+	function selectDecoratorEventsFromUser($user) {
+	   return $this->SqlQuery("SELECT *, CONCAT(m.name, ':', h.event) AS name FROM tbl_handler AS h, tbl_module AS m WHERE h.fk_module_id=module_id AND m.fk_user_id='".$user."' AND h.html_code LIKE '%<!--[content]-->%'");
+	}
 
     // data
     function listDatas($module_id)

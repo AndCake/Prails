@@ -13,14 +13,6 @@ div#qwbuilder_headerPanel .x-panel-body {
 	background: transparent;
 }
 
-button.add {
-	background-image: url(../images/add.png);
-}
-
-button.delete, .delete {
-	background-image: url(../images/delete.png);
-}
-
 #msg-div {
 	position:absolute;
 	left:35%;
@@ -29,22 +21,25 @@ button.delete, .delete {
 	z-index:20000;
 }
 
-.folder { background-image: url(../images/default/tree/folder.gif); }
-.edit { background-image: url(../images/edit.png) !important; }
-.save { background-image: url(../images/save.gif) !important; }
-.options { background-image: url(../images/editModule.png) !important; }
+.add, button.add { background-image: url(../images/add.png); }
+.apply { background-image: url(../images/apply.png) !important; }
 .config { background-image: url(../images/settings.png) !important; }
-.x-tree-node .query img.x-tree-node-icon, .data { background-image: url(../images/default/grid/columns.gif) !important; } 
+.delete, button.delete { background-image: url(../images/delete.png); }
+.edit { background-image: url(../images/edit.png) !important; }
+.folder { background-image: url(../images/default/tree/folder.gif); }
 .handler { background-image: url(../images/default/tree/leaf.gif) !important; }
-.tagLib { background-image: url(../images/taglib.gif) !important; }
-.library { background-image: url(../images/library.png) !important; }
-.run { background-image: url(../images/run.png) !important; }
-.resource { background-image: url(../images/resource.png) !important; }
 .HelpTabIcon { background-image: url(../images/help.png) !important; }
 .history { background-image: url(../images/history.gif) !important; }
-.table { background-image: url(../images/table.gif) !important; }
-.apply { background-image: url(../images/apply.png) !important; }
+.library { background-image: url(../images/library.png) !important; }
+.locale { background-image: url(../images/locale.png) !important; }
+.options { background-image: url(../images/editModule.png) !important; }
 .package { background-image: url(../images/package.png) !important; }
+.run { background-image: url(../images/run.png) !important; }
+.resource { background-image: url(../images/resource.png) !important; }
+.save { background-image: url(../images/save.gif) !important; }
+.x-tree-node .query img.x-tree-node-icon, .data { background-image: url(../images/default/grid/columns.gif) !important; } 
+.tagLib { background-image: url(../images/taglib.gif) !important; }
+.table { background-image: url(../images/table.gif) !important; }
 .urls, .handler-url { background-image: url(../images/url.png) !important; }
 
 ul.historyList li a {
@@ -112,4 +107,14 @@ textarea {
 	height: 100%;
 	padding: 0px;
 	margin: 0px;
+}
+
+.localization .formfield {
+    float: left;
+    margin-right: 20px;
+    width: 170px;
+}
+
+.localization .formfield label {
+    font-size: 10px;
 }

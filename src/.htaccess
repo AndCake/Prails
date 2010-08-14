@@ -11,6 +11,10 @@ ServerSignature Off
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^static/(.+)\.html$ index.php?event=main:cmsHandler&page=$1 [L]
+
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule (.+\.html)$ index.php?event=builder:help&path=$1 [L]
 
 	RewriteCond %{REQUEST_FILENAME} !-d
