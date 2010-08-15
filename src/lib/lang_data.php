@@ -37,7 +37,7 @@ class LangData
    }
    
    function setLanguage($str_lang) {
-       $arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "default=1")));
+       $arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
        $str_lang = $arr_result["abbreviation"];
        $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
        $this->language_id = $arr_result["language_id"];
@@ -47,7 +47,7 @@ class LangData
 
    function getText($str_item)
    {
-    	if (!$this->arr_item_cache[$str_item])
+    	if (!$this->arr_item_cache[$str_item] || !ENV_PRODUCTION)
     	{
 	     	$arr_result = @array_pop($this->obj_sql->SqlQuery(
 	      	"SELECT " .
@@ -58,7 +58,7 @@ class LangData
 	      	" AND " .
 	      	"  identifier='".$str_item."'"
 	    	));
-	    	if (!is_array($arr_result)) $arr_result["content"] = "{".$str_item."}";
+	    	if (!$arr_result) $arr_result["content"] = "{".$str_item."}";
 	 		$arr_result["content"] = stripslashes(preg_replace('/^(.*)(<br>|<br\/>)$/i', '$1', $arr_result["content"]));
 	    	$this->arr_item_cache[$str_item] = $arr_result["content"];
     	} else
@@ -101,6 +101,9 @@ class LangData
 
    function getAllTextsByIdentifier($ident) {
         $texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_language AS b LEFT JOIN tbl_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1");
+        foreach ($texts as &$text) {
+           $text["default"] = $text["isDefault"];
+        }
         
         return $texts;
    }
@@ -154,15 +157,25 @@ class LangData
    }
    
    function updateLanguage($id, $arr_data) {
+      $arr_data["isDefault"] = $arr_data["default"];
+      $arr_languages = $this->listLanguages();
+      foreach ($arr_languages as $lang) {
+         if ($lang["isDefault"] == 1 && $id == $lang["language_id"]) {
+             $arr_data["isDefault"] = 1;
+         }
+      }
       $this->obj_sql->UpdateQuery(tbl_language, $arr_data, "language_id='".$id."'");
    }
 
    function insertLanguage($arr_data) {
+      $arr_data["isDefault"] = $arr_data["default"];
       if (($count = count($this->listLanguages())) <= 0) {
-          $arr_data["default"] = 1;
+          $arr_data["isDefault"] = 1;
       }
-      if ($arr_data["default"] == 1 && $count > 0) {
-          $this->obj_sql->UpdateQuery(tbl_language, Array("default" => "0"), "1");
+      if ($arr_data["isDefault"] == 1 && $count > 0) {
+          // if the to-be-created language should be the new default, then 
+          // set all other default languages to non-default
+          $this->obj_sql->UpdateQuery(tbl_language, Array("isDefault" => "0"), "1");
       }
       return $this->obj_sql->InsertQuery(tbl_language, $arr_data);
    }

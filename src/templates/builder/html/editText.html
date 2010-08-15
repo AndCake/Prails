@@ -1,6 +1,6 @@
 <div class="localization" style="padding:20px;">
 <form id="hformx<?=$arr_param["texts"][0]['identifier']?>" method="post" action="" onsubmit="">
-    <div class="formfield">
+    <div class="formfield" style="white-space:nowrap;">
     	<label for="name">Text Identifier:</label><br/>
     	<input type="hidden" name="texts[identifier]" value="#text.path" />
     	<input type="hidden" class="id-value" name="texts[texts_id]" value="<?=(int)$_SESSION['texts_id']?>" />
@@ -132,7 +132,7 @@
 			        }
 					langWin=new Ext.Window({
 						layout: "fit",
-						title: "Language Details",
+						title: (e.id <= 0 ? "Add" : "Edit")+" Language",
 						iconCls: "locale",
 						modal: true,
 						shadow: true,
@@ -228,9 +228,12 @@
     		                  iconCls: "locale", 
     		                  handler: function() {
     		                      Ext.Msg.confirm("Delete Language", "Do you really want to delete this whole language including all associated texts?", function(btn) {
-    		                          if (btn == "ok") {
-    		                              // ajax request removing the language,
-    		                              // afterwards reload the page
+    		                          if (btn == "yes") {
+    		                              new Ajax.Request("?event=builder:editLanguage&delete=1&language_id=<?=$text['language_id']?>", {
+    		                                  onSuccess: function(req) {
+                                                loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel");
+		                                      }
+    		                              });
     		                          }
     		                      });
     		                  }

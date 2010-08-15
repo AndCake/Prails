@@ -23,7 +23,7 @@ $arr_database = Array
 	"language"=>Array(
 		"name"=>"VARCHAR(255)",
 		"abbreviation"=>"VARCHAR(255)",
-	    "default" => "INT(1) NOT NULL",
+	    "isDefault" => "INT(1) NOT NULL",
 	),
 	"texts"=>Array(
 		"fk_language_id"=>"INT(11) NOT NULL",
