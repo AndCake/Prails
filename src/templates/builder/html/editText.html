@@ -1,8 +1,12 @@
+<? global $SERVER; ?>
 <div class="localization" style="padding:20px;">
 <form id="hformx<?=$arr_param["texts"][0]['identifier']?>" method="post" action="" onsubmit="">
     <div class="formfield" style="white-space:nowrap;">
     	<label for="name">Text Identifier:</label><br/>
     	<input type="hidden" name="texts[identifier]" value="#text.path" />
+        <? if (substr($arr_param["text"]["path"], 0, 4) == "cms.") { ?>
+            <? $arr_param["text"]["type"] = $int_textType = 2; ?>
+        <? } ?>
     	<input type="hidden" class="id-value" name="texts[texts_id]" value="<?=(int)$_SESSION['texts_id']?>" />
     	<c:if cond="strlen($arr_param['texts'][0][identifier])>0">
         	<input type="hidden" id="text_name_#texts.texts_id" name="texts[name]" value="#text.name" /> 
@@ -34,6 +38,12 @@
             </select>
         </div>
     </c:if>
+    <c:if cond="$arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.'">
+        <div class="formfield">
+            <label class="url" style="white-space:nowrap;"><?=$SERVER?>static/<?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?>.html</label><br/>
+            <a href="<?=$SERVER?>static/<?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?>.html" <?=($arr_param['texts'][0]['texts_id'] <= 0 ? 'style="color:#999;cursor:default;" onclick="return false;"': "")?> target="preview">Show this page</a>
+        </div>
+    </c:if>
 	<div style="clear:both;"></div>
     <br/>
 
@@ -41,11 +51,11 @@
     <c:foreach var="texts" name="text">
     <div class="formfield" style="<? if ($arr_param['text']['type'] == 2) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: 20px;margin-bottom: 20px;">
     	<label for="contentl#text.texts_id">in <span id="">#text.name</span>:</label><br/> <!-- make language be editable and removable! -->
-        <? if ($arr_param['text']['type'] <= 0) { ?>
+        <? if ($int_textType <= 0) { ?>
             <input type="text" name="texts[content][#text.language_id]" id="contentL#text.language_id" value="<?=htmlspecialchars($arr_param['text']['content'])?>" style="width:400px;" />
         <? } else { ?>
             <div style="display:inline-block;">
-                <? if ($arr_param['text']['type'] == 1) { ?>
+                <? if ($int_textType == 1) { ?>
                 	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="30" rows="10">#text.content</textarea>
                 <? } else { ?>
                 	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="80" rows="30">#text.content</textarea>

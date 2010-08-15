@@ -1353,7 +1353,7 @@ class BuilderHandler
 		    $arr_param["text"]["decorator"] = $arr_param["texts"][0]["decorator"];
 		}
 		
-        if ($arr_param["text"]["type"] == 2) {
+        if ($arr_param["text"]["type"] == 2 || substr($arr_param["text"]["path"], 0, 4) == "cms.") {
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
         }
 

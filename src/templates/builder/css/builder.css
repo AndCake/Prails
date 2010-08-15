@@ -112,7 +112,7 @@ textarea {
 .localization .formfield {
     float: left;
     margin-right: 20px;
-    width: 170px;
+    width: auto;
 }
 
 .localization .formfield label {
