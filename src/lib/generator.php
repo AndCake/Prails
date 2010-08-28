@@ -307,10 +307,10 @@ class Generator {
                     // and the call was not giving an argument, then use the default
                     if (empty($matches[4][$key])) $matches[4][$key] = $mixin[3];
                     // create the actual mixin content by applying the dynamic variable by it's value
-                    $mixin[3] = str_replace($mixin[2], $matches[4][$key], $mixin[4]);
+                    $mixin[4] = str_replace($mixin[2], $matches[4][$key], $mixin[4]);
                 }
                 // finally replace the mixin call by it's contents
-                $css = str_replace($match, $mixin[3], $css);
+                $css = str_replace($match, $mixin[4], $css);
             }
             
             // remove all dynamic mixin declarations
