@@ -28,6 +28,7 @@ define ("DEFAULT_TEMPLATE", "templates/template.html");
 
 define ("DEBUG_MYSQL", 0);
 
+/*<KEEP-1>*/
 $arr_settings = Array(
 /*<CUSTOM-SETTINGS>*/
 "PROJECT_NAME" => "Prails Web Framework",
@@ -38,6 +39,7 @@ $arr_settings = Array(
 "ERROR_EMAIL" => "notify@example.org",
 /*</CUSTOM-SETTINGS>*/
 );
+/*</KEEP-1>*/
 
 foreach ($arr_settings as $key=>$value) {
 	define ($key, $value);
@@ -61,10 +63,13 @@ switch (DEBUG_LEVEL) {
 define ("SQLITE", "SQLite");
 define ("MYSQL", "MySQL");
 
+/*<KEEP-2>*/
 define ("DB_TYPE", SQLITE);
 define ("DB_CACHE", "cache/db/");
+/*</KEEP-2>*/
 define ("USE_AUTO_DEPLOY", false || FIRST_RUN);
 
+/*<KEEP-3>*/
 switch ($_SERVER["SERVER_ADDR"])
 {
    default:
@@ -76,6 +81,50 @@ switch ($_SERVER["SERVER_ADDR"])
    	  		"pass"=>"",			// database password - change this
    	  	),
    	  );
+}
+/*</KEEP-3>*/
+
+function updateConfiguration($arr_configuration, $module = false) {
+    if (!$module) {
+        $conf_file = "conf/configuration.php";
+    } else {
+        $conf_file = "modules/".$module."/".$module.".php";
+        if (!file_exists($conf_file)) {
+            $conf_file = "modules/".constant(strtoupper($module))."/".constant(strtoupper($module)).".php";
+        }
+    }
+	$cnt = file_get_contents($conf_file);
+	$settings = Array();
+	foreach ($arr_configuration as $conf) {
+		$value = $conf["value"];
+		if (is_numeric($value) || (strtolower($value) == "true" || strtolower($value) == "false")) {
+			$var = @eval("return (".$value.");");
+		} else $var = $value;
+		if (gettype($var) == "string") {
+			$var = "\"".$var."\"";
+		} else if (gettype($var) == "boolean") {
+			$var = $var ? "true" : "false";
+		}
+		array_push($settings, "\"".$conf["name"]."\" => ".$var);
+	}
+	$pre = substr($cnt, 0, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
+	$post = substr($cnt, strpos($cnt, "/*</CUSTOM-SETTINGS>*/")-1);
+	file_put_contents($conf_file, $pre.implode(",\n", $settings).$post);
+}
+
+function getConfiguration($module = false) {
+    if (!$module) {
+        global $arr_settings;
+        return $arr_settings;    
+    } else {
+        $settingsName = "\$arr_".$module."_settings";
+        if (is_array($GLOBALS[$settingsName])) {
+            return $GLOBAL[$settingsName];
+        } else {
+            $settingsName = "\$arr_".constant(strtoupper($module))."_settings";
+            return $GLOBAL[$settingsName];
+        }
+    }
 }
 
 ?>

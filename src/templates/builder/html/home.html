@@ -3,7 +3,16 @@
 </div>
 <div id="help" style="display:none;">
 	<div style="padding:10px;width:400px;">
-		<h1>Prails IDE - Online Help</h1><br/>
+		<h1>Prails IDE - Online Help</h1>
+		<p style="font-size:10px;color: #999;">
+		  Version: <b><?=FRAMEWORK_VERSION?></b>
+		  <? if ($arr_param["local"]["changeset"]) { ?>
+		      <div style="background-color: #FFA;border: 1px solid #CC6;font-size: 10px;padding: 5px;text-align: center;">Prails #local.version is available now! See <a href="javascript:" onclick="showChangeSet();return false;">what's new</a>. You can <a href="javascript:" onclick="return false;">update here</a>.</div>
+		      <div style="display: none;" id="changesetText">
+		          <pre style="white-space:pre-wrap;padding:10px;"><?=$arr_param["local"]["changeset"]?></pre>
+		      </div>
+		  <? } ?>
+		</p>
 		<p>Welcome to the Prails Framework. On the left hand side you can see your personal navigation area. Under "Modules" you can see all modules that do exist.
 		By double clicking an entry you edit this module. By right clicking you can change the module's options. </p>
 		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
@@ -119,6 +128,79 @@
 
 <script type="text/javascript">
 	//<![CDATA[
+	var win;
+	var updateProgress = function(url, msg) {
+	    window._prailsInstallProgress.currentStatus = msg;
+        new Ajax.Request(url, {
+            method: "GET",
+            onSuccess: function(req) {
+                if (req.responseText.indexOf("success") >= 0) {
+                    if (req.responseText.split("\n")[1] != "--") {
+                        updateProgress(req.responseText.split("\n")[1], req.responseText.split("\n")[2]);
+                    } else {
+                        window._prailsInstallProgress.hide();
+                        if ((warns = req.responseText.split("\n")[2]).length > 0) {
+                            Ext.MessageBox.alert("Completed", "The installation of Prails Version <?=trim($arr_param['local']['version'])?> finished with warnings: <br/>"+warns, function() {
+                                location.reload();
+                            });                            
+                        } else {
+                            Ext.MessageBox.alert("Completed", "The installation of Prails Version <?=trim($arr_param['local']['version'])?> is complete.", function() {
+                                location.reload();
+                            });
+                        }
+                    }
+                } else {
+                    window._prailsInstallProgress.hide();
+                    Ext.MessageBox.alert("Error", req.responseText);
+                }
+            }
+        });
+	};
+	var showChangeSet = function() {
+        window.changeSetWindow = new Ext.Window({
+            layout:'fit',
+            title: "Changes in <?=trim($arr_param['local']['version'])?>",
+            width:500,
+            height:300,
+            plain: true,
+
+            items: new Ext.Panel({
+                html: $("changesetText").innerHTML,
+                deferredRender:false,
+                autoScroll: true,
+                border:false
+            }),
+
+            buttons: [{
+                text: "Update",
+                handler: function() {
+                    window._prailsInstallProgress = Ext.MessageBox.show({
+                        title: 'Please wait',
+                        msg: 'Updating Prails',
+                        progressText: 'Downloading...',
+                        width: 300,
+                        progress: true,
+                        closable: false
+                    });
+                    window._prailsInstallProgress.currentStatus = "Downloading...";
+                    new PeriodicalExecuter(function(pe) {
+                        if (!pe.frames) pe.frames = 0;
+                        window._prailsInstallProgress.updateProgress((pe.frames % 100) / 100.0, window._prailsInstallProgress.currentStatus);                        
+                        pe.frames++;
+                    }, 0.1);
+                    // send update request to server
+                    updateProgress("?event=builder:updateSystem", "Downloading installer...");
+                }
+            }, {
+                text: 'Close',
+                handler: function(){
+                    window.changeSetWindow.hide();
+                }
+            }]
+        });
+        window.changeSetWindow.show(this);
+	};
+	
 	Ext.onReady(function() {
 		window.dold = 0;
 		window.firstCall = true;

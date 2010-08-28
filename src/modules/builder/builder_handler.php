@@ -71,6 +71,23 @@ class BuilderHandler
         $arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["texts"] = Generator::getInstance()->getLanguage()->listTexts();
+        
+        $prailsServerBasePath = "http://prails.googlecode.com/svn/trunk/";
+        // check for new {Prails} version
+        $url = parse_url($prailsServerBasePath."version");
+        // check if we are online...
+        $fp = fsockopen($url["host"], if_set($url["port"], 80), $en, $es, 2);
+        // (if connection speed is so slow that we need more than 2 seconds to check
+        // then we should not even show the user to update, as this might then take
+        // _very_ long)
+        if ($fp) {
+            // if we are online, fetch the current version file
+            fclose($fp);
+            $arr_param["local"]["version"] = file_get_contents($prailsServerBasePath."version");
+            if (trim($arr_param["local"]["version"]) != FRAMEWORK_VERSION || true) { 
+                $arr_param["local"]["changeset"] = file_get_contents($prailsServerBasePath."changeset");
+            }
+        }
 
         foreach ($arr_param["modules"] as $key=>$arr_module)
         {
@@ -108,12 +125,13 @@ class BuilderHandler
             $mod = strtolower($arr_module["name"]).(ENV_PRODUCTION === true?"":$arr_module["module_id"]);
             @mkdir("modules/".$mod, 0755);
             @mkdir("modules/".$mod."/lib", 0755);
-            $config = "\n";
+            $config = "\n\$arr_".$mod."_settings = Array(\n/*<CUSTOM-SETTINGS>*/\n";
+            $config .= "\t\"".strtoupper($arr_module['name'])."\" => \"".$mod."\",\n";
             foreach ($arr_configuration as $arr_conf)
             {
-                $config .= "if (!defined('".$arr_conf["name"]."')) ";
-                $config .= "define('".$arr_conf["name"]."', '".$arr_conf["value"]."');\n";
+                $config .= "\t".'"'.$arr_conf['name'].'" => "'.str_replace('"', '\"', $arr_conf['value'])."\",\n";
             }
+            $config .= "/*</CUSTOM-SETTINGS>*/\n);\nforeach (\$arr_".$mod."_settings as \$key=>\$value) {\n\tif(!defined(\$key)) define(\$key, \$value);\n}\n";
 
             $libs = "\n";
             foreach ($arr_libraries as $arr_lib)
@@ -1018,23 +1036,7 @@ class BuilderHandler
             if ($_GET["module_id"] < 0)
             {
                 // store the changed data in our configuration.php
-				$cnt = file_get_contents("conf/configuration.php");
-				$settings = Array();
-				foreach ($arr_configuration as $conf) {
-					$value = $conf["value"];
-					if (is_numeric($value) || (strtolower($value) == "true" || strtolower($value) == "false")) {
-						$var = @eval("return (".$value.");");
-					} else $var = $value;
-					if (gettype($var) == "string") {
-						$var = "\"".$var."\"";
-					} else if (gettype($var) == "boolean") {
-						$var = $var ? "true" : "false";
-					}
-					array_push($settings, "\"".$conf["name"]."\" => ".$var);
-				}
-				$pre = substr($cnt, 0, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
-				$post = substr($cnt, strpos($cnt, "/*</CUSTOM-SETTINGS>*/")-1);
-				file_put_contents("conf/configuration.php", $pre.implode(",\n", $settings).$post);
+                updateConfiguration($arr_configuration);
             } else
             {
                 $this->obj_data->clearConfiguration($_GET["module_id"]);
@@ -1045,12 +1047,16 @@ class BuilderHandler
                 }
             }
 
-            die ("success");
+            if ($_GET["die"] == "no") {
+                return true;
+            } else {
+                die ("success");
+            }
         }
 
         if ($_GET["module_id"] < 0)
         {
-        	global $arr_settings;
+            $arr_settings = getConfiguration();
             $arr_param["configuration"] = Array();
             foreach ($arr_settings as $name=>$value)
             {
@@ -1398,6 +1404,22 @@ class BuilderHandler
 	       Generator::getInstance()->getLanguage()->deleteLanguage($_GET["language_id"]);
 	       die("success");
 	    }
+    }
+    
+    function updateSystem() {
+        // run the system update
+        // first download the installer...
+        $basePath = "http://prails.googlecode.com/svn/trunk/";
+        // clean cache first
+        exec("cd cache && rm -f *");
+        $version = trim(file_get_contents($basePath."version"));
+        
+        file_put_contents("cache/installer.php", file_get_contents($basePath."installer.php"));
+        if (filesize("cache/installer.php") > 0 && md5(file_get_contents("cache/installer.php")) == md5(file_get_contents($basePath."installer.php"))) {
+            die("success\ncache/installer.php?version=".$version."\nDownloading package...");
+        } else {
+            die("Error saving installer. Please check permissions and internet connection.");
+        }
     }
 
 /*</EVENT-HANDLERS>*/
