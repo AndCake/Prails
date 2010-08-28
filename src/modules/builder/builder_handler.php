@@ -84,7 +84,7 @@ class BuilderHandler
             // if we are online, fetch the current version file
             fclose($fp);
             $arr_param["local"]["version"] = file_get_contents($prailsServerBasePath."version");
-            if (trim($arr_param["local"]["version"]) != FRAMEWORK_VERSION || true) { 
+            if (trim($arr_param["local"]["version"]) != FRAMEWORK_VERSION) { 
                 $arr_param["local"]["changeset"] = file_get_contents($prailsServerBasePath."changeset");
             }
         }

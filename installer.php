@@ -33,7 +33,7 @@ function recurse_copy($src, $dst) {
                         break;
                     }
                 }
-                if (!copy($src . '/' . $file, $dst . '/' . $file)) {
+                if (!@copy($src . '/' . $file, $dst . '/' . $file)) {
                     echo "Error copying file ".$src."/".$file." to ".$dst."/".$file."";
                     $rollback = true;
                 } 
@@ -46,12 +46,12 @@ function recurse_copy($src, $dst) {
         foreach ($arr_rollback as $entry) {
             if (is_array($entry) && file_exists("backup.".md5($entry[1]))) {
                 // if we have a backup file, restore it
-                if (copy("backup.".md5($entry[1]), $entry[1])) {
+                if (@copy("backup.".md5($entry[1]), $entry[1])) {
                     @unlink("backup.".md5($entry[1]));
                 }
             } else if (is_dir($entry)) {
                 // if we created a directory during copy, remove it
-                unlink($entry);
+                @unlink($entry);
             }
         }
     }
@@ -94,12 +94,42 @@ if ($_GET["version"]) {
 	if (!copy("../conf/configuration.php", "backup.configuration.php")) {
 	   die("Error creating backup for configuration.");
 	}
+	
+	// backup .htaccess
+	if (!copy("../.htaccess", "backup.htaccess")) {
+	   die("Error creating backup for .htaccess .");
+	}
+	copy("../.groups", "backup.groups");
+    copy("../.users", "backup.users");
 
 	// this should copy all files to the current installation directory
 	if (!recurse_copy("prails", "..")) {
 	   die();
 	}
 	
+	// copy back the .groups and .users file
+	if (copy("backup.groups", "../.groups")) unlink("backup.groups"); else $warnings .= "Unable to restore groups. Backup stored in ".$dir."/backup.groups .<br/>";
+    if (copy("backup.users", "../.users")) unlink("backup.users"); else $warnings .= "Unable to restore users. Backup stored in ".$dir."/backups.users .<br/>";
+    
+    // merge .htaccess
+    $oldHt = file_get_contents("backup.htaccess");
+    $newHt = file_get_contents("../.htaccess");
+	$startMarker = "#--START_CUSTOM--#";
+	$endMarker = "#--END_CUSTOM--#";
+	$start = strpos($oldHt, $startMarker) + strlen($startMarker);
+	$len = (strpos($oldHt, $endMarker, $start) - 1) - $start;
+	$area = substr($oldHt, $start, $len);
+
+	$start = strpos($newHt, $startMarker) + strlen($startMarker);
+	$len = (strpos($newHt, $endMarker, $start) - 1) - $start;
+	$file = substr($newHt, 0, $start)."\n".$area."\n".substr($newHt, $start+$len);
+	if (!@file_put_contents("../.htaccess", $file)) {
+	   $warnings .= "Unable to re-integrate custom .htaccess rules into the newer file. Backup stored in ".$dir."/backup.htaccess .<br/>";
+	} else {
+	   unlink("backup.htaccess");
+	}
+
+    // merge configuration
     $oldConf = file_get_contents("backup.configuration.php");
     $newConf = $newBackupConf = file_get_contents("../conf/configuration.php");
     
@@ -120,8 +150,10 @@ if ($_GET["version"]) {
         // we have a syntax error in the code
         file_put_contents("../conf/configuration.php", $newBackupConf);
         $warnings .= "Error while restoring configuration options. ";
-        $warnings .= "Configuration has been reset to installation default. Original configuration has been saved in ".$dir."/backup.configuration.php .";
-    }    
+        $warnings .= "Configuration has been reset to installation default. Original configuration has been saved in ".$dir."/backup.configuration.php .<br/>";
+    } else {
+        unlink("backup.configuration.php");
+    }   
     
     die("success\n--\n".$warnings);
 }
