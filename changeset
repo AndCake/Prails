@@ -10,3 +10,44 @@ V1.0.5 (August 15, 2010)
 * updated upload target for wysiwyg fields
 * added very basic CMS functionality (can be used by creating texts in a cms top section under Translations
 * removed caching of localization data for development environments (ENV_PRODUCTION set to false)
+
+
+V1.0.4 (July 15, 2010)
+
+* added easier AJAX support for links (using the rel attribute you can now define what HTML element's content should be replaced with the content loaded via the HREF attribute of the link).
+* speed up of re-deployment while in development (ENV_PRODUCTION uses then the optimized/minified JS version)
+* added the feature, that everything loaded via the <a href="..." rel="element-id">...</a> does then again fire the dom:loaded event (causing to initialize everything again)
+* added new wysiwyg editor. It can be accessed by simply giving any element a CSS class "wysiwyg". On page load it will be automatically transformed into a wysiwyg
+* modified include tag, to make more sense for including other templates (warning: syntax has changed - to include a template you now simply write <c:include file="<module>/<event>" /> so it looks like: <c:include file="blog/viewPost" />
+* improved taglib parsing to support nested tag evaluation
+* improved DBEntry to support on-demand reverse foreign key resolution (for example: having two tables "post" and "comment", while "comment" has a fk_post_id, then if you have a certain post, you could do: #post.comment_list which would then get you all comments of that post)
+* added new browsing feature for database tables
+* made global configuration saveable
+* fixed  Bug #1 
+* improved compatibility of syntax highlighting with the mobile safari for ipad
+* fixed bug with CSS and JS lib filesize retrieval
+* improved caching mechanism for runlets
+* added url rewriting feature for handlers
+* improved user-guiding if no Database can be accessed and on the default Prails home page.
+* Improved logging to notify project manager (ERROR_EMAIL) if an error occured and notification (ERROR_NOTIFICATION) is turned on
+* some code clean up
+
+
+V1.0.3 (June 27, 2010)
+
+* Added support for SQLite3 databases (you can now use the DB_TYPE setting in the configuration.php to switch between MySQL and SQLite)
+* Added support for importing and exporting whole packages (modules, libraries, tables and tags)
+* When scaffolding to a module which has already been in use, it is now purged from the file system to immediately reflect the changes done by the scaffolding
+* Added log file link to home builder's home screen
+* On the first run, the database is now automatically deployed
+* Some code clean up
+
+
+V1.0.2 (June 17, 2010)
+
+* Introduced scaffolding
+* Added further help section to builder's home screen
+* When creating a new module, a home event is now generated with it
+* Introduced global module editing and viewing functionality
+* Added DBEntry to enable extended field access functionality (like automatic resolution of foreign keys on demand)
+* Much code clean up
