@@ -236,8 +236,12 @@ class BuilderHandler
 
         if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0)
         {
-            removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
-            removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
+            if (ENV_PRODUCTION) {
+                removeDir("modules/".$arr_param["module"]["name"], true);
+            } else {
+                removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
+                removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
+            }
             removeDir("templates/".$arr_param["module"]["name"], true);
         }
 
@@ -278,7 +282,7 @@ class BuilderHandler
 
     function editModule()
     {
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
@@ -288,13 +292,13 @@ class BuilderHandler
                 $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
                 $arr_data["style_code"] = $arr_data["style_code"];
                 $arr_data["js_code"] = $arr_data["js_code"];
-            } else if ($_SESSION["module_id"] >= 0)
+            } else if ($_GET["module_id"] >= 0)
             {
                 $this->resetModule(false);
             }
-            if ($_SESSION["module_id"] > 0)
+            if ($_GET["module_id"] > 0)
             {
-                $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+                $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
                 if ($arr_data["header_info"])
                 {
                     $arr_data["header_info"] = @serialize(array_merge(@unserialize($arr_param["module"]["header_info"]), $arr_data["header_info"]));
@@ -302,10 +306,10 @@ class BuilderHandler
                 removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
                 removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
 
-                $this->obj_data->updateModule($_SESSION["module_id"], $arr_data);
-            } else if ((int)$_SESSION["module_id"] == 0)
+                $this->obj_data->updateModule($_GET["module_id"], $arr_data);
+            } else if ((int)$_GET["module_id"] == 0)
             {
-                $_SESSION["module_id"] = $this->obj_data->insertModule($arr_data);
+                $_SESSION["module_id"] = $_GET["module_id"] = $this->obj_data->insertModule($arr_data);
                 $arr_module = $arr_data;
                 // also generate an nearly-empty home entry point
                 ob_start();
@@ -315,13 +319,13 @@ class BuilderHandler
                 require ("templates/builder/php/handler_scaffold_home_html.php");
                 $htmlcode = ob_get_clean();
                 $hid = $this->obj_data->insertHandler($arr_handler = Array(
-                "fk_module_id"=>$_SESSION["module_id"],
+                "fk_module_id"=>$_GET["module_id"],
                 "event"=>"home",
                 "code"=>$code,
                 "html_code"=>$htmlcode
                 ));
                 $this->obj_data->insertHandlerHistory($hid, $arr_param["handler"], $arr_handler);
-            } else if ($_SESSION["module_id"] < 0)
+            } else if ($_GET["module_id"] < 0)
             {
                 if (!$arr_data["header_info"])
                 {
@@ -357,19 +361,19 @@ class BuilderHandler
                     file_put_contents("modules/main/main_printer.php", $content);
                 }
             }
-            $this->obj_data->insertModuleHistory($_SESSION["module_id"], $arr_param["module"], $arr_data);
-            setcookie("klatcher[kmdtk][module][".$_SESSION["module_id"]."]", 1);
-            echo $_SESSION["module_id"]."\n";
+            $this->obj_data->insertModuleHistory($_GET["module_id"], $arr_param["module"], $arr_data);
+            setcookie("klatcher[kmdtk][module][".$_GET["module_id"]."]", 1);
+            echo $_GET["module_id"]."\n";
             if ($hid > 0)
             {
                 echo $hid."\n";
             }
 
-            if ($_SESSION["module_id"] > 0)
+            if ($_GET["module_id"] > 0)
             {
                 $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-                $arr_obj["m_style_code_".$_SESSION["module_id"]] = crc32($arr_data["style_code"]);
-                $arr_obj["m_js_code_".$_SESSION["module_id"]] = crc32($arr_data["js_code"]);
+                $arr_obj["m_style_code_".$_GET["module_id"]] = crc32($arr_data["style_code"]);
+                $arr_obj["m_js_code_".$_GET["module_id"]] = crc32($arr_data["js_code"]);
                 file_put_contents("builder.crc32", json_encode($arr_obj));
             }
 
@@ -384,7 +388,7 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
-        if ($_SESSION["module_id"] < 0)
+        if ($_GET["module_id"] < 0)
         {
             $arr_param["module"] = Array(
             "module_id"=>"-1",
@@ -403,16 +407,16 @@ class BuilderHandler
             $arr_param["module"]["header_info"]["css_includes"] = preg_split("/\\s*\n\\s+/", trim($cssinc));
         } else
         {
-            $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+            $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
             $arr_param["module"]["header_info"] = @unserialize($arr_param["module"]["header_info"]);
         }
 
         // create crc32 files
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_SESSION["module_id"] > 0 && $arr_obj["m_style_code".$_SESSION["module_id"]] != crc32($arr_param["module"]["style_code"]) || $arr_obj["m_js_code".$_SESSION["module_id"]] != crc32($arr_param["module"]["js_code"]))
+        if ($_GET["module_id"] > 0 && $arr_obj["m_style_code".$_GET["module_id"]] != crc32($arr_param["module"]["style_code"]) || $arr_obj["m_js_code".$_GET["module_id"]] != crc32($arr_param["module"]["js_code"]))
         {
-            $arr_obj["m_style_code_".$_SESSION["module_id"]] = crc32($arr_param["module"]["style_code"]);
-            $arr_obj["m_js_code_".$_SESSION["module_id"]] = crc32($arr_param["module"]["js_code"]);
+            $arr_obj["m_style_code_".$_GET["module_id"]] = crc32($arr_param["module"]["style_code"]);
+            $arr_obj["m_js_code_".$_GET["module_id"]] = crc32($arr_param["module"]["js_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
         }
 
@@ -443,25 +447,25 @@ class BuilderHandler
 
     function editHandler()
     {
-        $_SESSION["handler_id"] = if_set($_GET["handler_id"], $_SESSION["handler_id"]);
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["handler_id"] = $_GET["handler_id"] = if_set($_GET["handler_id"], $_SESSION["handler_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_data = $_POST["handler"];
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
-            $arr_data["fk_module_id"] = $_SESSION["module_id"];
+            $arr_data["fk_module_id"] = $_GET["module_id"];
             $arr_data["flag_ajax"] = (int)$arr_data["flag_ajax"];
             $arr_data["code"] = ($arr_data["code"]);
             $arr_data["html_code"] = ($arr_data["html_code"]);
-            if ($_SESSION["handler_id"] > 0)
+            if ($_GET["handler_id"] > 0)
             {
-                $arr_param["handler"] = $this->obj_data->selectHandler($_SESSION["handler_id"]);
-                $this->obj_data->updateHandler($_SESSION["handler_id"], $arr_data);
-            } else if ((int)$_SESSION["handler_id"] == 0)
+                $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
+                $this->obj_data->updateHandler($_GET["handler_id"], $arr_data);
+            } else if ((int)$_GET["handler_id"] == 0)
             {
-                $_SESSION["handler_id"] = $this->obj_data->insertHandler($arr_data);
-            } else if ($_SESSION["handler_id"] < 0)
+                $_SESSION["handler_id"] = $_GET["handler_id"] = $this->obj_data->insertHandler($arr_data);
+            } else if ($_GET["handler_id"] < 0)
             {
                 $arr_param["handler"]["handler_id"] = -1;
                 $arr_param['handler']['event'] = "home";
@@ -484,14 +488,14 @@ class BuilderHandler
                 );
                 file_put_contents("templates/main/html/home.html", $arr_data["html_code"]);
             }
-            $this->obj_data->insertHandlerHistory($_SESSION["handler_id"], $arr_param["handler"], $arr_data);
-            echo $_SESSION["handler_id"]."\n";
+            $this->obj_data->insertHandlerHistory($_GET["handler_id"], $arr_param["handler"], $arr_data);
+            echo $_GET["handler_id"]."\n";
 
-            if ($_SESSION["handler_id"] > 0)
+            if ($_GET["handler_id"] > 0)
             {
                 $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-                $arr_obj["h_html_code_".$_SESSION["handler_id"]] = crc32($arr_data["html_code"]);
-                $arr_obj["h_code_".$_SESSION["handler_id"]] = crc32($arr_data["code"]);
+                $arr_obj["h_html_code_".$_GET["handler_id"]] = crc32($arr_data["html_code"]);
+                $arr_obj["h_code_".$_GET["handler_id"]] = crc32($arr_data["code"]);
                 file_put_contents("builder.crc32", json_encode($arr_obj));
             }
 
@@ -507,7 +511,7 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
-        if ($_SESSION["handler_id"] < 0 && $_SESSION["module_id"] < 0)
+        if ($_GET["handler_id"] < 0 && $_GET["module_id"] < 0)
         {
             $arr_param["module"]["module_id"] = -1;
             $arr_param["module"]["name"] = "Global";
@@ -521,16 +525,16 @@ class BuilderHandler
             $arr_param["handler"]["html_code"] = $content;
         } else
         {
-            $arr_param["handler"] = $this->obj_data->selectHandler($_SESSION["handler_id"]);
-            $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+            $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
+            $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
         }
 
         // create crc32 files
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_SESSION["handler_id"] > 0 && $arr_obj["h_html_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["html_code"]) || $arr_obj["h_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["code"]))
+        if ($_GET["handler_id"] > 0 && $arr_obj["h_html_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["html_code"]) || $arr_obj["h_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["code"]))
         {
-            $arr_obj["h_html_code_".$_SESSION["handler_id"]] = crc32($arr_param["handler"]["html_code"]);
-            $arr_obj["h_code_".$_SESSION["handler_id"]] = crc32($arr_param["handler"]["code"]);
+            $arr_obj["h_html_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["html_code"]);
+            $arr_obj["h_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
         }
 
@@ -560,28 +564,28 @@ class BuilderHandler
 
     function editData()
     {
-        $_SESSION["data_id"] = if_set($_GET["data_id"], $_SESSION["data_id"]);
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["data_id"] = $_GET["data_id"] = if_set($_GET["data_id"], $_SESSION["data_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_data = $_POST["data"];
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
-            $arr_data["fk_module_id"] = $_SESSION["module_id"];
+            $arr_data["fk_module_id"] = $_GET["module_id"];
             $arr_data["code"] = ($arr_data["code"]);
-            if ($_SESSION["data_id"] > 0)
+            if ($_GET["data_id"] > 0)
             {
-                $arr_param["data"] = $this->obj_data->selectData($_SESSION["data_id"]);
-                $this->obj_data->updateData($_SESSION["data_id"], $arr_data);
+                $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
+                $this->obj_data->updateData($_GET["data_id"], $arr_data);
             } else
             {
-                $_SESSION["data_id"] = $this->obj_data->insertData($arr_data);
+                $_SESSION["data_id"] = $_GET["data_id"] = $this->obj_data->insertData($arr_data);
             }
-            $this->obj_data->insertDataHistory($_SESSION["data_id"], $arr_param["data"], $arr_data);
-            echo $_SESSION["data_id"]."\n";
+            $this->obj_data->insertDataHistory($_GET["data_id"], $arr_param["data"], $arr_data);
+            echo $_GET["data_id"]."\n";
 
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-            $arr_obj["d_code_".$_SESSION["data_id"]] = crc32($arr_data["code"]);
+            $arr_obj["d_code_".$_GET["data_id"]] = crc32($arr_data["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
 
             return $this->resetModule();
@@ -596,13 +600,13 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
-        $arr_param["data"] = $this->obj_data->selectData($_SESSION["data_id"]);
+        $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
 
         // create crc32 files
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_SESSION["data_id"] > 0 && $arr_obj["d_code".$_SESSION["data_id"]] != crc32($arr_param["data"]["code"]))
+        if ($_GET["data_id"] > 0 && $arr_obj["d_code".$_GET["data_id"]] != crc32($arr_param["data"]["code"]))
         {
-            $arr_obj["d_code_".$_SESSION["data_id"]] = crc32($arr_param["data"]["code"]);
+            $arr_obj["d_code_".$_GET["data_id"]] = crc32($arr_param["data"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
         }
 
@@ -635,32 +639,36 @@ class BuilderHandler
 
     function editLibrary()
     {
-        $_SESSION["library_id"] = if_set($_GET["library_id"], $_SESSION["library_id"]);
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["library_id"] = $_GET["library_id"] = if_set($_GET["library_id"], $_SESSION["library_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_library = $_POST["library"];
             $arr_library["code"] = ($arr_library["code"]);
-            if ($_SESSION["library_id"] > 0)
+            if ($_GET["library_id"] > 0)
             {
-                $arr_param["library"] = $this->obj_data->selectLibrary($_SESSION["library_id"]);
-                $this->obj_data->updateLibrary($_SESSION["library_id"], $arr_library);
+                $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
+                $this->obj_data->updateLibrary($_GET["library_id"], $arr_library);
             } else
             {
                 $arr_library["fk_user_id"] = $_SESSION["builder"]["user_id"];
-                $arr_library["fk_module_id"] = $_SESSION["module_id"];
-                $_SESSION["library_id"] = $this->obj_data->insertLibrary($arr_library);
+                $arr_library["fk_module_id"] = $_GET["module_id"];
+                $_SESSION["library_id"] = $_GET["library_id"] = $this->obj_data->insertLibrary($arr_library);
             }
-            $this->obj_data->insertLibraryHistory($_SESSION["library_id"], $arr_param["library"], $arr_library);
+            $this->obj_data->insertLibraryHistory($_GET["library_id"], $arr_param["library"], $arr_library);
             if (strlen($arr_param["library"]["name"]) > 0)
             {
-                @unlink("lib/custom/".$arr_param["library"]["name"].$_SESSION["library_id"].".php");
+                if (ENV_PRODUCTION) {
+                    @unlink("lib/custom/".$arr_param["library"]["name"].".php");
+                } else {
+                    @unlink("lib/custom/".$arr_param["library"]["name"].$_GET["library_id"].".php");
+                }
             }
-            echo $_SESSION["library_id"]."\n";
+            echo $_GET["library_id"]."\n";
 
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-            $arr_obj["l_code_".$_SESSION["library_id"]] = crc32($arr_library["code"]);
+            $arr_obj["l_code_".$_GET["library_id"]] = crc32($arr_library["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
 
             return $this->resetModule();
@@ -675,13 +683,13 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
-        $arr_param["library"] = $this->obj_data->selectLibrary($_SESSION["library_id"]);
+        $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
 
         // create crc32 files
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_SESSION["library_id"] > 0 && $arr_obj["l_code".$_SESSION["library_id"]] != crc32($arr_param["library"]["code"]))
+        if ($_GET["library_id"] > 0 && $arr_obj["l_code".$_GET["library_id"]] != crc32($arr_param["library"]["code"]))
         {
-            $arr_obj["l_code_".$_SESSION["library_id"]] = crc32($arr_param["library"]["code"]);
+            $arr_obj["l_code_".$_GET["library_id"]] = crc32($arr_param["library"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
         }
 
@@ -696,29 +704,29 @@ class BuilderHandler
 
     function editTag()
     {
-        $_SESSION["tag_id"] = if_set($_GET["tag_id"], $_SESSION["tag_id"]);
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["tag_id"] = $_GET["tag_id"] = if_set($_GET["tag_id"], $_SESSION["tag_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_tag = $_POST["tag"];
             //	   	   $arr_tag["html_code"] = addslashes($arr_tag["html_code"]);
-            if ($_SESSION["tag_id"] > 0)
+            if ($_GET["tag_id"] > 0)
             {
-                $arr_param["tag"] = $this->obj_data->selectTag($_SESSION["tag_id"]);
+                $arr_param["tag"] = $this->obj_data->selectTag($_GET["tag_id"]);
                 $arr_param["tag"]["html_code"] = ($arr_param["tag"]["html_code"]);
-                $this->obj_data->updateTag($_SESSION["tag_id"], $arr_tag);
+                $this->obj_data->updateTag($_GET["tag_id"], $arr_tag);
             } else
             {
                 $arr_tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
-                $arr_tag["fk_module_id"] = $_SESSION["module_id"];
-                $_SESSION["tag_id"] = $this->obj_data->insertTag($arr_tag);
+                $arr_tag["fk_module_id"] = $_GET["module_id"];
+                $_SESSION["tag_id"] = $_GET["tag_id"] = $this->obj_data->insertTag($arr_tag);
             }
-            $this->obj_data->insertTagHistory($_SESSION["tag_id"], $arr_param["tag"], $arr_tag);
-            echo $_SESSION["tag_id"]."\n";
+            $this->obj_data->insertTagHistory($_GET["tag_id"], $arr_param["tag"], $arr_tag);
+            echo $_GET["tag_id"]."\n";
 
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-            $arr_obj["t_html_code_".$_SESSION["tag_id"]] = crc32($arr_tag["html_code"]);
+            $arr_obj["t_html_code_".$_GET["tag_id"]] = crc32($arr_tag["html_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
 
             return $this->resetModule();
@@ -733,13 +741,13 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
-        $arr_param["tag"] = $this->obj_data->selectTag($_SESSION["tag_id"]);
+        $arr_param["tag"] = $this->obj_data->selectTag($_GET["tag_id"]);
 
         // create crc32 files
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_SESSION["tag_id"] > 0 && $arr_obj["t_html_code".$_SESSION["tag_id"]] != crc32($arr_param["tag"]["html_code"]))
+        if ($_GET["tag_id"] > 0 && $arr_obj["t_html_code".$_GET["tag_id"]] != crc32($arr_param["tag"]["html_code"]))
         {
-            $arr_obj["t_html_code_".$_SESSION["tag_id"]] = crc32($arr_param["tag"]["html_code"]);
+            $arr_obj["t_html_code_".$_GET["tag_id"]] = crc32($arr_param["tag"]["html_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
         }
 
@@ -757,12 +765,12 @@ class BuilderHandler
 
     function editResource()
     {
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
-        $_SESSION["resource_id"] = if_set($_GET["resource_id"], $_SESSION["resource_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["resource_id"] = $_GET["resource_id"] = if_set($_GET["resource_id"], $_SESSION["resource_id"]);
 
         if ($_GET["check"] == "1")
         {
-            $id = $_SESSION["resource_id"];
+            $id = $_GET["resource_id"];
             if ($id > 0)
             {
                 $arr_param["resource"] = $this->obj_data->selectResource($id);
@@ -779,12 +787,12 @@ class BuilderHandler
             {
                 $file = $_FILES["resource"]["tmp_name"]["file"];
                 $content = file_get_contents($file);
-                $arr_data["fk_module_id"] = $_SESSION["module_id"];
+                $arr_data["fk_module_id"] = $_GET["module_id"];
                 $arr_data["type"] = $_FILES["resource"]["type"]["file"];
                 $arr_data["data"] = base64_encode($content);
-                if ($_SESSION["resource_id"] > 0)
+                if ($_GET["resource_id"] > 0)
                 {
-                    $this->obj_data->updateResource($_SESSION["resource_id"], $arr_data);
+                    $this->obj_data->updateResource($_GET["resource_id"], $arr_data);
                 } else
                 {
                     $arr_data["name"] = $_FILES["resource"]["name"]["file"];
@@ -797,19 +805,19 @@ class BuilderHandler
             }
 
             $arr_data = $_POST["resource"];
-            if ($_SESSION["resource_id"] > 0)
+            if ($_GET["resource_id"] > 0)
             {
-                $this->obj_data->updateResource($_SESSION["resource_id"], $arr_data);
+                $this->obj_data->updateResource($_GET["resource_id"], $arr_data);
             } else
             {
-                $arr_data["fk_module_id"] = $_SESSION["module_id"];
-                $_SESSION["resource_id"] = $this->obj_data->insertResource($arr_data);
+                $arr_data["fk_module_id"] = $_GET["module_id"];
+                $_SESSION["resource_id"] = $_GET["resource_id"] = $this->obj_data->insertResource($arr_data);
             }
             return $this->resetModule();
         }
 
-        $arr_param["resource"] = $this->obj_data->selectResource($_SESSION["resource_id"]);
-        $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+        $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"]);
+        $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
 
         die ($this->_callPrinter("editResource", $arr_param));
     }
@@ -891,7 +899,7 @@ class BuilderHandler
     {
         $_SESSION["builder"] = Array();
         session_destroy();
-        header('WWW-Authenticate: Basic realm="Prails Web    Framework Realm"');
+        header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
         header('HTTP/1.0 401 Unauthorized');
         require ("templates/builder/html/not_allowed.html");
         die ();
@@ -910,22 +918,22 @@ class BuilderHandler
 
     function editTable()
     {
-        $_SESSION["table_id"] = if_set($_GET["table_id"], $_SESSION["table_id"]);
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["table_id"] = $_GET["table_id"] = if_set($_GET["table_id"], $_SESSION["table_id"]);
+        $_SESSION["module_id"] = $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_table = $_POST["table"];
 			$needFlush = false;
-            if ($_SESSION["table_id"] > 0)
+            if ($_GET["table_id"] > 0)
             {
-                $arr_param["table"] = $this->obj_data->selectTable($_SESSION["table_id"]);
-                $this->obj_data->updateTable($_SESSION["table_id"], $arr_table);
+                $arr_param["table"] = $this->obj_data->selectTable($_GET["table_id"]);
+                $this->obj_data->updateTable($_GET["table_id"], $arr_table);
             } else
             {
                 $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
-                $arr_table["fk_module_id"] = $_SESSION["module_id"];
-                $_SESSION["table_id"] = $this->obj_data->insertTable($arr_table);
+                $arr_table["fk_module_id"] = $_GET["module_id"];
+                $_SESSION["table_id"] = $_GET["table_id"] = $this->obj_data->insertTable($arr_table);
 
                 $arr_module = $this->obj_data->selectModule($_POST["scaffold"]["fk_module_id"]);
                 $arr_module["name"] = strtolower($arr_module["name"]);
@@ -969,7 +977,7 @@ class BuilderHandler
 					$this->resetModule(false, $_POST["scaffold"]["fk_module_id"]);
 				}
             }
-            $this->obj_data->insertTableHistory($_SESSION["table_id"], $arr_param["table"], $arr_table);
+            $this->obj_data->insertTableHistory($_GET["table_id"], $arr_param["table"], $arr_table);
 
             // re-deploy this table
             $arr_fields = Array();
@@ -982,12 +990,12 @@ class BuilderHandler
             $arr_db = Array();
             $arr_db[$arr_table["name"]] = $arr_fields;
             DBDeployer::deploy($arr_db);
-            echo $_SESSION["table_id"]."\n";
+            echo $_GET["table_id"]."\n";
             die ("success");
         }
 
         $arr_param["modules"] = $this->obj_data->listModulesFromUser($_SESSION["builder"]["user_id"]);
-        $arr_param["table"] = $this->obj_data->selectTable($_SESSION["table_id"]);
+        $arr_param["table"] = $this->obj_data->selectTable($_GET["table_id"]);
 
         die ($this->_callPrinter("editTable", $arr_param));
     }
@@ -1001,13 +1009,13 @@ class BuilderHandler
 
     function editConfiguration()
     {
-        $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+        $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")
         {
             $arr_configuration = $_POST["configuration"];
 
-            if ($_SESSION["module_id"] < 0)
+            if ($_GET["module_id"] < 0)
             {
                 // store the changed data in our configuration.php
 				$cnt = file_get_contents("conf/configuration.php");
@@ -1029,10 +1037,10 @@ class BuilderHandler
 				file_put_contents("conf/configuration.php", $pre.implode(",\n", $settings).$post);
             } else
             {
-                $this->obj_data->clearConfiguration($_SESSION["module_id"]);
+                $this->obj_data->clearConfiguration($_GET["module_id"]);
                 foreach ($arr_configuration as $arr_conf)
                 {
-                    $arr_conf["fk_module_id"] = $_SESSION["module_id"];
+                    $arr_conf["fk_module_id"] = $_GET["module_id"];
                     $this->obj_data->insertConfiguration($arr_conf);
                 }
             }
@@ -1040,7 +1048,7 @@ class BuilderHandler
             die ("success");
         }
 
-        if ($_SESSION["module_id"] < 0)
+        if ($_GET["module_id"] < 0)
         {
         	global $arr_settings;
             $arr_param["configuration"] = Array();
@@ -1060,8 +1068,8 @@ class BuilderHandler
             );
         } else
         {
-            $arr_param["configuration"] = $this->obj_data->listConfigurationFromModule($_SESSION["module_id"]);
-            $arr_param["module"] = $this->obj_data->selectModule($_SESSION["module_id"]);
+            $arr_param["configuration"] = $this->obj_data->listConfigurationFromModule($_GET["module_id"]);
+            $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
         }
 
         die ($this->_callPrinter("editConfiguration", $arr_param));
@@ -1326,7 +1334,7 @@ class BuilderHandler
 	}
 
 	function editText() {
-		$_SESSION["texts_id"] = if_set($_GET["texts_id"], $_SESSION["texts_id"]);
+		$_SESSION["texts_id"] = $_GET["texts_id"] = if_set($_GET["texts_id"], $_SESSION["texts_id"]);
 		
 		if ($_GET["check"] == "1") {
 			// update / insert texts
@@ -1339,12 +1347,12 @@ class BuilderHandler
 		
 		if ($_GET["ident"]) {
 		    $arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($_GET["ident"]);
-		    $_SESSION["texts_id"] = $arr_param["texts"][0]["texts_id"];
+		    $_SESSION["texts_id"] = $_GET["texts_id"] = $arr_param["texts"][0]["texts_id"];
 		} else {
-    		$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsById($_SESSION["texts_id"]);
+    		$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsById($_GET["texts_id"]);
 		}
 
-		if ($_GET["path"] && $_SESSION["texts_id"] == 0) {
+		if ($_GET["path"] && $_GET["texts_id"] == 0) {
 			$arr_param["text"]["path"] = $_GET["path"];
 		} else {
 		    $arr_param["text"]["path"] = substr($arr_param["texts"][0]["identifier"], 0, strrpos($arr_param["texts"][0]["identifier"], ".")+1);
@@ -1371,23 +1379,23 @@ class BuilderHandler
 	}
 	
 	function editLanguage() {
-	    $_SESSION["language_id"] = if_set($_GET["language_id"], $_SESSION["language_id"]);
+	    $_SESSION["language_id"] = $_GET["language_id"] = if_set($_GET["language_id"], $_SESSION["language_id"]);
 	    
 	    if ($_POST["lang"]) {
 	       $arr_data = $_POST["lang"];
 	       $arr_data["default"] = $_POST["lang_default"];
 	       
-	       if ($_SESSION["language_id"] > 0) {
-	           Generator::getInstance()->getLanguage()->updateLanguage($_SESSION["language_id"], $arr_data);
+	       if ($_GET["language_id"] > 0) {
+	           Generator::getInstance()->getLanguage()->updateLanguage($_GET["language_id"], $arr_data);
 	       } else {
-	           $_SESSION["language_id"] = Generator::getInstance()->getLanguage()->insertLanguage($arr_data);
+	           $_SESSION["language_id"] = $_GET["language_id"] = Generator::getInstance()->getLanguage()->insertLanguage($arr_data);
 	       }
 	       
 	       header("Content-Type: application/json");
 	       
 	       die("{success: true}");
 	    } else if ($_GET["delete"] > 0) {
-	       Generator::getInstance()->getLanguage()->deleteLanguage($_SESSION["language_id"]);
+	       Generator::getInstance()->getLanguage()->deleteLanguage($_GET["language_id"]);
 	       die("success");
 	    }
     }
