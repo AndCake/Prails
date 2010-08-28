@@ -1,0 +1,11 @@
+V1.0.5 (August 15, 2010)
+* added form field validation
+* some debugging for deploying on PHP version < 5.3
+* improved tag lib to support formatters (no custom formatters supported yet)
+* added render optimiziation for internet explorer versions < 9 (all old versions of IE will try to mimic the IE9 rendering)
+* added automatic browser-feature detection
+* all POSTs to the server will now be received in a clean-upped way (no more uncertainty of magic quotes).
+* added IDE integration for localization: new navigation section Translations
+* updated upload target for wysiwyg fields
+* added very basic CMS functionality (can be used by creating texts in a cms top section under Translations
+* removed caching of localization data for development environments (ENV_PRODUCTION set to false)
