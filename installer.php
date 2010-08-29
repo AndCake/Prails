@@ -58,7 +58,7 @@ function recurse_copy($src, $dst) {
         
     closedir($dir); 
     
-    return $rollback;
+    return !$rollback;
 } 
 
 if ($_GET["version"]) {
