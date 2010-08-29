@@ -138,6 +138,7 @@
                     if (req.responseText.split("\n")[1] != "--") {
                         updateProgress(req.responseText.split("\n")[1], req.responseText.split("\n")[2]);
                     } else {
+	 	    	window._prailsInstallProgress.pe.stop();
                         window._prailsInstallProgress.hide();
                         if ((warns = req.responseText.split("\n")[2]).length > 0) {
                             Ext.MessageBox.alert("Completed", "The installation of Prails Version <?=trim($arr_param['local']['version'])?> finished with warnings: <br/>"+warns, function() {
@@ -151,6 +152,7 @@
                     }
                 } else {
                     window._prailsInstallProgress.hide();
+	 	    window._prailsInstallProgress.pe.stop();
                     Ext.MessageBox.alert("Error", req.responseText);
                 }
             }
@@ -170,7 +172,7 @@
             closable: false
         });
         window._prailsInstallProgress.currentStatus = "Downloading...";
-        new PeriodicalExecuter(function(pe) {
+        window._prailsInstallProgress.pe = new PeriodicalExecuter(function(pe) {
             if (!pe.frames) pe.frames = 0;
             window._prailsInstallProgress.updateProgress((pe.frames % 100) / 100.0, window._prailsInstallProgress.currentStatus);                        
             pe.frames++;
