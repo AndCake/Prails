@@ -114,22 +114,24 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
 
 class DBEntry extends DBEntryObject {
 	private $obj_tbl = null;
+	private $prefix = null;
 	
-	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator") {
-		$this->obj_tbl = new TblClass();		
+	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator", $prefix = "tbl_") {
+		$this->obj_tbl = new TblClass();
+		$this->prefix = $prefix;		
 		parent::__construct($arr_data, $flags, $iterator_class);
 	}
 	
 	function offsetGet($index) {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
 			if (parent::offsetGet($index) == null) {
-				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$index." WHERE ".$index."_id='".$id."'")));
+				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."'")));
 			}
 			return parent::offsetGet($index); 
 		} else if (substr($index, -5) == "_list") {
 			$collection_name = preg_replace("/_list\$/", "", $index);
 			if (parent::offsetGet($index) == null) {
-				$cols = $this->obj_tbl->obj_mysql->listColumns("tbl_".$collection_name);
+				$cols = $this->obj_tbl->obj_mysql->listColumns($this->prefix.$collection_name);
 				$lCols = Array();
 				foreach ($cols as $col) {
 					array_push($lCols, $col["Field"]);
@@ -141,7 +143,7 @@ class DBEntry extends DBEntryObject {
 						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
 					}
 				}
-				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM tbl_".$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").")"));
+				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").")"));
 			}
 			return parent::offsetGet($index); 
 		} else {

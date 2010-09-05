@@ -943,58 +943,60 @@ class BuilderHandler
         {
             $arr_table = $_POST["table"];
 			$needFlush = false;
-            if ($_GET["table_id"] > 0)
-            {
+            if ($_GET["table_id"] > 0) {
                 $arr_param["table"] = $this->obj_data->selectTable($_GET["table_id"]);
                 $this->obj_data->updateTable($_GET["table_id"], $arr_table);
-            } else
-            {
+            } else {
                 $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
                 $arr_table["fk_module_id"] = $_GET["module_id"];
                 $_SESSION["table_id"] = $_GET["table_id"] = $this->obj_data->insertTable($arr_table);
-
-                $arr_module = $this->obj_data->selectModule($_POST["scaffold"]["fk_module_id"]);
-                $arr_module["name"] = strtolower($arr_module["name"]);
-                if ($_POST["d_scaffold"])
-                {
-                	$needFlush = true;
-                    foreach ($_POST["d_scaffold"] as $data=>$one)
-                    {
-                        ob_start();
-                        @ require ("templates/builder/php/data_scaffold_".$data.".php");
-                        $query = ob_get_clean();
-                        $did = $this->obj_data->insertData($arr_data = Array(
-                        "name"=>$data.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
-                        "code"=>$query,
-                        "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
-                        ));
-                        $this->obj_data->insertDataHistory($did, null, $arr_data);
-                    }
-                }
-                if ($_POST["h_scaffold"])
-                {
-                	$needFlush = true;                	
-                    foreach ($_POST["h_scaffold"] as $handler=>$one)
-                    {
-                        ob_start();
-                        @ require ("templates/builder/php/handler_scaffold_".$handler.".php");
-                        $code = ob_get_clean();
-                        ob_start();
-                        @ require ("templates/builder/php/handler_scaffold_".$handler."_html.php");
-                        $htmlcode = ob_get_clean();
-                        $hid = $this->obj_data->insertHandler($arr_data = Array(
-                        "event"=>$handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
-                        "code"=>$code,
-                        "html_code"=>$htmlcode,
-                        "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
-                        ));
-                        $this->obj_data->insertHandlerHistory($hid, null, $arr_data);
-                    }
-                }
-				if ($needFlush) {
-					$this->resetModule(false, $_POST["scaffold"]["fk_module_id"]);
-				}
             }
+            $arr_module = $this->obj_data->selectModule($_POST["scaffold"]["fk_module_id"]);
+            $arr_module["name"] = strtolower($arr_module["name"]);
+            if ($_POST["d_scaffold"])
+            {
+            	$needFlush = true;
+                foreach ($_POST["d_scaffold"] as $data=>$one)
+                {
+                	$exists = ($this->obj_data->getDataFromName($data.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1), $_POST["scaffold"]["fk_module_id"]) != null);
+					if ($exists) continue;
+                    ob_start();
+                    @ require ("templates/builder/php/data_scaffold_".$data.".php");
+                    $query = ob_get_clean();
+                    $did = $this->obj_data->insertData($arr_data = Array(
+	                    "name"=>$data.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
+	                    "code"=>$query,
+	                    "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
+                    ));
+                    $this->obj_data->insertDataHistory($did, null, $arr_data);
+                }
+            }
+            if ($_POST["h_scaffold"])
+            {
+            	$needFlush = true;                	
+                foreach ($_POST["h_scaffold"] as $handler=>$one)
+                {
+                	$exists = ($this->obj_data->selectHandlerByNameAndModule($_POST["scaffold"]["fk_module_id"], $handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1)) != null);
+					if ($exists) continue;
+                    ob_start();
+                    @ require ("templates/builder/php/handler_scaffold_".$handler.".php");
+                    $code = ob_get_clean();
+                    ob_start();
+                    @ require ("templates/builder/php/handler_scaffold_".$handler."_html.php");
+                    $htmlcode = ob_get_clean();
+                    $hid = $this->obj_data->insertHandler($arr_data = Array(
+                    "event"=>$handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
+                    "code"=>$code,
+                    "html_code"=>$htmlcode,
+                    "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
+                    ));
+                    $this->obj_data->insertHandlerHistory($hid, null, $arr_data);
+                }
+            }
+			if ($needFlush) {
+				$this->resetModule(false, $_POST["scaffold"]["fk_module_id"]);
+			}
+			
             $this->obj_data->insertTableHistory($_GET["table_id"], $arr_param["table"], $arr_table);
 
             // re-deploy this table
@@ -1108,7 +1110,7 @@ class BuilderHandler
     		$query = ($_POST["query"]);
 			$arr_param["result"] = $this->obj_data->SqlQuery($query);
 		} else {
-			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
+			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
 		}
 		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 
@@ -1421,6 +1423,57 @@ class BuilderHandler
             die("Error saving installer. Please check permissions and internet connection.");
         }
     }
+	
+	function listTestcase() {
+		$_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
+		$arr_param = Array();
+		if ($_GET["fetch"] == "all") {
+			$arr_param["testsuite"] = $this->obj_data->listTestcase();
+		} else if ($_GET["type"] == "single") {
+			$arr_param["testsuite"] = Array();
+			array_push($arr_param["testsuite"], $this->obj_data->selectTestcase($_GET["fetch"]));
+		} else {
+			$arr_param["testsuite"] = $this->obj_data->listTestcase($_GET["fetch"]);
+		}
+		
+		$testsuite = "new Testsuite({name: '".$_GET["fetch"]."', testcases: [\n";
+		foreach ($arr_param["testsuite"] as $i=>$testcase) {
+			if ($i > 0) $testsuite .= ", \n";
+			$testsuite .= "new Testcase({name: '".$testcase['name']."', setup: [\"".str_replace("\n", "\", \"", str_replace('"', '\"', $testcase['setup']))."\"], run: [\"".str_replace("\n", "\", \"", str_replace('"', '\"', $testcase["run"]))."\"], teardown: [\"".str_replace("\n", "\", \"", str_replace('"', '\"', $testcase['teardown']))."\"]})";
+		}
+		$testsuite .= "\n]})";
+		
+		if ($_GET["json"] == "1") {
+			die($testsuite);
+		} else {
+			return $this->_callPrinter("listTestcase", $arr_param);
+		}
+	}
+	
+	function editTestcase() {
+		$_SESSION["testcase_id"] = $_GET["testcase_id"] = if_set($_GET["testcase_id"], $_SESSION["testcase_id"]);
+		
+		if ($_GET["check"] == "1") {
+			$arr_data = $_POST["testcase"];
+			if ($_GET["testcase_id"] > 0) {
+				$this->obj_data->updateTestcase($_GET["testcase_id"], $arr_data);
+			} else {
+				$_GET["testcase_id"] = $_SESSION['testcase_id'] = $this->obj_data->insertTestcase($arr_data);
+			}
+			
+			die("success");
+		}
+		
+		$arr_param["testcase"] = $this->obj_data->selectTestcase($_GET["testcase_id"]);
+		
+		return $this->_callPrinter("editTestcase", $arr_param);
+	}
+	
+	function deleteTestcase() {
+        $_SESSION["testcase_id"] = if_set($_GET["testcase_id"], $_SESSION["testcase_id"]);
+        $this->obj_data->deleteTestcase($_GET["testcase_id"]);
+        die ("success");
+	}
 
 /*</EVENT-HANDLERS>*/
 

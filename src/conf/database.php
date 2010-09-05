@@ -84,6 +84,15 @@ $arr_database = Array
 		"field_types"=>"VARCHAR(1024)",
 	),
 	
+	// testing tables
+	"testcase" => Array(
+		"fk_module_id" => "INT(11) NOT NULL",
+		"name" => "VARCHAR(255)",
+		"setup" => "TEXT",
+		"run" => "TEXT",
+		"teardown" => "TEXT"
+	),	
+	
 	// history tables
 	"module_history"=>Array(
 		"fk_original_id"=>"INT(11) NOT NULL",		// original module id

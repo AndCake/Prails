@@ -198,7 +198,7 @@ class DBDeployer {
 		}
 	}
 	
-	static function deploy($arr_db)
+	static function deploy($arr_db, $table_prefix = "tbl_")
 	{
 		$obj_db = new TblClass();
 	  
@@ -231,10 +231,9 @@ class DBDeployer {
 	            $pk = $table."_id";
 	            
 	         
-	        $str_query = "CREATE TABLE IF NOT EXISTS tbl_".$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
-	        $arr_tbl = $obj_db->obj_mysql->tableExists("tbl_".$table);
-	        $bol_exists = ($arr_tbl[0] != null);
-	        if ($bol_exists) $arr_fields = $obj_db->obj_mysql->listColumns("tbl_".$table);
+	        $str_query = "CREATE TABLE IF NOT EXISTS ".$table_prefix.$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
+	        $bol_exists = $obj_db->obj_mysql->tableExists($table_prefix.$table);
+	        if ($bol_exists) $arr_fields = $obj_db->obj_mysql->listColumns($table_prefix.$table);
 	        foreach ($arr_table as $key=>$value)
 	        {
 	            if (strpos($value, "_COLLECTION") !== false) continue;		// ignore keys with type COLLECTION
@@ -252,11 +251,11 @@ class DBDeployer {
 	               {
 	                  if (strtoupper($arr_fields[$int_isIn]["Type"]) != strtoupper($value)) 
 	                  {
-	                     $obj_db->SqlQuery("ALTER TABLE tbl_".$table." CHANGE ".$key." ".$key." ".$value);
+	                     $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." CHANGE ".$key." ".$key." ".$value);
 	                  }
 	               } else if ($key != $pk)
 	               {
-	                  $obj_db->SqlQuery("ALTER TABLE tbl_".$table." ADD ".$key." ".$value);
+	                  $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD ".$key." ".$value);
 	               }
 	            } else
 	            {
@@ -268,7 +267,7 @@ class DBDeployer {
 	        }
 			if (is_array($arr_fields)) foreach ($arr_fields as $arr_field) {
 			 	if (!$arr_field["isIn"] && $arr_field["Field"] != $pk) {
-			 		$obj_db->SqlQuery("ALTER TABLE tbl_".$table." DROP ".$arr_field["Field"]);
+			 		$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." DROP ".$arr_field["Field"]);
 				}
 			}
 	        if (!$bol_exists) 

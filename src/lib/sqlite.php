@@ -31,14 +31,16 @@ class SQLite {
 	var $bol_stripSlashes = true;
 	var $str_cachePath = "";
 	var $lastError = "";
+	var $prefix = null;
 	
-	function SQLite() {
+	function SQLite($prefix = "tbl_") {
 		$this->arr_links = Array();
 		$this->str_cachePath = DB_CACHE;
+		$this->prefix = $prefix;
 	}
 	
-	static function getInstance() {
-		if (SQLite::$instance == null) SQLite::$instance = new SQLite();
+	static function getInstance($prefix = "tbl_") {
+		if (SQLite::$instance == null) SQLite::$instance = new SQLite($prefix);
 		
 		return SQLite::$instance;
 	}
@@ -170,7 +172,7 @@ class SQLite {
 		         	// cache result
 		         	$this->setCache($str_query, $arr_result);
 		         } else {
-                		preg_match_all("/ [a-zA-Z0-9_.]*tbl_([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+                		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		                if (count($arr_matches[0]) > 0) {
             		    // loop through each
             		    foreach ($arr_matches[1] as $table) {
@@ -205,7 +207,7 @@ class SQLite {
 		file_put_contents($name, serialize($arr_result), LOCK_EX);
 		
 		// get affected tables
-		preg_match_all("/ [a-zA-Z0-9_.]*tbl_([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		if (count($arr_matches[0]) > 0) {
 		    // loop through each
 		    foreach ($arr_matches[1] as $table) {

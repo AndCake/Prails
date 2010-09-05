@@ -1,5 +1,5 @@
 <div style="padding:20px;" id="container_m_#module.module_id">
-<form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
+<form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&module_id=<?=(int)$arr_param["module"]["module_id"]?>&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
 	<label for="name">Name of Module</label><br/>
 	<input type="text" id="m_name_#module.module_id" name="module[name]" value="#module.name" />
 	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/>
@@ -91,7 +91,7 @@
 	                    saveFunction: function() {
 							$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=editorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.getCode();
 							$("hCode<?=(int)$arr_param['module']['module_id']?>").value=phpEditorm<?=str_replace("-", "_", "".((int)$arr_param['module']['module_id']))?>.getCode();
-							invoke(null, 'builder:editModule&check=1', $('hform<?=(int)$arr_param['module']['module_id']?>').serialize(), true, function(req){
+							invoke(null, 'builder:editModule&check=1&module_id=<?=(int)$arr_param["module"]["module_id"]?>', $('hform<?=(int)$arr_param['module']['module_id']?>').serialize(), true, function(req){
 								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 								if (<?=(int)$arr_param["module"]["module_id"]?> == 0) {
 									var name = $("m_name_#module.module_id").getValue();
@@ -196,6 +196,15 @@
 								Ext.getCmp("module.#module.module_id_applyHistory.button").enable();
 								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("Leave History");
 							}
+						}
+					}, "-", {
+						xtype: "button",
+						id: "module.#module.module_id_editTestcases.button",
+						text: "#module.name Testcases",
+						iconCls: "testcase",
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),
+						handler: function(e) {
+							Builder.editTestcases({id: <?=(int)$arr_param["module"]["module_id"]?>, text: "#module.name Testcases"});
 						}
 					});
 				}, 100);

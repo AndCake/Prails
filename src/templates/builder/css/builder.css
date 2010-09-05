@@ -41,6 +41,28 @@ div#qwbuilder_headerPanel .x-panel-body {
 .tagLib { background-image: url(../images/taglib.gif) !important; }
 .table { background-image: url(../images/table.gif) !important; }
 .urls, .handler-url { background-image: url(../images/url.png) !important; }
+.testUnknown { background-image: url(../images/test_unknown.png) !important; }
+.testRunning { background-image: url(../images/test_active.png) !important; }
+.testError { background-image: url(../images/test_fail.png) !important; }
+.testSuccess { background-image: url(../images/test_success.png) !important; }
+.testcase { background-image: url(../images/testcase.png) !important; }
+
+.testLog { padding: 10px; }
+.testLog .success { color: #0a0; }
+.testLog .error { color: #a00; }
+
+.header-nav table.x-table-layout {
+	float: right;
+}
+
+iframe.testRunWindow {
+	background-color: white;
+	height: 100%;
+	position: absolute;
+	width: 100%;
+	z-index: 100;
+	left: -20000px;
+}
 
 ul.historyList li a {
 	background: url(../images/slate/toolbar/bg.gif) repeat-x;

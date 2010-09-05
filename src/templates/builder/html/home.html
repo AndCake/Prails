@@ -138,7 +138,7 @@
                     if (req.responseText.split("\n")[1] != "--") {
                         updateProgress(req.responseText.split("\n")[1], req.responseText.split("\n")[2]);
                     } else {
-	 	    	window._prailsInstallProgress.pe.stop();
+	 	    			window._prailsInstallProgress.pe.stop();
                         window._prailsInstallProgress.hide();
                         if ((warns = req.responseText.split("\n")[2]).length > 0) {
                             Ext.MessageBox.alert("Completed", "The installation of Prails Version <?=trim($arr_param['local']['version'])?> finished with warnings: <br/>"+warns, function() {
@@ -152,7 +152,7 @@
                     }
                 } else {
                     window._prailsInstallProgress.hide();
-	 	    window._prailsInstallProgress.pe.stop();
+	 	    		window._prailsInstallProgress.pe.stop();
                     Ext.MessageBox.alert("Error", req.responseText);
                 }
             }
@@ -213,6 +213,39 @@
 		window.dold = 0;
 		window.firstCall = true;
 		window.detag = "";
+		window.testsuites = [{
+			checked: true,
+			id: "all",
+			text: "All Testcases"
+		}];
+		
+		new PeriodicalExecuter(function(pe) {
+			if (window.testStarted) {
+				if (Ext.getCmp("testresult").initialConfig.iconCls != "testRunning") {
+					Ext.getCmp("testresult").setIconClass("testRunning");
+				} else {
+					if (window.success > 0) {
+						Ext.getCmp("testresult").setIconClass("testSuccess");
+					} else {
+						Ext.getCmp("testresult").setIconClass("testUnknown")
+					}
+				}
+			} else {
+				if (window.errors > 0) {
+					Ext.getCmp("testresult").setIconClass("testError");
+				} else if (window.success > 0) {
+					Ext.getCmp("testresult").setIconClass("testSuccess");
+				} else {
+					Ext.getCmp("testresult").setIconClass("testUnknown")	
+				}
+			}
+			if (window.testLog) {
+				$$(".testLog").each(function(item) {
+					item.innerHTML = testLog.join("");
+				});
+			}
+		}, 0.5);
+		
 		<? if (DEVELOPER_CHAT_ENABLED) { ?>
 		new PeriodicalExecuter(function(pe){
 			new Ajax.Updater("sbmsglist", "shout.box", {
@@ -277,6 +310,7 @@
 				id: "#module.module_id",
 				allowChildren: false
 			});
+			window.testsuites.push({text: "#module.name Tests", id: "#module.module_id"});
 			module.handlers = [];
 			<c:foreach var="module.handlers" name="handler">
 				module.handlers.push(new Ext.tree.TreeNode({
@@ -358,6 +392,34 @@
     	        }
 	        }
 	    }
+		
+		window.testsuites.push("-");
+		window.testsuites.push({
+			group: "",
+			id: "view-log",
+			text: "View Log",
+			handler: window.__viewLog = function() {
+				Ext.getCmp("view-log").setChecked(false);
+				new Ext.Window({
+					layout: "fit",
+					title: "Test Log",
+					modal: false,
+					autoScroll: true,
+					resizable: true,					
+					shadow: true,
+					width: 374,
+					height: 360,
+					plain: true,
+					listeners: {
+						close: function(p) {
+							Ext.getCmp("view-log").setChecked(false);
+						}
+					},
+					html: "<div class='testLog'>"+(window["testLog"] ? testLog.join("") : "No testsuite has been run.")+"</div>"					
+				}).show();
+			}
+		});	
+		
 		<c:foreach var="texts" name="text" key="section">
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>

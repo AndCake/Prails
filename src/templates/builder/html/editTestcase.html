@@ -1,0 +1,125 @@
+<div style="padding:20px;">
+<label for="testcase_name_#testcase.testcase_id">Testcase Name</label><br/>
+<input type="text" name="name" id="testcase_name_#testcase.testcase_id" value="#testcase.name" style="width:220px;padding:5px;" /><br/><br/>
+<div id="testcase_#testcase.testcase_id"></div>
+<select name="commands#testcase.testcase_id" id="commands#testcase.testcase_id" style="display:none;">
+	<option value="" disabled="disabled">----</option>
+	<option value="assert(true)">assert</option>
+	<option value="assertEqual(true==false)">assertEqual</option>
+	<option value="assertNotEqual(true==true)">assertNotEqual</option>
+	<option value="assertExists('nothing')">assertExists</option>
+	<option value="assertNotExists('everything')">assertNotExists</option>
+	<option value="assertText('some-el', 'label text')">assertText</option>
+	<option value="assertTextExists('is this text here?')">assertTextExists</option>
+	<option value="assertTextNotExists('this should not be here')">assertTextNotExists</option>
+	<option value="assertLocationEqual('example.org')">assertLocationEqual</option>
+	<option value="assertLocationNotEqual('?event')">assertLocationNotEqual</option>
+	<option value="assertVisible('element-to-be-visible')">assertVisible</option>
+	<option value="assertNotVisible('body')">assertNotVisible</option>
+	<option value="" disabled="disabled">----</option>
+	<option value="clickAtAndWait('element-to-click-at')">clickAtAndWait</option>
+	<option value="clickAt('element-to-click-at')">clickAt</option>
+	<option value="enterValue('elemnt-to-enter-value-at', 'value')">enterValue</option>
+	<option value="waitFor('element-to-wait-for')">waitFor</option>
+	<option value="open('builder/home')">open</option>	
+</select>
+<? $commands = explode("\n", trim($arr_param["testcase"]["run"])); ?>
+<script type="text/javascript">
+	//<![CDATA[
+	(function(){
+		var grid = new Ext.grid.EditorGridPanel({
+			store: gridStore = new Ext.data.Store({
+				reader: new Ext.data.ArrayReader({
+					idIndex: 0
+				}, Ext.data.Record.create([
+					{name: "command"}
+				]))
+			}),
+			cm: new Ext.grid.ColumnModel({
+				defaults: {
+					sortable: true
+				},
+				columns: [{
+						header: "Command",
+						dataIndex: "command",
+						editor: new Ext.form.TextField({allowBlank: false})
+				}]
+			}),
+			renderTo: "testcase_#testcase.testcase_id",
+			autoHeight: true,
+			clicksToEdit: 1,
+			viewConfig: {forceFit: true},
+			tbar: [
+			{
+				text: 'Add Test',
+			    handler : function(){
+	                // access the Record constructor through the grid's store
+	                var Field = grid.getStore().recordType;
+	                var p = new Field({
+	                    command: ''
+	                });
+	                grid.stopEditing();
+					var pos = grid.getStore().getCount();
+					// insert field at last position (bottom of table) 
+	                grid.getStore().insert(pos, p);
+	                grid.startEditing(pos, 0);
+	            }
+	        },{
+				text: "Remove Test",
+				handler: function() {
+					grid.getStore().remove(grid.getSelectionModel().selection.record);
+				}
+			}]			
+		});
+		
+		gridStore.loadData([
+			<? foreach ($commands as $i=>$command) { ?>
+				<? if ($i > 0) { ?>,<? } ?>
+				["<?=str_replace('"', '\"', $command)?>"]
+			<? } ?>
+		]);
+
+		if (Ext.getCmp("tc_save_#session.module_id")) {		
+			Ext.getCmp("tc_save_#session.module_id").destroy();
+			Ext.getCmp("tc_run_#session.module_id").destroy();
+		}
+		Ext.getCmp("tc_<?=(int)$_SESSION['module_id']?>_container").getTopToolbar().add({
+			xtype: "button",
+			text: "Save",
+			id: "tc_save_#session.module_id",
+			iconCls: "save",
+			handler: function(e) {
+				var fields = "";
+				var types = "";
+				var list = grid.getStore().data.items;
+				for (var i = 0; i < list.length; i++) {
+					var item = list[i];
+					fields += item.data.command+"\n";
+				}
+				var params = {
+					"testcase[name]": $("testcase_name_#testcase.testcase_id").getValue(),
+					"testcase[run]": fields,
+					"testcase[fk_module_id]": "#session.module_id"
+				};
+				new Ajax.Request("?event=builder:editTestcase&check=1",{
+					parameters: params,
+					onSuccess: function(req) {
+						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+						Builder.reloadTab("tc_#session.module_id");
+					}
+				});
+			}
+		}, {
+			xtype: "button",
+			text: "Run",
+			id: "tc_run_#session.module_id",
+			disabled: (<?=(int)$arr_param["testcase"]["testcase_id"]?> <= 0),
+			iconCls: "run",
+			handler: function(e) {
+				Builder.runTestcase({id: "c_#testcase.testcase_id"}, $("testcase_name_#testcase.testcase_id").getValue());
+			}
+		});			
+	})();
+	//]]>
+</script>
+</div>

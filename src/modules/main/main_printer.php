@@ -52,6 +52,10 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/control.date.js");
         /*</JAVASCRIPT-INCLUDES>*/
         $obj_gen->addJavaScript("templates/main/js/global.js");
+		
+		if (!ENV_PRODUCTION) {
+			$obj_gen->addJavaScript("templates/main/js/testing/testing.js");
+		}
 
         $obj_gen->setTitle("Prails Home");
         $obj_gen->setDescription("To develop web applications at extreme speed");

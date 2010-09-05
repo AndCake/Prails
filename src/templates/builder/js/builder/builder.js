@@ -31,12 +31,48 @@ Builder = Object.extend(Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 290,
+				width: 420,
 				border: false,
 				layout: "table",
-				layoutConfig: {columns: 2},
+				cls: "header-nav",
+				layoutConfig: {columns: 3, tableAttrs: {style: {width: '100%'}}},
 				region: "east",
 				items: [{
+					xtype: "button",
+					id: "testresult",
+					style: "margin-right: 10px;",
+					iconCls: "testUnknown",
+					text: "Testsuite",
+					menu: {
+						defaults : {
+			                checked: false,
+			                group: 'testsuiteCheckGroup',
+			                listeners: {
+								click: window.__runTest = function(item) {
+									if (item.id == "view-log")
+										return;
+																		
+									Ext.getCmp("testresult").setText(item.text);
+									
+									if (!$("background_window")) {
+										document.body.appendChild(new Element("iframe", {name: "background_testing_window", id: "background_window", 'class': "testRunWindow"}))
+									}
+									window.__testTargetWindow = window.frames["background_testing_window"];
+									// run selected test cases
+									new Ajax.Request("?event=builder:listTestcase&json=1&fetch="+item.id+(item.type == "testcase" ? '&type=single' : ''), {
+										method: "GET",
+										onSuccess: function(req) {
+											resetTest();
+											var testsuite = eval(req.responseText);
+											testsuite.start();
+										}
+									});
+								}
+							}
+			            },		
+						items: window.testsuites
+					}
+				}, {
 					xtype: "button",
 					style: "margin-right: 10px;",
 					iconCls: "package",

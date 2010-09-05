@@ -41,7 +41,8 @@ class BuilderPrinter
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.data.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.handler.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.library.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.lang.js");            
+            $obj_gen->addJavaScript("templates/builder/js/builder/builder.lang.js");
+			$obj_gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");            
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
             $obj_gen->addStyleSheet("templates/builder/css/xtheme-slate.css");
@@ -152,7 +153,19 @@ class BuilderPrinter
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/editText.html", $arr_param);
     }
-
+	
+	function listTestcase($arr_param) {
+        $arr_param["session"] = $_SESSION;
+        Generator::getInstance()->setIsAjax(true);
+        return Generator::getInstance()->includeTemplate("templates/builder/html/listTestcase.html", $arr_param);		
+	}
+	
+	function editTestcase($arr_param) {
+        $arr_param["session"] = $_SESSION;
+        Generator::getInstance()->setIsAjax(true);
+        return Generator::getInstance()->includeTemplate("templates/builder/html/editTestcase.html", $arr_param);		
+	}
+	
     /*</PRINTER-METHODS>*/
 }
 

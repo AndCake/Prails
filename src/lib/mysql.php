@@ -31,14 +31,16 @@ class MySQL {
 	var $bol_stripSlashes = true;
 	var $str_cachePath = "";
 	var $lastError = "";
+	var $prefix = null;
 	
-	function MySQL() {
+	function MySQL($prefix = "tbl_") {
 		$this->arr_links = Array();
 		$this->str_cachePath = DB_CACHE;
+		$this->prefix = $prefix;
 	}
 	
-	static function getInstance() {
-		if (MySQL::$instance == null) MySQL::$instance = new MySQL();
+	static function getInstance($prefix = "tbl_") {
+		if (MySQL::$instance == null) MySQL::$instance = new MySQL($prefix);
 		
 		return MySQL::$instance;
 	}
@@ -151,7 +153,7 @@ class MySQL {
 		         	// cache result
 		         	$this->setCache($str_query, $arr_result);
 		         } else {
-                		preg_match_all("/ [a-zA-Z0-9_.]*tbl_([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+                		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		                if (count($arr_matches[0]) > 0) {
             		    // loop through each
             		    foreach ($arr_matches[1] as $table) {
@@ -188,7 +190,7 @@ class MySQL {
 		file_put_contents($name, serialize($arr_result), LOCK_EX);
 		
 		// get affected tables
-		preg_match_all("/ [a-zA-Z0-9_.]*tbl_([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		if (count($arr_matches[0]) > 0) {
 		    // loop through each
 		    foreach ($arr_matches[1] as $table) {

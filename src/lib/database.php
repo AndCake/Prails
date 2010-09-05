@@ -22,9 +22,9 @@
 */
 class Database extends TblClass implements AbstractDatabase {
    
-   function Database() 
+   function Database($prefix = "tbl_") 
    {
-      parent::TblClass();
+      parent::TblClass($prefix);
    }
    
    function select ($arr_entities, $obj_condition = null, $arr_view = null, $group=null, $int_limit = null)
