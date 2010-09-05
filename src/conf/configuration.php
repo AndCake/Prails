@@ -33,11 +33,10 @@ $arr_settings = Array(
 /*<CUSTOM-SETTINGS>*/
 "PROJECT_NAME" => "Prails Web Framework",
 "ENV_PRODUCTION" => false,
-"DEVELOPER_CHAT_ENABLED" => false,
+"DEVELOPER_CHAT_ENABLED" => true,
 "DEBUG_LEVEL" => 2,
 "ERROR_NOTIFICATION" => false,
 "ERROR_EMAIL" => "notify@example.org",
-"FIRST_RUN" => false
 /*</CUSTOM-SETTINGS>*/
 );
 /*</KEEP-1>*/
