@@ -30,7 +30,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 	}
 	if (event.indexOf("/") < 0) {
 		event = baseHref+"?event="+event;
-	} else {
+	}  else if (event.indexOf("http://") < 0 && event.indexOf("https://") < 0) {
 		event = baseHref + event;
 	}
 	if (element != null) {
