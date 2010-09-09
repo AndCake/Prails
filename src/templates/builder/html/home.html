@@ -367,8 +367,13 @@
 		    if (parentNode == Builder.langRoot) {
 		      pid = "text_";
 		    } else pid = parentNode.id;
+			var expanded = false;
+			if ("<?=$_GET['open_tree']?>".indexOf(nodeName+".") >= 0 || "<?=$_GET['open_tree']?>".indexOf("."+nodeName) >= 0) {
+				expanded = true;
+			}
 	        var node = new Ext.tree.TreeNode({
 	           text: nodeName,
+			   expanded: expanded,
 	           id: pid+"."+nodeName,
 	           allowChildren: (typeof(subNodes) != "string"),
 	           leaf: (typeof(subNodes) == "string"),

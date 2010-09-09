@@ -86,7 +86,7 @@ var TestingActions = {
 			}
 		},
 
-		open: function(url) {
+		openPage: function(url) {
 			if (url.indexOf("http://") < 0 || url.indexOf("https://") < 0) url = baseHref + url;
 			report("log", "Opening "+url);
 			__testTargetWindow.location.href = url;

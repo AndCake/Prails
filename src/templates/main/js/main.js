@@ -162,5 +162,14 @@ function crc32(str) {
 	return crc ^ (-1);
 }
 
+(function() {
+  if (navigator.userAgent.indexOf("Gecko/") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " firefox";
+  if (navigator.userAgent.indexOf("Presto/") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " opera";
+  if (navigator.userAgent.indexOf(" MSIE") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " msie";
+  if (navigator.userAgent.indexOf("AppleWebKit/") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " webkit";
+  if (navigator.userAgent.indexOf("Chrome/") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " chrome";
+  if (navigator.userAgent.indexOf("Safari/") > 0) document.getElementsByTagName("html")[0].className = document.getElementsByTagName("html")[0].className + " safari"; 
+})();
+
 addLoadEvent(initAjaxLinks);
 addLoadEvent(initWysiwyg);

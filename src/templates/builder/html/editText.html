@@ -51,11 +51,11 @@
     <c:foreach var="texts" name="text">
     <div class="formfield" style="<? if ($arr_param['text']['type'] == 2) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: 20px;margin-bottom: 20px;">
     	<label for="contentl#text.texts_id">in <span id="">#text.name</span>:</label><br/> <!-- make language be editable and removable! -->
-        <? if ($int_textType <= 0) { ?>
+        <? if ($arr_param["text"]["type"] <= 0) { ?>
             <input type="text" name="texts[content][#text.language_id]" id="contentL#text.language_id" value="<?=htmlspecialchars($arr_param['text']['content'])?>" style="width:400px;" />
         <? } else { ?>
-            <div style="display:inline-block;">
-                <? if ($int_textType == 1) { ?>
+            <div style="display:inline-block;min-width: 400px;">
+                <? if ($arr_param["text"]["type"] == 1) { ?>
                 	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="30" rows="10">#text.content</textarea>
                 <? } else { ?>
                 	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="80" rows="30">#text.content</textarea>
@@ -122,7 +122,7 @@
 				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0) {
         						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 				           } else {
-                                loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel");
+                                loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);
 				           }
 				        }
 				    });

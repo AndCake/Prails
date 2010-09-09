@@ -16,7 +16,7 @@ var IEHacks = {
         var images = document.getElementsByTagName("IMG");
         for (var i = 0; i < images.length; i++) {
             if (images[i].src.search(/\.png$/i) > -1) {
-            	alert(images[i].src);
+//            	alert(images[i].src);
                 var imgID = (images[i].id) ? "id='" + images[i].id + "' " : "";
                 var imgClass = (images[i].className) ? "class='" + images[i].className + "' " : "";
                 var imgTitle = (images[i].title) ? "title='" + images[i].title + "' " : "title='" + images[i].alt + "' ";
