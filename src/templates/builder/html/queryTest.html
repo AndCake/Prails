@@ -158,7 +158,7 @@
 				text: "Overview",
 				iconCls: "table",
 				handler: function(e) {
-					window.runQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
+					window.runQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
 				}
 			}]);
 			Ext.QuickTips.init();

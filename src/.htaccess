@@ -7,6 +7,10 @@ ServerSignature Off
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule favicon.ico$ favicon.ico [L]
+
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule templates/([^/]*)/images/(.*)$ index.php?event=builder:createResource&mod=$1&resource=$2 [L]
 
 	RewriteCond %{REQUEST_FILENAME} !-d
