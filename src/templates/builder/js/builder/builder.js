@@ -84,8 +84,8 @@ Builder = Object.extend(Builder || {}, {
 							iconCls: "package",
 							modal: true,
 							shadow: true,
-							width: 574,
-							height: 260,
+							width: 441,
+							height: 384,
 							plain: true,
 							items: [
 							        new Ext.TabPanel({

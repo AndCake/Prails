@@ -1237,6 +1237,7 @@ class BuilderHandler
 				$arr_module["datas"] = $this->obj_data->listDatas($mod);
 				$arr_module["configs"] = $this->obj_data->listConfigurationFromModule($mod);
 				$arr_module["resources"] = $this->obj_data->listResources($mod);
+				$arr_module["testcases"] = $this->obj_data->listTestcase($mod);
 				array_push($modules, $arr_module);				
 			}
 			echo "M";
@@ -1274,6 +1275,18 @@ class BuilderHandler
 			echo gzcompress(serialize($tables), 9);
 			unset($tables);
 		}
+		if ($_POST["translations"]) {
+			echo "---".$magic_border."\n";
+			$arr_content = Array();
+			$arr_content["texts"] = Array();
+			$arr_content["languages"] = Generator::getInstance()->obj_lang->listLanguages();
+			foreach ($_POST["translations"] as $root) {
+				array_push($arr_content["texts"], Generator::getInstance()->obj_lang->listAllTextsFromRoot($root));
+			}
+			echo "C";
+			echo gzcompress(serialize($arr_content), 9);
+			unset($arr_content);
+		}
 		die();
 	}
 	
@@ -1309,31 +1322,52 @@ class BuilderHandler
 			            $arr_db[$arr_table["name"]] = $arr_fields;
 			            DBDeployer::deploy($arr_db);
 					}
+				} else if ($section[0] == "C") {
+					foreach ($data["languages"] as $lang) {
+						Generator::getInstance()->obj_lang->deleteLanguage($lang["language_id"]);						
+						Generator::getInstance()->obj_lang->insertLanguage($lang);
+					}
+					foreach ($data["texts"] as $texts) {
+						foreach ($texts as $text) {
+							Generator::getInstance()->obj_lang->insertText($text);
+						}
+					}
 				} else if ($section[0] == "T") {
 					foreach ($data as $tag) {
                         $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
+						$this->obj_data->deleteTag($tag["tag_id"]);
 						$this->obj_data->insertTag($tag);
 					}
 				} else if ($section[0] == "L") {
 					foreach ($data as $library) {
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
+						$this->obj_data->deleteLibrary($library["library_id"]);
 						$this->obj_data->insertLibrary($library);
 					}
 				} else if ($section[0] == "M") {
 					foreach ($data as $mod) {
 					    $mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
+						$this->obj_data->deleteModule($mod["module_id"]);
 						$this->obj_data->insertModule($mod);
 						foreach ($mod["handlers"] as $handler) {
+							$this->obj_data->deleteHandler($handler["handler_id"]);
 							$this->obj_data->insertHandler($handler);
 						}
 						foreach ($mod["datas"] as $data) {
+							$this->obj_data->deleteData($mod["data_id"]);
 							$this->obj_data->insertData($data);
 						}
 						foreach ($mod["configs"] as $config) {
+							$this->obj_data->deleteConfiguration($config["configuration_id"]);
 							$this->obj_data->insertConfiguration($config);
 						}
 						foreach ($mod["resources"] as $res) {
+							$this->obj_data->deleteResource($res["resource_id"]);
 							$this->obj_data->insertResource($res);
+						}
+						foreach ($mod["testcases"] as $tc) {
+							$this->obj_data->deleteTestcase($tc["testcase_id"]);
+							$this->obj_data->insertTestcase($tc);
 						}
 					}
 				}

@@ -242,6 +242,7 @@ class Generator {
     }
 
     function getStyleSheets() {
+	global $SERVER;
         $str_styles = "";
 
 		$time = time();
@@ -358,7 +359,7 @@ class Generator {
     	    }
         	file_put_contents($path, trim($css));
 		}
-		$str_styles .= "<link rel='stylesheet' media='screen' href='".$path."' />\n";
+		$str_styles .= "<link rel='stylesheet' media='screen' href='".$SERVER.$path."' />\n";
 
 	foreach ($this->arr_styles as $style) {
             if ($style["browser"] != "all") {
@@ -395,6 +396,7 @@ class Generator {
     }
 
     function getJavaScripts() {
+	global $SERVER;
     	$str_js = "";
     	$time = time();
         $prefix = md5(implode("", $this->arr_js));
@@ -429,7 +431,7 @@ class Generator {
     		fclose($fp);
            	@chmod($path, 0755);
         }
-        $str_js .= "<script src='" . $path . "' type='text/javascript'></script>\n";
+        $str_js .= "<script src='" . $SERVER.$path . "' type='text/javascript'></script>\n";
     		
         return $str_js;
     }
