@@ -1,3 +1,23 @@
+V1.0.6 (September 12, 2010)
+
+* added support for LESS-style CSS code
+* added self-updating mechanisms (Prails now checks for newer versions available and gives the developer a hint and what has changed since; when the developer decides to update, Prails updates itself)
+* added export of testcases and translations for packaging (and also it's import)
+* added testing facilities (selenium-like web-app testing framework, integration into Prails IDE (new button next to "Package" to launch a testsuite and view the logs, a new area for module option editing that enables you to manage testcases module-wise)
+* added Browser detection for use in CSS (HTML element gets the browser's type as CSS class appended); for IEs a second CSS class is appended with the used IE version number (like "msie7")
+* changed database table prefix for prails' internal tables so that it does not interfere with tables created by developer
+* when saving a new translation, the correct tree path is re-opened after page reload
+* fixed a problem with favicon.ico causing unnecessary warnings in the log file
+* fixed a bug where some project group names led to crc32 codes that were too big to for normal integers, which led to the phenomenon that a wrong value was stored in the database
+* fixed a bug where AJAX links did not correctly detect absolute URLs which led to the phenomenon that in Chrome Browsers these AJAX requests were fired with wrong URLs.
+* fixed a small bug for IE6 (alerts appearing for each detected PNG)
+* when editing a translation, the page type is now correctly used to choose the kind of editing field
+* fixed a bug in lang_data which caused a nasty system failure message if no texts table exists
+* fixed a bug for the display of resources (resources used in CSS files - like background images - were previously not correctly deployed)
+* BASE tag problem in IE fixed by using absolute URLs for items in head
+* fixed a bug in the CMS page creation: when creating a new page, the input area was of an incorrect type (just one single line instead of the big wysiwyg editor)
+
+
 V1.0.5 (August 15, 2010)
 
 * added form field validation
