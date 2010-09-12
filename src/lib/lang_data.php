@@ -149,6 +149,10 @@ class LangData
          return false;
    }
    
+   function insertText($arr_data) {
+    $this->obj_sql->InsertQuery(tbl_prailsbase_texts, $arr_data);     
+   }
+   
    function deleteTexts($id) {
         $arr_text = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id='".$id."'"));
         $this->deleteTextByIdentifier($arr_text["identifier"]);
