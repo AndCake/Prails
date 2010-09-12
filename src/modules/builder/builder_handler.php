@@ -1406,6 +1406,7 @@ class BuilderHandler
 		
         if ($arr_param["text"]["type"] == 2 || substr($arr_param["text"]["path"], 0, 4) == "cms.") {
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
+			$arr_param["text"]["type"] = 2;
         }
 
 		return $this->_callPrinter("editText", $arr_param);

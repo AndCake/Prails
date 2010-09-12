@@ -1,5 +1,5 @@
 <? global $SERVER; ?>
-<div class="localization" style="padding:20px;">
+<div class="localization" style="padding:10px 20px 10px 20px;">
 <form id="hformx<?=$arr_param["texts"][0]['identifier']?>" method="post" action="" onsubmit="">
     <div class="formfield" style="white-space:nowrap;">
     	<label for="name">Text Identifier:</label><br/>
@@ -48,17 +48,17 @@
     <br/>
 
     <div id="texts_<?=$arr_param["texts"][0]['identifier']?>">
-    <c:foreach var="texts" name="text">
+    <c:foreach var="texts" name="texta">
     <div class="formfield" style="<? if ($arr_param['text']['type'] == 2) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: 20px;margin-bottom: 20px;">
-    	<label for="contentl#text.texts_id">in <span id="">#text.name</span>:</label><br/> <!-- make language be editable and removable! -->
+    	<label for="contentl#texta.texts_id">in <span id="">#texta.name</span>:</label><br/> <!-- make language be editable and removable! -->
         <? if ($arr_param["text"]["type"] <= 0) { ?>
-            <input type="text" name="texts[content][#text.language_id]" id="contentL#text.language_id" value="<?=htmlspecialchars($arr_param['text']['content'])?>" style="width:400px;" />
+            <input type="text" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" value="<?=htmlspecialchars($arr_param['texta']['content'])?>" style="width:400px;" />
         <? } else { ?>
             <div style="display:inline-block;min-width: 400px;">
-                <? if ($arr_param["text"]["type"] == 1) { ?>
-                	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="30" rows="10">#text.content</textarea>
+                <? if ($arr_param["texta"]["type"] == 1) { ?>
+                	<textarea class="wysiwyg" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" cols="30" rows="10">#texta.content</textarea>
                 <? } else { ?>
-                	<textarea class="wysiwyg" name="texts[content][#text.language_id]" id="contentL#text.language_id" cols="80" rows="30">#text.content</textarea>
+                	<textarea class="wysiwyg" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" cols="80" rows="30">#texta.content</textarea>
                 <? } ?>
             </div>
         <? } ?>
@@ -67,7 +67,6 @@
     </c:foreach>
     </div>
 	<div style="clear:both;"></div>
-	<br/>
 	<script type="text/javascript">
 	//<![CDATA[
 		setTimeout(function() {
