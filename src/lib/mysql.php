@@ -44,6 +44,14 @@ class MySQL {
 		
 		return MySQL::$instance;
 	}
+
+	function setPrefix($prefix = "tbl_") {
+		$this->prefix = $prefix;
+	}
+
+	function getPrefix() {
+		return $this->prefix;
+	}
 	
 	function connect($str_db = "offline") {
 		global $arr_dbs;
@@ -143,8 +151,7 @@ class MySQL {
 	            		}
 	            	}
 		            // create resulting array
-					$arr_result[] = new DBEntry($arr_fetchedResult);
-		            $int_resultCounter ++;
+					$arr_result[] = new DBEntry($arr_fetchedResult, 0, "ArrayIterator", $this->prefix);
 		         }
 			 	 
 			 if (is_resource($dbr_queryResult)) @mysql_free_result($dbr_queryResult);

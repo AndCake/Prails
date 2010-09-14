@@ -44,6 +44,14 @@ class SQLite {
 		
 		return SQLite::$instance;
 	}
+
+	function setPrefix($prefix = "tbl_") {
+		$this->prefix = $prefix;
+	}
+
+	function getPrefix() {
+		return $this->prefix;
+	}
 	
 	function connect($str_db = "offline") {
 		global $arr_dbs;
@@ -164,7 +172,7 @@ class SQLite {
 	            		}
 	            	}
 		            // create resulting array
-					$arr_result[] = new DBEntry($arr_fetchedResult);
+					$arr_result[] = new DBEntry($arr_fetchedResult, 0, "ArrayIterator", $this->prefix);
 		            $int_resultCounter ++;
 		         }
 		         

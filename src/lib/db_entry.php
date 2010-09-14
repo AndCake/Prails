@@ -117,7 +117,7 @@ class DBEntry extends DBEntryObject {
 	private $prefix = null;
 	
 	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator", $prefix = "tbl_") {
-		$this->obj_tbl = new TblClass();
+		$this->obj_tbl = new TblClass($prefix);
 		$this->prefix = $prefix;		
 		parent::__construct($arr_data, $flags, $iterator_class);
 	}
@@ -125,6 +125,7 @@ class DBEntry extends DBEntryObject {
 	function offsetGet($index) {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
 			if (parent::offsetGet($index) == null) {
+				debugLog("Trying to retrieve data from table ".$this->prefix.$index." with ID ".$id);
 				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."'")));
 			}
 			return parent::offsetGet($index); 

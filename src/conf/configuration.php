@@ -35,6 +35,7 @@ $arr_settings = Array(
 "ENV_PRODUCTION" => false,
 "DEVELOPER_CHAT_ENABLED" => true,
 "DEBUG_LEVEL" => 2,
+"CSS_EMBED_RESOURCES" => true,
 "ERROR_NOTIFICATION" => false,
 "ERROR_EMAIL" => "notify@example.org",
 /*</CUSTOM-SETTINGS>*/

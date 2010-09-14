@@ -1,6 +1,31 @@
 ServerSignature Off
+
+AddType text/css css cgz
+AddEncoding gzip cgz
+AddType text/javascript js jgz
+AddEncoding gzip jgz
+
 <IfModule mod_rewrite.c>
 	RewriteEngine on
+
+	RewriteCond %{HTTP:Accept-encoding} gzip
+	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
+	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
+	RewriteRule ^(.*)\.css $1.cgz
+
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^(.*)\.cgz $1.css [L]
+ 
+
+	RewriteCond %{HTTP:Accept-encoding} gzip
+	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
+	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
+	RewriteRule ^(.*)\.js $1.jgz 
+	
+	RewriteCond %{REQUEST_FILENAME} !-d
+	RewriteCond %{REQUEST_FILENAME} !-f
+	RewriteRule ^(.*)\.jgz $1.js [L]
 	
 	#--START_CUSTOM--#
 	#--END_CUSTOM--#
@@ -29,4 +54,29 @@ ServerSignature Off
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ([^/.]+)/([^/.]+)(/(.*))?$ index.php?event=$1:$2&$4 [L]
 	
+</IfModule>
+
+<IfModule mod_deflate.c>
+	# compress text files
+	AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/x-javascript
+	# removes some bugs
+	BrowserMatch ^Mozilla/4 gzip-only-text/html
+	BrowserMatch ^Mozilla/4\.0[678] no-gzip
+	BrowserMatch \bMSI[E] !no-gzip !gzip-only-text/html
+	Header append Vary User-Agent
+</IfModule>
+
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresByType text/css "access plus 6 months"
+	
+	# fixes a bug in IE7 under Vista / Win7 (once the MHTML is loaded, it won't be shown again, if not explicitly demanded, so we say it's expired)
+	<FilesMatch "\.header\.(css|cgz)">
+		BrowserMatch \bMSI[E]\s+7[.0-9]+;\s+Windows\s+NT\s+[67] EXP_HEADER
+	
+		<IfDefine EXP_HEADER>
+			Header set Cache-Control "public"
+			Header set Expires "Thu, 15 Apr 2010 20:00:00 GMT"
+		</IfDefine>
+	</FilesMatch>
 </IfModule>

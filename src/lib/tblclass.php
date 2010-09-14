@@ -194,7 +194,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
 
       	// dump query if needed
     	if ($this->bol_dumpSqlQuery!=0) print ($str_sqlString."<br/>");
-    	
+    	$this->obj_mysql->setPrefix($this->str_prefix);
     	$arr_result = $this->obj_mysql->query($str_sqlString, ($this->bol_cache?DB_CACHE_TTL:0));
     	$this->int_affectedId = $this->obj_mysql->int_affectedId;
     	$this->int_affectedRows = $this->obj_mysql->int_affectedRows;
