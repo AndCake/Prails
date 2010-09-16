@@ -48,7 +48,7 @@ AddEncoding gzip jgz
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-zA-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6 [L]
+	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-z_A-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6 [L]
 	
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f

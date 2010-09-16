@@ -31,7 +31,7 @@ Builder = Object.extend(Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 420,
+				width: 500,
 				border: false,
 				layout: "table",
 				cls: "header-nav",

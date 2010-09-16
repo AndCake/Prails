@@ -5,7 +5,7 @@ Prails - Readme
 
     A PHP framework for developing web applications over the web.
     
-    Version 1.0.5
+    Version 1.0.6
     -------------
     http://prails.googlecode.com/
     
@@ -30,7 +30,7 @@ Prails - Readme
         a web-browser (doh!)
 
       Summary:
-        PRails let's you easily create complex PHP applications in almost no time.
+        Prails let's you easily create complex PHP applications in almost no time.
         For a summary of features, please see the documentation.
 
       Download:
