@@ -183,18 +183,20 @@ class Generator {
  
      *
      */
-    function includeTemplate($str_name, $arr_param = null) {
+    function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
 		$startTime = time()+microtime();
 		
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
-		$str_content = $this->parseApplyLanguage($str_content);
 		file_put_contents("cache/".md5($str_name), $str_content);		
 		
         ob_start();
         require ("cache/".md5($str_name));
         $str_content = ob_get_contents();
         ob_end_clean();
+		if ($bol_parseLanguage) {
+            $str_content = $this->parseApplyLanguage($str_content);
+		}
 		$endTime = time()+microtime();
 
         if (substr(basename($str_name), -5) == ".html" || substr(basename($str_name), -4) == ".xml" ) {

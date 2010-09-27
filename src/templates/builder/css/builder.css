@@ -140,3 +140,12 @@ textarea {
 .localization .formfield label {
     font-size: 10px;
 }
+
+body .CodeMirror-line-numbers {
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 13px;
+    padding-top: 4px;
+    background-color: #efefef;
+    border-right: 1px solid #ccc;
+}
