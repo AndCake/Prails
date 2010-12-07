@@ -831,7 +831,8 @@ function send_mail($to, $body, $subject, $fromaddress, $fromname, $attachments=f
 function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments = false) {
     $eol = "\r\n";
     $random_hash = md5(date('r', time()));
-
+ 
+    $from = $fromname."<".$fromaddress.">";
     //define the headers we want passed. Note that they are separated with \r\n
     $headers = "From: ".$from.$eol."Reply-To: ".$from.$eol;
     //add boundary string and mime type specification

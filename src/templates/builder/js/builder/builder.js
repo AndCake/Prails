@@ -13,6 +13,15 @@ Builder = Object.extend(Builder || {}, {
 	dataRoot: new Ext.tree.TreeNode(),
 	langRoot: new Ext.tree.TreeNode(),
 	currentModule: null,
+	prailsNamespace: {
+	  save: function(){},
+	  run: function(){},
+	  open: function() {parent.Builder.quickOpen.apply(parent, []);},
+	  close: function() {parent.Builder.closeCurrentTab.apply(parent, []);},
+	  query: function() {parent.Builder.queryTest.apply(parent, []);},
+	  previousTab: function() {parent.Builder.previousTab.apply(parent, []);},
+	  nextTab: function() {parent.Builder.nextTab.apply(parent, []);}
+	},
 		
 	init: function(openedPanel) {
 	   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
@@ -55,7 +64,26 @@ Builder = Object.extend(Builder || {}, {
 									Ext.getCmp("testresult").setText(item.text);
 									
 									if (!$("background_window")) {
-										document.body.appendChild(new Element("iframe", {name: "background_testing_window", id: "background_window", 'class': "testRunWindow"}))
+										window.__testTargetWindowContainer = new Ext.Window({
+											layout: "fit",
+											title: "Test Run",
+											modal: false,
+											autoScroll: true,
+											resizable: true,					
+											shadow: true,
+											width: 800,
+											height: 600,
+											plain: true,
+											listeners: {
+												close: function(p) {
+													Ext.getCmp("view-run").setChecked(false);
+												}
+											},
+											html: "<iframe name='background_testing_window' id='background_window' class='testRunWindow'></iframe>"					
+										});
+										window.__testTargetWindowContainer.show();
+										window.__testTargetWindowContainer.hide();
+//										document.body.appendChild(new Element("iframe", {name: "background_testing_window", id: "background_window", 'class': "testRunWindow"}))
 									}
 									window.__testTargetWindow = window.frames["background_testing_window"];
 									// run selected test cases
@@ -69,7 +97,7 @@ Builder = Object.extend(Builder || {}, {
 									});
 								}
 							}
-			            },		
+			            },
 						items: window.testsuites
 					}
 				}, {
@@ -741,7 +769,7 @@ Builder = Object.extend(Builder || {}, {
 		
 		Builder.registerShortCut(document, [{
 			key: Event.KEY_LEFT, 
-			callback: function(e){
+			callback: Builder.previousTab = function(e){
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				var cactive = spanel.getActiveTab();
 				var prev = -1;
@@ -756,7 +784,7 @@ Builder = Object.extend(Builder || {}, {
 			}
 		},{
 			key: Event.KEY_RIGHT,
-			callback: function(e) {
+			callback: Builder.nextTab = function(e) {
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				var cactive = spanel.getActiveTab();
 				var next = -1;
@@ -771,7 +799,7 @@ Builder = Object.extend(Builder || {}, {
 			}
 		},{
 			key: "Q",
-			callback: function(e) {
+			callback: Builder.closeCurrentTab = function(e) {
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				if (spanel.getActiveTab().initialConfig.closable) {
 					spanel.remove(spanel.getActiveTab());

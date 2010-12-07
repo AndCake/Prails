@@ -43,16 +43,16 @@ class BuilderPrinter
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.library.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.lang.js");
        	    $obj_gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");
-    	    $obj_gen->addJavaScript("templates/builder/js/bespin/BespinEmbedded.js");
+//    	    $obj_gen->addJavaScript("templates/builder/js/bespin/BespinEmbedded.js");
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
             $obj_gen->addStyleSheet("templates/builder/css/xtheme-slate.css");
             $obj_gen->addJavaScript("templates/builder/js/codemirror.js");
             $obj_gen->addJavaScript("templates/builder/js/mirrorframe.js");
             $obj_gen->addStyleSheet("templates/builder/css/builder.css");
-    	    $obj_gen->addStyleSheet("templates/builder/js/bespin/BespinEmbedded.css");
+//    	    $obj_gen->addStyleSheet("templates/builder/js/bespin/BespinEmbedded.css");
     	    
-    	    $obj_gen->addHeader("<link id=\"bespin_base\" href=\"templates/builder/js/bespin\"/>");
+//    	    $obj_gen->addHeader("<link id=\"bespin_base\" href=\"templates/builder/js/bespin\"/>");
             $obj_gen->str_template = "templates/builder/template.html";
         }
         $this->str_base = "?module=builder";

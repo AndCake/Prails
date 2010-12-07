@@ -157,5 +157,82 @@ Builder = Object.extend(Builder || {}, {
 	
 	registerUpdater: function(id, callback) {
 		Builder.updaters[id] = callback;
-	}
+	},
+
+	/**
+	 * convert an element (preferably a div) into a bespin editor
+	 */
+    applyBespin: function(el, fn, obj) {
+		el = $(el);
+		// save the content
+        var content = $(el).innerHTML;
+        // create an iframe to load bespin
+        el.innerHTML = "<iframe src='' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
+        var pe = new PeriodicalExecuter(function(pe) {
+        	pe.stop();
+            var win = document.getElementsByName(pe.el.id)[0].contentWindow;
+            win.id = el.id;
+            // apply context
+            win.prails = Object.clone(pe.obj);
+            // load all needed bespin components
+            var link = win.document.createElement('link');
+            link.id="bespin_base";
+            link.href="templates/builder/js/bespin";
+            win.document.getElementsByTagName('head')[0].appendChild(link);
+            var script = win.document.createElement('script');
+            script.src="templates/builder/js/bespin/BespinEmbedded.js";
+            script.type="text/javascript";
+            win.document.getElementsByTagName('head')[0].appendChild(script);
+            // write the actual element to be bespinned
+            var b = win.document.createElement("div");
+            b.className = "bespin";
+            b.setAttribute("data-bespinoptions", pe.el.getAttribute("data-bespinoptions"));
+            b.innerHTML = content;
+            win.document.body.appendChild(b);
+            win.document.body.style.margin = "0px";
+            win.document.body.style.padding = "0px";
+
+            // scan for resizing events (shrinking in particular)
+            var pl = new PeriodicalExecuter(function(pl) {
+            	if (pl.el.parentNode.visible()) {
+            		// if the container width has been reduced 
+	                if (pl.el.clientWidth + 50 < pl.win.document.width || pl.el.clientWidth - 50 > pl.div.clientWidth) {
+	                	// adapt the inner canvas
+	                	pl.div.style.width = pl.el.clientWidth+'px';
+						pl.div.getElementsByTagName("canvas")[1].width = pl.el.clientWidth - parseInt(pl.div.getElementsByTagName("canvas")[1].style.left);
+						// and refresh views
+	                	pl.div.bespin.editor.textView.invalidate();
+                		pl.div.bespin.editor.dimensionsChanged();
+	                }
+            	}
+            }, 0.25);
+            pl.el = el;
+            pl.div = b;
+            pl.win = win;
+            
+            win.onBespinLoad = function() {
+            	var env = win.document.getElementsByTagName("div")[0].bespin;
+	            if (el.getAttribute("onload")) {
+	            	eval(el.getAttribute("onload"))(env);
+	            }
+            };
+            
+            new PeriodicalExecuter(function(pa) { try { win.onready(); pa.stop(); 'stopped for '+pe.el.id+'!'; }catch(e){};}, 0.25);
+            if (typeof(pe.fn) == "function") {
+            	// fire callback as soon as settled
+            	setTimeout(function() {pe.fn.apply(window, [win])}, 1);
+            }
+        }, 0.01);
+        pe.fn = fn;
+        pe.el = el;
+        pe.obj = obj;
+    },
+    
+    /** 
+     * retrieve the code from a bespin instance
+     */
+    getCode: function(el) {
+        el = $(el);
+        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value;
+    }	
 });

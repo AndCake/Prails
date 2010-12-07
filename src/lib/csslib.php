@@ -20,6 +20,7 @@ class CSSLib {
 	 * @return 
 	 */
 	function cleanOldCache() {
+		$this->time = 0;
 		$dp = opendir("cache/");
 		while (($file = readdir($dp)) !== false) {
 			if (strpos($file, $this->prefix) !== false) {
@@ -31,8 +32,8 @@ class CSSLib {
 		closedir($dp);
 		
         foreach ($this->styles as $css) {
-        	if (strpos($css["path"], "http://") === false && strpos($css["path"], "ftp://") === false && strpos($css["path"], "https://") === false) { 
-	        	if (@filectime($css["path"]) > $time) {
+        	if (strpos($css, "http://") === false && strpos($css, "ftp://") === false && strpos($css, "https://") === false) { 
+	        	if (@filectime($css) > $this->time) {
 	        		// we need to regenerate the CSS files
 					@unlink("cache/".$this->prefix.".".$this->time.".css");
 					if (file_exists("cache/".$this->prefix.".".$this->time.".cgz")) {
@@ -64,33 +65,10 @@ class CSSLib {
 	
 	function lessifyCSS($css) {
 		// convert less to css
-		// first find all variable definitions
-		preg_match_all('/((@[a-z_A-Z\-]+)\s*:\s*([^{};]+)\s*;)/', $css, $matches);
-        if (is_array($matches[0])) foreach ($matches[0] as $key=>$match) {
-            $css = str_replace($matches[1][$key], "", $css);
-            $css = str_replace($matches[2][$key], $matches[3][$key], $css);
-        }
-        
-        preg_match_all('/([\.]([a-zA-Z\-_]+))\s*(\(([^)]+)\))?\s*;/', $css, $matches);
-        if (is_array($matches[0])) foreach ($matches[0] as $key => $match) {
-            // find the corresponding mixin snippet
-            preg_match('/'.str_replace(".", "\\.", $matches[1][$key]).'\s*(\((@[a-z_A-Z\-]+)\s*:\s*([^{})]+)\s*\))?\s*{([^}]+)}/', $css, $mixin);
-            if (!empty($mixin[2])) {    // if it's a dynamic mixin
-                // and the call was not giving an argument, then use the default
-                if (empty($matches[4][$key])) $matches[4][$key] = $mixin[3];
-                // create the actual mixin content by applying the dynamic variable by it's value
-                $mixin[4] = str_replace($mixin[2], $matches[4][$key], $mixin[4]);
-            }
-            // finally replace the mixin call by it's contents
-            $css = str_replace($match, $mixin[4], $css);
-        }
-        
-        // remove all dynamic mixin declarations
-        preg_match_all('/([\.]([a-zA-Z\-_]+))\s*(\((@[a-z_A-Z\-]+)\s*:\s*([^{})]+)\s*\))\s*{([^}]+)}/', $css, $mixins);
-        if (is_array($mixins[0])) foreach ($mixins[0] as $key => $mixin) {
-            $mixedUpIn = $mixins[1][$key]." {".str_replace($mixins[4][$key], $mixins[5][$key], $mixins[6][$key])."}";
-            $css = str_replace($mixin, $mixedUpIn, $css);
-        }
+		
+		$less = new lessc();
+		$css = $less->parse($css);
+
 		return $css;		
 	}
 	

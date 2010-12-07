@@ -435,7 +435,17 @@
 					html: "<div class='testLog'>"+(window["testLog"] ? testLog.join("") : "No testsuite has been run.")+"</div>"					
 				}).show();
 			}
-		});	
+		});
+		window.testsuites.push({
+			group: "",
+			id: "view-run",
+			text: "View Test Run",
+			handler: window.__viewRun = function() {
+				Ext.getCmp("view-run").setChecked(false);
+				window.__testTargetWindowContainer.show();
+			}
+		});
+			
 		
 		<c:foreach var="texts" name="text" key="section">
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);

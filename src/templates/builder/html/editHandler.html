@@ -1,4 +1,5 @@
 <div style="padding:20px;" id="container_h_#handler.handler_id">
+<? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
 <form id="hformh<?=(int)$arr_param["handler"]["handler_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hHtmlCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=editor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();$('hCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();invoke(null, 'builder:editHandler&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
 	<div style="float:left;width:49%;margin-right:1%;">
 		<label for="name">Name of event handler</label><br/>
@@ -17,10 +18,9 @@
 		</div>
 		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
-		<div style="border:1px solid #ccc;"><!--[noeval]-->
-			<textarea id="codeh<?=(int)$arr_param["handler"]["handler_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["handler"]["code"])?></textarea>
-			<!--[/noeval]-->
-		</div>
+		<!--[noeval]-->
+		<div style="border:1px solid #ccc;" id="codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlspecialchars($arr_param["handler"]["code"])?></div>
+		<!--[/noeval]-->
 	</div>
 	<div style="float:left;width:50%;position:relative;">
 		<div style="position:absolute;right:0px;">
@@ -29,10 +29,9 @@
 		</div>
 		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
-		<div style="border:1px solid #ccc;"><!--[noeval]-->
-			<textarea id="html_codeh<?=(int)$arr_param["handler"]["handler_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["handler"]["html_code"])?></textarea>
-			<!--[/noeval]-->
-		</div>
+		<!--[noeval]-->
+		<div style="border:1px solid #ccc;" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>
+    <!--[/noeval]-->		
 	</div>
 	<div style="clear:both;"></div>
 	<br/>
@@ -45,92 +44,83 @@
 							"goto", "if", "implements", "interface", "instanceof", "namespace", "new", "or", "private", "protected",
 							"public", "static", "switch", "throw", "try", "use", "var", "while", "xor"
 		];
-		setTimeout(function(){
-			window.editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?> = CodeMirror.fromTextArea('html_codeh<?=(int)$arr_param["handler"]["handler_id"]?>', {
-				height: "100%",
-				parserfile: ["../../main/js/scriptaculous/lib/prototype.js", "shortcuts.js","parsexml.js", "parsecss.js", "tokenizejavascript.js", "parsejavascript.js", "tokenizephp.js", "parsephp.js", "parsephphtmlmixed.js"],
-				stylesheet: ["templates/builder/css/xmlcolors.css","templates/builder/css/jscolors.css", "templates/builder/css/csscolors.css", "templates/builder/css/phpcolors.css"],
-				path: "templates/builder/js/",
-				textWrapping: false,
-				crc32: <?=crc32($arr_param["handler"]["html_code"])?>,
-				crc32Id: "h_html_code_#handler.handler_id",
-				mergeUrl: "?event=builder:editHandler&check=2&type=html_code&handler_id=<?=(int)$arr_param['handler']['handler_id']?>",	
-				autoMatchParens: true,
-				saveFunction: function() {
-					if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
-						$("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
-					}
-					$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
-					$('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
-					invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
-						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
-						if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
-							var name = $("h_event_#handler.handler_id").getValue();
-							var id = req.responseText.split(/\s/g)[0];
-							var mid = <?=(int)$_SESSION["module_id"]?>;
-							var module = Builder.root.findChild("id", mid);
-							Builder.closeTab("h_0");
-							var n = new Ext.tree.TreeNode({
-								text: name,
-								leaf: true,
-								id: "h_"+id,
-								allowChildren: false
-							});
-							module.handlers.push(n);
-							Builder.editHandler(n);
-							Builder.resetTree(Builder.handlerRoot, module.handlers);
-						}
-					});
-					return false;			
-				}
-			});
-			window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?> = CodeMirror.fromTextArea('codeh<?=(int)$arr_param["handler"]["handler_id"]?>', {
-				height: "100%",
-				parserfile: ["../../main/js/scriptaculous/lib/prototype.js", "shortcuts.js","tokenizephp.js", "parsephp.js"],
-				stylesheet: ["templates/builder/css/phpcolors.css"],
-				path: "templates/builder/js/",
-				textWrapping: false,
-				autoMatchParens: true,
-				crc32: <?=crc32($arr_param["handler"]["code"])?>,
-				crc32Id: "h_code_#handler.handler_id",
-				mergeUrl: "?event=builder:editHandler&check=2&type=code&handler_id=<?=(int)$arr_param['handler']['handler_id']?>",	
-				saveFunction: function() {
-					if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
-						$("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
-					}
-					$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
-					$('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();
-					invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param["handler"]["fk_module_id"], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
-						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
-						if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
-							var name = $("h_event_#handler.handler_id").getValue();
-							var id = req.responseText.split(/\s/g)[0];
-							var mid = <?=(int)$_SESSION["module_id"]?>;
-							var module = Builder.root.findChild("id", mid);
-							Builder.closeTab("h_0");
-							var n = new Ext.tree.TreeNode({
-								text: name,
-								leaf: true,
-								id: "h_"+id,
-								allowChildren: false
-							});
-							module.handlers.push(n);
-							Builder.editHandler(n);
-							Builder.resetTree(Builder.handlerRoot, module.handlers);
-						}
-					});
-					return false;			
-				}
-			});
+		setTimeout(function() {
+      $("container_h_#handler.handler_id").save = function() {
+          if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
+            $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
+          }
+          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
+          invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
+            Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+            if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
+              var name = $("h_event_#handler.handler_id").getValue();
+              var id = req.responseText.split(/\s/g)[0];
+              var mid = <?=(int)$_SESSION["module_id"]?>;
+              var module = Builder.root.findChild("id", mid);
+              Builder.closeTab("h_0");
+              var n = new Ext.tree.TreeNode({
+                text: name,
+                leaf: true,
+                id: "h_"+id,
+                allowChildren: false
+              });
+              module.handlers.push(n);
+              Builder.editHandler(n);
+              Builder.resetTree(Builder.handlerRoot, module.handlers);
+            }
+          });
+          return false;     
+      };
+      
+      $("container_h_#handler.handler_id").loadCodeTags = function(env) {
+/*
+      	var arr = [];
+      	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
+      		arr.push({
+                name: item.text,
+                kind: "f",
+                tagfile: "",
+                addr: "/^"+item.text+"$/",
+                namespace: "data"
+      		});
+      	});
+      	env.editor.addTags(arr);
+//*/      	
+      };
+      
+      (function() {
+	      Builder.applyBespin("codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
+	         $("codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+	         ;
+	         Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
+	            $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
+	         }, Object.extend(Builder.prailsNamespace, {
+		    	  id: "container_h_#handler.handler_id",
+		          save: function() {
+		             parent.$("container_h_#handler.handler_id").save();
+		          }, 
+		          run: function() {
+		             Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+		          }
+		      }));
+	      }, Object.extend(Builder.prailsNamespace, {
+	    	  id: "container_h_#handler.handler_id",
+	          save: function() {
+	             parent.$("container_h_#handler.handler_id").save();
+	          }, 
+	          run: function() {
+	             Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+	          }
+	      }));
+      })();
 
-			$("codeh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-			$("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
 			Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().add({
 				xtype: "button",
 				text: "Save",
 				iconCls: "save",
 				handler: function(e) {
-					window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.options.saveFunction();
+					$("container_h_#handler.handler_id").save();
 				}
 			}, "-", {
 				xtype: "button",
@@ -184,7 +174,7 @@
 			});
 			Ext.QuickTips.init();			
 		}, 10);
-		//*
+		/*
 		<? if ((int)$arr_param["handler"]["handler_id"] > 0) { ?>
 		new PeriodicalExecuter(function(pe){
 			if (window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null && window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null) {

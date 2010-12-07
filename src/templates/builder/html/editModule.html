@@ -1,11 +1,11 @@
 <div style="padding:20px;" id="container_m_#module.module_id">
+<? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
 <form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&module_id=<?=(int)$arr_param["module"]["module_id"]?>&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
 	<label for="name">Name of Module</label><br/>
 	<input type="text" id="m_name_#module.module_id" name="module[name]" value="#module.name" />
 	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/>
 	<br/>
 	<!-- somehow need to manage the included JS and CSS libs -->
-	<!-- @todo -->
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">
 		<div style="position:absolute;right:0px;">
 			<? if ((int)$arr_param["module"]["module_id"] != 0) { ?>
@@ -16,10 +16,9 @@
 		</div>
 		<label for="style_code">CSS styles</label>
         <input type="hidden" id="hCode<?=(int)$arr_param['module']['module_id']?>" name="module[style_code]" value="" />
-        <div style="border:1px solid #ccc;"><!--[noeval]-->
-                <textarea id="code<?=(int)$arr_param['module']['module_id']?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["module"]["style_code"])?></textarea>
-				<!--[/noeval]-->
-        </div>
+        <!--[noeval]-->
+		<div style="border:1px solid #ccc;" id="code<?=(int)$arr_param['module']['module_id']?>" data-bespinoptions='{"syntax": "css"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["style_code"])?></div>
+		<!--[/noeval]-->
 	</div>
 	<div style="float:left;width:50%;position:relative;">
 		<div style="position:absolute;right:0px;">
@@ -31,16 +30,57 @@
 		</div>
 		<label for="js_code<?=(int)$arr_param['module']['module_id']?>">Javascript Code: </label><br/>
 		<input type="hidden" id="hJsCodem<?=(int)$arr_param["module"]["module_id"]?>" name="module[js_code]" value="" />
-		<div style="border:1px solid #ccc;"><!--[noeval]-->
-			<textarea id="js_code<?=(int)$arr_param["module"]["module_id"]?>" cols="60" rows="30"><?=htmlspecialchars($arr_param["module"]["js_code"])?></textarea>
-			<!--[/noeval]-->
-		</div>
+		<!--[noeval]-->
+		<div style="border:1px solid #ccc;" id="js_code<?=(int)$arr_param["module"]["module_id"]?>" data-bespinoptions='{"syntax": "js"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["js_code"])?></div>
+		<!--[/noeval]-->
 	</div>
 	<div style="clear:both;"></div>
 
         <script type="text/javascript">
         	//<![CDATA[
 				setTimeout(function() {
+					$("container_m_#module.module_id").save = function() {
+						$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
+						$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
+
+						invoke(null, 'builder:editModule&check=1&module_id=<?=$arr_param['module']['module_id']?>', $('hform<?=(int)$arr_param["module"]["module_id"]?>').serialize(), true, function(req) {
+							Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+							if (<?=(int)$arr_param["module"]["module_id"]?> == 0) {
+								var name = $("m_name_#module.module_id").getValue();
+								var id = req.responseText.split(/\n/g)[0];
+								// replace this tab and add a new entry in the tree list
+								Builder.closeTab("m_<?=(int)$arr_param["module"]["module_id"]?>");
+								module = new Ext.tree.TreeNode({
+												text: name,
+												leaf: true,
+												cls: "x-tree-node-collapsed",
+												id: id,
+												allowChildren: false
+											});
+								module.handlers = [];
+								module.datas = [];
+								Builder.root.appendChild(module);
+								Builder.editModuleOptions(module);						
+								//location.reload();
+							}
+						});
+						return false;			
+					};
+					Builder.applyBespin("code<?=(int)$arr_param['module']['module_id']?>", function(fr) {
+						$("code<?=(int)$arr_param['module']['module_id']?>").down("iframe").style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+						Builder.applyBespin("js_code<?=(int)$arr_param["module"]["module_id"]?>", function(fr) {
+							$("js_code<?=(int)$arr_param['module']['module_id']?>").down('iframe').style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+						}, Object.extend(Builder.prailsNamespace, {
+			              save: function() {
+			                  parent.$("container_m_#module.module_id").save();
+			                }
+			            }));
+					}, Object.extend(Builder.prailsNamespace, {
+						save: function() {
+							parent.$("container_m_#module.module_id").save();
+						}
+			        }));
+					/*
 					window.editorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?> = CodeMirror.fromTextArea('js_code<?=(int)$arr_param["module"]["module_id"]?>', {
 						height: "100%",
 						parserfile: ["tokenizejavascript.js", "parsejavascript.js"],
@@ -139,14 +179,13 @@
 						}
 					}, 0.2);
 */					
-					$("code<?=(int)$arr_param['module']['module_id']?>").parentNode.style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-					$("js_code<?=(int)$arr_param['module']['module_id']?>").parentNode.style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
 					Ext.getCmp("portlet_content_m_<?=(int)$arr_param["module"]["module_id"]?>").getTopToolbar().add({
 						xtype: "button",
 						text: "Save",
 						iconCls: "save",
 						handler: function(e) {
-							window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.options.saveFunction();
+						//	window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.options.saveFunction();
+							$("container_m_#module.module_id").save();						
 						}
 					},"-", {
 						xtype: "button",
@@ -172,12 +211,13 @@
 						iconCls: "apply",
 						disabled: true,
 						handler: function(e) {
+							/** @TODO - use bespin diff here, if possible **/
 							Builder.historyCleanFields([
 								window["editorm#session.module_id"].editor, 
 								window["phpEditorm#session.module_id"].editor, 
 								$('m_name_#session.module_id')
 							]);
-							window.phpEditorm<?=str_replace("-", "_", "".((int)$arr_param["module"]["module_id"]))?>.options.saveFunction();
+							$("container_m_#module.module_id").save();
 						}	
 					}, "-", {
 						xtype: "button",

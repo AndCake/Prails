@@ -205,8 +205,12 @@ class BuilderHandler
                     $code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
                     $handler .= "\nfunction ".$arr_handler["event"]."() {\n".$code."\n}\n";
                     $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator) {\n";
+		    $printer .= "  global \$SERVER;\n";
                     $printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
                     $printer .= "  \$arr_param[\"odict\"] = &\$_SESSION[\"odict\"];\n";
+		    $printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
+		    $printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
+		    $printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
                     if ($arr_handler["flag_ajax"] == "1")
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";

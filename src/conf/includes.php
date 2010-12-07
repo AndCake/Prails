@@ -37,6 +37,7 @@ include "lib/database.php";
 include "lib/lang_data.php";
 include "lib/jsmin.php";
 include "lib/taglib.php";
+include "lib/lessc.php";
 include "lib/csslib.php";
 include "lib/generator.php";
 

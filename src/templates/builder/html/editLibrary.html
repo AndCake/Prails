@@ -1,56 +1,51 @@
 <div style="padding:20px;">
+<? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
 <form id="hforml<?=(int)$arr_param["library"]["library_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=phpEditorl<?=(int)$arr_param["library"]["library_id"]?>.getCode();invoke(null, 'builder:editLibrary&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
 	<label for="name">Name of Library</label><br/>
 	<input type="text" id="lib_name_#library.library_id" name="library[name]" value="#library.name" /><br/><br/>
 
 	<label for="codel<?=(int)$arr_param["library"]["library_id"]?>">Library Code:</label><br/>
 	<input type="hidden" id="hCodel<?=(int)$arr_param["library"]["library_id"]?>" name="library[code]" value="" />
-	<div style="border:1px solid #ccc;">
-		<textarea id="codel<?=(int)$arr_param["library"]["library_id"]?>" cols="60" rows="30">#library.code</textarea>
-	</div>
+	<div style="border:1px solid #ccc;" id="codel<?=(int)$arr_param['library']['library_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#library.code</div>
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">
 	//<![CDATA[
 		setTimeout(function() {
-			window.phpEditorl<?=(int)$arr_param["library"]["library_id"]?> = CodeMirror.fromTextArea('codel<?=(int)$arr_param["library"]["library_id"]?>', {
-				height: "100%",
-				parserfile: ["tokenizephp.js", "parsephp.js"],
-				stylesheet: ["templates/builder/css/phpcolors.css"],
-				path: "templates/builder/js/",
-				autoMatchParens: true,
-				crc32: <?=crc32($arr_param["library"]["code"])?>,
-				crc32Id: "l_code_#library.library_id",
-				mergeUrl: "?event=builder:editLibrary&check=2&type=code&library_id=<?=(int)$arr_param['library']['library_id']?>",					
-				textWrapping: false,
-				saveFunction: function() {
-					$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=phpEditorl<?=(int)$arr_param["library"]["library_id"]?>.getCode();
-					invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
-						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
-						if (<?=(int)$arr_param["library"]["library_id"]?> == 0) {
-							var name = $("lib_name_#library.library_id").getValue();
-							var id = req.responseText.split(/\s/g)[0];
-							Builder.closeTab("l_0");
-							var n = new Ext.tree.TreeNode({
-								text: name,
-								leaf: true,
-								id: "l_"+id,
-								allowChildren: false
-							});
-							Builder.libRoot.appendChild(n);
-							Builder.editLibrary(n);
-						}
-					});
-					return false;			
-				}			
-			});
-			$("codel<?=(int)$arr_param['library']['library_id']?>").parentNode.style.height = (parseInt($("hforml<?=(int)$arr_param['library']['library_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function() {
+				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
+				invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
+					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+					if (<?=(int)$arr_param["library"]["library_id"]?> == 0) {
+						var name = $("lib_name_#library.library_id").getValue();
+						var id = req.responseText.split(/\s/g)[0];
+						Builder.closeTab("l_0");
+						var n = new Ext.tree.TreeNode({
+							text: name,
+							leaf: true,
+							id: "l_"+id,
+							allowChildren: false
+						});
+						Builder.libRoot.appendChild(n);
+						Builder.editLibrary(n);
+					}
+				});
+				return false;			
+			};
+			Builder.applyBespin("codel<?=(int)$arr_param['library']['library_id']?>", function(fr) {
+				$("codel<?=(int)$arr_param['library']['library_id']?>").down("iframe").style.height = (parseInt($("hforml<?=(int)$arr_param['library']['library_id']?>").parentNode.parentNode.style.height) - 150) + "px";				
+			}, Object.extend(Builder.prailsNamespace, {
+	        	save: function() {
+	            	parent.$("hforml<?=(int)$arr_param['library']['library_id']?>").save();
+	          	}
+	      	}));
+			
 			Ext.getCmp("portlet_content_l_<?=(int)$arr_param['library']['library_id']?>").getTopToolbar().add([{
 				xtype: "button",
 				text: "Save",
 				iconCls: "save",
 				handler: function(e) {
-					window.phpEditorl<?=(int)$arr_param["library"]["library_id"]?>.options.saveFunction();
+					$("hforml<?=(int)$arr_param['library']['library_id']?>").save();
 				}
 			},"-"]);			
 		}, 100);

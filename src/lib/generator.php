@@ -296,7 +296,7 @@ class Generator {
     }
 
     function getJavaScripts() {
-	global $SERVER;
+		global $SERVER;
     	$str_js = "";
     	$time = time();
         $prefix = md5(implode("", $this->arr_js));
@@ -326,7 +326,7 @@ class Generator {
     		$fp = fopen($path, "w+");
 			$gzData = "";
             foreach ($this->arr_js as $js) {
-            	$str = file_get_contents($js);
+            	$str = file_get_contents($js)."\n";
                 if (ENV_PRODUCTION === true) {
     			    $str = JSMIN::minify($str);
     			}
