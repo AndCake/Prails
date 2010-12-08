@@ -7815,11 +7815,11 @@ tree.find = function (obj, fun) {
 //
 var sheets = [];
 
-less.env = location.hostname == '127.0.0.1' ||
+less.env = /*location.hostname == '127.0.0.1' ||
            location.hostname == '0.0.0.0'   ||
            location.hostname == 'localhost' ||
            location.protocol == 'file:'     ? 'development'
-                                            : 'production';
+                                            : */'production';
 
 
 // Load the stylesheets when the body is ready

@@ -215,6 +215,9 @@ class BuilderHandler
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
                     }
+		    if ($arr_param["flag_cacheable"] == "1") {
+			$printer .= "  Generator::getInstance()->setIsCachable();\n";
+		    }
                     $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator) : \"<!--[content]-->\");\n";
                     $printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"].".html\", \$arr_param);\n";
                     $printer .= "  \$str_content = str_replace(\"<!--[content]-->\", \$str_content, \$decoration);\n";
@@ -341,10 +344,10 @@ class BuilderHandler
                 require ("templates/builder/php/handler_scaffold_home_html.php");
                 $htmlcode = ob_get_clean();
                 $hid = $this->obj_data->insertHandler($arr_handler = Array(
-                "fk_module_id"=>$_GET["module_id"],
-                "event"=>"home",
-                "code"=>$code,
-                "html_code"=>$htmlcode
+	                "fk_module_id"=>$_GET["module_id"],
+	                "event"=>"home",
+	                "code"=>$code,
+	                "html_code"=>$htmlcode
                 ));
                 $this->obj_data->insertHandlerHistory($hid, $arr_param["handler"], $arr_handler);
             } else if ($_GET["module_id"] < 0)
@@ -478,6 +481,7 @@ class BuilderHandler
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
             $arr_data["fk_module_id"] = $_GET["module_id"];
             $arr_data["flag_ajax"] = (int)$arr_data["flag_ajax"];
+	    $arr_data["flag_cacheable"] = (int)$arr_data["flag_cacheable"];
             $arr_data["code"] = ($arr_data["code"]);
             $arr_data["html_code"] = ($arr_data["html_code"]);
             if ($_GET["handler_id"] > 0)
@@ -504,9 +508,9 @@ class BuilderHandler
                 $arr_data["code"] = preg_replace("/\\\$data->/", "\$this->obj_data->", $arr_data["code"]);
 
                 file_put_contents("modules/main/main_handler.php",
-                substr($content, 0, strpos($content, "/** BEGIN_CODE **/")+strlen("/** BEGIN_CODE **/")).
-                "\n".$arr_data["code"]."\n".
-                substr($content, strpos($content, "/** END_CODE **/"))
+	                substr($content, 0, strpos($content, "/** BEGIN_CODE **/")+strlen("/** BEGIN_CODE **/")).
+	                "\n".$arr_data["code"]."\n".
+                	substr($content, strpos($content, "/** END_CODE **/"))
                 );
                 file_put_contents("templates/main/html/home.html", $arr_data["html_code"]);
             }
@@ -1133,6 +1137,7 @@ class BuilderHandler
 		$arr_param["moduleResult"] = $this->obj_data->findModuleByName($query, $_SESSION["builder"]["user_id"]);
 		$arr_param["tagResult"] = $this->obj_data->findTagByName($query, $_SESSION["builder"]["user_id"]);
 		$arr_param["tableResult"] = $this->obj_data->findTableByName($query, $_SESSION["builder"]["user_id"]);
+		$arr_param["textResult"] = Generator::getInstance()->getLanguage()->findTextByContent($query);
 
 		$arr_param["result"] = Array();
 		if (is_array($arr_param["handlerResult"]))$arr_param["result"] = $arr_param["handlerResult"];
@@ -1141,6 +1146,7 @@ class BuilderHandler
 		if (is_array($arr_param["moduleResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["moduleResult"]);
 		if (is_array($arr_param["tagResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tagResult"]);
 		if (is_array($arr_param["tableResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["tableResult"]);
+		if (is_array($arr_param["textResult"]))$arr_param["result"] = array_merge($arr_param["result"], $arr_param["textResult"]);
 		header("Content-Type: application/json");
 		die (json_encode($arr_param["result"]));
 	}
@@ -1313,6 +1319,7 @@ class BuilderHandler
 					// import database table
 					foreach ($data as $arr_table) {
 					    $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
+					    $this->obj_data->deleteTable($arr_table["table_id"]);
 						$this->obj_data->insertTable($arr_table);
 						// deploy table
 			            $arr_fields = Array();
@@ -1333,6 +1340,7 @@ class BuilderHandler
 					}
 					foreach ($data["texts"] as $texts) {
 						foreach ($texts as $text) {
+							Generator::getInstance()->obj_lang->deleteTexts($text["text_id"]);
 							Generator::getInstance()->obj_lang->insertText($text);
 						}
 					}
@@ -1453,7 +1461,7 @@ class BuilderHandler
         // first download the installer...
         $basePath = "http://prails.googlecode.com/svn/trunk/";
         // clean cache first
-        exec("cd cache && rm -f *");
+        exec("cd cache && rm -f * && cd ..");
         $version = trim(file_get_contents($basePath."version"));
         
         file_put_contents("cache/installer.php", file_get_contents($basePath."installer.php"));

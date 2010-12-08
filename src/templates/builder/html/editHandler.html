@@ -8,7 +8,11 @@
 	</div>
 	<div style="float:left;width:50%;">
 		<br/><input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
-		<label for="ajax_#handler.handler_id">is AJAX event</label><br/><br/>
+		<label for="ajax_#handler.handler_id">is AJAX event</label>
+		&nbsp;
+		<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
+                <label for="cache_#handler.handler_id">output is cacheable</label>
+		<br/><br/>
 	</div>
 	<div style="clear:both;"></div>
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">

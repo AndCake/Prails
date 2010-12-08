@@ -51,6 +51,7 @@ Builder = Object.extend(Builder || {}, {
 		new Ajax.Request("?event=builder:moduleHistory&module_id="+id, {
 			evalJS: true,
 			onSuccess: function(req) {
+				/** @TODO - use bespin diff here, if possible **/				
 				var el = new Element("div");
 				el.update(req.responseText);
 				$("container_m_"+id).appendChild(el.down().cloneNode(true));

@@ -104,6 +104,11 @@ class LangData
    	  $arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND identifier LIKE '".$rootNode.".%'");
 	  return $arr_result;
    }
+   
+   function findTextByContent($word) {
+   		/** @TODO need to find out how the ID, name and type should look like for builder.js **/
+   	  $arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND content LIKE '%".$word."%'");
+   }
 
    function getAllTextsByIdentifier($ident) {
         $texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1");

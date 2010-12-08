@@ -167,7 +167,7 @@ Builder = Object.extend(Builder || {}, {
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
-        el.innerHTML = "<iframe src='' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
+        el.innerHTML = "<iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
         var pe = new PeriodicalExecuter(function(pe) {
         	pe.stop();
             var win = document.getElementsByName(pe.el.id)[0].contentWindow;

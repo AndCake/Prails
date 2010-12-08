@@ -51,7 +51,8 @@ $arr_database = Array
 	"handler"=>Array(
 	    "fk_module_id"=>"INT(11) NOT NULL",
 	    "event"=>"VARCHAR(255)",
-		"flag_ajax"=>"INT(1) NOT NULL",
+	    "flag_ajax"=>"INT(1) NOT NULL",
+	    "flag_cacheable"=>"INT(1) NOT NULL",
 	    "code"=>"TEXT",
 	    "html_code"=>"TEXT",
 	),
