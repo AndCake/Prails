@@ -108,6 +108,11 @@ class LangData
    function findTextByContent($word) {
    		/** @TODO need to find out how the ID, name and type should look like for builder.js **/
    	  $arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND content LIKE '%".$word."%'");
+	$arr_return = Array();
+	foreach ($arr_result as $res) {
+		array_push($arr_return, Array("id" => "text_.".$res['identifier'], "name" => $res["identifier"], "type" => "text"));
+	}
+	return $arr_return;
    }
 
    function getAllTextsByIdentifier($ident) {

@@ -148,3 +148,16 @@ body .CodeMirror-line-numbers {
     background-color: #efefef;
     border-right: 1px solid #ccc;
 }
+
+.nicEdit-main ol {
+	padding-left: 40px;
+	display: block;
+	list-style-type: decimal;
+	margin: 1em 0px;
+}
+.nicEdit-main ul { 
+	padding-left: 40px;
+	display: block;
+	list-style-type: disc;
+	margin: 1em 0px;
+}

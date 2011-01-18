@@ -76,6 +76,13 @@ class MainPrinter
         if (strlen($arr_param["text"]["decorator"]) > 0) {
             $decorator = invoke($arr_param["text"]["decorator"]);
         }
+
+	if (strlen($arr_param["text"]["title"]) > 0) {
+		Generator::getInstance()->setTitle($arr_param['text']['title']);
+	}
+	if (strlen($arr_param['text']['description']) > 0) {
+		Generator::getInstance()->setDescription($arr_param['text']['description']);
+	}
         
         return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
     }

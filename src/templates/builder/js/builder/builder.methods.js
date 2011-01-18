@@ -151,6 +151,25 @@ Builder = Object.extend(Builder || {}, {
 						Builder.editTable(db);
 					}
 					break;
+				case "text":
+					var x = null;
+					var search = function(root, id) {
+						var x = root.findChild("id", id);
+						if (x) return x;
+						if (root.hasChildNodes()) {
+							for (var i = 0; i < root.childNodes.length; i++) {
+								if (x = search(root.childNodes[i], id)) {
+									return x;
+								}
+							}
+						}
+						return null;
+					};
+					x = search(Builder.langRoot, id);
+					if (x != null) {
+						Builder.editText(x);
+					}
+					break;
 			}
 		}
 	},
@@ -168,6 +187,7 @@ Builder = Object.extend(Builder || {}, {
         var content = $(el).innerHTML;
         // create an iframe to load bespin
         el.innerHTML = "<iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
+	var cwin = document.getElementsByName(el.id)[0].contentWindow;
         var pe = new PeriodicalExecuter(function(pe) {
         	pe.stop();
             var win = document.getElementsByName(pe.el.id)[0].contentWindow;
@@ -196,6 +216,7 @@ Builder = Object.extend(Builder || {}, {
             var pl = new PeriodicalExecuter(function(pl) {
             	if (pl.el.parentNode.visible()) {
             		// if the container width has been reduced 
+			try {
 	                if (pl.el.clientWidth + 50 < pl.win.document.width || pl.el.clientWidth - 50 > pl.div.clientWidth) {
 	                	// adapt the inner canvas
 	                	pl.div.style.width = pl.el.clientWidth+'px';
@@ -204,6 +225,10 @@ Builder = Object.extend(Builder || {}, {
 	                	pl.div.bespin.editor.textView.invalidate();
                 		pl.div.bespin.editor.dimensionsChanged();
 	                }
+			} catch(e) {
+				pl.stop();
+//				console && console.log("try to fix the resize issue! "+e.message);
+			}
             	}
             }, 0.25);
             pl.el = el;

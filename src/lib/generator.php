@@ -165,10 +165,14 @@ class Generator {
     }
 
     function parseApplyLanguage($buffer) {
-        preg_match_all("/\\{([a-zA-Z0-9.]+)\\}/", $buffer, $arr_matches);
+        preg_match_all("/\\{([a-zA-Z0-9.]+)(\\\$?)\\}/", $buffer, $arr_matches);
 
         foreach ($arr_matches[1] as $key => $str_match) {
-            $buffer = str_replace($arr_matches[0][$key], $this->obj_lang->getText($str_match), $buffer);
+	    $text = $this->obj_lang->getText($str_match);
+	    if (ENV_PRODUCTION != true && strlen($arr_matches[2][$key])<=0) {
+	        $text = "<!--[LANG:".$str_match."]-->" . $text . "<!--[/LANG:".$str_match."]-->";
+	    }
+	    $buffer = str_replace($arr_matches[0][$key], $text, $buffer);
         }
 
         return $buffer;

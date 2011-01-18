@@ -40,13 +40,25 @@
     </c:if>
     <c:if cond="$arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.'">
         <div class="formfield">
-            <label class="url" style="white-space:nowrap;"><?=$SERVER?>static/<?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?>.html</label><br/>
+            <label class="url" style="white-space:nowrap;"><?=$SERVER?>static/<span class='url_preview'><?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?></span>.html</label><br/>
             <a href="<?=$SERVER?>static/<?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?>.html" <?=($arr_param['texts'][0]['texts_id'] <= 0 ? 'style="color:#999;cursor:default;" onclick="return false;"': "")?> target="preview">Show this page</a>
         </div>
     </c:if>
 	<div style="clear:both;"></div>
     <br/>
-
+    <c:if cond="$arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.'">
+    <div class="seo">
+	<div class="formfield">
+		<label>SEO Title:</label><br/>
+		<input type="text" name="texts[title]" value="#text.title" style="width:200px;" />
+	</div>
+	<div class="formfield">
+		<label>SEO META description:</label><br/>
+		<textarea name="texts[description]" style="border:1px solid #ccc;width:350px;height:30px;">#text.description</textarea>
+	</div>
+	<div style="clear:both;"></div>
+    </div>
+    </c:if>
     <div id="texts_<?=$arr_param["texts"][0]['identifier']?>">
     <c:foreach var="texts" name="texta">
     <div class="formfield" style="<? if ($arr_param['text']['type'] == 2) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: 20px;margin-bottom: 20px;">
@@ -249,11 +261,17 @@
 			             }
 			         <? } ?>
                     ]
-                }
-		    }]);
+                }}]);
 			<? if (count($arr_param["texts"]) <= 0) { ?>
 			editLanguage({});
 			<? } ?>
+			$$("#hformx<?=$arr_param["texts"][0]['identifier']?> #text_name_#texts.texts_id").each(function(item) {
+				item.observe("change", function(event) {
+					$$("#hformx<?=$arr_param["texts"][0]['identifier']?> .url_preview").each(function(p) {
+						p.innerHTML = item.value;
+					});
+				});
+			});
 		}, 100);
 	//]]>
 	</script>

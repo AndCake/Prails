@@ -360,22 +360,52 @@ class BuilderData extends Database
     }
 	
 	function findHandlerByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE event LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE event LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+		$arr_return = Array();
+		foreach ($result as $res) {
+			array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+		}
+		return $arr_return;
 	}
 	function findDataByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (Data Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (Data Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+                $arr_return = Array();
+                foreach ($result as $res) {
+                        array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+                }
+                return $arr_return;
 	}
 	function findLibByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('l_', library_id) AS id, CONCAT(a.name,' (Library)') AS name, 'Library' AS type FROM tbl_prailsbase_library AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND ((a.fk_module_id=module_id AND b.fk_user_id='".$uid."') OR (a.fk_user_id='".$uid."')) GROUP BY library_id");
+		$result = $this->SqlQuery("SELECT CONCAT('l_', library_id) AS id, CONCAT(a.name,' (Library)') AS name, 'Library' AS type FROM tbl_prailsbase_library AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND ((a.fk_module_id=module_id AND b.fk_user_id='".$uid."') OR (a.fk_user_id='".$uid."')) GROUP BY library_id");
+                $arr_return = Array();
+                foreach ($result as $res) {
+                        array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+                }
+                return $arr_return;
 	}
 	function findTagByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('t_', tag_id) AS id,  CONCAT(name,' (Tag)') AS name, 'Tag' AS type FROM tbl_prailsbase_tag WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('t_', tag_id) AS id,  CONCAT(name,' (Tag)') AS name, 'Tag' AS type FROM tbl_prailsbase_tag WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+                $arr_return = Array();
+                foreach ($result as $res) {
+                        array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+                }
+                return $arr_return;
 	}
 	function findModuleByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('m_', module_id) AS id,  CONCAT(name,' (Module)') AS name, 'Module' AS type FROM tbl_prailsbase_module WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('m_', module_id) AS id,  CONCAT(name,' (Module)') AS name, 'Module' AS type FROM tbl_prailsbase_module WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+                $arr_return = Array();
+                foreach ($result as $res) {
+                        array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+                }
+                return $arr_return;
 	}
 	function findTableByName($name, $uid) {
-		return $this->SqlQuery("SELECT CONCAT('db_', table_id) AS id,  CONCAT(name,' (Database Table)') AS name, 'Database Table' AS type FROM tbl_prailsbase_table WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('db_', table_id) AS id,  CONCAT(name,' (Database Table)') AS name, 'Database Table' AS type FROM tbl_prailsbase_table WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+                $arr_return = Array();
+                foreach ($result as $res) {
+                        array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
+                }
+                return $arr_return;
 	}
 	
 	function listUrlRules() {

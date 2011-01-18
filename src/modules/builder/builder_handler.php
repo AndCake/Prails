@@ -1366,7 +1366,7 @@ class BuilderHandler
 							$this->obj_data->insertHandler($handler);
 						}
 						foreach ($mod["datas"] as $data) {
-							$this->obj_data->deleteData($mod["data_id"]);
+							$this->obj_data->deleteData($data["data_id"]);
 							$this->obj_data->insertData($data);
 						}
 						foreach ($mod["configs"] as $config) {

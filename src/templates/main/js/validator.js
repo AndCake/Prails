@@ -34,8 +34,9 @@
  * - validate-number-error: override definition of validate-number.
  * - validate-<anything>-error: override / create definition of validate-<anything>.
  * 
- * The element containing exactly one of the above CSS classes will be checked for a "rel" attribute, defining the regular expression to use for validation
- * and also checked for a "title" attribute, which can contain the error messages to be shown for this kind of field. Both are optional.
+ * The element containing exactly one of the above CSS classes will be checked for a "rel" attribute, defining the regular expression (or some custom Javascript 
+ * code, if prepended with "javascript:") to use for validation and also checked for a "title" attribute, which can contain the error messages to be shown 
+ * for this kind of field. Both are optional. 
  * Furthermore you can override these globally-defined classes by specifying the "rel" or/and the "title" attribute in the element itself to be validated.
  * The title attribute must be structured like this: "empty=<text to show, if this field is empty>|invalid=<text to show, if this field is invalid>"
  *
@@ -174,10 +175,13 @@ var Validator = Class.create({
             if (el.value.empty()) {
                 this.invalidate(el, "empty");
                 return false;
-            } else if (el.getAttribute("rel") && !new RegExp(el.getAttribute("rel")).test(el.value)) {
+            } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")<0 && !new RegExp(el.getAttribute("rel")).test(el.value)) {
                 this.invalidate(el, "invalid");
                 return false;
-            } else {
+            } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")>=0 && !eval("("+el.getAttribute("rel").replace("javascript:", "")+")")) {
+		this.invalidate(el, "invalid");
+		return false;
+	    } else {
                 var result = true;
                 el.classNames().each(function(cls) {
                     if (cls.indexOf("validate-") >= 0) {

@@ -19,11 +19,11 @@
 
 $arr_database = Array
 (
-	// language tables		--- should be made optional
+	// language tables
 	"language"=>Array(
 		"name"=>"VARCHAR(255)",
 		"abbreviation"=>"VARCHAR(255)",
-	    "isDefault" => "INT(1) NOT NULL",
+		"isDefault" => "INT(1) NOT NULL",
 	),
 	"texts"=>Array(
 		"fk_language_id"=>"INT(11) NOT NULL",
@@ -31,16 +31,18 @@ $arr_database = Array
 		"content"=>"TEXT",
 		"type" => "INT(1) NOT NULL",
 		"decorator" => "VARCHAR(255)",
+		"title" => "VARCHAR(255)",
+		"description" => "TEXT",
 	),
 	
 	// builder tables
 	"module"=>Array(
 		"fk_module_id"=>"INT(11) NOT NULL",		// link to parent module
-	    "fk_user_id"=>"BIGINT(11) NOT NULL",
-	    "name"=>"VARCHAR(255)",
+	    	"fk_user_id"=>"BIGINT(11) NOT NULL",
+	    	"name"=>"VARCHAR(255)",
 		"header_info" => "TEXT",
 		"js_code"=>"TEXT",
-	    "style_code"=>"TEXT",
+	    	"style_code"=>"TEXT",
 	),
 	"library"=>Array(
 		"fk_module_id"=>"INT(11) NOT NULL",

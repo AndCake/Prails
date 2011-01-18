@@ -148,7 +148,7 @@ Builder = Object.extend(Builder || {}, {
 					displayField: "name",
 					valueField: "id",
 					typeAhead: true,
-					mode: "local",
+					mode: "remote",
 					listeners: {
 						specialkey: function(field, event) {
 							if (event.getKey() == event.ENTER) {
