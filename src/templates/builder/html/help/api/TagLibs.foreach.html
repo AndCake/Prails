@@ -11,7 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code><c:foreach var="{array}" [key="{keyname}"] name="{loop var}">{content}</c:foreach>[<c:else> {else content}</c:else>]</code>
+            <code><c:foreach var="{array}" [key="{keyname}"] name="{loop var}">{content}[<c:else/>{else content}]</c:foreach></code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table10">
             <colgroup>
@@ -95,19 +95,16 @@
         	<table>
         		<c:foreach var="users" key="i" name="user">
         			<c:if cond="$i%2 == 0">
-        				<c:then>
-        					<tr bgcolor="#efefef">
-        				</c:then><c:else>
-        					<tr bgcolor="#ffffff">
-        				</c:else>
-        			</c:if>
+       					<tr bgcolor="#efefef">
+       				<c:else/>
+       					<tr bgcolor="#ffffff">
+	       			</c:if>
         			<td>#user.name</td>
         			<td>#user.age</td>
         			</tr>
-        		</c:foreach>
-        		<c:else>
+        		<c:else/>
         			<tr><td>No users there...</td></tr>
-        		</c:else>
+        		</c:foreach>
         	</table>
         </pre>
     </body>

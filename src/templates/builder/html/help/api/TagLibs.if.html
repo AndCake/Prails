@@ -11,7 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code><c:if cond="{php cond}"><c:then>{true block content}</c:then>[<c:else>{false block content}</c:else>]</c:if></code>
+            <code><c:if cond="{php cond}">{true block content}[<c:else/>{false block content}]</c:if></code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table11">
             <colgroup>
@@ -64,12 +64,9 @@
         <pre>
             Hello,
             <c:if cond="$arr_param['user']['gender'] == 'm'">
-            	<c:then>
-            		<b>Sir</b>
-            	</c:then>
-            	<c:else>
-            		<b>Madam</b>
-            	</c:else>
+				<b>Sir</b>
+            <c:else/>
+            	<b>Madam</b>
             </c:if>!
         </pre>
     </body>

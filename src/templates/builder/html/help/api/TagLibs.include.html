@@ -20,12 +20,12 @@
             <tr>
                 <td style="text-align:left;width:3.283cm; " class="Table12_A1">
                     <p class="Table_20_Contents">
-                        {template path}
+                        {event path}
                     </p>
                 </td>
                 <td style="text-align:left;width:13.716cm; " class="Table12_B1">
                     <p class="Table_20_Contents">
-                        Path of the template to be included. The path needs to be relative to the framework root. If the template path is specified, the event attribute will be ignored. So it is only possible to include either a template or an event.
+                        Path's event (event name in slash notation) to identify the template to be included.
                     </p>
                 </td>
             </tr>
@@ -37,7 +37,7 @@
                 </td>
                 <td style="text-align:left;width:13.716cm; " class="Table12_B2">
                     <p class="Table_20_Contents">
-                        Full event name (in the colon notation) of the event to be included. Notice that the included event must or die or exit, but normally return it's content. The included event won't be decorated with the base template. 
+                        Full event name (in the colon notation) of the event to be included. Notice that the included event must not die or exit, but normally return it's content. The included event won't be decorated with the base template. 
                     </p>
                 </td>
             </tr>
@@ -45,23 +45,21 @@
         <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
         <p class="Text_20_body">
             This example loops over all elements of the <code>$arr_param["stories"]</code>
-            and for each entry it includes the template <code>show.html</code>
-            of the story module. Within that template the variable <code>$arr_param["local"]["story"] </code>(or <code>#local.story</code>) can be used to access the current item.
+            and for each entry it includes the template from event <code>story:show</code>. Within that template the variable <code>$arr_param["story"]</code>(or <code>#story.</code>) can be used to access the current item.
         </p>
         <pre>
             <h1>Stories:</h1>
             <c:foreach var="stories" name="story">
-                <c:include file="templates/story/html/show.html" />
+                <c:include file="story/show" />
             </c:foreach>
         </pre>
         <p class="Text_20_body">
-            the <code>show.html</code>
-            would look like:
+            whereas the <code>story:show</code> template would look like:
         </p>
         <pre>
-            <div id="story#local.story.story_id">
-                <h3>#local.story.title</h3>
-                <p><?=wordcut($arr_param["local"]["story"]["content"], 200, "... read more")?></p>
+            <div id="story#story.story_id">
+                <h3>#story.title</h3>
+                <p><?=wordcut($arr_param["story"]["content"], 200, "... read more")?></p>
             </div>
         </pre>
     </body>
