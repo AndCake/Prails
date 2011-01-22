@@ -212,21 +212,6 @@
 						}
 					}, "-", {
 						xtype: "button",
-						text: "Apply History",
-						id: "module.#module.module_id_applyHistory.button",
-						iconCls: "apply",
-						disabled: true,
-						handler: function(e) {
-							/** @TODO needs to be cleaned up the new way **/
-							Builder.historyCleanFields([
-								window["editorm#session.module_id"].editor, 
-								window["phpEditorm#session.module_id"].editor, 
-								$('m_name_#session.module_id')
-							]);
-							$("container_m_#module.module_id").save();
-						}	
-					}, "-", {
-						xtype: "button",
 						id: "module.#module.module_id_viewHistory.button",
 						text: "View History",
 						iconCls: "history",
@@ -235,11 +220,9 @@
 							if ($("h_#module.module_id") != null) {
 								$("h_#module.module_id").fisheye.dispose();
 								$("h_#module.module_id").remove();
-								Ext.getCmp("module.#module.module_id_applyHistory.button").disable();
 								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("View History");
 							} else {
 								Builder.browseModuleHistory(#module.module_id);
-								Ext.getCmp("module.#module.module_id_applyHistory.button").enable();
 								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("Leave History");
 							}
 						}
