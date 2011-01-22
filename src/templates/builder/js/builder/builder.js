@@ -873,7 +873,7 @@ Builder = Object.extend(Builder || {}, {
 					if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
 						target.value = source.innerHTML || source.value;
 					} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
-						Builder.setCode(target, source.innerText || source.value || "");
+						Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
 					}
 				}
 			}
