@@ -2,16 +2,16 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>foreach - TagLib - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_foreach_"><span/></a>foreach </h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
         <p class="Text_20_body">
-            Foreach gives an easy way to iterate over arrays. If the array turns out to be empty or not being an array, you can handle this via the &lt;else&gt; part.
+            Foreach gives an easy way to iterate over arrays. If the array turns out to be empty or not being an array, you can handle this via the <else> part.
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code>&lt;c:foreach var="{array}" [key="{keyname}"] name="{loop var}"&gt;{content}&lt;/c:foreach&gt;[&lt;c:else&gt; {else content}&lt;/c:else&gt;]</code>
+            <code><c:foreach var="{array}" [key="{keyname}"] name="{loop var}">{content}</c:foreach>[<c:else> {else content}</c:else>]</code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table10">
             <colgroup>
@@ -91,24 +91,24 @@
             This example will loop over all items of the users array. Every second row will be colored light grey, and contain two columns: the first containing the user's name, the second the user's age. If the array is empty, the message "No users there..." will be shown (as one row in the table).
         </p>
         <pre>
-            &lt;h1&gt;Headline&lt;/h1&gt;
-        	&lt;table&gt;
-        		&lt;c:foreach var="users" key="i" name="user"&gt;
-        			&lt;c:if cond="$i%2 == 0"&gt;
-        				&lt;c:then&gt;
-        					&lt;tr bgcolor="#efefef"&gt;
-        				&lt;/c:then&gt;&lt;c:else&gt;
-        					&lt;tr bgcolor="#ffffff"&gt;
-        				&lt;/c:else&gt;
-        			&lt;/c:if&gt;
-        			&lt;td&gt;#user.name&lt;/td&gt;
-        			&lt;td&gt;#user.age&lt;/td&gt;
-        			&lt;/tr&gt;
-        		&lt;/c:foreach&gt;
-        		&lt;c:else&gt;
-        			&lt;tr&gt;&lt;td&gt;No users there...&lt;/td&gt;&lt;/tr&gt;
-        		&lt;/c:else&gt;
-        	&lt;/table&gt;
+            <h1>Headline</h1>
+        	<table>
+        		<c:foreach var="users" key="i" name="user">
+        			<c:if cond="$i%2 == 0">
+        				<c:then>
+        					<tr bgcolor="#efefef">
+        				</c:then><c:else>
+        					<tr bgcolor="#ffffff">
+        				</c:else>
+        			</c:if>
+        			<td>#user.name</td>
+        			<td>#user.age</td>
+        			</tr>
+        		</c:foreach>
+        		<c:else>
+        			<tr><td>No users there...</td></tr>
+        		</c:else>
+        	</table>
         </pre>
     </body>
 </html>

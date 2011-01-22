@@ -63,6 +63,7 @@ class SQLite {
 			$this->arr_links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
 			$this->arr_links[$id]["link"]->createFunction("REPLACE", "str_replace");
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
+			$this->arr_links[$id]["link"]->createFunction("TESTNULL", Array($this, "_ext_isnull"));			
 		} catch (Exception $ex) {
 			global $log;
 			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory.\n\n");
@@ -73,7 +74,10 @@ class SQLite {
 		$arr_args = func_get_args();
 		return implode("", $arr_args);
 	}
-	
+	function _ext_isnull() {
+		$data = func_get_arg(0);
+		return ($data == null);
+	}	
 
 	function _prepareQuery($str_query, $linkId = 0) {
       	// apply table override settings
@@ -82,6 +86,8 @@ class SQLite {
 	      		$str_query = str_replace(" ".$table." ", " ".$newTable." ", $str_query);
 	      	}
 	  	}
+	  	
+	  	$str_query = str_replace(" ISNULL(", " TESTNULL(", $str_query);
 	  	
 	  	return $str_query;
 	}

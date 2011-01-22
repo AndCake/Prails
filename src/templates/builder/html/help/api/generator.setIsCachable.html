@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>setIsCachable - Generator - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_setIsCachable"><span/></a>setIsCachable</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
@@ -37,13 +37,13 @@
             The following template fragment will enable caching of the resulting runlet. The runlet will show a welcome sequence, if the user is logged in. 
         </p>
         <pre>
-			&lt;? $this-&gt;setIsCachable(); ?&gt;
-			&lt;!! if ($_SESSION["user"]["user_id"] &gt; 0 { !!&gt;
-				Welcome, &lt;!!=$_SESSION["user"]["name"]!!&gt;.
-			&lt;!! } !!&gt;
+			<?$this->setIsCachable();?>
+			<!! if ($_SESSION["user"]["user_id"] > 0 { !!>
+				Welcome, <!!=$_SESSION["user"]["name"]!!>.
+			<!! } !!>
         </pre>
         <p class="Text_20_body">
-            Notice the <code>&lt;!! ... !!&gt;</code>
+            Notice the <code><!! ... !!></code>
             syntax which is used to skip evaluation of the contained code until the execution of the runlet. 
         </p>
     </body>

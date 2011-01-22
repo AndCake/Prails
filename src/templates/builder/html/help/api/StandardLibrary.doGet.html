@@ -2,16 +2,16 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>hyperlink - Standard Library - Prails API Documentation</title>
+        <title>doGet - Standard Library - Prails API Documentation</title>
     </head>
     <body>
-        <h3 class="P4"><a name="_hyperlink"><span/></a>hyperlink</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <h3 class="P4"><a name="_hyperlink"><span/></a>doGet</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
         <p class="Text_20_body">
-            Replaces in-text URLs by real hyperlinks.
+             Does a server-side get request to another server/site. HTTPS is supported.
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code>String hyperlink($str_text)</code>
+            <code>String doGet($str_url)</code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table23">
             <colgroup>
@@ -20,30 +20,26 @@
             <tr>
                 <td style="text-align:left;width:2.683cm; " class="Table23_A1">
                     <p class="Table_20_Contents">
-                        $str_text
+                        $str_url
                     </p>
                 </td>
                 <td style="text-align:left;width:14.316cm; " class="Table23_B1">
                     <p class="Table_20_Contents">
-                        text to scan for URLs
+                         URL to fetch data from
                     </p>
                 </td>
             </tr>
         </table>
         <p class="Text_20_body">
             <span class="T1">Returns:</span>
-            text with all URLs replaced by real links.
+            A string containing the data fetched from the (other) server
         </p>
         <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
         <pre>
-            $text = "Go here: http://www.google.com/#q=The+question+of+life+the+universe+and+everything to see more about it...";
-            echo hyperlink($text);
+            echo doGet("http://www.google.com/#q=The+question+of+life+the+universe+and+everything");
         </pre>
         <p class="Text_20_body">
-            This example will produce: 
+            This example will output Google's response on a search query. 
         </p>
-        <pre>
-            "Go here: <a href="http://www.google.com/#q=The+question+of+life+the+universe+and+everything">www.google.com</a> to see more about it..."
-        </pre>
     </body>
 </html>

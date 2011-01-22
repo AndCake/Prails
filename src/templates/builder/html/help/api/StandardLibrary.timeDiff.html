@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>timeDiff - Standard Library - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_wordCut"><span/></a>timeDiff</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+            function to display an age instead of a time
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>String timeDiff($time, $options = Array())</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table22">
+            <colgroup>
+                <col width="111"/><col width="632"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A1">
+                    <p class="Table_20_Contents">
+                        $time
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B1">
+                    <p class="Table_20_Contents">
+						standard unix time stamp (time in seconds from 1/1/1970)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2" valign="top">
+                    <p class="Table_20_Contents">
+                        $options
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                        Options array (OPTIONAL)<br/>
+                        Options include:
+							<ul><li><code>"to" => time()</code> - date to compute the range to</li>
+							<li><code>"parts" => 1</code> - number of parts to display max</li>
+							<li><code>"precision" => 7</code> - lowest part to compute to (7 = second)</li>
+							<li><code>"distance" => TRUE</code> - include the 'ago' or 'away' at the end (if false neither 'ago' nor 'away' appear at the end)</li>
+							<li><code>"separator" => ', '</code> - separates the parts</li>
+							<li><pre>"period_names" => Array( 
+		0=>Array("decade", "decades"), 
+		1=>Array("year", "years"), 
+		2=>Array("month","months"), 
+		3=>Array("week", "weeks"), 
+		4=>Array("day", "days"), 
+		5=>Array("hour", "hours"), 
+		6=>Array("minute", "minutes"), 
+		7=>Array("second", "seconds")
+)</pre> - for translational purposes</li>
+							<li><code>"less_than_1" => 'less than 1'</code> - for translational purposes</li>
+							<li><code>"distance_names" => Array("ago", "away")</code> - for translational purposes</li>
+							<li><code>"distance_post" => FALSE</code> - should the distance added after or before all parts</li></ul>
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <b>Returns:</b>
+            A string expressing the time difference, e.g. "2 days, 4 hours ago".
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+			echo timeDiff(1234567890); // will echo something like "2 years ago"
+			echo timeDiff(1234567890, Array("to" => 1234567899)); // will echo "9 seconds ago"
+			echo timeDiff(1234567890, Array("to" => 1, "parts" => 4)); // will echo "3 decades, 9 years, 1 month, 2 weeks away"
+        </pre>
+    </body>
+</html>

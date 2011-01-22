@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>sendMail - Standard Library - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_wordCut"><span/></a>sendMail</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+        	Sends an HTML eMail with a multi-parted plain text component and optionally additional attachments.
+	</p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>bool sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments = false)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table22">
+            <colgroup>
+                <col width="111"/><col width="632"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A1">
+                    <p class="Table_20_Contents">
+                        $to
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B1">
+                    <p class="Table_20_Contents">
+                        recipient's eMail address
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $subject 
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                    	subject of the eMail to be sent	
+		    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $content
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                    	HTML content to be sent as eMail
+		    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $fromname
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+                    	Name of sender
+		    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $fromaddress
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+		    	sender's eMail address
+  		    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.54cm; " class="Table22_A2">
+                    <p class="Table_20_Contents">
+                        $attachments
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.459cm; " class="Table22_B2">
+                    <p class="Table_20_Contents">
+		    	An Array containing a "file" and a "name" Array which hold the file path's to all files and their names. (default = false - no attachments)
+  		    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <b>Returns:</b>
+            true if sending of eMail was successful, else false.
+	</p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+		$attachments = Array(
+			"file" => Array("./images/selection/mypic.jpg", "./images/selection/description/sometext.txt"),
+			"name" => Array("./images/selection/mypic.jpg", "./images/selection/description/sometext.txt")
+		);
+		$content = "<h1>Welcome!</h1><p>This is a new mail from here.</p><strong>Regards,<br/>Me</strong>";
+		sendMail("test@example.org", "You got Mail!", $content, "My Name", "myname@example.org", $attachments);
+        </pre>
+        <p class="Text_20_body">
+        	This example will send an HTML eMail to test@example.org with two attached files, one being an image and one a text file (both need to exist on the sending server).
+	</p>
+    </body>
+</html>

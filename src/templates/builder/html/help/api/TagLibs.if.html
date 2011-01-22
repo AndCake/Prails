@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>if - TagLib - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_if"><span/></a>if</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
@@ -11,7 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code>&lt;c:if cond="{php cond}"&gt;&lt;c:then&gt;{true block content}&lt;/c:then&gt;[&lt;c:else&gt;{false block content}&lt;/c:else&gt;]&lt;/c:if&gt;</code>
+            <code><c:if cond="{php cond}"><c:then>{true block content}</c:then>[<c:else>{false block content}</c:else>]</c:if></code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table11">
             <colgroup>
@@ -25,7 +25,7 @@
                 </td>
                 <td style="text-align:left;width:8.5cm; " class="Table11_B1">
                     <p class="Table_20_Contents">
-                        The condition in pure PHP Ð no need to explicitly declare a PHP area within this condition. If the condition evaluates to true, then the true block content is executed/displayed. If it is not true and Êthe optional else block is specified, the false block content will be executed/displayed.
+                        The condition in pure PHP no need to explicitly declare a PHP area within this condition. If the condition evaluates to true, then the true block content is executed/displayed. If it is not true and the optional else block is specified, the false block content will be executed/displayed.
                     </p>
                 </td>
             </tr>
@@ -63,14 +63,14 @@
         </p>
         <pre>
             Hello,
-            &lt;c:if cond="$arr_param['user']['gender'] == 'm'"&gt;
-            	&lt;c:then&gt;
-            		&lt;b&gt;Sir&lt;/b&gt;
-            	&lt;/c:then&gt;
-            	&lt;c:else&gt;
-            		&lt;b&gt;Madam&lt;/b&gt;
-            	&lt;/c:else&gt;
-            &lt;/c:if&gt;!
+            <c:if cond="$arr_param['user']['gender'] == 'm'">
+            	<c:then>
+            		<b>Sir</b>
+            	</c:then>
+            	<c:else>
+            		<b>Madam</b>
+            	</c:else>
+            </c:if>!
         </pre>
     </body>
 </html>

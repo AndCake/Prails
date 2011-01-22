@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>include - TagLib - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_include"><span/></a>include</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
@@ -11,7 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code>&lt;c:include (file="{template path}" | event="{event name}") /&gt;</code>
+            <code><c:include (file="{template path}" | event="{event name}") /></code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table12">
             <colgroup>
@@ -49,20 +49,20 @@
             of the story module. Within that template the variable <code>$arr_param["local"]["story"] </code>(or <code>#local.story</code>) can be used to access the current item.
         </p>
         <pre>
-            &lt;h1&gt;Stories:&lt;/h1&gt;
-            &lt;c:foreach var="stories" name="story"&gt;
-                &lt;c:include file="templates/story/html/show.html" /&gt;
-            &lt;/c:foreach&gt;
+            <h1>Stories:</h1>
+            <c:foreach var="stories" name="story">
+                <c:include file="templates/story/html/show.html" />
+            </c:foreach>
         </pre>
         <p class="Text_20_body">
             the <code>show.html</code>
             would look like:
         </p>
         <pre>
-            &lt;div id="story#local.story.story_id"&gt;
-                &lt;h3&gt;#local.story.title&lt;/h3&gt;
-                &lt;p&gt;&lt;?=wordcut($arr_param["local"]["story"]["content"], 200, "... read more")?&gt;&lt;/p&gt;
-            &lt;/div&gt;
+            <div id="story#local.story.story_id">
+                <h3>#local.story.title</h3>
+                <p><?=wordcut($arr_param["local"]["story"]["content"], 200, "... read more")?></p>
+            </div>
         </pre>
     </body>
 </html>

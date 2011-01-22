@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>isEmbed - Standard Library - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_isEmbed"><span/></a>isEmbed</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
@@ -11,9 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code>
-                bool isEmbed($str_embed)
-            </code>
+            <code>bool isEmbed($str_embed)</code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table19">
             <colgroup>
@@ -34,31 +32,20 @@
         </table>
         <p class="Text_20_body">
             <span class="T1">Returns:</span>
-            <code>
-                true
-            </code>, if it contains HTML code, else 
-            <code>
-                false
-            </code>
+            <code>true</code>, if it contains HTML code, else <code>false</code>
         </p>
         <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
 		<pre>
             if( isEmbed("This is just a normal, simple test embed here... ".
-                    "&lt;embed height='150' width='300' ".                             
+                    "<embed height='150' width='300' ".                             
                     "src='http://www.example.org/test.swf' wmode='window' ".                 
-                    "type='application/x-shockwave-flash' /&gt;") ) {
+                    "type='application/x-shockwave-flash' />") ) {
                 echo "Embedding of dynamic content is not allowed here...";
             }
         </pre>
         <p class="Text_20_body">
-            The 
-            <code>
-                isEmbed
-            </code>
-            call will evaluate to 
-            <code>
-                true
-            </code>
+            The <code>isEmbed</code>
+            call will evaluate to <code>true</code>
             and thus the warning text will be printed.
         </p>
     </body>

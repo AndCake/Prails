@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>Untitled Document</title>
+        <title>addJavascript - Generator - Prails API Documentation</title>
     </head>
     <body>
         <h3 class="P4"><a name="_addJavascript_"><span/></a>addJavascript </h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
@@ -41,17 +41,17 @@
         </p>
         <pre>
             $obj_gen = Generator::getInstance();
-            $obj_gen-&gt;addJavaScript("http://prototypejs.org/assets/2009/8/31/prototype.js");
+            $obj_gen->addJavaScript("http://prototypejs.org/assets/2009/8/31/prototype.js");
         </pre>
         <p class="Text_20_body">
             then in your HTML code you could do:
         </p>
         <pre>
-            &lt;script type="text/javascript"&gt;
+            <script type="text/javascript">
             document.observe("dom:loaded", function() {
                alert("Hello, World!");
             });
-            &lt;/script&gt;
+            </script>
         </pre>
         <p class="Text_20_body">
                     which would show an alert window, saying "Hello, World!" as soon as the DOM tree is fully loaded (<code>document.observe</code>

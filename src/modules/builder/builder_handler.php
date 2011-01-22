@@ -917,8 +917,14 @@ class BuilderHandler
         }
 
         $filename = "templates/builder/html/help/".if_set($_GET["path"], "index.html");
-
-        require ($filename);
+		$cnt = file_get_contents($filename);
+		$endl = "ENDL";
+		if (floatval(phpversion()) >= 5.3) $endl = "'ENDL'";
+		$cnt = str_replace(Array("<pre>", "</pre>", "<code>", "</code>"), Array("<pre><? \$cnt=<<<".$endl."\n", "\nENDL;\nhl(\$cnt); ?></pre>", "<? \$cnt=<<<".$endl."\n", "\nENDL;\nhl(\$cnt); ?".">"), $cnt);
+		$cnt = "<? function hl(\$str) {\$res = highlight_string('<? '.\$str.' ?>', true); echo str_replace('?&gt;</span>', '</span>', str_replace('&lt;?&nbsp;', '', \$res));}?>\n".$cnt;
+        file_put_contents("cache/".md5($filename).".api", $cnt);
+        require("cache/".md5($filename).".api");
+        @unlink("cache/".md5($filename).".api");
         die ();
     }
 
