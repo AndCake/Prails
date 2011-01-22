@@ -63,6 +63,8 @@ class SQLite {
 			$this->arr_links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
 			$this->arr_links[$id]["link"]->createFunction("REPLACE", "str_replace");
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
+			$this->arr_links[$id]["link"]->createFunction("FLOOR", "floor");			
+			$this->arr_links[$id]["link"]->createFunction("CEIL", "ceil");			
 			$this->arr_links[$id]["link"]->createFunction("TESTNULL", Array($this, "_ext_isnull"));			
 		} catch (Exception $ex) {
 			global $log;

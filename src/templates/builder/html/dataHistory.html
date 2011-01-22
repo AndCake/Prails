@@ -2,39 +2,17 @@
 	<? if (is_array($arr_param["history"])) foreach ($arr_param["history"] as $history) { ?>
 	<? $name = unserialize(base64_decode($history['name'])); ?>
 	<? $js = unserialize(base64_decode($history['code'])); ?>
-	<li><a href="" onclick="showHistory($('d_name_#session.data_id'), this.down('code'));showHistory(window.phpEditord#session.data_id, this.down('code', 1));return false;">
+	<li><a href="" onclick="showHistory($('d_name_#session.data_id'), this.down('code'));showHistory('coded#session.data_id', this.down('code', 1));return false;">
 		<?=date("H:i:s - d.m.Y", $history["change_time"])?>
 		<code style="display:none;"><? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?></code>
-		<code style="display:none;"><? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=htmlspecialchars($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=htmlspecialchars($entry["d"])?></del><br/><?} if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><ins><?=htmlspecialchars($line)?></ins><br/><? } else if (strlen($entry["i"])>0) {?><ins><?=htmlspecialchars($entry["i"])?></ins><br/><?}} else { echo htmlspecialchars($entry)."<br/>"; }} ?></code>
+		<code style="display:none;"><? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { /*if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=htmlspecialchars($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=htmlspecialchars($entry["d"])?></del><br/><?}*/ if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=$line."\n"?><? } else if (strlen($entry["i"])>0) {?><?=$entry["i"]."\n"?><?}} else { echo $entry."\n"; }} ?></code>
 	</a></li>
 	<? } ?>
-	<li><a href="" onclick="showHistory($('d_name_#session.data_id'), $('d_nameh_#session.data_id'));showHistory(window.phpEditord#session.data_id, $('coded#session.data_id'));return false;">now</a></li>
+	<li><a href="" onclick="showHistory($('d_name_#session.data_id'), $('d_nameh_#session.data_id'));showHistory('coded#session.data_id', $('hCoded#session.data_id'));return false;">now</a></li>
 </ul>
 <script type="text/javascript">
 //<![CDATA[
-	(function(){
-		
-		window.showHistory = function(target, source) {
-			if (source.tagName.toLowerCase() == "textarea") {
-				target.setCode(source.value);
-			} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
-				target.value = source.value;
-			} else {
-				var pos = 0;
-				source.up().childElements().each(function(item, key){
-					if (item == source) pos = key;
-				});
-				while (source != null && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
-				if (source != null) {
-					if (target.tagName != null && target.tagName.toLowerCase() == "input") {
-						target.value = source.innerHTML || source.value;
-					} else {
-						target.editor.doc.body.innerHTML = source.innerHTML;
-					}
-				}
-			}
-		};
-				
+	(function(){				
 		$("container_d_#session.data_id").observe("history:loaded", function(event){
 			$("d_#session.data_id").fisheye = new FishEye($("d_#session.data_id").select("li a"), {
 				container: $("d_#session.data_id"),

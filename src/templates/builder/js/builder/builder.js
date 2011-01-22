@@ -854,3 +854,28 @@ Builder = Object.extend(Builder || {}, {
 	    }, 5);
 	}
 });
+
+(function() {
+		window.showHistory = function(target, source) {
+			if (source.tagName.toLowerCase() == "textarea") {
+				target.setCode(source.value);
+			} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
+				target.value = source.value;
+			} else {
+				var pos = 0;
+				source.up().childElements().each(function(item, key){
+					if (item == source) pos = key;
+				});
+				if (source.tagName.toLowerCase() == "code") {
+					while (source != null && source.up().up().previous() && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
+				}
+				if (source != null) {
+					if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
+						target.value = source.innerHTML || source.value;
+					} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
+						Builder.setCode(target, source.innerText || source.value || "");
+					}
+				}
+			}
+		};	
+})();

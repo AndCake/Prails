@@ -96,9 +96,16 @@
       (function() {
 	      Builder.applyBespin("codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
 	         $("codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-	         ;
+
 	         Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
 	            $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
+	            
+		      	setTimeout(function() {
+			          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+			          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
+		      	}, 1000);				
+	            
+
 	         }, Object.extend(Builder.prailsNamespace, {
 		    	  id: "container_h_#handler.handler_id",
 		          save: function() {
@@ -143,20 +150,6 @@
 				handler: function(e) {
 					Builder.editNiceUrl('#handler.event URL', '#handler.handler_id');
 				}
-			},"-", {
-				xtype: "button",
-				text: "Apply History",
-				id: "handler.#handler.handler_id_applyHistory.button",
-				iconCls: "apply",
-				disabled: true,
-				handler: function(e) {
-					Builder.historyCleanFields([
-						window.editorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.editor, 
-						window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.editor, 
-						$('h_event_#handler.handler_id')
-					]);
-					window.phpEditorh<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.options.saveFunction();
-				}	
 			}, "-", {
 				xtype: "button",
 				id: "handler.#handler.handler_id_viewHistory.button",
@@ -167,33 +160,15 @@
 					if ($("ha_#handler.handler_id") != null) {
 						$("ha_#handler.handler_id").fisheye.dispose();
 						$("ha_#handler.handler_id").remove();
-						Ext.getCmp("handler.#handler.handler_id_applyHistory.button").disable();
 						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("View History");
 					} else {
 						Builder.browseHandlerHistory(#handler.handler_id);
-						Ext.getCmp("handler.#handler.handler_id_applyHistory.button").enable();
 						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("Leave History");
 					}
 				}
 			});
 			Ext.QuickTips.init();			
 		}, 10);
-		/*
-		<? if ((int)$arr_param["handler"]["handler_id"] > 0) { ?>
-		new PeriodicalExecuter(function(pe){
-			if (window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null && window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor != null) {
-				pe.stop();  
-				window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.parent = window;
-				window.phpEditorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.run = function() {
-					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
-				};			
-				window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.parent = window;
-				window.editorh<?=(int)$arr_param["handler"]["handler_id"]?>.editor.doc.run = function() {
-					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
-				};			
-			}
-		}, 0.2);
-		<? } ?>//*/
 	//]]>
 	</script>
 </form>

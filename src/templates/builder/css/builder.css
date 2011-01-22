@@ -65,7 +65,7 @@ iframe.testRunWindow {
 
 ul.historyList li a {
 	background: url(../images/slate/toolbar/bg.gif) repeat-x;
-	color: #fff;
+	color: #fff !important;
 	padding-right:5px;
 	text-decoration: none;
 }

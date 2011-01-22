@@ -49,14 +49,18 @@
 				return false;			
 			};			
 			Builder.applyBespin("coded<?=(int)$arr_param["data"]["data_id"]?>", function(fr) {
-				$("coded<?=(int)$arr_param['data']['data_id']?>").down("iframe").style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";				
+				$("coded<?=(int)$arr_param['data']['data_id']?>").down("iframe").style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+
+		      	setTimeout(function() {
+						$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");				
+		      	}, 1000);				
 			}, Object.extend(Builder.prailsNamespace, {
 	    		id: "container_d_#data.data_id",
 				save: function() {
 		        	parent.$("container_d_#data.data_id").save();
 				}
 	      	}));
-
+	      	
 			/*/
 			window.phpEditord<?=(int)$arr_param["data"]["data_id"]?> = CodeMirror.fromTextArea('coded<?=(int)$arr_param["data"]["data_id"]?>', {
 				height: "100%",
@@ -106,17 +110,11 @@
 				}
 			}, "-", {
 				xtype: "button",
-				text: "Apply History",
-				id: "data.#data.data_id_applyHistory.button",
-				iconCls: "apply",
-				disabled: true,
+				text: "SQL Query",
+				iconCls: "run",
 				handler: function(e) {
-					Builder.historyCleanFields([
-						window.phpEditord<?=(int)$arr_param["data"]["data_id"]?>.editor, 
-						$('d_name_#data.data_id')
-					]);
-					$("container_d_#data.data_id").save();
-				}	
+					Builder.queryTest();
+				}
 			},"-", {
 				xtype: "button",
 				id: "data.#data.data_id_viewHistory.button",
@@ -127,20 +125,11 @@
 					if ($("d_#data.data_id") != null) {
 						$("d_#data.data_id").fisheye.dispose();
 						$("d_#data.data_id").remove();
-						Ext.getCmp("data.#data.data_id_applyHistory.button").disable();
 						Ext.getCmp("data.#data.data_id_viewHistory.button").setText("View History");
 					} else {
 						Builder.browseDataHistory(<?=(int)$arr_param["data"]["data_id"]?>);
-						Ext.getCmp("data.#data.data_id_applyHistory.button").enable();
 						Ext.getCmp("data.#data.data_id_viewHistory.button").setText("Leave History");
 					}
-				}
-			}, "-", {
-				xtype: "button",
-				text: "SQL Query",
-				iconCls: "run",
-				handler: function(e) {
-					Builder.queryTest();
 				}
 			}/*, "-", {
 				xtype: "button",

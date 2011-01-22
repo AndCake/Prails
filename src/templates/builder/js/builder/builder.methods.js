@@ -253,6 +253,11 @@ Builder = Object.extend(Builder || {}, {
         pe.obj = obj;
     },
     
+    setCode: function(el, newval) {
+    	el = $(el);
+    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value = newval;
+    },
+    
     /** 
      * retrieve the code from a bespin instance
      */
