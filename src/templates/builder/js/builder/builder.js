@@ -825,30 +825,36 @@ Builder = Object.extend(Builder || {}, {
 	    	new Ajax.Request("builder.crc32", {
 				method: "get",
 				requestHeaders: {
-					"If-Modified-Since": (new Date(Builder.dold)).toGMTString(),
-					"If-None-Match": Builder.detag 
+//					"If-Modified-Since": (new Date(Builder.dold)).toGMTString(),
+//					"If-None-Match": Builder.detag 
 				}, 
 				onSuccess: function(req) {
 					var date = new Date(req.getHeader("Last-Modified"));
 					var dnew = date.getTime();
-					if (dnew > Builder.dold) {
+//					if (dnew > Builder.dold) {
 						Builder.dold = dnew;
 						Builder.detag = req.getHeader("Etag");
 						// fetch new content
-						eval("var obj = "+req.responseText+";");
+						var obj = eval("("+req.responseText+")");
 						/*
 						 * obj array will look like:
-						 * {"h_html_9":  123456788,
+						 * {"h_html_9":  {"user": "Testuser", "uid": "9584737"},
 						 *  "m_js_6": 121232345
 						 * }
 						 */
-						for (var all in obj) {
-							// find & call the respective callback
-							try {
-								Builder.updaters[all]({crc32:obj[all]});
-							} catch (e){};
-						}
-					}
+						$$(".blockable").each(function(item) {
+							if (!item.up().dirty) {
+								if (item.up().hasClassName("dirty") && !obj[item.up().id]) {
+									item.hide();
+									item.up().removeClassName("dirty");
+								} else if (obj[item.up().id] && !item.up().hasClassName("dirty")) {
+									item.update('Currently being modified by '+obj[item.up().id].user);
+									item.show();
+									item.up().addClassName("dirty");
+								}
+							}
+						});
+//					}
 				}
 			});
 	    }, 5);

@@ -16,6 +16,10 @@
 				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
 				invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+
+					$("codel<?=(int)$arr_param['library']['library_id']?>").crc.content = Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
+					$("codel<?=(int)$arr_param['library']['library_id']?>").dirty = false;
+
 					if (<?=(int)$arr_param["library"]["library_id"]?> == 0) {
 						var name = $("lib_name_#library.library_id").getValue();
 						var id = req.responseText.split(/\s/g)[0];

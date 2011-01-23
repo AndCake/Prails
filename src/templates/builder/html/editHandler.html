@@ -56,7 +56,13 @@
           $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
           $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
           invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
-            Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+        	  Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+
+			  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+        	  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
+			  $("codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
+			  $("codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
+        	  
             if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
               var name = $("h_event_#handler.handler_id").getValue();
               var id = req.responseText.split(/\s/g)[0];

@@ -18,6 +18,10 @@
 				$('hCodet<?=(int)$arr_param["tag"]["tag_id"]?>').value=Builder.getCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>');
 				invoke(null, 'builder:editTag&check=1&tag_id=<?=(int)$arr_param['tag']['tag_id']?>', $('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').serialize(), true, function(req) {
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+					
+					$('codet<?=(int)$arr_param["tag"]["tag_id"]?>').crc.content = Builder.getCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>');
+					$('codet<?=(int)$arr_param["tag"]["tag_id"]?>').dirty = false;
+					
 					if (<?=(int)$arr_param["tag"]["tag_id"]?> == 0) {
 						var name = $("tag_name_#tag.tag_id").getValue();
 						var id = req.responseText.split(/\s/g)[0];

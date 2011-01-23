@@ -186,8 +186,29 @@ Builder = Object.extend(Builder || {}, {
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
-        el.innerHTML = "<iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
-	var cwin = document.getElementsByName(el.id)[0].contentWindow;
+        el.innerHTML = "<div class='blockable' id='"+el.id+"-blocked-text'></div><iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
+
+        var crc = new PeriodicalExecuter(function(crc) {
+        	try {
+        		var code = Builder.getCode(crc.el);
+        		if (code != crc.content && !crc.el.dirty) {
+        			// mark as dirty
+        			console && console.log(crc.el.id+" has become dirty!");
+        			crc.el.dirty = true;
+        			
+        			invoke("builder:updateCRCFile&dirty="+crc.el.id);
+        		} else if (code == crc.content && crc.el.dirty) {
+        			console && console.log(crc.el.id+" is no longer dirty.");
+        			crc.el.dirty = false;
+        			invoke("builder:updateCRCFile&clean="+crc.el.id);
+        		}
+        	} catch(e){};
+        }, 0.5);
+        crc.content = content;
+        crc.el = el;
+        el.crc = crc;
+        
+        var cwin = document.getElementsByName(el.id)[0].contentWindow;
         var pe = new PeriodicalExecuter(function(pe) {
         	pe.stop();
             var win = document.getElementsByName(pe.el.id)[0].contentWindow;
@@ -237,6 +258,7 @@ Builder = Object.extend(Builder || {}, {
             
             win.onBespinLoad = function() {
             	var env = win.document.getElementsByTagName("div")[0].bespin;
+            	el.crc.content = Builder.getCode(el.id);
 	            if (el.getAttribute("onload")) {
 	            	eval(el.getAttribute("onload"))(env);
 	            }

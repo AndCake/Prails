@@ -25,6 +25,9 @@ class BuilderHandler
         $this->obj_data = new BuilderData();
         $this->str_lang = $str_lang;
         $this->obj_print = new BuilderPrinter($str_lang);
+        
+        $this->cleanUpCrc();
+
         //
         if (!$_SESSION["builder"]["user_id"])
         {
@@ -311,7 +314,9 @@ class BuilderHandler
 
         if ($_GET["check"] == "1")
         {
-            $arr_data = $_POST["module"];
+			$this->updateCRCFile(Array("code".$_GET["module_id"], "js_code".$_GET["module_id"]));
+			
+        	$arr_data = $_POST["module"];
             if (!$arr_data["header_info"])
             {
                 $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
@@ -319,7 +324,7 @@ class BuilderHandler
                 $arr_data["js_code"] = $arr_data["js_code"];
             } else if ($_GET["module_id"] >= 0)
             {
-                $this->resetModule(false);
+            	$this->resetModule(false);
             }
             if ($_GET["module_id"] > 0)
             {
@@ -393,14 +398,14 @@ class BuilderHandler
             {
                 echo $hid."\n";
             }
-
+/*
             if ($_GET["module_id"] > 0)
             {
                 $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
                 $arr_obj["m_style_code_".$_GET["module_id"]] = crc32($arr_data["style_code"]);
                 $arr_obj["m_js_code_".$_GET["module_id"]] = crc32($arr_data["js_code"]);
                 file_put_contents("builder.crc32", json_encode($arr_obj));
-            }
+            } */
 
             die ("success");
         } else if ($_GET["check"] == "2")
@@ -437,13 +442,14 @@ class BuilderHandler
         }
 
         // create crc32 files
+/*
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
         if ($_GET["module_id"] > 0 && $arr_obj["m_style_code".$_GET["module_id"]] != crc32($arr_param["module"]["style_code"]) || $arr_obj["m_js_code".$_GET["module_id"]] != crc32($arr_param["module"]["js_code"]))
         {
             $arr_obj["m_style_code_".$_GET["module_id"]] = crc32($arr_param["module"]["style_code"]);
             $arr_obj["m_js_code_".$_GET["module_id"]] = crc32($arr_param["module"]["js_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
-        }
+        } //*/
 
         die ($this->_callPrinter("editModule", $arr_param));
     }
@@ -481,9 +487,12 @@ class BuilderHandler
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
             $arr_data["fk_module_id"] = $_GET["module_id"];
             $arr_data["flag_ajax"] = (int)$arr_data["flag_ajax"];
-	    $arr_data["flag_cacheable"] = (int)$arr_data["flag_cacheable"];
+		    $arr_data["flag_cacheable"] = (int)$arr_data["flag_cacheable"];
             $arr_data["code"] = ($arr_data["code"]);
             $arr_data["html_code"] = ($arr_data["html_code"]);
+            
+			$this->updateCRCFile(Array("codeh".$_GET["handler_id"], "html_codeh".$_GET["handler_id"]));
+            
             if ($_GET["handler_id"] > 0)
             {
                 $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
@@ -517,13 +526,14 @@ class BuilderHandler
             $this->obj_data->insertHandlerHistory($_GET["handler_id"], $arr_param["handler"], $arr_data);
             echo $_GET["handler_id"]."\n";
 
+/*/            
             if ($_GET["handler_id"] > 0)
             {
                 $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
                 $arr_obj["h_html_code_".$_GET["handler_id"]] = crc32($arr_data["html_code"]);
                 $arr_obj["h_code_".$_GET["handler_id"]] = crc32($arr_data["code"]);
                 file_put_contents("builder.crc32", json_encode($arr_obj));
-            }
+            } //*/
 
             return $this->resetModule();
             //           die("success");
@@ -556,13 +566,14 @@ class BuilderHandler
         }
 
         // create crc32 files
+/*
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
         if ($_GET["handler_id"] > 0 && $arr_obj["h_html_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["html_code"]) || $arr_obj["h_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["code"]))
         {
             $arr_obj["h_html_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["html_code"]);
             $arr_obj["h_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
-        }
+        }//*/
 
         die ($this->_callPrinter("editHandler", $arr_param));
     }
@@ -599,6 +610,9 @@ class BuilderHandler
             $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
             $arr_data["fk_module_id"] = $_GET["module_id"];
             $arr_data["code"] = ($arr_data["code"]);
+            
+            $this->updateCRCFile(Array("coded".$_GET["data_id"]));
+            
             if ($_GET["data_id"] > 0)
             {
                 $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
@@ -609,10 +623,12 @@ class BuilderHandler
             }
             $this->obj_data->insertDataHistory($_GET["data_id"], $arr_param["data"], $arr_data);
             echo $_GET["data_id"]."\n";
-
+            
+/*
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
             $arr_obj["d_code_".$_GET["data_id"]] = crc32($arr_data["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
+//*/            
 
             return $this->resetModule();
             //           die("success");
@@ -629,12 +645,13 @@ class BuilderHandler
         $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
 
         // create crc32 files
+/*/
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
         if ($_GET["data_id"] > 0 && $arr_obj["d_code".$_GET["data_id"]] != crc32($arr_param["data"]["code"]))
         {
             $arr_obj["d_code_".$_GET["data_id"]] = crc32($arr_param["data"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
-        }
+        }//*/
 
         die ($this->_callPrinter("editData", $arr_param));
     }
@@ -670,6 +687,7 @@ class BuilderHandler
 
         if ($_GET["check"] == "1")
         {
+        	$this->updateCRCFile(Array("codel".$_GET["library_id"]));
             $arr_library = $_POST["library"];
             $arr_library["code"] = ($arr_library["code"]);
             if ($_GET["library_id"] > 0)
@@ -692,10 +710,10 @@ class BuilderHandler
                 }
             }
             echo $_GET["library_id"]."\n";
-
+/*/
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
             $arr_obj["l_code_".$_GET["library_id"]] = crc32($arr_library["code"]);
-            file_put_contents("builder.crc32", json_encode($arr_obj));
+            file_put_contents("builder.crc32", json_encode($arr_obj));//*/
 
             return $this->resetModule();
             //           die("success");
@@ -712,12 +730,13 @@ class BuilderHandler
         $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
 
         // create crc32 files
+/*/
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
         if ($_GET["library_id"] > 0 && $arr_obj["l_code".$_GET["library_id"]] != crc32($arr_param["library"]["code"]))
         {
             $arr_obj["l_code_".$_GET["library_id"]] = crc32($arr_param["library"]["code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
-        }
+        }//*/
 
         die ($this->_callPrinter("editLibrary", $arr_param));
     }
@@ -735,7 +754,9 @@ class BuilderHandler
 
         if ($_GET["check"] == "1")
         {
-            $arr_tag = $_POST["tag"];
+        	$this->updateCRCFile(Array("codet".$_GET["tag_id"]));
+        	
+        	$arr_tag = $_POST["tag"];
             //	   	   $arr_tag["html_code"] = addslashes($arr_tag["html_code"]);
             if ($_GET["tag_id"] > 0)
             {
@@ -751,9 +772,10 @@ class BuilderHandler
             $this->obj_data->insertTagHistory($_GET["tag_id"], $arr_param["tag"], $arr_tag);
             echo $_GET["tag_id"]."\n";
 
+/*/
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
             $arr_obj["t_html_code_".$_GET["tag_id"]] = crc32($arr_tag["html_code"]);
-            file_put_contents("builder.crc32", json_encode($arr_obj));
+            file_put_contents("builder.crc32", json_encode($arr_obj));//*/
 
             return $this->resetModule();
             //           die("success");
@@ -770,12 +792,13 @@ class BuilderHandler
         $arr_param["tag"] = $this->obj_data->selectTag($_GET["tag_id"]);
 
         // create crc32 files
+/*/
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
         if ($_GET["tag_id"] > 0 && $arr_obj["t_html_code".$_GET["tag_id"]] != crc32($arr_param["tag"]["html_code"]))
         {
             $arr_obj["t_html_code_".$_GET["tag_id"]] = crc32($arr_param["tag"]["html_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));
-        }
+        }//*/
 
         die ($this->_callPrinter("editTag", $arr_param));
     }
@@ -1527,6 +1550,48 @@ class BuilderHandler
         $_SESSION["testcase_id"] = if_set($_GET["testcase_id"], $_SESSION["testcase_id"]);
         $this->obj_data->deleteTestcase($_GET["testcase_id"]);
         die ("success");
+	}
+	
+	function updateCRCFile($list = false) {
+		$arr_obj = null;
+		if (file_exists("builder.crc32")) {
+			$arr_obj = json_decode(file_get_contents("builder.crc32"), true);
+		}
+		
+		if (!is_array($arr_obj)) $arr_obj = Array();
+		if (is_array($list)) {
+			foreach ($list as $entry) {
+				unset($arr_obj[$entry]);
+			}
+		} else {
+			if (strlen($_GET["dirty"]) > 0) {
+				$arr_obj[$_GET["dirty"]] = Array("user" => $_SESSION["builder"]["name"], "uid" => $_SESSIO["builder"]["user_id"], "time" => time());
+			} else if ($_GET["clean"] && is_array($arr_obj[$_GET["clean"]])) {
+				unset($arr_obj[$_GET["clean"]]);
+			}
+		}
+		file_put_contents("builder.crc32", json_encode($arr_obj));
+		
+		$this->cleanUpCrc(true);
+		if (!$list) {
+			die("success");
+		} else return "success";
+	}
+	
+	function cleanUpCrc($force = false) {
+        if (file_exists("builder.crc32") && ($force || filemtime("builder.crc32") <= time()-(60 * 60))) {
+			$arr_obj = json_decode(file_get_contents("builder.crc32"), true);
+			$result = Array();
+			foreach ($arr_obj as $key => $value) {
+				// if too old, then remove from file
+				if ($value["time"] > time()-(60 * 60)) {
+					$result[$key] = $value;
+				}
+			}
+			file_put_contents("builder.crc32", json_encode($result));
+        }
+        
+        return;
 	}
 
 /*</EVENT-HANDLERS>*/

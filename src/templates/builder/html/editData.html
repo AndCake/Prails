@@ -28,6 +28,10 @@
 				$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");
 				invoke(null, 'builder:editData&check=1&module_id=<?=if_set($arr_param['data']['fk_module_id'], $_SESSION["module_id"])?>&data_id=<?=(int)$arr_param['data']['data_id']?>', $('hformd<?=(int)$arr_param["data"]["data_id"]?>').serialize(), true, function(req) {
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+
+					$("coded<?=(int)$arr_param["data"]["data_id"]?>").crc.content = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");
+					$("coded<?=(int)$arr_param["data"]["data_id"]?>").dirty = false;
+					
 					if (<?=(int)$arr_param["data"]["data_id"]?> == 0) {
 						var name = $("d_name_#data.data_id").getValue();
 						var id = req.responseText.split(/\s/g)[0];

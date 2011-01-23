@@ -161,3 +161,5 @@ body .CodeMirror-line-numbers {
 	list-style-type: disc;
 	margin: 1em 0px;
 }
+.dirty { position: relative; border: 1px solid red !important; }
+.dirty .blockable { position: absolute; right: 30px; top: -20px; color: red; font-size: 10px; }

@@ -42,9 +42,13 @@
 					$("container_m_#module.module_id").save = function() {
 						$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
 						$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
-
+					
 						invoke(null, 'builder:editModule&check=1&module_id=<?=$arr_param['module']['module_id']?>', $('hform<?=(int)$arr_param["module"]["module_id"]?>').serialize(), true, function(req) {
 							Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+							$("js_code<?=(int)$arr_param["module"]["module_id"]?>").crc.content = Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
+							$("js_code<?=(int)$arr_param["module"]["module_id"]?>").dirty = false;
+							$("code<?=(int)$arr_param["module"]['module_id']?>").crc.content = Builder.getCode("code<?=(int)$arr_param["module"]["module_id"]?>");
+							$("code<?=(int)$arr_param['module']['module_id']?>").dirty = false;
 							if (<?=(int)$arr_param["module"]["module_id"]?> == 0) {
 								var name = $("m_name_#module.module_id").getValue();
 								var id = req.responseText.split(/\n/g)[0];
@@ -60,7 +64,7 @@
 								module.handlers = [];
 								module.datas = [];
 								Builder.root.appendChild(module);
-								Builder.editModuleOptions(module);						
+								Builder.editModuleOptions(module);
 								//location.reload();
 							}
 						});
