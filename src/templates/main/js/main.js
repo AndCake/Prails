@@ -24,7 +24,18 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 	if (!post || post == null) {
 		params = "&" + $H(parameters).toQueryString();
 	}
-	if ($(element) == null && event == null) {
+	if ($(element) == null && (event == null || typeof(event) != "string")) {
+		switch (typeof(event)) {
+			case "function":
+				onSuccess = event;
+				break;
+			case "object":
+				parameters = event;
+				break;
+			case "boolean":
+				post = event;
+				break;
+		}
 		event = element;
 		element = null;
 	}

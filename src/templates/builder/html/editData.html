@@ -7,7 +7,7 @@
 
 	<label for="coded<?=(int)$arr_param["data"]["data_id"]?>">Data Code:</label><br/>
 	<input type="hidden" id="hCoded<?=(int)$arr_param["data"]["data_id"]?>" name="data[code]" value="" />
-	<div style="border:1px solid #ccc;" id="coded<?=(int)$arr_param["data"]["data_id"]?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#data.code</div>
+	<div style="border:1px solid #ccc;" rel="builder:editData&refresh=code&data_id=<?=(int)$arr_param["data"]["data_id"]?>" id="coded<?=(int)$arr_param["data"]["data_id"]?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#data.code</div>
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">

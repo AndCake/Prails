@@ -440,6 +440,10 @@ class BuilderHandler
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
             $arr_param["module"]["header_info"] = @unserialize($arr_param["module"]["header_info"]);
         }
+        
+        if ($_GET["refresh"]) {
+        	die(json_encode(Array("code"=>$arr_param["module"][$_GET["refresh"]])));
+        }
 
         // create crc32 files
 /*
@@ -564,6 +568,10 @@ class BuilderHandler
             $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
         }
+        
+        if ($_GET["refresh"]) {
+        	die(json_encode(Array("code"=>$arr_param["handler"][$_GET["refresh"]])));
+        }
 
         // create crc32 files
 /*
@@ -643,6 +651,10 @@ class BuilderHandler
         }
 
         $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
+        
+        if ($_GET["refresh"]) {
+        	die(json_encode(Array("code"=>$arr_param["data"][$_GET["refresh"]])));
+        }
 
         // create crc32 files
 /*/
@@ -729,6 +741,9 @@ class BuilderHandler
 
         $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
 
+        if ($_GET["refresh"]) {
+        	die(json_encode(Array("code"=>$arr_param["library"][$_GET["refresh"]])));
+        }
         // create crc32 files
 /*/
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
@@ -790,7 +805,10 @@ class BuilderHandler
         }
 
         $arr_param["tag"] = $this->obj_data->selectTag($_GET["tag_id"]);
-
+        
+        if ($_GET["refresh"]) {
+        	die(json_encode(Array("code"=>$arr_param["tag"][$_GET["refresh"]])));
+        }        
         // create crc32 files
 /*/
         $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
@@ -1023,10 +1041,10 @@ class BuilderHandler
                     @ require ("templates/builder/php/handler_scaffold_".$handler."_html.php");
                     $htmlcode = ob_get_clean();
                     $hid = $this->obj_data->insertHandler($arr_data = Array(
-                    "event"=>$handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
-                    "code"=>$code,
-                    "html_code"=>$htmlcode,
-                    "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
+	                    "event"=>$handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
+	                    "code"=>$code,
+	                    "html_code"=>$htmlcode,
+	                    "fk_module_id"=>$_POST["scaffold"]["fk_module_id"]
                     ));
                     $this->obj_data->insertHandlerHistory($hid, null, $arr_data);
                 }
@@ -1041,8 +1059,7 @@ class BuilderHandler
             $arr_fields = Array();
             $items = explode(":", $arr_table["field_names"]);
             $types = explode(":", $arr_table["field_types"]);
-            foreach ($items as $i=>$field)
-            {
+            foreach ($items as $i=>$field) {
                 $arr_fields[$field] = $types[$i];
             }
             $arr_db = Array();
@@ -1058,15 +1075,13 @@ class BuilderHandler
         die ($this->_callPrinter("editTable", $arr_param));
     }
 
-    function deleteConfiguration()
-    {
+    function deleteConfiguration() {
         $_SESSION["configuration_id"] = if_set($_GET["configuration_id"], $_SESSION["configuration_id"]);
         $this->obj_data->deleteConfiguration($_GET["configuration_id"]);
         die ("success");
     }
 
-    function editConfiguration()
-    {
+    function editConfiguration() {
         $_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
         if ($_GET["check"] == "1")

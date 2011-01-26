@@ -193,12 +193,9 @@ Builder = Object.extend(Builder || {}, {
         		var code = Builder.getCode(crc.el);
         		if (code != crc.content && !crc.el.dirty) {
         			// mark as dirty
-        			console && console.log(crc.el.id+" has become dirty!");
         			crc.el.dirty = true;
-        			
         			invoke("builder:updateCRCFile&dirty="+crc.el.id);
         		} else if (code == crc.content && crc.el.dirty) {
-        			console && console.log(crc.el.id+" is no longer dirty.");
         			crc.el.dirty = false;
         			invoke("builder:updateCRCFile&clean="+crc.el.id);
         		}
@@ -237,19 +234,18 @@ Builder = Object.extend(Builder || {}, {
             var pl = new PeriodicalExecuter(function(pl) {
             	if (pl.el.parentNode.visible()) {
             		// if the container width has been reduced 
-			try {
-	                if (pl.el.clientWidth + 50 < pl.win.document.width || pl.el.clientWidth - 50 > pl.div.clientWidth) {
-	                	// adapt the inner canvas
-	                	pl.div.style.width = pl.el.clientWidth+'px';
-						pl.div.getElementsByTagName("canvas")[1].width = pl.el.clientWidth - parseInt(pl.div.getElementsByTagName("canvas")[1].style.left);
-						// and refresh views
-	                	pl.div.bespin.editor.textView.invalidate();
-                		pl.div.bespin.editor.dimensionsChanged();
-	                }
-			} catch(e) {
-				pl.stop();
-//				console && console.log("try to fix the resize issue! "+e.message);
-			}
+					try {
+		                if (pl.el.clientWidth + 50 < pl.win.document.width || pl.el.clientWidth - 50 > pl.div.clientWidth) {
+		                	// adapt the inner canvas
+		                	pl.div.style.width = pl.el.clientWidth+'px';
+							pl.div.getElementsByTagName("canvas")[1].width = pl.el.clientWidth - parseInt(pl.div.getElementsByTagName("canvas")[1].style.left);
+							// and refresh views
+		                	pl.div.bespin.editor.textView.invalidate();
+	                		pl.div.bespin.editor.dimensionsChanged();
+		                }
+					} catch(e) {
+						pl.stop();
+					}
             	}
             }, 0.25);
             pl.el = el;
@@ -286,5 +282,27 @@ Builder = Object.extend(Builder || {}, {
     getCode: function(el) {
         el = $(el);
         return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value;
-    }	
+    },
+    
+    enableBespin: function(el) {
+        el = $(el);
+        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.readOnly = false;
+    },
+
+    disableBespin: function(el) {
+        el = $(el);
+        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.readOnly = true;
+    },
+    
+    refreshBespin: function(el) {
+    	el = $(el);
+    	var url = el.getAttribute("rel");
+    	invoke(url, function(req){
+    		if (req.responseText.length > 0) {
+    			var res = eval("("+req.responseText+")");
+    			Builder.setCode(el, res["code"]);
+    		}
+    	});
+    }
+    
 });

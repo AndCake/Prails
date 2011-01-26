@@ -6,7 +6,7 @@
 
 	<label for="codel<?=(int)$arr_param["library"]["library_id"]?>">Library Code:</label><br/>
 	<input type="hidden" id="hCodel<?=(int)$arr_param["library"]["library_id"]?>" name="library[code]" value="" />
-	<div style="border:1px solid #ccc;" id="codel<?=(int)$arr_param['library']['library_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#library.code</div>
+	<div style="border:1px solid #ccc;" rel="builder:editLibrary&refresh=code&library_id=<?=(int)$arr_param["library"]["library_id"]?>" id="codel<?=(int)$arr_param['library']['library_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#library.code</div>
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">

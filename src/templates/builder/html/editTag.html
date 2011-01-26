@@ -7,7 +7,7 @@
 	<label for="codet<?=(int)$arr_param["tag"]["tag_id"]?>">Tag Code:</label><br/>
 	<input type="hidden" id="hCodet<?=(int)$arr_param["tag"]["tag_id"]?>" name="tag[html_code]" value="" />
 	<!--[noeval]-->
-	<div style="border:1px solid #ccc;" id="codet<?=(int)$arr_param["tag"]["tag_id"]?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=$arr_param['tag']['html_code']?></div>
+	<div style="border:1px solid #ccc;" rel="builder:editTag&refresh=html_code&tag_id=<?=(int)$arr_param["tag"]["tag_id"]?>" id="codet<?=(int)$arr_param["tag"]["tag_id"]?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=$arr_param['tag']['html_code']?></div>
 	<!--[/noeval]-->
 	<div style="clear:both;"></div>
 	<br/>

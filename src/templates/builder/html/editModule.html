@@ -17,7 +17,7 @@
 		<label for="style_code">CSS styles</label>
         <input type="hidden" id="hCode<?=(int)$arr_param['module']['module_id']?>" name="module[style_code]" value="" />
         <!--[noeval]-->
-		<div style="border:1px solid #ccc;" id="code<?=(int)$arr_param['module']['module_id']?>" data-bespinoptions='{"syntax": "css"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["style_code"])?></div>
+		<div style="border:1px solid #ccc;" rel="builder:editModule&refresh=style_code&module_id=<?=(int)$arr_param['module']['module_id']?>" id="code<?=(int)$arr_param['module']['module_id']?>" data-bespinoptions='{"syntax": "css"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["style_code"])?></div>
 		<!--[/noeval]-->
 	</div>
 	<div style="float:left;width:50%;position:relative;">
@@ -31,7 +31,7 @@
 		<label for="js_code<?=(int)$arr_param['module']['module_id']?>">Javascript Code: </label><br/>
 		<input type="hidden" id="hJsCodem<?=(int)$arr_param["module"]["module_id"]?>" name="module[js_code]" value="" />
 		<!--[noeval]-->
-		<div style="border:1px solid #ccc;" id="js_code<?=(int)$arr_param["module"]["module_id"]?>" data-bespinoptions='{"syntax": "js"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["js_code"])?></div>
+		<div style="border:1px solid #ccc;" rel="builder:editModule&refresh=js_code&module_id=<?=(int)$arr_param['module']['module_id']?>" id="js_code<?=(int)$arr_param["module"]["module_id"]?>" data-bespinoptions='{"syntax": "js"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["module"]["js_code"])?></div>
 		<!--[/noeval]-->
 	</div>
 	<div style="clear:both;"></div>
