@@ -1580,7 +1580,7 @@ class BuilderHandler
 			}
 		} else {
 			if (strlen($_GET["dirty"]) > 0) {
-				$arr_obj[$_GET["dirty"]] = Array("user" => $_SESSION["builder"]["name"], "uid" => $_SESSIO["builder"]["user_id"], "time" => time());
+				$arr_obj[$_GET["dirty"]] = Array("user" => $_SESSION["builder"]["name"], "uid" => $_SESSION["builder"]["user_id"], "time" => time());
 			} else if ($_GET["clean"] && is_array($arr_obj[$_GET["clean"]])) {
 				unset($arr_obj[$_GET["clean"]]);
 			}
