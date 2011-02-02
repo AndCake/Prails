@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>createThumbnail - Standard Library - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_hyperlink"><span/></a>createThumbnail</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+			generates a thumbnail out of an image file
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>Boolean createThumbnail($str_src, $str_dest, $int_maxWidth = 500, $int_maxHeight = 500, $int_quality = 60)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table23">
+            <colgroup>
+                <col width="117"/><col width="626"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $str_src
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                          source image to be scaled down as thumbnail
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $str_dest
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                         destination image file name
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $int_maxWidth
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                         maximum width for the resulting thumbnail (OPTIONAL)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $int_maxHeight
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                         maximum height for the resulting thumbnail (OPTIONAL)
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $int_quality
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                         compression quality to be used
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            TRUE, if generation of the thumbnail was successful, else FALSE
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+// will scale down a huge image to 400x300 at maximum and save it as a jpg file
+createThumbnail("http://kyleabaker.com/wp-content/uploads/2008/06/wallpaper-world-map-2006-large.gif", "static/images/minimap.jpg", 400, 300);
+            
+// will not scale down the image further as it is already very small, but still convert it to png
+createThumbnail("http://csshook.com/cssresources/wp-content/uploads/2009/03/old-world-map.jpg", "static/images/samemap.png", 520, 420);
+        </pre>
+    </body>
+</html>

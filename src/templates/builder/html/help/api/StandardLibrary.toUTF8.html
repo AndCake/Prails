@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>toUTF8 - Standard Library - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_hyperlink"><span/></a>toUTF8</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+			this method first checks whether a string is in UTF-8 and if not converts it to UTF-8
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code>String toUTF8($str_conv)</code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table23">
+            <colgroup>
+                <col width="117"/><col width="626"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:2.683cm; " class="Table23_A1">
+                    <p class="Table_20_Contents">
+                        $str_conv
+                    </p>
+                </td>
+                <td style="text-align:left;width:14.316cm; " class="Table23_B1">
+                    <p class="Table_20_Contents">
+                          String to be converted
+                    </p>
+                </td>
+            </tr>
+        </table>
+        <p class="Text_20_body">
+            <span class="T1">Returns:</span>
+            the String in UTF-8
+        </p>
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <pre>
+			$str = "This might be a UTF-8 string or not...";
+			
+			$result = toUTF8($str);
+			
+			// $result will be a UTF-8 String
+			echo $result;
+        </pre>
+    </body>
+</html>
