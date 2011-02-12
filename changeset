@@ -1,3 +1,29 @@
+V1.0.7 (February 12, 2011)
+
+* set Bespin as the new Code editor
+* added search for content assets
+* added caching flag for events
+* added the PHP LESS compiler as new LESS compiler (which is much more complete than the previous implementation)
+* added some new tags ("<c:body/>" and "<c:print/>")
+* added SEO data to CMS pages
+* added for development environments a HTML comment wrapping to all translated texts, to avoid this for single texts, add a $ at the end of it's identifier while declaring, like: {user.login.email$}
+* the search / quick open now also includes translations & CMS pages
+* added a way to see the automated testing process while running
+* added a new form validator type that is able to evaluate JS code instead of RegExps only (prepend "javascript:" in rel attribute)
+* added Scripty2 including newest PrototypeJS (1.7), removed old Control.Modal, Control.Tabs and Scriptaculous instead
+* added "floor" and "ceil" to defined sqlite functions
+* added functionality for concurrent modification: editors being edited by someone else are disabled and a notification is shown, content is automatically reloaded as soon as editing by the other one is saved / undoed.
+* improved API display and added some missing documentation
+* added the newest tags to API documentation (body and print) and updated existing documentation
+* removed apply history button (makes no more any sense)
+* fixed the history to correctly work with Bespin
+* fixed a bug in search/quick open
+* fixed a bug with importing of modules via packages
+* fixed a problem with bullet points and lists not correctly shown in CMS
+* fixed a few problems with invoking server-side events in development environments
+* some code clean up and minor tweaks
+
+
 V1.0.6 (September 12, 2010)
 
 * added support for LESS-style CSS code
