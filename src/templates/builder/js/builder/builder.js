@@ -2,7 +2,7 @@
  * @author roq
  */
 
-Builder = Object.extend(Builder || {}, {
+window.Builder = Object.extend(window.Builder || {}, {
 
 	updaters: [],
 	root: new Ext.tree.TreeNode(),

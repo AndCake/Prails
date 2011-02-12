@@ -1193,7 +1193,7 @@ function invoke($str_event, $arr_param = null)
         {
             // use it!
             $_GET["builder"]["event"] = $str_event;
-            return invoke("builder:run");
+            return invoke("builder:run", $arr_param);
         }
         pushError("could not find module for event ".$str_event);
     }

@@ -33,7 +33,7 @@ class CSSLib {
 		
         foreach ($this->styles as $css) {
         	if (strpos($css, "http://") === false && strpos($css, "ftp://") === false && strpos($css, "https://") === false) { 
-	        	if (@filectime($css) > $this->time) {
+	        	if (@filectime($css) > $this->time && file_exists("cache/".$this->prefix.".".$this->time.".css")) {
 	        		// we need to regenerate the CSS files
 					@unlink("cache/".$this->prefix.".".$this->time.".css");
 					if (file_exists("cache/".$this->prefix.".".$this->time.".cgz")) {

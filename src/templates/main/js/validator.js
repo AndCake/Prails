@@ -112,8 +112,8 @@ var Validator = Class.create({
         number: {matcher: /^-{0,1}[0-9]+(\.[0-9]+)?$/, text: "Please enter a valid number in this field."},
         alpha: {matcher: /^[a-zA-Z]+$/, text: "Please use letters only (a-z) in this field."},
         alphanum: {matcher: /^\W+$/, text: "Please use only letters (a-z) or numbers (0-9) only in this field. No spaces or other characters are allowed."},
-        date: {matcher: /[0-9]{4}-[0-9]{2}-[0-9]{2}/, text: "Please enter a valid date."},
-        email: {matcher: /^\w{1,}[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/, text: "Please enter a valid email address. For example fred@example.com ."},
+        date: {matcher: /([0-9]{4}-[0-9]{2}-[0-9]{2})|([0-9]{2}\.[0-9]{2}\.[0-9]{4})/, text: "Please enter a valid date."},
+        email: {matcher: /^[a-zA-Z0-9.\-_!#$%&'*+\/=?\^_`{|}~]+[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/, text: "Please enter a valid email address. For example fred@example.com ."},        
         url: {matcher: /^(http|https|ftp):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)(:(\d+))?\/?/i, text: "Please enter a valid URL."}
     },
     

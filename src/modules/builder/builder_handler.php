@@ -77,7 +77,7 @@ class BuilderHandler
         
         $prailsServerBasePath = "http://prails.googlecode.com/svn/trunk/";
         // check for new {Prails} version
-        $url = parse_url($prailsServerBasePath."version");
+        $url = parse_url(PRAILS_HOME_PATH."version");
         // check if we are online...
         $fp = fsockopen($url["host"], if_set($url["port"], 80), $en, $es, 2);
         // (if connection speed is so slow that we need more than 2 seconds to check
@@ -86,9 +86,9 @@ class BuilderHandler
         if ($fp) {
             // if we are online, fetch the current version file
             fclose($fp);
-            $arr_param["local"]["version"] = file_get_contents($prailsServerBasePath."version");
+            $arr_param["local"]["version"] = file_get_contents(PRAILS_HOME_PATH."version");
             if (trim($arr_param["local"]["version"]) != FRAMEWORK_VERSION) { 
-                $arr_param["local"]["changeset"] = file_get_contents($prailsServerBasePath."changeset");
+                $arr_param["local"]["changeset"] = file_get_contents(PRAILS_HOME_PATH."changeset");
             }
         }
 
@@ -98,25 +98,15 @@ class BuilderHandler
             $arr_param["modules"][$key]["datas"] = $this->obj_data->listDatas($arr_module["module_id"]);
         }
 
-        if (!$_SESSION["builder"]["user_code"])
-        {
+        if (!$_SESSION["builder"]["user_code"]) {
             $_SESSION["builder"]["user_code"] = md5(rand());
-            // should later be done at login process
-            // then change the "active" file (add the current user)
-            // update the active.crc (which contains the crc32 checksum of the "active" file)
-            // when a user opens (edits) a module, data, handler, taglib or library, the corresponding files
-            // (module_<module_id> & module_<module_id>.crc) should be updated with the user
-            // when a user focusses an iframe, it should send the information that that iframe is focussed
-            // (and stored in the respective file); when a user moves the cursor, it should send the information
-            // that the cursor moved to position x,y (and stored in the respective file) - probably a continuus
-            // check every 500 milli seconds or so (for all iframes in one loop);
         }
 
         return $this->_callPrinter("home", $arr_param);
     }
 
     /*<EVENT-HANDLERS>*/
-    function run()
+    function run($arr_param=null)
     {
         list ($module, $handler) = explode(":", $_GET["builder"]["event"]);
         $arr_module = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $module);
@@ -168,7 +158,7 @@ class BuilderHandler
                 $arr_data = $this->obj_data->listDatas($arr_module["module_id"]);
                 if (file_exists("modules/".$mod) && file_exists("modules/".$mod."/".$mod.".php"))
                 {
-                    return invoke($mod.":".$arr_event["event"]);
+                    return invoke($mod.":".$arr_event["event"], $arr_param);
                 }
                 @mkdir("templates/".$mod, 0755);
                 @mkdir("templates/".$mod."/html", 0755);
@@ -218,7 +208,7 @@ class BuilderHandler
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
                     }
-		    if ($arr_param["flag_cacheable"] == "1") {
+		    if ($arr_handler["flag_cacheable"] == "1") {
 			$printer .= "  Generator::getInstance()->setIsCachable();\n";
 		    }
                     $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator) : \"<!--[content]-->\");\n";
@@ -250,7 +240,7 @@ class BuilderHandler
                 @chmod("templates/".$mod, 0755);
                 @chmod("templates/".$mod."/css/", 0755);
                 @chmod("templates/".$mod."/css/".$mod.".css", 0755);
-                return invoke($mod.":".$arr_event["event"]);
+                return invoke($mod.":".$arr_event["event"], $arr_param);
             }
         }
 
@@ -1503,13 +1493,12 @@ class BuilderHandler
     function updateSystem() {
         // run the system update
         // first download the installer...
-        $basePath = "http://prails.googlecode.com/svn/trunk/";
         // clean cache first
         exec("cd cache && rm -f * && cd ..");
-        $version = trim(file_get_contents($basePath."version"));
+        $version = trim(file_get_contents(PRAILS_HOME_PATH."version"));
         
-        file_put_contents("cache/installer.php", file_get_contents($basePath."installer.php"));
-        if (filesize("cache/installer.php") > 0 && md5(file_get_contents("cache/installer.php")) == md5(file_get_contents($basePath."installer.php"))) {
+        file_put_contents("cache/installer.php", file_get_contents(PRAILS_HOME_PATH."installer.php"));
+        if (filesize("cache/installer.php") > 0 && md5(file_get_contents("cache/installer.php")) == md5(file_get_contents(PRAILS_HOME_PATH."installer.php"))) {
             die("success\ncache/installer.php?version=".$version."\nDownloading package...");
         } else {
             die("Error saving installer. Please check permissions and internet connection.");

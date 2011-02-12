@@ -853,11 +853,10 @@ Date.prototype.getElapsed = function(date) {
 					}
 				}
 				var anim = createAnim(cb, scope);
-				anim.effect = new Effect.Morph(Ext.id(el), {
+				anim.effect = el.morph(o, {
 					duration : duration,
-					afterFinish : anim.proxyCallback,
-					transition : easings[easing] || Effect.Transitions.linear,
-					style : o
+					after : anim.proxyCallback,
+					transition : easings[easing] || S2.FX.Transitions.sinusoidal
 				});
 				return anim;
 			}

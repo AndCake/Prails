@@ -27,19 +27,13 @@ class MainPrinter
         /*<CSS-INCLUDES>*/
         $obj_gen->addStyleSheet("templates/main/css/main.css");
         $obj_gen->addStyleSheet("templates/main/css/controls.css");
+        $obj_gen->addStyleSheet("templates/main/css/s2-ui.css");
         /*</CSS-INCLUDES>*/
         $obj_gen->addStyleSheet("templates/main/css/global.css");
 
         /*<JAVASCRIPT-INCLUDES>*/
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/lib/prototype.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/scriptaculous.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/builder.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/effects.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/controls.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/dragdrop.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/sound.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/src/slider.js");
-        $obj_gen->addJavaScript("templates/main/js/scriptaculous/lib/control.modal.js");
+        $obj_gen->addJavaScript("templates/main/js/prototype.js");
+        $obj_gen->addJavaScript("templates/main/js/s2.js");
         $obj_gen->addJavaScript("templates/main/js/modernizr-1.5.min.js");
         $obj_gen->addJavaScript("templates/main/js/nicedit.js");
         $obj_gen->addJavaScript("templates/main/js/main.js");

@@ -100,7 +100,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 function initAjaxLinks() {
 	$$("a[rel], a.modal").each(function(item) {
 		if (item.hasClassName("modal") && !item._ajaxified) {
-			var params = {};
+			var params = {buttons: false};
 			item._ajaxified = true;
 			if (item.rel) {
 				var paramList = item.rel.split("|");
@@ -112,7 +112,25 @@ function initAjaxLinks() {
 			if (item.href.indexOf(baseHref) < 0) {
 				params["iframe"] = true;
 			}
-			new Control.Modal(item, params);
+			if (item.getAttribute("title")) params["title"] = item.getAttribute("title");
+			item.observe("click", function(event) {
+				if (this.getAttribute("href").indexOf('#') >= 0) {
+					var el = $$(this.getAttribute("href").replace(location.href.replace(/#(.*)$/gi, ''), ''))[0];
+					if (el) {
+						new S2.UI.Dialog(el.cloneNode(true), params).open();
+					}
+				} else {
+					invoke(null, this.getAttribute("href"), null, false, function(req) {
+						params["content"] = req.responseText;
+						new S2.UI.Dialog(params).open();
+						setTimeout(function() {
+							document.fire("dom:loaded");	
+							try { eval(item.onload); } catch(e){};
+						}, 10);
+					});
+				}
+				event.stop();
+			});
 		} else if ($(item.rel) != null && !item._ajaxified) {
 			item._ajaxified = true;
 			item.observe("click", function(event) {
