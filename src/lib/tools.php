@@ -841,7 +841,7 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
     $headers .= "Content-Type: multipart/mixed; boundary=\"PHP-mixed-".$random_hash."\"".$eol;
 
     $message = "--PHP-mixed-".$random_hash.$eol;
-    $message .= "Content-Type: multipart/alternative; boundary=\"PHP-alt-".$random_hash."".$eol.$eol;
+    $message .= "Content-Type: multipart/alternative; boundary=\"PHP-alt-".$random_hash."\"".$eol.$eol;
     $message .= "--PHP-alt-".$random_hash."".$eol;
     $message .= "Content-Type: text/plain; charset=\"utf-8\"".$eol;
     $message .= "Content-Transfer-Encoding: 7bit".$eol.$eol;
