@@ -21,6 +21,7 @@ V1.0.7 (February 12, 2011)
 * fixed a bug with importing of modules via packages
 * fixed a problem with bullet points and lists not correctly shown in CMS
 * fixed a few problems with invoking server-side events in development environments
+* fixed a bug with sendMail which produces artifacts in the eMails sent
 * some code clean up and minor tweaks
 
 
