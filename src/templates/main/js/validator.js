@@ -1,7 +1,7 @@
 /**
  * Simple Form Validation, controlled by HTML alone
  *
- * Copyright (c) 2010 Robert Kunze
+ * Copyright (c) 2011 Robert Kunze
  *
  * Validation syntax:
     <form method="post" action="">
@@ -178,7 +178,7 @@ var Validator = Class.create({
             } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")<0 && !new RegExp(el.getAttribute("rel")).test(el.value)) {
                 this.invalidate(el, "invalid");
                 return false;
-            } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")>=0 && !eval("("+el.getAttribute("rel").replace("javascript:", "")+")")) {
+            } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")>=0 && (function(){return !eval("("+el.getAttribute("rel").replace("javascript:", "")+")");}).call(el)) {
 		this.invalidate(el, "invalid");
 		return false;
 	    } else {
@@ -262,9 +262,10 @@ var Validator = Class.create({
         var advice = new Element("div", {id: el.name+"-"+el.id+"-advice", "class": "validate-advice", style: "display: none;"});
         advice.update(text);
         el.insert({after: advice});
-        if (this.options.animated)
-            advice.blindDown({duration: 0.5});
-        else
+        if (this.options.animated) {
+			advice.setStyle("display:block;height:0em;opacity:0;");
+            advice.morph("height:1.5em;opacity:1;", {duration: 0.5});
+        } else
             advice.show();
     },
     
@@ -274,7 +275,7 @@ var Validator = Class.create({
         var hint = new Element("div", {id: el.name+"-"+el.id+"-advice", "class": "validate-valid-hint", style: "display: none;"}).update("&nbsp;");
         el.insert({after: hint});
         if (this.options.animated)
-            hint.appear();
+            hint.appear({duration: 0.5});
         else
             hint.show();
     },

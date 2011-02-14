@@ -117,12 +117,12 @@ function initAjaxLinks() {
 				if (this.getAttribute("href").indexOf('#') >= 0) {
 					var el = $$(this.getAttribute("href").replace(location.href.replace(/#(.*)$/gi, ''), ''))[0];
 					if (el) {
-						new S2.UI.Dialog(el.cloneNode(true), params).open();
+						window.currentDialog = new S2.UI.Dialog(el.cloneNode(true), params).open();
 					}
 				} else {
 					invoke(null, this.getAttribute("href"), null, false, function(req) {
 						params["content"] = req.responseText;
-						new S2.UI.Dialog(params).open();
+						window.currentDialog = new S2.UI.Dialog(params).open();
 						setTimeout(function() {
 							document.fire("dom:loaded");	
 							try { eval(item.onload); } catch(e){};
