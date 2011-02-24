@@ -1,5 +1,7 @@
 ServerSignature Off
 
+php_value short_open_tag 1
+
 AddType text/css css cgz
 AddEncoding gzip cgz
 AddType text/javascript js jgz
