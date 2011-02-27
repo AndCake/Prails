@@ -28,12 +28,17 @@ div#qwbuilder_headerPanel .x-panel-body {
 .edit { background-image: url(../images/edit.png) !important; }
 .folder { background-image: url(../images/default/tree/folder.gif); }
 .handler { background-image: url(../images/default/tree/leaf.gif) !important; }
+.handler-hook img.x-tree-node-icon, .x-tab-panel-header span.handler-hook { background-image: url(../images/plugin.png) !important; }
 .HelpTabIcon { background-image: url(../images/help.png) !important; }
 .history { background-image: url(../images/history.gif) !important; }
 .library { background-image: url(../images/library.png) !important; }
 .locale { background-image: url(../images/locale.png) !important; }
 .options { background-image: url(../images/editModule.png) !important; }
 .package { background-image: url(../images/package.png) !important; }
+.debug { background-image: url(../images/debug.png) !important; }
+.play {  background-image: url(../images/play.png) !important;  }
+.step {  background-image: url(../images/step.png) !important;  }
+.stop {  background-image: url(../images/stop.png) !important;  }
 .run { background-image: url(../images/run.png) !important; }
 .resource { background-image: url(../images/resource.png) !important; }
 .save { background-image: url(../images/save.gif) !important; }

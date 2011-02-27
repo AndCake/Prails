@@ -1,0 +1,30 @@
+
+<iframe id="debugview-frame" width="100%" height="99%" src="modules/builder/debug.php?cmd=next" frameborder="0" scrolling="no"></iframe>
+
+<script type="text/javascript">
+//<![CDATA[
+	Ext.getCmp("portlet_content_debugview").getTopToolbar().add({
+		xtype: "button",
+		text: "Run",
+		iconCls: "play",
+		handler: function(e) {
+			$("debugview-frame").src = "modules/builder/debug.php?cmd=run";
+		}	
+	}, "-", {
+		xtype: "button",
+		text: "Next",
+		iconCls: "step",
+		handler: function(e) {
+			$("debugview-frame").src = "modules/builder/debug.php?cmd=next";
+		}	
+	}, "-", {
+		xtype: "button",
+		text: "Stop",
+		iconCls: "stop",
+		handler: function(e) {
+			$("debugview-frame").src = "modules/builder/debug.php?cmd=stop";
+		}	
+	});
+	
+//]]>
+</script>

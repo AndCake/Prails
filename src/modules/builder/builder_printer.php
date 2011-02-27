@@ -169,6 +169,12 @@ class BuilderPrinter
         return Generator::getInstance()->includeTemplate("templates/builder/html/editTestcase.html", $arr_param, false);		
 	}
 	
+	function debug($arr_param) {
+        $arr_param["session"] = $_SESSION;
+        Generator::getInstance()->setIsAjax(true);
+        return Generator::getInstance()->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
+	}
+	
     /*</PRINTER-METHODS>*/
 }
 

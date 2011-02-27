@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>hook - TagLib - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_include"><span/></a>hook</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+			This tag is used to call any hooks attached to the given hook name. Their result is directly printed out at the tag's position.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code><c:hook name="{hook name}"/></code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table12">
+            <colgroup>
+                <col width="143"/><col width="599"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {hook name}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+                        All hooks with that name will be notified and receive the current variable scope.
+                    </p>
+                </td>
+            </tr>
+        </table>        
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            This example provides a place where other event can be hooked into:
+        </p>
+        <pre>
+        	<h1>My headline</h1>
+        	<c:hook name="additional-text"/>
+        </pre>
+        <p class="Text_20_body">
+        	Other events declared as hooks of the name "additional-text" can then add their own data at the specified position (by simply returning what should be added there).
+        </p>
+    </body>
+</html>

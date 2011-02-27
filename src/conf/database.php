@@ -38,11 +38,11 @@ $arr_database = Array
 	// builder tables
 	"module"=>Array(
 		"fk_module_id"=>"INT(11) NOT NULL",		// link to parent module
-	    	"fk_user_id"=>"BIGINT(11) NOT NULL",
-	    	"name"=>"VARCHAR(255)",
+	    "fk_user_id"=>"BIGINT(11) NOT NULL",
+	    "name"=>"VARCHAR(255)",
 		"header_info" => "TEXT",
 		"js_code"=>"TEXT",
-	    	"style_code"=>"TEXT",
+	    "style_code"=>"TEXT",
 	),
 	"library"=>Array(
 		"fk_module_id"=>"INT(11) NOT NULL",
@@ -55,6 +55,7 @@ $arr_database = Array
 	    "event"=>"VARCHAR(255)",
 	    "flag_ajax"=>"INT(1) NOT NULL",
 	    "flag_cacheable"=>"INT(1) NOT NULL",
+		"hook" => "VARCHAR(255)",
 	    "code"=>"TEXT",
 	    "html_code"=>"TEXT",
 	),

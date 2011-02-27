@@ -85,17 +85,17 @@ class BuilderData extends Database
 
     function insertHandler($arr_data)
     {
-        return $this->InsertQuery(tbl_prailsbase_handler, $arr_data);
+    	return $this->InsertQuery(tbl_prailsbase_handler, $arr_data);
     }
 
     function updateHandler($handler_id, $arr_data)
     {
-        return $this->UpdateQuery(tbl_prailsbase_handler, $arr_data, "handler_id='".$handler_id."'");
+    	return $this->UpdateQuery(tbl_prailsbase_handler, $arr_data, "handler_id='".$handler_id."'");
     }
 
     function deleteHandler($handler_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_handler, "handler_id='".$handler_id."'");
+    	return $this->DeleteQuery(tbl_prailsbase_handler, "handler_id='".$handler_id."'");
     }
 	
 	function deleteHandlerFromModule($module_id) {

@@ -156,6 +156,8 @@ class SQLite {
 		      	$link = $this->arr_links[0]["link"];
 		      	$str_query = $this->_prepareQuery($str_query);
 	      	}
+	      	
+	      	if (substr($str_query, 0, 12) == "ALTER TABLE ") return null;
 
 	      	// send SQL statement to database
 			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE "))) {

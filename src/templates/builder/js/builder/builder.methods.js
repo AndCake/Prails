@@ -62,6 +62,10 @@ Builder = Object.extend(Builder || {}, {
 		Ext.getCmp("qwbuilder_startupPanel").remove("tab_"+id, true);
 	},
 	
+	debug: function(module, type, item) {
+		Builder.addTab("?event=builder:debug&module_id="+module+"&"+type+"="+item, "Debug View", "debugview", 'debug');
+	},
+	
 	resetTree: function(node, newNodes) {
 		while (node.hasChildNodes()) {
 			node.item(0).remove();

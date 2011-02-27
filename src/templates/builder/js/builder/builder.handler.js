@@ -9,7 +9,11 @@ Builder = Object.extend(Builder || {}, {
 	editHandler: function(n) {
 		var a_id = n.id.split(/_/gm);
 		var id = parseInt(a_id[1]);
-		Builder.addTab("?event=builder:editHandler&module_id="+Builder.currentModule.id+"&handler_id="+id, n.text, "h_"+id, "handler");
+		icon = "handler";
+		if (n.ui.elNode.className.indexOf("handler-hook") >= 0) {
+			icon = "handler-hook";
+		}
+		Builder.addTab("?event=builder:editHandler&module_id="+Builder.currentModule.id+"&handler_id="+id, n.text, "h_"+id, icon);
 	},
 	runHandler: function(module, event) {
 		if (module == "Global") {

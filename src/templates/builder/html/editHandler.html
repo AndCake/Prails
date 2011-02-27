@@ -11,7 +11,11 @@
 		<label for="ajax_#handler.handler_id">is AJAX event</label>
 		&nbsp;
 		<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
-                <label for="cache_#handler.handler_id">output is cacheable</label>
+        <label for="cache_#handler.handler_id">output is cacheable</label>
+        &nbsp;
+        <input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
+        <label for="hook_#handler.handler_id">is a hook</label>
+        <input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
 		<br/><br/>
 	</div>
 	<div style="clear:both;"></div>
@@ -147,6 +151,14 @@
 				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> == 0 ? true : false),
 				handler: function(e) {
 					Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");					
+				}
+			}, "-", {
+				xtype: "button",
+				text: "Debug",
+				iconCls: "debug",
+				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 ? true : false),
+				handler: function(e) {
+					Builder.debug('#handler.fk_module_id', 'handler', '#handler.handler_id');
 				}
 			}, "-", {
 				xtype: "button",

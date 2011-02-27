@@ -121,6 +121,14 @@
 				}
 			},"-", {
 				xtype: "button",
+				text: "Debug",
+				iconCls: "debug",
+				disabled: (<?=(int)$arr_param["data"]["data_id"]?> <= 0 ? true : false),
+				handler: function(e) {
+					Builder.debug('#data.fk_module_id', 'data', '#data.data_id');
+				}
+			}, "-", {
+				xtype: "button",
 				id: "data.#data.data_id_viewHistory.button",
 				text: "View History",
 				iconCls: "history",

@@ -581,6 +581,168 @@ window.Builder = Object.extend(window.Builder || {}, {
 				}
 			}				
 		});	
+		var navItems = [];
+		if (window.Builder.isDeveloper) {
+			navItems.push(modulePanel);
+			navItems.push({
+				id: "qwbuilder_detailsPanel",
+				title: "Module Contents",
+				collapsible: true,
+				region: "south",
+				xtype: "panel",
+				width: 150,
+				minSize: 120,
+				disabled: true,
+				maxSize: 240, 
+				border: true,
+				split: true,
+				layout: "border",
+				layoutConfig: {
+					align: "stretch",
+					pack: "start"
+				},
+				items: [
+					handlerPanel,
+					dataPanel
+				]
+			});
+			navItems.push({
+				xtype: "panel",
+				id: "qwbuilder_libsPanel",
+				title: "Libraries",
+				collapsible: true,
+				region: "south",
+				width: 150,
+				minSize: 120,
+				maxSize: 240,
+				border: true,
+				split: true,
+				layout: "border",
+				layoutConfig: {
+					align: "stretch",
+					pack: "start"
+				},
+				items: [libraryPanel, tagLibPanel]
+			});
+			navItems.push(dbPanel);
+		}
+		navItems.push({
+		   xtype: "treepanel",
+		   id: "qwbuilder_langsPanel",
+		   title: "Translations",
+		   collapsible: true,
+		   region: "south",
+		   width: 150,
+		   minSize: 120,
+		   maxSize: 240,
+		   border: true,
+		   split: true,
+		   autoScroll: true,
+		   root: Builder.langRoot,
+		   rootVisible: false,
+		   tbar: [{
+		       text: "Add",
+		       menu: {
+		          items: [{
+		                  text: "Add Top Section", 
+		                  iconCls: "folder", 
+		                  id: "qwbuilder_langs_cts", 
+		                  handler: function() {
+		                      // create new section
+		                      Builder.createSubSection(Builder.langRoot);
+		                  }
+		              }, {
+		                  text: "Add Sub Section", 
+		                  iconCls: "folder", 
+		                  id: "qwbuilder_langs_css",
+		                  handler: function() {
+		                      // create new sub section
+                              selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
+                              if (selNode.isLeaf()) {
+                                  selNode = selNode.parentNode;
+                              }
+    		                  Builder.createSubSection(selNode);
+		                  }
+		              }, {
+		                  text: "Add Text", 
+		                  iconCls: "locale", 
+		                  id: "qwbuilder_langs_ct",
+		                  handler: function() {
+		                      // create new text
+                              selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
+                              if (selNode.isLeaf()) {
+                                  selNode = selNode.parentNode;
+                              }
+                              Builder.createText(selNode);
+		                  }
+		              }
+		          ]
+		       },
+			   iconCls: "add",
+			   handler: function() {
+                  selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
+                  Ext.getCmp("qwbuilder_langs_css").setDisabled(selNode == null);
+                  Ext.getCmp("qwbuilder_langs_ct").setDisabled(selNode == null);                              
+			   }
+			}, "-", {
+			   text: "Delete",
+			   iconCls: "delete",
+			   handler: function() {
+			      var node = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
+			      if (node == null) {
+			         Ext.Msg.alert("Problem", "Please select an item in order to remove it.");
+			      } else {
+			          if (node.isLeaf()) {
+			              Builder.deleteText(node);
+			          } else {
+                          Builder.deleteSection(node);
+			          }
+			      }
+			   }
+			}, "-"],
+			listeners: {
+				contextmenu: function(n, e) {
+					e.preventDefault();
+					var menu = new Ext.menu.Menu({
+						items: [{
+							text: "Add Sub Section",
+							iconCls: "folder",
+							handler: function() {
+                                selNode = n;
+                                if (selNode.isLeaf()) {
+                                    selNode = selNode.parentNode;
+                                }
+                                Builder.createSubSection(selNode);
+								this.hide();
+							}
+						},{
+							text: "Add Text",
+							iconCls: "locale",
+							handler: function() {
+		                      // create new text
+                                selNode = n;
+                                if (selNode.isLeaf()) {
+                                    selNode = selNode.parentNode;
+                                }
+                                Builder.createText(selNode);
+								this.hide();
+							}
+						}, {
+						    text: "Delete " + (n.isLeaf() ? "Text" : "Section"),
+						    iconCls: "delete",
+						    handler: function() {
+						       selNode = n;
+						       if (selNode.isLeaf()) {
+						          Builder.deleteText(selNode);
+						       } else {
+						          Builder.deleteSection(selNode);
+						       }
+						    }
+						}]
+					}).showAt(e.getXY());	
+				}
+			}
+		});
 		var viewport = new Ext.Viewport({
 			layout: "border",
 			items: [
@@ -597,164 +759,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 					width: 275,
 					minSize: 100,
 					maxSize: 500,
-					items: [modulePanel, {
-						id: "qwbuilder_detailsPanel",
-						title: "Module Contents",
-						collapsible: true,
-						region: "south",
-						xtype: "panel",
-						width: 150,
-						minSize: 120,
-						disabled: true,
-						maxSize: 240, 
-						border: true,
-						split: true,
-						layout: "border",
-						layoutConfig: {
-							align: "stretch",
-							pack: "start"
-						},
-						items: [
-							handlerPanel,
-							dataPanel
-						]
-					}, {
-						xtype: "panel",
-						id: "qwbuilder_libsPanel",
-						title: "Libraries",
-						collapsible: true,
-						region: "south",
-						width: 150,
-						minSize: 120,
-						maxSize: 240,
-						border: true,
-						split: true,
-						layout: "border",
-						layoutConfig: {
-							align: "stretch",
-							pack: "start"
-						},
-						items: [libraryPanel, tagLibPanel]
-					}, dbPanel, {
-					   xtype: "treepanel",
-					   id: "qwbuilder_langsPanel",
-					   title: "Translations",
-					   collapsible: true,
-					   region: "south",
-					   width: 150,
-					   minSize: 120,
-					   maxSize: 240,
-					   border: true,
-					   split: true,
-            		   autoScroll: true,
-            		   root: Builder.langRoot,
-            		   rootVisible: false,
-            		   tbar: [{
-            		       text: "Add",
-            		       menu: {
-            		          items: [{
-            		                  text: "Add Top Section", 
-            		                  iconCls: "folder", 
-            		                  id: "qwbuilder_langs_cts", 
-            		                  handler: function() {
-            		                      // create new section
-            		                      Builder.createSubSection(Builder.langRoot);
-            		                  }
-            		              }, {
-            		                  text: "Add Sub Section", 
-            		                  iconCls: "folder", 
-            		                  id: "qwbuilder_langs_css",
-            		                  handler: function() {
-            		                      // create new sub section
-                                          selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
-                                          if (selNode.isLeaf()) {
-                                              selNode = selNode.parentNode;
-                                          }
-                		                  Builder.createSubSection(selNode);
-            		                  }
-            		              }, {
-            		                  text: "Add Text", 
-            		                  iconCls: "locale", 
-            		                  id: "qwbuilder_langs_ct",
-            		                  handler: function() {
-            		                      // create new text
-                                          selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
-                                          if (selNode.isLeaf()) {
-                                              selNode = selNode.parentNode;
-                                          }
-                                          Builder.createText(selNode);
-            		                  }
-            		              }
-            		          ]
-            		       },
-            			   iconCls: "add",
-            			   handler: function() {
-                              selNode = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
-                              Ext.getCmp("qwbuilder_langs_css").setDisabled(selNode == null);
-                              Ext.getCmp("qwbuilder_langs_ct").setDisabled(selNode == null);                              
-            			   }
-            			}, "-", {
-            			   text: "Delete",
-            			   iconCls: "delete",
-            			   handler: function() {
-            			      var node = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
-            			      if (node == null) {
-            			         Ext.Msg.alert("Problem", "Please select an item in order to remove it.");
-            			      } else {
-            			          if (node.isLeaf()) {
-            			              Builder.deleteText(node);
-            			          } else {
-                                      Builder.deleteSection(node);
-            			          }
-            			      }
-            			   }
-            			}, "-"],
-            			listeners: {
-            				contextmenu: function(n, e) {
-            					e.preventDefault();
-            					var menu = new Ext.menu.Menu({
-            						items: [{
-            							text: "Add Sub Section",
-            							iconCls: "folder",
-            							handler: function() {
-                                            selNode = n;
-                                            if (selNode.isLeaf()) {
-                                                selNode = selNode.parentNode;
-                                            }
-                                            Builder.createSubSection(selNode);
-            								this.hide();
-            							}
-            						},{
-            							text: "Add Text",
-            							iconCls: "locale",
-            							handler: function() {
-            		                      // create new text
-                                            selNode = n;
-                                            if (selNode.isLeaf()) {
-                                                selNode = selNode.parentNode;
-                                            }
-                                            Builder.createText(selNode);
-            								this.hide();
-            							}
-            						}, {
-            						    text: "Delete " + (n.isLeaf() ? "Text" : "Section"),
-            						    iconCls: "delete",
-            						    handler: function() {
-            						       selNode = n;
-            						       if (selNode.isLeaf()) {
-            						          Builder.deleteText(selNode);
-            						       } else {
-            						          Builder.deleteSection(selNode);
-            						       }
-            						    }
-            						}]
-            					}).showAt(e.getXY());	
-            				}
-            			}
-					}]
+					items: navItems
 				},
-				contentPanel, 
-				{
+				contentPanel, {
 					xtype: "panel",
 					region: "east",
 					id: "sb_panel",
@@ -763,7 +770,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 					title: "Developer Chat",
 					collapsible: true,
 					width: 220
-				}				
+				}
 			]
 		});
 		
@@ -813,7 +820,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 		},{
 			key: "A",
 			callback: function(e) {
-				Builder.queryTest();
+				if (window.Builder.isDeveloper) {
+					Builder.queryTest();
+				}
 			}
 		}]);
 		Builder.dold = (new Date()).getTime();

@@ -326,12 +326,13 @@
 			window.testsuites.push({text: "#module.name Tests", id: "#module.module_id"});
 			module.handlers = [];
 			<c:foreach var="module.handlers" name="handler">
-				module.handlers.push(new Ext.tree.TreeNode({
+				module.handlers.push({
 					text: "#handler.event",
 					leaf: true,
+					cls: (<c:if cond="strlen($arr_param['handler']['hook'])>0">"handler-hook"<c:else/>null</c:if>),
 					id: "h_#handler.handler_id",
 					allowChildren: false
-				}));
+				});
 			</c:foreach>
 			module.datas = [];
 			<c:foreach var="module.datas" name="data">
@@ -458,6 +459,7 @@
 				return "templates/builder/images/default/s.gif";
 			}			
 		}();
+		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
 		Builder.init('<?=$_GET["open_nav"]?>');
 	});
 	//]]>

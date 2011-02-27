@@ -23,7 +23,10 @@ include "conf/database.php";
 
 // include tools
 include "lib/tools.php";
-include "lib/logger.php";
+include "lib/debug/logger.php";
+if (ENV_PRODUCTION !== true) {
+	include "lib/debug/debugger.php";
+}
 
 // include database-classes
 include "lib/db_entry.php";
@@ -34,6 +37,7 @@ include "lib/condition.php";
 include "lib/database.php";
 
 // include output classes
+include "lib/hookcore.php";
 include "lib/lang_data.php";
 include "lib/jsmin.php";
 include "lib/taglib.php";

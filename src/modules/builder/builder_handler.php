@@ -57,6 +57,7 @@ class BuilderHandler
                 {
                     $_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
                     $_SESSION["builder"]["user_id"] = crc32($u_group);
+                    $_SESSION["builder"]["group"] = $u_group;
                 } else
                 {
                     $this->logout();
@@ -106,10 +107,17 @@ class BuilderHandler
     }
 
     /*<EVENT-HANDLERS>*/
-    function run($arr_param=null)
+    function run($arr_param=null, $bol_invoke = true)
     {
-        list ($module, $handler) = explode(":", $_GET["builder"]["event"]);
-        $arr_module = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $module);
+    	if ($bol_invoke !== true) {
+    		$arr_module = $this->obj_data->selectModule($bol_invoke["module_id"]);
+    		$module = $arr_module["name"];
+            $arr_handlers = $this->obj_data->listHandlers($arr_module["module_id"]);
+            $handler = $arr_handlers[0]["event"];
+    	} else {
+	        list ($module, $handler) = explode(":", $_GET["builder"]["event"]);
+	        $arr_module = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $module);
+    	}
         $arr_libraries = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
         $arr_tags = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
         $arr_configuration = $this->obj_data->listConfigurationFromModule($arr_module["module_id"]);
@@ -169,8 +177,9 @@ class BuilderHandler
                 copy("modules/empty/empty_data.php", $path.$mod."_data.php");
                 copy("modules/empty/empty_handler.php", $path.$mod."_handler.php");
                 copy("modules/empty/empty_printer.php", $path.$mod."_printer.php");
-                $c = Array(file_get_contents($path.$mod.".php"), file_get_contents($path.$mod."_data.php"),
-                file_get_contents($path.$mod."_handler.php"), file_get_contents($path.$mod."_printer.php")
+                $c = Array(
+                	file_get_contents($path.$mod.".php"), file_get_contents($path.$mod."_data.php"),
+                	file_get_contents($path.$mod."_handler.php"), file_get_contents($path.$mod."_printer.php")
                 );
                 $jsinc = "";
                 $cssinc = "";
@@ -196,21 +205,30 @@ class BuilderHandler
                 {
                     $code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $arr_handler["code"]);
                     $code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
+                	if (ENV_PRODUCTION !== true) {
+                		if ($bol_invoke["handler"] == $arr_handler["handler_id"]) {
+                			$debugStart = "Debugger::breakpoint();";
+                		} else {
+                			$debugStart = "Debugger::wait();";
+                		}
+                		
+                		$code = $debugStart.preg_replace('/(\{$)|(;$)/mi', "\\1\\2Debugger::wait(get_defined_vars());", $code);
+                	}
                     $handler .= "\nfunction ".$arr_handler["event"]."() {\n".$code."\n}\n";
                     $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator) {\n";
-		    $printer .= "  global \$SERVER;\n";
+		    		$printer .= "  global \$SERVER;\n";
                     $printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
                     $printer .= "  \$arr_param[\"odict\"] = &\$_SESSION[\"odict\"];\n";
-		    $printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
-		    $printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
-		    $printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
+		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
+		    		$printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
+		    		$printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
                     if ($arr_handler["flag_ajax"] == "1")
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
                     }
-		    if ($arr_handler["flag_cacheable"] == "1") {
-			$printer .= "  Generator::getInstance()->setIsCachable();\n";
-		    }
+		    		if ($arr_handler["flag_cacheable"] == "1") {
+						$printer .= "  Generator::getInstance()->setIsCachable();\n";
+		    		}
                     $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator) : \"<!--[content]-->\");\n";
                     $printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"].".html\", \$arr_param);\n";
                     $printer .= "  \$str_content = str_replace(\"<!--[content]-->\", \$str_content, \$decoration);\n";
@@ -218,14 +236,21 @@ class BuilderHandler
 
                     $handlers[$arr_handler["event"]] = $arr_handler["html_code"];
                 }
-                if (is_array($arr_data)) foreach ($arr_data as $arr_d)
-                {
-                    $data .= "\nfunction ".$arr_d["name"]."() {\n".$arr_d["code"]."\n}\n";
+                if (is_array($arr_data)) foreach ($arr_data as $arr_d) {
+                	if (ENV_PRODUCTION !== true) {
+                		if ($bol_invoke["data"] == $arr_d["data_id"]) {
+                			$startDebug = "Debugger::breakpoint();";
+                		} else {
+                			$startDebug = "Debugger::wait();";
+                		}
+                		$arr_d["code"] = $startDebug.preg_replace('/(\{$)|(;$)/mi', "\\1\\2Debugger::wait(get_defined_vars());", $arr_d["code"]);
+                	}
+                	$data .= "\nfunction ".$arr_d["name"]."() {\n".$arr_d["code"]."\n}\n";
                 }
                 $c = str_replace(
-                Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/", "/*<JAVASCRIPT-INCLUDES>*/", "/*<CSS-INCLUDES>*/"),
-                Array(strtolower($mod), ucfirst(strtolower($mod)), "/*<CONFIGURATION>*/".$config, "/*<LIBRARIES>*/".$libs, "/*<EVENT-HANDLERS>*/".$handler, "/*<PRINTER-METHODS>*/".$printer, "/*<DB-METHODS>*/".$data, "/*<JAVASCRIPT-INCLUDES>*/".$jsinc, "/*<CSS-INCLUDES>*/".$cssinc),
-                $c
+                	Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/", "/*<JAVASCRIPT-INCLUDES>*/", "/*<CSS-INCLUDES>*/"),
+                	Array(strtolower($mod), ucfirst(strtolower($mod)), "/*<CONFIGURATION>*/".$config, "/*<LIBRARIES>*/".$libs, "/*<EVENT-HANDLERS>*/".$handler, "/*<PRINTER-METHODS>*/".$printer, "/*<DB-METHODS>*/".$data, "/*<JAVASCRIPT-INCLUDES>*/".$jsinc, "/*<CSS-INCLUDES>*/".$cssinc),
+                	$c
                 );
                 file_put_contents("templates/".$mod."/css/".$mod.".css", $arr_module["style_code"]);
                 file_put_contents("templates/".$mod."/js/".$mod.".js", $arr_module["js_code"]);
@@ -240,7 +265,11 @@ class BuilderHandler
                 @chmod("templates/".$mod, 0755);
                 @chmod("templates/".$mod."/css/", 0755);
                 @chmod("templates/".$mod."/css/".$mod.".css", 0755);
-                return invoke($mod.":".$arr_event["event"], $arr_param);
+                if ($bol_invoke === true) {
+                	return invoke($mod.":".$arr_event["event"], $arr_param);
+                } else {
+                	return true;
+                }
             }
         }
 
@@ -1597,7 +1626,19 @@ class BuilderHandler
         
         return;
 	}
-
+	
+	function debug() {
+		if ($_GET["module_id"] > 0) {
+			$this->resetModule(false, $_GET["module_id"]);
+			$param = $_GET;
+			$this->run(null, $param); //*/
+			file_put_contents("cache/debugger.do", "pause");
+			file_put_contents("cache/debugger.state", "");
+		}
+		
+		return $this->_callPrinter("debug", $arr_param);
+	}
+	
 /*</EVENT-HANDLERS>*/
 
 	/**
