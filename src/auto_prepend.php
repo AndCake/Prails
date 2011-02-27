@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 	
-	error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE);
+	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	register_shutdown_function("error_alert");
     ini_set('display_errors', 0);
 	
