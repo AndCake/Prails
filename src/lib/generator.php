@@ -264,6 +264,7 @@ class Generator {
 		$path = $cssLib->mergeStyles(ENV_PRODUCTION === true, CSS_EMBED_RESOURCES);
 		
 		$str_styles .= "<link rel='stylesheet' media='screen' href='".$SERVER.$path."' />\n";
+		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".$SERVER.str_replace(".css", ".header.css", $path)."' /><![endif]-->";
 
 		foreach ($this->arr_styles as $style) {
             if ($style["browser"] != "all") {

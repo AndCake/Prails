@@ -111,7 +111,7 @@ class CSSLib {
 		return $css;		
 	}
 	
-	function embedResources($css) {
+	function embedResources($css, $path = "") {
 		global $SERVER;
 		
 		// try finding URLs and replace them by resources
@@ -170,7 +170,7 @@ class CSSLib {
     	    }
 			
 			if ($embed) {
-				$data = $this->embedResources($css);
+				$data = $this->embedResources($css, $path);
 				$css = $data["css"];
 				$headerArea = $data["header"];
 			} else {
