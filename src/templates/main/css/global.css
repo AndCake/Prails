@@ -1,35 +1,22 @@
-#page {
-	padding: 10px;
+#page { padding: 10px; }
+a { 
+	color: #000;
+	&:hover {
+		background-color: #000;
+		color: #fff;
+		text-decoration: none;
+	} 
 }
 
-p.success {
-	color: #0a0;
-}
-
-p.error {
-	color: #a00;
+p {
+	&.success { color: #0a0; }
+	&.error { color: #a00; }
 }
 
 .form-entry {
 	margin-bottom: 10px;
-}
-
-.form-entry label {
-	display: block;
-}
-
-.form-entry input[type="text"] {
-	width: 200px;
-}
-
-a, a:visited, a:link {
-	color: #000;
-}
-
-a:hover {
-	background-color: #000;
-	color: #fff;
-	text-decoration: none;
+	label { display: block; }
+	input[type="text"], input[type="password"] { width: 200px; }
 }
 
 fieldset {
@@ -47,8 +34,5 @@ fieldset {
 	-o-border-radius: 10px;
 	padding: 10px;
 	padding-top: 0px;
-}
-
-.global-home-left-nav dt {
-	margin-top: 20px;
+	dt { margin-top: 20px; }
 }
