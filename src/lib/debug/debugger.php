@@ -22,6 +22,7 @@ class Debugger {
 				Debugger::$keepRunning = false;
 				file_put_contents("cache/debugger.do", "pause");
 				$trace = $tr;
+				if (!is_array($vars)) $vars = Array();
 				$trace["variables"] = array_merge($vars, Array("POST" => $_POST, "GET" => $_GET));
 				file_put_contents("cache/debugger.state", json_encode($trace));
 			}
