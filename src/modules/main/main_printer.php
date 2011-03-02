@@ -34,7 +34,7 @@ class MainPrinter
         /*<JAVASCRIPT-INCLUDES>*/
         $obj_gen->addJavaScript("templates/main/js/prototype.js");
         $obj_gen->addJavaScript("templates/main/js/s2.js");
-        $obj_gen->addJavaScript("templates/main/js/modernizr-1.5.min.js");
+        $obj_gen->addJavaScript("templates/main/js/modernizr-1.7.min.js");
         $obj_gen->addJavaScript("templates/main/js/nicedit.js");
         $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/fileselector.js");
@@ -71,14 +71,18 @@ class MainPrinter
             $decorator = invoke($arr_param["text"]["decorator"]);
         }
 
-	if (strlen($arr_param["text"]["title"]) > 0) {
-		Generator::getInstance()->setTitle($arr_param['text']['title']);
-	}
-	if (strlen($arr_param['text']['description']) > 0) {
-		Generator::getInstance()->setDescription($arr_param['text']['description']);
-	}
+		if (strlen($arr_param["text"]["title"]) > 0) {
+			Generator::getInstance()->setTitle($arr_param['text']['title']);
+		}
+		if (strlen($arr_param['text']['description']) > 0) {
+			Generator::getInstance()->setDescription($arr_param['text']['description']);
+		}
         
         return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
+    }
+    
+    function setup($arr_param) {
+    	return Generator::getInstance()->includeTemplate("templates/main/html/setup.html", $arr_param);
     }
 }
 ?>

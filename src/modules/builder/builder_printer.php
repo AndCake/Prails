@@ -174,7 +174,6 @@ class BuilderPrinter
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
 	}
-	
     /*</PRINTER-METHODS>*/
 }
 

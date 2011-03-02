@@ -229,7 +229,7 @@ class BuilderHandler
 		    		if ($arr_handler["flag_cacheable"] == "1") {
 						$printer .= "  Generator::getInstance()->setIsCachable();\n";
 		    		}
-                    $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator) : \"<!--[content]-->\");\n";
+                    $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator, \$arr_param) : \"<!--[content]-->\");\n";
                     $printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"].".html\", \$arr_param);\n";
                     $printer .= "  \$str_content = str_replace(\"<!--[content]-->\", \$str_content, \$decoration);\n";
                     $printer .= "  return \$str_content;\n}\n";
@@ -1638,7 +1638,7 @@ class BuilderHandler
 		
 		return $this->_callPrinter("debug", $arr_param);
 	}
-	
+
 /*</EVENT-HANDLERS>*/
 
 	/**

@@ -1,7 +1,9 @@
 ServerSignature Off
 
-php_value short_open_tag 1
+# remove the comment below if you need to turn this on explicitly
+#php_value short_open_tag 1
 
+# add compression types for static files
 AddType text/css css cgz
 AddEncoding gzip cgz
 AddType text/javascript js jgz

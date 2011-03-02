@@ -49,6 +49,10 @@ class MainHandler
 
     function home()
     {
+    	if (FIRST_RUN) {
+    		return invoke("main:setup");
+    	}
+    	
 		/** BEGIN_CODE **/
    $arr_param = Array(
       "modules" => $this->obj_data->listModules()
@@ -56,6 +60,64 @@ class MainHandler
    return $this->_callPrinter("home", $arr_param);
 
 /** END_CODE **/
+    }
+    
+    function setup() {
+		$arr_param = Array();
+		
+		if (isset($_GET["check"])) {
+			$arr_project = $_POST["project"];
+			$arr_db = $_POST["db"];
+			$arr_user = $_POST["user"];
+			$success = true;
+			// save project settings
+			global $arr_settings;
+			$arr_settings["PROJECT_NAME"] = $arr_project["name"];
+			$arr_settings["ENV_PRODUCTION"] = ($arr_project["env"] == "prod");
+			updateConfiguration($arr_settings);
+			
+			// save  database info
+			if ($arr_db["type"] != "SQLITE") {
+				$conf = file_get_contents("conf/configuration.php");
+				$conf = str_replace(Array(
+					'define ("DB_TYPE", SQLITE);',
+   	  				'"name"=>"test",			// database name - change this',
+					'"user"=>"root",			// database user - change this',
+					'"pass"=>"",			// database password - change this'
+				), Array(
+					'define ("DB_TYPE", MYSQL);',
+					'"name"=>"'.$arr_db["name"].'",			// database name - change this',
+					'"user"=>"'.$arr_db["user"].'",			// database user - change this',
+					'"pass"=>"'.$arr_db["pass"].'",			// database password - change this'
+				), $conf);
+				$success = $success && @file_put_contents("conf/configuration.php");
+				$arr_settings["FIRST_RUN"] = true;
+				updateConfiguration($arr_settings);
+			}
+			
+			$groups = Array();
+			$users = Array();
+			foreach ($arr_user["name"] as $key=>$value) {
+				array_push($users, $value.":".$arr_user["pass"][$key]);
+				if (!is_array($groups[$arr_user["group"][$key]])) {
+					$groups[$arr_user["group"][$key]] = Array();
+				}
+				array_push($groups[$arr_user["group"][$key]], $value);
+			}
+			$success = $success && file_put_contents(".users", implode("\n", $users));
+			$str_grp = "";
+			foreach ($groups as $key=>$grp) {
+				$str_grp .= $key."=".implode(",".$grp)."\n";
+			}
+			$success = $success && @file_put_contents(".groups", $str_grp);
+			$arr_param = $_POST; 			
+			$arr_param["message"] = $success ? "success" : "error";
+		}
+		
+		$arr_param["test"] = touch("cache/test");
+		$arr_param["permissions"] = touch("conf/configuration.php") && touch(".groups") && touch(".users");
+		
+		return $this->_callPrinter("setup", $arr_param);
     }
     
     

@@ -1,0 +1,109 @@
+<style type="text/css">
+.form-field label { width: 150px; display: inline-block; _display: inline; }
+.form-field input[type="text"], .form-field input[type="password"], .form-field select { width: 200px; }
+.form-field .validate-valid-hint { display: inline-block; margin-left: 10px; }
+fieldset { display: block; border: 1px solid #ccc; }
+fieldset legend { font-weight: bold; }
+</style>
+<div style="width: 700px;margin: 0px auto;">
+<h1>Welcome to the Prails Web Framework!</h1>
+<? if ($arr_param["message"] == "success") { ?>
+	<p class="success">Your data has been saved successfully!</p>
+	<p>You may now proceed to either the <a href="">global home page</a> or the <a href="?event=builder:home">IDE</a>.</p>
+	<p>Have fun!</p>
+<? } else { ?>
+<p>Before you can begin using Prails to develop the most awesome web applications, you first need to set your Prails instance's base configuration.</p>
+<h2>Setup</h2>
+<? if (!$arr_param["permissions"]) { ?>
+	<p class="error">Prails detected that important files are not writable.<br/> 
+	Please enable write access to all files and folders within the Prails directory.</p>
+<? } else { ?>
+<? if ($arr_param["message"] == "error") { ?>
+	<p class="error">Your data could not be saved. Please check user permissions.</p>
+<? } ?>
+<form method="post" action="main/setup/check">
+	<fieldset>
+		<legend>Project Data</legend>
+		<div class="form-field">
+			<label for="pname">* Project Name:</label>
+			<input id="pname" type="text" name="project[name]" value="<?=if_set($arr_param['project']['name'], PROJECT_NAME)?>" class="required" />
+		</div>
+		<div class="form-field">
+			<label for="env">* Environment Type:</label>
+			<select name="project[env]" id="env" size="1">
+				<option value="devel" <?=($arr_param['project']['env'] == 'devel' ? 'selected="selected"' : '')?>>Development</option>
+				<option value="prod" <?=($arr_param['project']['env'] == 'prod' ? 'selected="selected"' : '')?>>Production</option>
+			</select>
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Database</legend>
+		<div class="form-field">
+			<label for="dbtype">* Type:</label>
+			<select name="db[type]" id="dbtype" size="1" onchange="this.value == 'MYSQL' && $$('.mysql')[0].show() || $$('.mysql')[0].hide();">
+				<option value="SQLITE" <?=($arr_param['db']['type'] == 'SQLITE' ? 'selected="selected"' : '')?>>SQLite</option>
+				<option value="MYSQL" <?=($arr_param['db']['type'] == 'MYSQL' ? 'selected="selected"' : '')?>>MySQL</option>
+			</select>
+		</div>
+		<div class="mysql" <?=($arr_param['db']['type'] != 'MYSQL' ? 'style="display:none;"' : '')?>>
+			<div class="form-field">
+				<label for="dbname">* Name:</label>
+				<input id="dbname" type="text" name="db[name]" value="#db.name" class="required" />
+			</div>
+			<div class="form-field">
+				<label for="dbuser">* User name:</label>
+				<input id="dbuser" type="text" name="db[user]" value="#db.user" class="required" />
+			</div>
+			<div class="form-field">
+				<label for="dbpass">* Password:</label>
+				<input id="dbpass" type="password" name="db[pass]" value="#db.pass" class="required" />
+			</div>
+		</div>
+	</fieldset>
+	
+	<fieldset>
+		<legend>Users</legend>
+		<div class="form-field admin">
+			<div class="form-field">
+				<label>* Admin Password:</label>
+				<input type="hidden" name="user[name][]" value="admin"/>
+				<input type="hidden" name="user[group][]" value="devel" />
+				<input type="password" name="user[pass][]" value="" class="required"/>
+			</div>
+		</div>
+		<div class="users">
+			<div class="user" style="margin-top: 20px;">
+				<div class="form-field">
+					<label>User name:</label>
+					<input type="text" name="user[name][]" value=""/>
+				</div>
+				<div class="form-field">
+					<label>Password:</label>
+					<input type="password" name="user[pass][]" value=""/>
+				</div>
+				<div class="form-field">
+					<label>Role:</label>
+					<select name="user[group][]">
+						<option value="devel">Developer</option>
+						<option value="cms">Content Manager</option>
+					</select>
+				</div>
+			</div>
+		</div>
+		<a href="javascript:" onclick="$$('.users')[0].insert(window.userClone);window.userClone=window.userClone.clone(true);">add another user</a>
+		<!-- let the user enter multiple users here -->
+		<!-- each one with user name, password and the user group be belongs to -->
+	</fieldset>
+	
+	<div class="actions">
+		<button type="submit">Save</button>
+	</div>
+	
+	<script type="text/javascript">
+	//<![CDATA[
+		window.userClone = $$('.users .user')[0].clone(true);
+	//]]>
+	</script>
+</form>
+<? }} ?>
