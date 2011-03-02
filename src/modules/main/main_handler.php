@@ -115,7 +115,9 @@ class MainHandler
 		}
 		
 		$arr_param["test"] = touch("cache/test");
+		list($main_version, $sub_version) = explode(".", phpversion("sqlite"));
 		$arr_param["permissions"] = touch("conf/configuration.php") && touch(".groups") && touch(".users");
+		$arr_param["db"]["type"] = (version_compare(PHP_VERSION, "5.3.0") >= 0 && $main_version >= 2 ? "SQLITE" : "MYSQL");
 		
 		return $this->_callPrinter("setup", $arr_param);
     }
