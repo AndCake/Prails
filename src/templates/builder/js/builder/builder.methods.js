@@ -277,7 +277,10 @@ Builder = Object.extend(Builder || {}, {
     
     setCode: function(el, newval) {
     	el = $(el);
-    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value = newval;
+    	var bespin = document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin;
+    	var sel = bespin.editor.selection;
+    	bespin.editor.value = newval;
+    	bespin.editor.selection = sel;
     },
     
     /** 
