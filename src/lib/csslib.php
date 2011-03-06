@@ -119,16 +119,17 @@ class CSSLib {
 		$headerArea = "/*\r\nContent-Type: multipart/related; boundary=\"_ANY_SEPARATOR\"\r\n\r\n";
 		if (count($matches[3]) > 0) {
 			foreach ($matches[3] as $key=>$match) {
+				$matches[0][$key] = preg_replace('/(([^{;]+(\{|;)))/', "", $matches[0][$key]);
 				$oMatch = $match;
 				$match = trim(str_replace("'", '', str_replace('"', "", $match)));
 				// check if it is an image
 				if (strpos($match, ".png") !== false || strpos($match, ".gif") !== false ||
 					strpos($match, ".jpg") !== false || strpos($match, ".jpeg") !== false) {
-					preg_match('@templates/([^/0-9]+)([0-9]+)/.*/images/(.*)$@', $match, $pats);
-					if (strlen($pats[1]) > 0) {
-						$file = @array_pop($this->obj_sql->SqlQuery("SELECT a.* FROM tbl_prailsbase_resource AS a, tbl_prailsbase_module AS b WHERE a.name='".$pats[3]."' AND b.name='".$pats[1]."' AND b.module_id=a.fk_module_id"));
-						// apply inline-images just for smaller images (each less than 128kB in Base64) 
-						if ($file && strlen($file["data"]) < 131072) {
+					preg_match('@templates/([^/0-9]+)([0-9]*).*/images/(.*)$@', $match, $pats);
+					if (strlen($pats[1]) > 0 && ($pats[1] != "builder" && $paths[1] != "main")) {
+						$file = @array_pop($this->obj_sql->SqlQuery("SELECT a.* FROM tbl_prailsbase_resource AS a, tbl_prailsbase_module AS b WHERE a.name='".$pats[3]."' AND LOWER(b.name)='".$pats[1]."' AND b.module_id=a.fk_module_id"));
+						// apply inline-images just for smaller images (each less than 128kB in Base64)
+						if ($file && strlen($file["data"]) <= 1024) {
 							$id = md5($pat[1].$pat[2].$file["resource_id"]);
 							$headerArea .= "--_ANY_SEPARATOR\r\n";
 							$headerArea .= "Content-Location:".$id."\r\n";

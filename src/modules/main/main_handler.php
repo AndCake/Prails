@@ -72,9 +72,16 @@ class MainHandler
 			$success = true;
 			// save project settings
 			global $arr_settings;
+			$arr_save = Array();
 			$arr_settings["PROJECT_NAME"] = $arr_project["name"];
 			$arr_settings["ENV_PRODUCTION"] = ($arr_project["env"] == "prod");
-			updateConfiguration($arr_settings);
+			if ($arr_db["type"] != "SQLITE") {
+				$arr_settings["FIRST_RUN"] = true;
+			}
+			foreach ($arr_settings as $key => $value) {
+				array_push($arr_save, Array("name" => $key, "value" => $value));
+			}
+			updateConfiguration($arr_save);
 			
 			// save  database info
 			if ($arr_db["type"] != "SQLITE") {
@@ -91,23 +98,23 @@ class MainHandler
 					'"pass"=>"'.$arr_db["pass"].'",			// database password - change this'
 				), $conf);
 				$success = $success && @file_put_contents("conf/configuration.php");
-				$arr_settings["FIRST_RUN"] = true;
-				updateConfiguration($arr_settings);
 			}
 			
 			$groups = Array();
 			$users = Array();
 			foreach ($arr_user["name"] as $key=>$value) {
-				array_push($users, $value.":".$arr_user["pass"][$key]);
-				if (!is_array($groups[$arr_user["group"][$key]])) {
-					$groups[$arr_user["group"][$key]] = Array();
+				if (strlen($value) > 0 && strlen($arr_user["pass"][$key]) > 0) {
+					array_push($users, $value.":".$arr_user["pass"][$key]);
+					if (!is_array($groups[$arr_user["group"][$key]])) {
+						$groups[$arr_user["group"][$key]] = Array();
+					}
+					array_push($groups[$arr_user["group"][$key]], $value);
 				}
-				array_push($groups[$arr_user["group"][$key]], $value);
 			}
 			$success = $success && file_put_contents(".users", implode("\n", $users));
 			$str_grp = "";
 			foreach ($groups as $key=>$grp) {
-				$str_grp .= $key."=".implode(",".$grp)."\n";
+				$str_grp .= $key."=".implode(",", $grp)."\n";
 			}
 			$success = $success && @file_put_contents(".groups", $str_grp);
 			$arr_param = $_POST; 			

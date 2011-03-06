@@ -26,7 +26,7 @@ div#qwbuilder_headerPanel .x-panel-body {
 .config { background-image: url(../images/settings.png) !important; }
 .delete, button.delete { background-image: url(../images/delete.png); }
 .edit { background-image: url(../images/edit.png) !important; }
-.folder { background-image: url(../images/default/tree/folder.gif); }
+.folder, #qwbuilder_modulePanel .x-tree-node-el .x-tree-node-icon { background-image: url(../images/default/tree/folder.gif); }
 .handler { background-image: url(../images/default/tree/leaf.gif) !important; }
 .handler-hook img.x-tree-node-icon, .x-tab-panel-header span.handler-hook { background-image: url(../images/plugin.png) !important; }
 .HelpTabIcon { background-image: url(../images/help.png) !important; }

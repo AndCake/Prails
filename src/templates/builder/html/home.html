@@ -141,6 +141,14 @@
 <script type="text/javascript">
 	//<![CDATA[
 	var win;
+	Ext.BLANK_IMAGE_URL = (function() {
+		if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
+			return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+		} else {
+			return "templates/builder/images/default/s.gif";
+		}			
+	})();
+	
 	var updateProgress = function(url, msg) {
 	    window._prailsInstallProgress.currentStatus = msg;
         new Ajax.Request(url, {
@@ -452,13 +460,6 @@
 		<c:foreach var="texts" name="text" key="section">
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
-		Ext.BLANK_IMAGE_URL = function() {
-			if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
-				return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
-			} else {
-				return "templates/builder/images/default/s.gif";
-			}			
-		}();
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
 		Builder.init('<?=$_GET["open_nav"]?>');
 	});

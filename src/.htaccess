@@ -40,7 +40,7 @@ AddEncoding gzip jgz
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule templates/([^/]*)/images/(.*)$ index.php?event=builder:createResource&mod=$1&resource=$2 [L]
+	RewriteRule templates/([^/]*).*/images/(.*)$ index.php?event=builder:createResource&mod=$1&resource=$2 [L]
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f

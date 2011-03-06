@@ -32,9 +32,10 @@ class BuilderData extends Database
         return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id='".$user_id."' ORDER BY name");
     }
 
-    function selectModuleByUserAndName($user_id, $name)
+    function selectModuleByUserAndName($user_id, $name, $fs = false)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id='".$user_id."' AND name='".$name."' ORDER BY name"));
+    	if ($fs) $nq = "LOWER(name)"; else $nq = "name";
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id='".$user_id."' AND ".$nq."='".$name."' ORDER BY name"));
     }
 
     function selectHandlerByNameAndModule($module_id, $event)
@@ -103,7 +104,7 @@ class BuilderData extends Database
 	}
 	
 	function selectDecoratorEventsFromUser($user) {
-	   return $this->SqlQuery("SELECT *, CONCAT(m.name, ':', h.event) AS name FROM tbl_prailsbase_handler AS h, tbl_prailsbase_module AS m WHERE h.fk_module_id=module_id AND m.fk_user_id='".$user."' AND h.html_code LIKE '%<!--[content]-->%'");
+	   return $this->SqlQuery("SELECT *, CONCAT(m.name, ':', h.event) AS name FROM tbl_prailsbase_handler AS h, tbl_prailsbase_module AS m WHERE h.fk_module_id=module_id AND m.fk_user_id='".$user."' AND (h.html_code LIKE '%<!--[content]-->%' OR h.html_code LIKE '%<c:body%/>%')");
 	}
 
     // data

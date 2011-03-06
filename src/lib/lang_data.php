@@ -134,6 +134,8 @@ class LangData
       if (!is_array($arr_data["content"])) return false;
       foreach ($arr_data["content"] as $lang=>$text) {
          $entry["fk_language_id"] = $lang;
+         $entry["title"] = $arr_data["title"];
+         $entry["description"] = $arr_data["description"];
          $entry["identifier"] = $arr_data["identifier"];
          $entry["decorator"] = $arr_data["decorator"];
          $entry["type"] = $arr_data["type"];

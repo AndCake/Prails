@@ -137,21 +137,20 @@ class BuilderHandler
             $libs = "\n";
             foreach ($arr_libraries as $arr_lib)
             {
-                if ($arr_lib["fk_module_id"] == $arr_module["module_id"])
-                {
-                    $libPath = "modules/".$mod."/lib/";
-                } else
-                {
-                    $libPath = "lib/custom/";
-                }
-                if (!file_exists($libPath.$arr_lib["name"].$arr_lib["library_id"].".php"))
-                {
-                    $content = "<"."?php\n".$arr_lib["code"]."\n?".">";
-                    file_put_contents($libPath.$arr_lib["name"].$arr_lib["library_id"].".php", $content);
-                }
-
-                $libs .= "include_once('".$libPath.$arr_lib["name"].$arr_lib["library_id"].".php');\n";
-                //                include_once ($libPath.$arr_lib["name"].$arr_lib["library_id"].".php");
+            	if ((int)$arr_lib["fk_module_id"] == 0 || $arr_lib["fk_module_id"] == $arr_module["module_id"]) {
+	                if ($arr_lib["fk_module_id"] == $arr_module["module_id"])
+	                {
+	                    $libPath = "modules/".$mod."/lib/";
+	                } else {
+	                    $libPath = "lib/custom/";
+	                }
+	                if (!file_exists($libPath.$arr_lib["name"].$arr_lib["library_id"].".php"))
+	                {
+	                    $content = "<"."?php\n".$arr_lib["code"]."\n?".">";
+	                    file_put_contents($libPath.$arr_lib["name"].$arr_lib["library_id"].".php", $content);
+	                }
+                	$libs .= "include_once('".$libPath.$arr_lib["name"].$arr_lib["library_id"].".php');\n";
+            	}
             }
             $tagPath = "lib/tags/custom/";
             foreach ($arr_tags as $arr_tag)
@@ -924,21 +923,26 @@ class BuilderHandler
 
     function createResource()
     {
-    	$_GET["mod"] = preg_replace('/([a-zA-Z0-9_]+)[0-9]+$/', '\1', $_GET["mod"]);
-        $arr_param["module"] = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $_GET["mod"]);
+		$omod = $_GET["mod"];
+    	$_GET["mod"] = preg_replace('/([a-zA-Z_]+)[0-9]*$/', '\1', $_GET["mod"]);
+        $arr_param["module"] = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $_GET["mod"], true);
         $arr_param["resource"] = $this->obj_data->selectResourceByName($arr_param["module"]["module_id"], $_GET["resource"]);
 
         if ($arr_param["resource"] != null)
         {
-            $mod = strtolower($arr_param["module"]["name"]);
+            $mod = $arr_param["module"]["name"];
+            
+            if (!ENV_PRODUCTION) {
+            	$mod = $omod;
+            }
 
-            $basePath = "templates/".$mod."/images/";
+            $basePath = "templates/".strtolower($mod)."/images/";
             $path = $basePath.$arr_param["resource"]["name"];
             if (!file_exists($basePath))
             {
                 mkdir($basePath, 0755, true);
                 @chmod($basePath, 0755);
-                @chmod("templates/".$mod, 0755);
+                @chmod("templates/".strtolower($mod), 0755);
             }
             file_put_contents($path, base64_decode($arr_param["resource"]["data"]));
             @chmod($path, 0755);

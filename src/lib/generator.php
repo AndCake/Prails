@@ -210,7 +210,7 @@ class Generator {
         }
     }
 
-    function setTitle($str_title, $bol_override = false) {
+    function setTitle($str_title, $bol_override = true) {
     	if ($bol_override || strlen($this->str_title) == 0)
         	$this->str_title = $str_title;
     }
@@ -219,7 +219,7 @@ class Generator {
         return $this->str_title;
     }
 
-    function setDescription($str_desc, $bol_override = false) {
+    function setDescription($str_desc, $bol_override = true) {
     	if ($bol_override || strlen($this->str_description) == 0)
         	$this->str_description = $str_desc;
     }
