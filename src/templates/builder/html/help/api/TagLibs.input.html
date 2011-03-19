@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+        <title>input - TagLib - Prails API Documentation</title>
+    </head>
+    <body>
+        <h3 class="P4"><a name="_include"><span/></a>input</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <p class="Text_20_body">
+			This tag renders a user input field.
+        </p>
+        <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
+        <p class="Text_20_body">
+            <code><c:input name="{name}" [type="{type}"] (value="{value}" | values="{var name}") [class="{css classes to add}"] [label="{label}"] [rel="{expression}"] [overlabel="{overlabel}"] [multiple="{size}"]/></code>
+        </p>
+        <table border="0" cellspacing="0" cellpadding="0" class="Table12">
+            <colgroup>
+                <col width="143"/><col width="599"/>
+            </colgroup>
+            <tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {name}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 name of the input to be used for submission
+		    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {type}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 type of input; can be: text, password, file, checkbox, radio, select, date (default = text)
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {value}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {var name}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 all values (for radio, checkbox, select) : Array(value : label)
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {css classes to add}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 classes to add
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {label}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 input field's label
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {expression}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			custom expression for required inputs (for text, password and date)
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {overlabel}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			 overlabel to use (for text, password, date)
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {size}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+			size to show (for select), also enables selecting multiple entries at once; for text inputs it will enable entering multiple lines of text
+                    </p>
+                </td>
+            </tr>
+        </table>        
+        <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4>
+        <p class="Text_20_body">
+            This example renders a select box and a textarea:
+        </p>
+        <pre>
+		<@ $arr_param['values'] = Array("" => "select...", "one", "two", "three", "four"); @>
+		<@ $arr_param['local']['content'] = "Hello World!\nThis is text."; @>
+		<c:input type="select" name="number" values="values" class="required"/>
+		<c:input type="text" name="content" value="#local.content" overlabel="Test" label="Enter Text" multiple="5" />
+        </pre>
+    </body>
+</html>

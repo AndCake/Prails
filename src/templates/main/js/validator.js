@@ -5,8 +5,8 @@
  *
  * Validation syntax:
     <form method="post" action="">
-        <div class="validate-email-error" title="empty=Your eMail address is important!|invalid=Oh! Seems you have a type in your eMail address."></div>
-        <div class="required-error" title="empty=Don't want to give us your eMail address? Oh, please..."></div>
+        <div class="validate-email-error" error="empty=Your eMail address is important!|invalid=Oh! Seems you have a type in your eMail address."></div>
+        <div class="required-error" error="empty=Don't want to give us your eMail address? Oh, please..."></div>
         <input type="text" name="email" class="validate-email required" />
         <button type="submit">send</button>
     </form>
@@ -35,10 +35,10 @@
  * - validate-<anything>-error: override / create definition of validate-<anything>.
  * 
  * The element containing exactly one of the above CSS classes will be checked for a "rel" attribute, defining the regular expression (or some custom Javascript 
- * code, if prepended with "javascript:") to use for validation and also checked for a "title" attribute, which can contain the error messages to be shown 
+ * code, if prepended with "javascript:") to use for validation and also checked for a "error" attribute, which can contain the error messages to be shown 
  * for this kind of field. Both are optional. 
- * Furthermore you can override these globally-defined classes by specifying the "rel" or/and the "title" attribute in the element itself to be validated.
- * The title attribute must be structured like this: "empty=<text to show, if this field is empty>|invalid=<text to show, if this field is invalid>"
+ * Furthermore you can override these globally-defined classes by specifying the "rel" or/and the "error" attribute in the element itself to be validated.
+ * The error attribute must be structured like this: "empty=<text to show, if this field is empty>|invalid=<text to show, if this field is invalid>"
  *
  * Example form:
  * =============
@@ -46,7 +46,7 @@
 <form method="post" action="?submitted">
 
     <!-- definition of a new validator, called "meiner", which does not accept any alpha character -->
-    <div class="validate-meiner-error" title="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"></div>
+    <div class="validate-meiner-error" error="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"></div>
     <fieldset>
         <legend>Login</legend>
         <div class="formfield">
@@ -59,7 +59,7 @@
             <label for="test2">Password</label>
             
             <!-- using no special validator, but a dedicated valid pattern and invalid advice text -->
-            <input type="password" name="password" id="test2" class="required" rel=".{6,}" title="invalid=Your password must have at least 6 characters." />
+            <input type="password" name="password" id="test2" class="required" rel=".{6,}" error="invalid=Your password must have at least 6 characters." />
         </div>
         <div class="formfield">
             <label for="test3">No Chars</label>
@@ -240,7 +240,7 @@ var Validator = Class.create({
                 if (type != "empty")
                     errorText = (me.validExpression[cls.replace("validate-", "")] ? me.validExpression[cls.replace("validate-", "")].text : "");
                 $$("."+cls+"-error").each(function(item) {
-                    var res = me.parseTitle(item.title)
+                    var res = me.parseTitle(item.getAttribute("error"))
                     if (res[type]) {
                         errorText = res[type];
                         throw $break;
@@ -248,8 +248,8 @@ var Validator = Class.create({
                 });
             }
         });
-        if (el.title) {
-            var txt = this.parseTitle(el.title)[type];
+        if (el.getAttribute("error")) {
+            var txt = this.parseTitle(el.getAttribute("error"))[type];
             if (txt && !txt.empty())
                 errorText = txt;
         }

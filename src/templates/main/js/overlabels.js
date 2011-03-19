@@ -29,7 +29,7 @@ addLoadEvent(Overlabel.init = function() {
 			$(item).remove();
 		} else {
 			if (!$(item).up().hasClassName("withLabel")) {
-				convertToOverlabel(item, item.title);
+				convertToOverlabel(item, item.getAttribute("label"));
 			}
 		}
 	});	
