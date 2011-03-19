@@ -1293,4 +1293,40 @@ function one_of() {
 	}
 }
 
+/**
+ * this function copies the received file to the specified directory
+ * @param String $fileName - name of the file (as transmitted as GET parameter for qw:upload fields)
+ * @param String $targetPath - directory to put the file into
+ * @return mixed FALSE if no file received, else the name (including path) of the file after copy is completed
+ */
+function receiveFile($fileName, $targetPath) {
+	global $log;
+	// only allow file uploads via POST
+	if (strtoupper($_SERVER["REQUEST_METHOD"]) != "POST") {
+		$log->error("File uploads only allowed via POST!");
+	    return false;
+	}
+	if (!is_dir($targetPath)) {
+    	if (!@mkdir($targetPath, 0755, true)) {
+    		$log->error("Failed to create directory ".$targetPath." in receiveFile.");
+    		return false;
+    	}	
+	}
+	if ($targetPath[strlen($targetPath) - 1] != '/') {
+		$targetPath .= "/"; 
+	}
+	if (isset($_FILES['file'])) {
+	    $ftmp = $_FILES['file']['tmp_name'];
+	    $oname = basename($_FILES["file"]["name"]);
+	    while (file_exists($targetPath.$i.$oname)) { $i++; }
+	    move_uploaded_file($ftmp, $targetPath.$i.$oname);
+	} else {
+		$oname = $fileName;
+	    while (file_exists($targetPath.$i.$oname)) { $i++; }
+		file_put_contents($targetPath.$i.$oname, file_get_contents("php://input"));
+	}	
+	
+	return $targetPath.$i.$oname;
+}
+
 ?>
