@@ -1,35 +1,4 @@
-<? if (strlen($_GET["check"])>0) { ?>
-	<table border="0" cellspacing="1"><tr><th></th>
-	<? if ($arr_param["result"][0] != null) { ?><th><?=implode("</th><th>", array_keys($arr_param["result"][0]->getArrayCopy()))?></th><? } ?>
-	</tr>
-	<? if (is_array($arr_param["result"]) && count($arr_param["result"])) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
-		<tr class="<?=$line%2==0?'':'grey'?>">
-			<td><?=($line+1)?></td>
-			<? foreach ($arr_entry as $key=>$value) { if (is_numeric($key)) continue; ?>
-				<td>
-					<pre style="padding:0px;margin:0px;"><?=htmlspecialchars($value)?></pre>
-				</td>
-			<? } ?>
-		</tr>
-	<? } else { ?>
-		<? if (strlen($arr_param["error"]) > 0) { ?>
-		<tr><td><?=$arr_param["error"]?></td></tr>
-		<? } else { ?>
-		<tr><td>Your query did not return a result.</td></tr>
-		<? } ?>
-	<? } ?>
-	</table>
-	<script type="text/javascript">
-		(function(){
-			$$("#result tr td").each(function(item){
-				item.observe("click", function(event){
-					this.up().toggleClassName("selected");
-					event.stop();
-				}.bindAsEventListener(item));
-			});
-		})();
-	</script>
-<? } else { ?>
+<? { ?>
 	<style type="text/css">
 		#result table tr th {
 			background: url(templates/builder/images/slate/grid/grid3-hrow.gif) repeat-x; 
@@ -63,24 +32,6 @@
 		<div id="clip_container"></div>
 	</div>
 	<div style="clear:both;margin-bottom:3px;"></div>
-	<div id="first_result" style="display:none;">
-		<table border="0" cellspacing="1"><tr><th></th>
-		<? if ($arr_param["result"][0] != null) { ?><th><?=implode("</th><th>", array_keys($arr_param["result"][0]->getArrayCopy()))?></th><? } ?>
-		</tr>
-		<? if (is_array($arr_param["result"]) && count($arr_param["result"]) > 0) foreach ($arr_param["result"] as $line=>$arr_entry) { ?>
-			<tr class="<?=$line%2==0?'':'grey'?>">
-				<td><?=($line+1)?></td>
-				<? foreach ($arr_entry as $key=>$value) { if (is_numeric($key)) continue; ?>
-					<td>
-						<pre style="padding:0px;margin:0px;"><?=htmlspecialchars($value)?></pre>
-					</td>
-				<? } ?>
-			</tr>
-		<? } else { ?>
-			<tr><td>No tables created yet.</td></tr>
-		<? } ?>
-		</table>
-	</div>
 	<div id="result_container" style=""></div>
 	<script type="text/javascript">
 		(function(){
@@ -90,7 +41,7 @@
 					item.observe("click", function(event){
 						if (!this.up().down("td", 1)) return false;
 						var tbl = this.up().down("td", 1).innerHTML.stripTags().strip();
-						window.runQuery("SELECT * FROM tbl_"+tbl+" WHERE 1");
+						window.runQuery("SELECT * FROM tbl_"+tbl+" WHERE 1", true);
 						event.stop();
 					}.bindAsEventListener(item));
 				});				
@@ -98,25 +49,117 @@
 							
 			window.runQuery = function(query, callback, hide) {
 				if ((query || window.sqlQuery.getCode()).strip().length <= 0) return false;
-				if (hide) {
-					Ext.getCmp("query_result_panel").setTitle("Table List");
-				} else {
-					var shortQuery = (query || window.sqlQuery.getCode());
-					if (shortQuery.length > 50) shortQuery = shortQuery.substr(0, 50);
-					Ext.getCmp("query_result_panel").setTitle("Query Result for: " + shortQuery);
-				}
-				invoke("result", "builder:queryTest&check=1", {
+
+				var shortQuery = (query || window.sqlQuery.getCode());
+				if (shortQuery.length > 50) shortQuery = shortQuery.substr(0, 50);
+
+				invoke(null, "builder:queryTest&check=1", {
 					"query": query || window.sqlQuery.getCode()
-				}, true, function(req){
+				}, true, function(req) {
+					try {
+						$("result_container").update("");
+					var fields = [];
+					var cols = [];
+					var data = eval("("+req.responseText+")");
+					
+					for (var each in data["result"][0]) {
+						if (typeof(data.result[0][each]) != "function" && typeof(data.result[0][each])) {
+							fields.push(each);
+							if (each != "id") {
+								cols.push({header: each, dataIndex: each, sortable: !hide, editor: new Ext.form.TextField()});
+							} else {
+								cols.push({header: each, dataIndex: each});
+							}
+						}
+					}
+					var store = new Ext.data.JsonStore({
+						url: "?event=builder:queryTest&check=2",
+						autoDestroy: true,
+						storeId: "queryStore",
+						root: "result",
+						remoteSort: true,
+						totalProperty: "total",
+						idProperty: "id",
+						fields: fields
+					});
+					
+					var grid = new (hide ? Ext.grid.GridPanel : Ext.grid.EditorGridPanel)({
+						id: "resultGrid",
+						layout: "fit",
+				        loadMask: true,						
+						height: $("result_container").up().up().getHeight() - $("result_container").offsetTop - 40,
+						autoScroll: true,						
+						store: store,
+						title: (hide ? "Table List" : "Query Result for: "+shortQuery),
+						renderTo: "result_container",
+					    sm: new Ext.grid.RowSelectionModel({
+					    	singleSelect:false,
+					        listeners: {
+					        	rowselect: function(e, d, g) {
+					        		if (hide) {
+					        			window.currentQueryTable = g.data["table_name"].replace(/<[^>]+>/gi, '');
+										window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+					        		}
+					        	}
+					        }					    	
+					    }),
+					    colModel: new Ext.grid.ColumnModel({
+					        defaults: {sortable: true},
+					        columns: cols
+					    }),
+						bbar: pb = new Ext.PagingToolbar({
+				            pageSize: 25,
+				            store: store,
+				            displayInfo: true,
+				            displayMsg: 'Displaying results {0} - {1} of {2}',
+				            emptyMsg: "No results to display",
+				            items:[/*"Search:", " ", new Ext.ux.form.SearchField({
+				                store: store,
+				                width:320
+				            })*/]
+				        })
+					});	
+//*
+					if (callback === true && false) {
+						pb.addButton({
+							xtype: "button",
+							text: "Add Row",
+							iconCls: "add",
+							handler: function() {
+						       	var store = Ext.getCmp("resultGrid").getStore();
+						        var orec, row;
+						        if(store.recordType) {
+						            orec = new store.recordType();
+						            orec.data = {};
+						            orec.fields.each(function(field) {
+						                orec.data[field.name] = field.defaultValue;
+						            });
+						            orec.data.newRecord = true;
+						            orec.commit();
+						            store.add(orec);
+
+						            row = store.indexOf(orec);
+						            if(row && undefined !== Ext.getCmp("resultGrid").editOnAddCol) {
+						                Ext.getCmp("resultGrid").startEditing(row, this.editOnAddCol);
+						            }
+						        }
+							}
+						});
+					}
+//*/					
+					grid.store.on('load',grid.autoSizeColumns,grid);  					
+					store.load({params: {start: 0, limit: 25}});
+
 					if (typeof(callback) == "function") {
 						new PeriodicalExecuter(function(pe) {
 							callback();
 							pe.stop();
 						}, 0.5);
 					}
+					} catch(e) {alert(e.message);}
 				});				
 			};
-
+			
 			new Ext.form.TextArea({
 				fieldLabel: "Query",
 				grow: true,
@@ -131,19 +174,6 @@
 				width: "100%",
 				renderTo: "clip_container",
 				anchor:'95%'
-			});
-			new Ext.Panel({
-				id: "query_result_panel",
-				title: "Table List",
-				layout: "fit",
-				height: $("result_container").up().up().getHeight() - $("result_container").offsetTop - 40,
-				autoScroll: true,
-				renderTo: "result_container",
-				items:[{
-					xtype: 'panel',
-					html: $("first_result").innerHTML,
-					id: "result"
-				}]
 			});
 			Ext.getCmp("portlet_content_query_test").getTopToolbar().add([{
 				xtype: "button",
@@ -176,9 +206,39 @@
 					window.sqlQuery.editor.doc.run = function(){
 						window.runQuery();
 					};
-					initTableList();
+					window.runQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
 				}
 			}, 0.5);
+			
+			Ext.override(Ext.CompositeElement, {
+			    getTextWidth: function() {
+			        var i, e, els = this.elements, result = 0;
+			        for(i = 0; e = Ext.get(els[i]); i++) {
+			            result = Math.max(result, e.getTextWidth.apply(e, arguments));
+			        }
+			        return result;
+			    }
+			});
+
+			Ext.override(Ext.grid.GridPanel, {
+			    autoSizeColumns: function() {
+			        this.colModel.suspendEvents();
+			        for (var i = 0; i < this.colModel.getColumnCount(); i++) {
+			            this.autoSizeColumn(i);
+			        }
+			        this.colModel.resumeEvents();
+			        this.view.refresh(true);
+			    },
+
+			    autoSizeColumn: function(c) {
+			        var col = this.view.el.select("td.x-grid3-td-" + this.colModel.getColumnId(c) + " div:first-child");
+			        if (col) {
+			            var w = col.getTextWidth() + Ext.get(col.elements[0]).getFrameWidth('lr') + 2;
+			            this.colModel.setColumnWidth(c, w);
+			            return w;
+			        }
+			    }
+			});
 		})();
 	</script></div>
 <? } ?>

@@ -10,7 +10,7 @@ Builder = Object.extend(Builder || {}, {
 		var a_id = n.id.split(/_/gm);
 		var id = parseInt(a_id[1]);
 		icon = "handler";
-		if (n.ui.elNode.className.indexOf("handler-hook") >= 0) {
+		if (n.ui && n.ui.elNode && n.ui.elNode.className.indexOf("handler-hook") >= 0) {
 			icon = "handler-hook";
 		}
 		Builder.addTab("?event=builder:editHandler&module_id="+Builder.currentModule.id+"&handler_id="+id, n.text, "h_"+id, icon);

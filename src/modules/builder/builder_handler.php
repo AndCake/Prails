@@ -1187,11 +1187,62 @@ class BuilderHandler
 		if ($_GET["check"] == "1")
 		{
     		$query = ($_POST["query"]);
-			$arr_param["result"] = $this->obj_data->SqlQuery($query);
+    		if (preg_match('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', $query, $match)) {
+    			if (strlen($match[2]) > 0) {
+    				$offset = $match[1];
+    				$limit = $match[2];
+    			} else {
+    				$limit = $match[1];
+    			}
+    			$query = preg_replace('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', '', $query);
+    		}
+    		$query .= " LIMIT [offset], [limit]";
+			$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
+    		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
+			$_SESSION["builder"]["currentQuery"] = $query;
+			$_SESSION["builder"]["currentQueryTotal"] = (int)$arr_param["totals"][0]["total"];
+			$result = Array();
+			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
+			
+			if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $i => $res) {
+				$arr_res["id"] = $i + 1;
+				$arr_res = array_merge($arr_res, $res->getArrayCopy());
+				foreach ($arr_res as $k => $val) {
+					$arr_res[$k] = "<pre>".htmlspecialchars($val)."</pre>";
+				}
+				array_push($result, $arr_res);
+			}
+			if (count($result) <= 0 && strlen($arr_param["error"]) > 0) {
+				array_push($result, Array("error" => $arr_param["error"])); 
+			}
+			ob_flush();
+			die(json_encode(Array("result" => $result, "total" => (int)$arr_param["totals"][0]["total"])));
+		} else if (isset($_POST["start"])) {
+			$query = $_SESSION["builder"]["currentQuery"];
+			if (isset($_POST["sort"])) {
+				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
+			}
+			$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
+			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
+			
+			$result = Array();
+			if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $i => $res) {
+				$arr_res["id"] = $i + 1;
+				$arr_res = array_merge($arr_res, $res->getArrayCopy());
+				foreach ($arr_res as $k => $val) {
+					$arr_res[$k] = "<pre>".htmlspecialchars($val)."</pre>";
+				}
+				array_push($result, $arr_res);
+			}
+			if (count($result) <= 0 && strlen($arr_param["error"]) > 0) {
+				array_push($result, Array("error" => $arr_param["error"])); 
+			}
+			ob_flush();			
+			die(json_encode(Array("result" => $result, "total" => (int)$_SESSION["builder"]["currentQueryTotal"])));
+						
 		} else {
 			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
 		}
-		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 
 		die ($this->_callPrinter("queryTest", $arr_param));
 	}

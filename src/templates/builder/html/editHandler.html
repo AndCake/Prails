@@ -73,7 +73,6 @@
               var mid = <?=(int)$_SESSION["module_id"]?>;
               var module = Builder.root.findChild("id", mid);
               Builder.closeTab("h_0");
-              // @TODO need to check why it is not re-opened and not added to tree!!!
               var n = new Ext.tree.TreeNode({
                 text: name,
                 leaf: true,
