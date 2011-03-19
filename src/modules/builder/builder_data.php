@@ -359,7 +359,11 @@ class BuilderData extends Database
     {
         $this->DeleteQuery("tbl_prailsbase_resource", "resource_id='".$resource_id."'");
     }
-	
+    function clearResource($module_id)
+    {
+        $this->DeleteQuery("tbl_prailsbase_resource", "fk_module_id='".$module_id."'");
+    }
+    
 	function findHandlerByName($name, $uid) {
 		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE event LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
 		$arr_return = Array();
@@ -506,6 +510,9 @@ class BuilderData extends Database
 	}
 	function deleteTestcase($testcase_id) {
 		$this->DeleteQuery("tbl_prailsbase_testcase", "testcase_id='".$testcase_id."'");
+	}
+	function clearTestcase($module_id) {
+		$this->DeleteQuery("tbl_prailsbase_testcase", "fk_module_id='".$module_id."'");
 	}
 	
     /*</DB-METHODS>*/

@@ -259,12 +259,14 @@ var Validator = Class.create({
     showError: function(el, text) {
         el = $(el);
         el.addClassName("validate-invalid");
-        var advice = new Element("div", {id: el.name+"-"+el.id+"-advice", "class": "validate-advice", style: "display: none;"});
+        var advice = new Element("div", {id: el.name+"-"+el.id+"-advice", "class": "validate-advice"});
         advice.update(text);
         el.insert({after: advice});
+        var height = advice.getHeight();
+        advice.hide();
         if (this.options.animated) {
 			advice.setStyle("display:block;height:0em;opacity:0;");
-            advice.morph("height:1.5em;opacity:1;", {duration: 0.5});
+            advice.morph("height:"+height+"px;opacity:1;", {duration: 0.5});
         } else
             advice.show();
     },

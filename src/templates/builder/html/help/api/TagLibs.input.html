@@ -11,7 +11,7 @@
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
-            <code><c:input name="{name}" [type="{type}"] (value="{value}" | values="{var name}") [class="{css classes to add}"] [label="{label}"] [rel="{expression}"] [overlabel="{overlabel}"] [multiple="{size}"]/></code>
+            <code><c:input name="{name}" [type="{type}"] (value="{value}" | values="{var name}") [class="{css classes to add}"] [label="{label}"] [rel="{expression}"] [overlabel="{overlabel}"] [error="{error}"] [multiple="{size}"]/></code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table12">
             <colgroup>
@@ -103,6 +103,17 @@
                 <td style="text-align:left;width:13.716cm; " class="Table12_B1">
                     <p class="Table_20_Contents">
 			 overlabel to use (for text, password, date)
+                    </p>
+                </td>
+            </tr><tr>
+                <td style="text-align:left;width:3.283cm; " class="Table12_A1">
+                    <p class="Table_20_Contents">
+                        {error}
+                    </p>
+                </td>
+                <td style="text-align:left;width:13.716cm; " class="Table12_B1">
+                    <p class="Table_20_Contents">
+						validation error message as used for the error attribute on form fields fields
                     </p>
                 </td>
             </tr><tr>

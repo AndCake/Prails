@@ -322,7 +322,10 @@ class BuilderHandler
 
         $this->obj_data->deleteModule($_GET["module_id"]);
         $this->obj_data->deleteHandlerFromModule($_GET["module_id"]);
-        $this->obj_data->deleteDataFromModule($_GET["module_id"]);
+		$this->obj_data->clearConfiguration($_GET["module_id"]);
+		$this->obj_data->clearResource($_GET["module_id"]);
+		$this->obj_data->clearTestcase($_GET["module_id"]);
+		$this->obj_data->deleteDataFromModule($_GET["module_id"]);
         die ("success");
     }
 
