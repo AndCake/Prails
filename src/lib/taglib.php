@@ -49,6 +49,7 @@ class TagLib {
 		}
 		
 		$html = $this->makeAllVars($html);
+		$html = str_replace(Array('<%', '%>', "<@", "@>"), Array("<?", "?>", "<?", "?>"), $html);
 		
 		$html = $this->integrate($html);
 			
@@ -67,7 +68,7 @@ class TagLib {
 		require($path);
 		$content = ob_get_contents();
 		ob_end_clean();
-		$content = str_replace("@>", "?".">", str_replace("<@", "<"."?", $content));
+		$content = str_replace(Array("@>", "<@", "%>", "<%"), Array("?>", "<?", "?>", "<?"), $content);
 		return $content;
 	}
 	

@@ -65,7 +65,9 @@ class SQLite {
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
 			$this->arr_links[$id]["link"]->createFunction("FLOOR", "floor");			
 			$this->arr_links[$id]["link"]->createFunction("CEIL", "ceil");			
-			$this->arr_links[$id]["link"]->createFunction("TESTNULL", Array($this, "_ext_isnull"));			
+			$this->arr_links[$id]["link"]->createFunction("TESTNULL", Array($this, "_ext_isnull"));
+			$this->arr_links[$id]["link"]->createFunction("UNIX_TIMESTAMP", "time");
+			$this->arr_links[$id]["link"]->createFunction("RAND", "mt_rand");
 		} catch (Exception $ex) {
 			global $log;
 			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory.\n\n");

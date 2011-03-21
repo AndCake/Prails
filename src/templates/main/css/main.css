@@ -11,3 +11,23 @@ body {
 .highlight td {
 	background-color:#dcf79a;
 }
+
+span.langhelper {
+	display: block;
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	opacity: 0.5;
+	filter:alpha(opacity=50);
+	background: #faa;
+	border: 1px solid #fff;
+}
+
+div.langtooltip {
+	position: absolute;
+	padding: 5px 10px;
+	background: #ffc;
+	margin-top:10px;
+	margin-left: 10px;
+	border: 1px solid #cca;
+}
