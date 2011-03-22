@@ -52,8 +52,10 @@ if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_MET
     die();
 }
 
-if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
-HookCore::init();
+if (IS_SETUP) {
+	if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
+	HookCore::init();
+}
 $obj_main = new MainHandler();
 $obj_generator = Generator::getInstance();
 $obj_generator->setModule($obj_main);

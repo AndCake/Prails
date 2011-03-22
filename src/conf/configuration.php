@@ -39,6 +39,7 @@ $arr_settings = Array(
 "CSS_EMBED_RESOURCES" => true,
 "ERROR_NOTIFICATION" => false,
 "ERROR_EMAIL" => "notify@example.org",
+"IS_SETUP" => false,
 /*</CUSTOM-SETTINGS>*/
 );
 /*</KEEP-1>*/

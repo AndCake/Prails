@@ -56,7 +56,7 @@ class BuilderHandler
                 if (in_array($_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"], $passwd))
                 {
                     $_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
-                    $_SESSION["builder"]["user_id"] = crc32($u_group);
+                    $_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
                     $_SESSION["builder"]["group"] = $u_group;
                 } else
                 {
@@ -1196,8 +1196,10 @@ class BuilderHandler
     			}
     			$query = preg_replace('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', '', $query);
     		}
-    		$query .= " LIMIT [offset], [limit]";
-			$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
+    		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
+    			$query .= " LIMIT [offset], [limit]";
+				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
+    		}
     		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
 			$_SESSION["builder"]["currentQuery"] = $query;
 			$_SESSION["builder"]["currentQueryTotal"] = (int)$arr_param["totals"][0]["total"];
@@ -1222,7 +1224,9 @@ class BuilderHandler
 			if (isset($_POST["sort"])) {
 				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 			}
-			$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
+    		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
+				$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
+    		}
 			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 			
 			$result = Array();

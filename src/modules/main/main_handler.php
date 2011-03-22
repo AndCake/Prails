@@ -49,7 +49,7 @@ class MainHandler
 
     function home()
     {
-    	if (FIRST_RUN) {
+    	if (!IS_SETUP) {
     		return invoke("main:setup");
     	}
     	
@@ -75,9 +75,9 @@ class MainHandler
 			$arr_save = Array();
 			$arr_settings["PROJECT_NAME"] = $arr_project["name"];
 			$arr_settings["ENV_PRODUCTION"] = ($arr_project["env"] == "prod");
-			if ($arr_db["type"] != "SQLITE") {
-				$arr_settings["FIRST_RUN"] = true;
-			}
+			$arr_settings["IS_SETUP"] = true;
+			$arr_settings["FIRST_RUN"] = true;
+
 			foreach ($arr_settings as $key => $value) {
 				array_push($arr_save, Array("name" => $key, "value" => $value));
 			}
@@ -97,7 +97,7 @@ class MainHandler
 					'"user"=>"'.$arr_db["user"].'",			// database user - change this',
 					'"pass"=>"'.$arr_db["pass"].'",			// database password - change this'
 				), $conf);
-				$success = $success && @file_put_contents("conf/configuration.php");
+				$success = $success && @file_put_contents("conf/configuration.php", $conf);
 			}
 			
 			$groups = Array();

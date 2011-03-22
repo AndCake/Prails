@@ -37,12 +37,14 @@ class LangData
    }
    
    function setLanguage($str_lang) {
-       $arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
-       $str_lang = $arr_result["abbreviation"];
-       $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
-       $this->language_id = $arr_result["language_id"];
-       $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
-       if (!$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang]) $_SESSION["LangData_LANGUAGE_SETTING"][$str_lang] = Array();
+	   if (IS_SETUP) {
+	       $arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
+	       $str_lang = $arr_result["abbreviation"];
+	       $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
+	       $this->language_id = $arr_result["language_id"];
+	       $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
+	       if (!$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang]) $_SESSION["LangData_LANGUAGE_SETTING"][$str_lang] = Array();
+	   }
    }
 
    function getText($str_item)
