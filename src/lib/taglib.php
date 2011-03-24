@@ -41,7 +41,7 @@ class TagLib {
 				if ($entry["depth"] > $allowedDepth) continue;
 				$rc = new TagLib();
 				if (strlen($entry["body"]) > 0) {
-					$entry["body"] = $rc->compile($entry["body"], $allowedDepth+1);
+					$entry["body"] = $rc->compile($entry["body"], $allowedDepth);
 				}
 				$content = $this->loadTagLib($tag, $entry);
 				$html = str_replace($entry["match"], $content, $html);
