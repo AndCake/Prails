@@ -235,12 +235,19 @@ var Validator = Class.create({
         var me = this;
         el = $(el);
         var errorText = me.validExpression["required"].text;
+        $$(".required-error").each(function(item) {
+            var res = me.parseTitle(item.getAttribute("error"));
+            if (res[type]) {
+                errorText = res[type];
+                throw $break;
+            }
+        });
         el.classNames().each(function(cls) {
             if (cls.indexOf("validate-") >= 0) {
                 if (type != "empty")
                     errorText = (me.validExpression[cls.replace("validate-", "")] ? me.validExpression[cls.replace("validate-", "")].text : "");
                 $$("."+cls+"-error").each(function(item) {
-                    var res = me.parseTitle(item.getAttribute("error"))
+                    var res = me.parseTitle(item.getAttribute("error"));
                     if (res[type]) {
                         errorText = res[type];
                         throw $break;

@@ -33,18 +33,20 @@
 	        <input<?=strlen($tag['attributes']['error'])>0 ? ' error="'.$tag['attributes']['error'].'"' : ''?> type="<?=$type?>" name="<?=$tag['attributes']['name']?>" value="<?=$tag['attributes']['value']?>" class="<?=$tag['attributes']['class']?><?=(strlen($tag['attributes']['overlabel']) > 0 ? ' overlabel' : '')?>" label="<?=$tag['attributes']['overlabel']?>" rel="<?=$tag['attributes']['rel']?>" />
 	<? } ?>
     <? } else { ?>
-        <? $var = $this->makeVar($tag["attributes"]["values"]); ?>
-        <? $i = 0; if (is_array($var)) foreach ($var as $value => $label) { ?>
-            <input type="<?=$type?>" name="<?=($type == 'radio' ? $tag['attributes']['name'] : $tag['attributes']['name'].'[]')?>" <?=(in_array($value, explode(";", $tag['attributes']['value'])) ? 'checked="checked"':'')?> value="<?=$value?>" id="<?=$tag['attributes']['name'].'_'.$i?>" />
-            <label for="<?=$tag['attributes']['name'].'_'.$i?>"><?=$label?></label>
-        <? $i++; } ?>
+        <% $var = $arr_param["<?=$this->makeVar($tag["attributes"]["values"])?>"]; $val = $arr_param["<?=$this->makeVar(preg_replace('/^#/', '', $tag['attributes']['value']))?>"]; %>
+        <% $i = 0; if (is_array($var)) foreach ($var as $value => $label) { %>
+        	<div class='radio'>
+	            <input type="<?=$type?>" name="<?=($type == 'radio' ? $tag['attributes']['name'] : $tag['attributes']['name'].'[]')?>" <%=(in_array($value, explode(";", $val)) ? 'checked="checked"':'')%> value="<%=$value%>" id="<?=$tag['attributes']['name']?>_<%=$i%>" />
+	            <label for="<?=$tag['attributes']['name']?>_<%=$i%>"><%=$label%></label>
+            </div>
+        <% $i++; } %>
     <? } ?>
 <? } else { ?>
     <select name="<?=$tag['attributes']['name']?>" <?=strlen($tag['attributes']['multiple'])>0 ? 'size="'.$tag['attributes']['multiple'].'" multiple="multiple"':'size="1"'?>>
-        <? $var = $this->makeVar($tag["attributes"]["values"]); ?>
-        <? $i = 0; if (is_array($var)) foreach ($var as $value => $label) { ?>
-            <option value="<?=$value?>"<?=(in_array($value, explode(';', $tag['attributes']['value'])) ? ' selected="selected"':'')?>><?=$label?>
-        <? } ?>
+        <% $var = $arr_param["<?=$this->makeVar($tag["attributes"]["values"])?>"]; $val = $arr_param["<?=$this->makeVar(preg_replace('/^#/', '', $tag['attributes']['value']))?>"]; %>
+        <% $i = 0; if (is_array($var)) foreach ($var as $value => $label) { %>
+            <option value="<%=$value%>"<%=(in_array($value, explode(';', $val)) ? ' selected="selected"':'')%>><%=$label%>
+        <% } %>
     </select>
 <? } ?>
 </div>

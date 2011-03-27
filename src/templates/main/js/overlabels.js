@@ -21,6 +21,9 @@ addLoadEvent(Overlabel.init = function() {
 		$(element).observe("focus", function() {
 			this.up().up().down("label").hide();
 		});
+		if (element.value.length <= 0) {
+			element.up().up().down("label").show();
+		}
 	};
 	
 	$$("label.overlabel, input[type='text'].overlabel, textarea.overlabel").each(function(item) {

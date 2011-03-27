@@ -928,7 +928,7 @@ class BuilderHandler
     {
 		$omod = $_GET["mod"];
     	$_GET["mod"] = preg_replace('/([a-zA-Z_]+)[0-9]*$/', '\1', $_GET["mod"]);
-        $arr_param["module"] = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], $_GET["mod"], true);
+        $arr_param["module"] = $this->obj_data->selectModuleByUserAndName($_SESSION["builder"]["user_id"], strtolower($_GET["mod"]), true);
         $arr_param["resource"] = $this->obj_data->selectResourceByName($arr_param["module"]["module_id"], $_GET["resource"]);
 
         if ($arr_param["resource"] != null)

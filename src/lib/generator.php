@@ -165,7 +165,7 @@ class Generator {
     }
 
     function parseApplyLanguage($buffer) {
-        preg_match_all("/\\{([a-zA-Z0-9.]+)(\\\$?)\\}/", $buffer, $arr_matches);
+        preg_match_all("/\\{([a-zA-Z0-9]+\\.[a-zA-Z0-9.]+)(\\\$?)\\}/", $buffer, $arr_matches);
 
         foreach ($arr_matches[1] as $key => $str_match) {
 	    $text = $this->obj_lang->getText($str_match);
