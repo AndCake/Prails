@@ -12,6 +12,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 	handlerRoot: new Ext.tree.TreeNode(),
 	dataRoot: new Ext.tree.TreeNode(),
 	langRoot: new Ext.tree.TreeNode(),
+	hookedPanels: [],
 	currentModule: null,
 	prailsNamespace: {
 	  save: function(){},
@@ -743,6 +744,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 				}
 			}
 		});
+		for (var i = 0; i < Builder.hookedPanels.length; i++) {
+			navItems.push(Builder.hookedPanels[i]);			
+		}
 		var viewport = new Ext.Viewport({
 			layout: "border",
 			items: [

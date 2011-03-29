@@ -462,6 +462,13 @@
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
+		(function() {
+			try {
+				<c:hook name="builder-init"/>
+			} catch(e) {
+				window.console && console.log(e.message);
+			}
+		})();
 		Builder.init('<?=$_GET["open_nav"]?>');
 	});
 	//]]>

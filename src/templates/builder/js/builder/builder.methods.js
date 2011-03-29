@@ -310,6 +310,10 @@ Builder = Object.extend(Builder || {}, {
     			Builder.setCode(el, res["code"]);
     		}
     	});
+    },
+    
+    addSection: function(panel) {
+    	Builder.hookedPanels.push(panel);
     }
     
 });
