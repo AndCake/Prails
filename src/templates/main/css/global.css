@@ -1,3 +1,13 @@
+body {
+   font-family:Trebuchet MS, Helvetica, sans-serif;
+   font-size:13px;
+   line-height: 1.56em;
+   color:#111;
+   margin: 0px;
+   padding: 0px;
+   z-index:0;
+}
+
 #page { padding: 10px; }
 a { 
 	color: #000;
@@ -37,3 +47,5 @@ fieldset {
 	padding-top: 0px;
 	dt { margin-top: 20px; }
 }
+
+clear, .clear { display: block; height: 0px; clear: both; }

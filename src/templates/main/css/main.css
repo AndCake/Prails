@@ -1,13 +1,3 @@
-body {
-   font-family:Trebuchet MS, Helvetica, sans-serif;
-   font-size:13px;
-   line-height: 1.56em;
-   color:#111;
-   margin: 0px;
-   padding: 0px;
-   z-index:0;
-}
-
 .highlight td {
 	background-color:#dcf79a;
 }
