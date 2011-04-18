@@ -21,7 +21,8 @@ window.Builder = Object.extend(window.Builder || {}, {
 	  close: function() {parent.Builder.closeCurrentTab.apply(parent, []);},
 	  query: function() {parent.Builder.queryTest.apply(parent, []);},
 	  previousTab: function() {parent.Builder.previousTab.apply(parent, []);},
-	  nextTab: function() {parent.Builder.nextTab.apply(parent, []);}
+	  nextTab: function() {parent.Builder.nextTab.apply(parent, []);},
+	  search: function(win) {parent.Builder.searchInBespin(parent, [win]);}
 	},
 		
 	init: function(openedPanel) {
@@ -863,7 +864,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 									item.up().removeClassName("dirty");
 									// reload editor content
 									Builder.refreshBespin(item.up().id);
-								} else if (obj[item.up().id] && !item.up().hasClassName("dirty")) {
+								} else if (obj[item.up().id] && !item.up().hasClassName("dirty") && obj[item.up().id].uid != window.uid) {
 									item.update('Currently being modified by '+obj[item.up().id].user);
 									item.show();
 									Builder.disableBespin(item.up().id);

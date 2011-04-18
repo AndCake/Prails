@@ -386,14 +386,14 @@ function timeDiff($time, $opt = array())
     $diff = ($opt['to'] > $time) ? $opt['to']-$time : $time-$opt['to'];
     // An array of label => periods of seconds;
     $periods = array(
-    $opt["period_names"][0][0] => 315569260,
-    $opt["period_names"][1][0] => 31556926,
-    $opt["period_names"][2][0] => 2629744,
-    $opt["period_names"][3][0] => 604800,
-    $opt["period_names"][4][0] => 86400,
-    $opt["period_names"][5][0] => 3600,
-    $opt["period_names"][6][0] => 60,
-    $opt["period_names"][7][0] => 1
+    	$opt["period_names"][0][0] => 315569260,
+    	$opt["period_names"][1][0] => 31556926,
+    	$opt["period_names"][2][0] => 2629744,
+    	$opt["period_names"][3][0] => 604800,
+    	$opt["period_names"][4][0] => 86400,
+    	$opt["period_names"][5][0] => 3600,
+    	$opt["period_names"][6][0] => 60,
+    	$opt["period_names"][7][0] => 1
     );
     // Round to precision
     if ($opt['precision'] != 7)

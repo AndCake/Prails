@@ -42,14 +42,18 @@ include("conf/includes.php");
 
 $log = new Logger();
 
-if (!isset($_SESSION["last_access"]) || (time() - $_SESSION["last_access"]) > 60) {
-	$_SESSION["last_access"] = time();
+if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
+	$_SESSION["REQUEST_TIME"] = time();
 }
 
-if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && file_exists("cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"])) && HTML_CACHE_ENABLED) {
-    require("cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]));
-
-    die();
+$__cacheName = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+if (file_exists($__cacheName)) {
+	if (filectime($__cacheName) < ($_SERVER["REQUEST_TIME"] - 3600)) {
+		@unlink($__cacheName);
+	} else if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && HTML_CACHE_ENABLED) {
+	    require($__cacheName);
+	    die();
+	}
 }
 
 if (IS_SETUP) {

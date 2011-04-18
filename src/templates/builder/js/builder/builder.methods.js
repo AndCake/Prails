@@ -311,6 +311,21 @@ Builder = Object.extend(Builder || {}, {
     		}
     	});
     },
+    searchInBespin: function(win) {
+    	var bespin = win.document.getElementsByTagName("div")[0].bespin;
+		new Ext.Window({
+			layout: "fit",
+			title: "Find Text in Code",
+			modal: false,
+			autoScroll: true,
+			resizable: true,					
+			shadow: true,
+			width: 374,
+			height: 360,
+			plain: true,
+			items:[]		// define search form...
+		}).show();
+    },
     
     addSection: function(panel) {
     	Builder.hookedPanels.push(panel);

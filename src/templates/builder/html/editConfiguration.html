@@ -80,7 +80,7 @@
 					params["configuration["+i+"][name]"] = item.data.key;
 					params["configuration["+i+"][value]"] = item.data.value;
 				}
-				new Ajax.Request("?event=builder:editConfiguration&check=1",{
+				new Ajax.Request("?event=builder:editConfiguration&check=1&module_id=#module.module_id",{
 					parameters: params,
 					onSuccess: function(req) {
 						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");

@@ -9915,6 +9915,13 @@ bespin.tiki.module("prails_shortcuts:index",function(require,exports,module) {
         	"key": "ctrl_shift_q",
             "predicates": {"isTextView": true},
             "pointer": "#prailsClose"
+        },
+        {
+        	"ep": "command",
+        	"name": "search_find",
+        	"key": "ctrl_f",
+        	"predicates": {"isTextView": true},
+        	"pointer": "#prailsSearch"
         }, 
         {
         	"ep": "command",
@@ -9966,6 +9973,10 @@ exports.prailsNextTab = function(args, request) {
 };
 exports.prailsQuery = function(args, request) {
   window.prails.query();
+};
+exports.prailsSearch = function(args, request) {
+//	alert("a mereh!");
+	window.prails.search(window);
 };
 });
 ;bespin.tiki.register("::ctags", {

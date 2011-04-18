@@ -91,7 +91,13 @@ class SQLite {
 	      	}
 	  	}
 	  	
-	  	$str_query = str_replace(" ISNULL(", " TESTNULL(", $str_query);
+	  	if (substr($str_query, 0, 6) != "INSERT") {
+	  		if (substr($str_query, 0, 6) == "UPDATE") {
+		  		$str_query = substr($str_query, 0, strrpos($str_query, " WHERE ")) . str_replace(" ISNULL(", " TESTNULL(", substr($str_query, strrpos($str_query, " WHERE ")));
+	  		} else {
+	  			$str_query = str_replace(" ISNULL(", " TESTNULL(", $str_query);
+	  		}
+	  	}
 	  	
 	  	return $str_query;
 	}

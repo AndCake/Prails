@@ -122,10 +122,46 @@ class DBEntry extends DBEntryObject {
 		parent::__construct($arr_data, $flags, $iterator_class);
 	}
 	
+	function get($index, $filter = "", $name = "") {
+		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
+			$mix = $index.md5($filter);
+			if (parent::offsetGet($mix) == null) {
+				parent::offsetSet($mix, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."' AND ".if_set($filter, "1")."")));
+				if (strlen($name) > 0) {
+					parent::offsetSet($name, parent::offsetGet($mix));					
+				}
+			}
+			return parent::offsetGet($mix); 
+		} else if (substr($index, -5) == "_list") {
+			$collection_name = preg_replace("/_list\$/", "", $index);
+			$mix = $index.md5($filter);
+			if (parent::offsetGet($mix) == null) {
+				$cols = $this->obj_tbl->obj_mysql->listColumns($this->prefix.$collection_name);
+				$lCols = Array();
+				foreach ($cols as $col) {
+					array_push($lCols, $col["Field"]);
+				}
+				$list = array_keys(parent::getArrayCopy());
+				$pairs = Array();
+				foreach ($list as $entry) {
+					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
+						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
+					}
+				}
+				parent::offsetSet($mix, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").") AND ".if_set($filter, "1").""));
+				if (strlen($name) > 0) {
+					parent::offsetSet($name, parent::offsetGet($mix));					
+				}
+			}
+			return parent::offsetGet($mix); 
+		} else {
+			return parent::offsetGet($index);
+		}
+	}
+	
 	function offsetGet($index) {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
 			if (parent::offsetGet($index) == null) {
-				debugLog("Trying to retrieve data from table ".$this->prefix.$index." with ID ".$id);
 				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."'")));
 			}
 			return parent::offsetGet($index); 

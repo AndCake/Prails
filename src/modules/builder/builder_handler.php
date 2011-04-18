@@ -130,7 +130,11 @@ class BuilderHandler
             $config .= "\t\"".strtoupper($arr_module['name'])."\" => \"".$mod."\",\n";
             foreach ($arr_configuration as $arr_conf)
             {
-                $config .= "\t".'"'.$arr_conf['name'].'" => "'.str_replace('"', '\"', $arr_conf['value'])."\",\n";
+            	if ($arr_conf["value"] == "true" || $arr_conf["value"] == "false" || is_numeric($arr_conf["value"])) {
+                	$config .= "\t".'"'.$arr_conf['name'].'" => '.str_replace('"', '\"', $arr_conf['value']).",\n";
+            	} else {
+                	$config .= "\t".'"'.$arr_conf['name'].'" => "'.str_replace('"', '\"', $arr_conf['value'])."\",\n";
+            	}
             }
             $config .= "/*</CUSTOM-SETTINGS>*/\n);\nforeach (\$arr_".$mod."_settings as \$key=>\$value) {\n\tif(!defined(\$key)) define(\$key, \$value);\n}\n";
 
@@ -1234,7 +1238,7 @@ class BuilderHandler
 				$arr_res["id"] = $i + 1;
 				$arr_res = array_merge($arr_res, $res->getArrayCopy());
 				foreach ($arr_res as $k => $val) {
-					$arr_res[$k] = "<pre>".htmlspecialchars($val)."</pre>";
+					$arr_res[$k] = "".htmlspecialchars($val)."";
 				}
 				array_push($result, $arr_res);
 			}
@@ -1245,7 +1249,7 @@ class BuilderHandler
 			die(json_encode(Array("result" => $result, "total" => (int)$_SESSION["builder"]["currentQueryTotal"])));
 						
 		} else {
-			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(':', ', ', field_names) AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
+			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
 		}
 
 		die ($this->_callPrinter("queryTest", $arr_param));
@@ -1495,7 +1499,7 @@ class BuilderHandler
 							$this->obj_data->insertData($data);
 						}
 						foreach ($mod["configs"] as $config) {
-							$this->obj_data->deleteConfiguration($config["configuration_id"]);
+							$this->obj_data->clearConfiguration($config["fk_module_id"]);
 							$this->obj_data->insertConfiguration($config);
 						}
 						foreach ($mod["resources"] as $res) {
@@ -1539,6 +1543,8 @@ class BuilderHandler
 		    $arr_param["text"]["name"] = substr($arr_param["texts"][0]["identifier"], strrpos($arr_param["texts"][0]["identifier"], ".")+1);
 		    $arr_param["text"]["type"] = $arr_param["texts"][0]["type"];
 		    $arr_param["text"]["decorator"] = $arr_param["texts"][0]["decorator"];
+		    $arr_param["text"]["title"] = $arr_param['texts'][0]["title"];
+		    $arr_param["text"]["description"] = $arr_param['texts'][0]["description"];
 		}
 		
         if ($arr_param["text"]["type"] == 2 || substr($arr_param["text"]["path"], 0, 4) == "cms.") {
