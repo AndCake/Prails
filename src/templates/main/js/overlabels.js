@@ -3,7 +3,7 @@ addLoadEvent(Overlabel.init = function() {
 	var convertToOverlabel = function(element, content) {
 		element = $(element);
 		element.wrap("span", {"class": 'withLabel'});
-		element.parentNode.insert({before: label=new Element("label", {"class": 'overlabel-apply'}).update(content)});
+		element.parentNode.insert({before: label=new Element("label", {"class": 'overlabel-apply'}).update(content).hide()});
 		label.observe("click", function() {
 			this.hide();
 			element.focus();
@@ -22,7 +22,7 @@ addLoadEvent(Overlabel.init = function() {
 			this.up().up().down("label").hide();
 		});
 		if (element.value.length <= 0) {
-			element.up().up().down("label").show();
+			label.show();
 		}
 	};
 	

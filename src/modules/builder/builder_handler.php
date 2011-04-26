@@ -192,11 +192,11 @@ class BuilderHandler
                 {
                     if (is_array($header["js_includes"])) foreach ($header["js_includes"] as $entry)
                     {
-                        $jsinc .= "	  \$obj_gen->addJavaScript(\"".$entry."\");\n";
+                        $jsinc .= "	  \$obj_gen->addJavaScript(\"".$entry."\", ".(ENV_PRODUCTION !== true ? "false" : "true").");\n";
                     }
                     if (is_array($header["css_includes"])) foreach ($header["css_includes"] as $entry)
                     {
-                        $cssinc .= "	  \$obj_gen->addStyleSheet(\"".$entry."\");\n";
+                        $cssinc .= "	  \$obj_gen->addStyleSheet(\"".$entry."\", ".(ENV_PRODUCTION !== true ? "false" : "true").");\n";
                     }
                 }
 
@@ -356,7 +356,9 @@ class BuilderHandler
                 $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
                 if ($arr_data["header_info"])
                 {
-                    $arr_data["header_info"] = @serialize(array_merge(@unserialize($arr_param["module"]["header_info"]), $arr_data["header_info"]));
+                	$headerInfo = @unserialize($arr_param["module"]["header_info"]);
+                	if (!is_array($headerInfo)) $headerInfo = Array();
+                    $arr_data["header_info"] = @serialize(array_merge($headerInfo, $arr_data["header_info"]));
                 }
                 removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
                 removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);

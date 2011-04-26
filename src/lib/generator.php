@@ -28,8 +28,10 @@ class Generator {
     var $str_currentLanguage;
     var $obj_lang;
     var $arr_styles;
+    var $arr_noCacheStyles;
     var $arr_header;
     var $arr_js;
+    var $arr_noCacheJS;
     var $int_time;
     var $obj_mod;
     var $bol_isCachable;
@@ -45,6 +47,8 @@ class Generator {
         $this->arr_header = Array();
         $this->obj_lang = null;
         $this->bol_isCachable = false;
+        $this->arr_noCacheStyles = Array();
+        $this->arr_noCacheJS = Array();
     }
 
     static function getInstance() {
@@ -265,6 +269,10 @@ class Generator {
 		
 		$str_styles .= "<link rel='stylesheet' media='screen' href='".$SERVER.$path."' />\n";
 		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".$SERVER.str_replace(".css", ".header.css", $path)."' /><![endif]-->";
+		
+		if (is_array($this->arr_noCacheStyles)) foreach ($this->arr_noCacheStyles as $ncs) {
+			$str_styles .= "<link rel='stylesheet' media='".$ncs["media"]."' href='".$ncs["path"]."' />\n";
+		}
 
 		foreach ($this->arr_styles as $style) {
             if ($style["browser"] != "all") {
@@ -289,15 +297,27 @@ class Generator {
 
     function addStyleSheet($path, $media = "screen", $browser = "all") {
         // check if stylesheet has already been loaded
-        foreach ($this->arr_styles as $arr_style) {
-            if ($path == $arr_style["path"])
-            return;
-        }
-        array_push($this->arr_styles, Array (
-			"media" => $media,
-			"path" => $path,
-			"browser"=> $browser
-        ));
+        if ($media === false) {
+	        foreach ($this->arr_noCacheStyles as $arr_style) {
+	            if ($path == $arr_style["path"])
+	            return;
+	        }
+	        array_push($this->arr_noCacheStyles, Array (
+				"media" =>"screen",
+				"path" => $path,
+				"browser"=> $browser
+	        ));
+        } else {
+	        foreach ($this->arr_styles as $arr_style) {
+	            if ($path == $arr_style["path"])
+	            return;
+	        }
+	        array_push($this->arr_styles, Array (
+				"media" => ($media === true ? "screen" : $media),
+				"path" => $path,
+				"browser"=> $browser
+	        ));
+        } 
     }
 
     function getJavaScripts() {
@@ -344,15 +364,27 @@ class Generator {
            	@chmod(str_replace(".js", ".jgz", $path), 0755);
         }
         $str_js .= "<script src='" . $SERVER.$path . "' type='text/javascript'></script>\n";
+        
+        if (is_array($this->arr_noCacheJS)) {
+        	foreach ($this->arr_noCacheJS as $ncjs) {
+	        	$str_js .= "<script src='" . $ncjs . "' type='text/javascript'></script>\n";
+        	}
+        }
     		
         return $str_js;
     }
 
-    function addJavaScript($path) {
+    function addJavaScript($path, $toCache = true) {
         // check if stylesheet has already been loaded
-        if (!in_array($path, $this->arr_js)) {
-        	array_push($this->arr_js, $path);
-    	}
+        if ($toCache) {
+	        if (!in_array($path, $this->arr_js)) {
+	        	array_push($this->arr_js, $path);
+	    	}
+        } else {
+	        if (!in_array($path, $this->arr_noCacheJS)) {
+	        	array_push($this->arr_noCacheJS, $path);
+	    	}
+        }
     }
 
     function getHeaders() {

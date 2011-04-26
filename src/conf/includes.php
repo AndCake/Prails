@@ -23,6 +23,7 @@ include "conf/database.php";
 
 // include tools
 include "lib/tools.php";
+include "lib/quartz.php";
 include "lib/debug/logger.php";
 if (ENV_PRODUCTION !== true) {
 	include "lib/debug/debugger.php";
