@@ -18,6 +18,8 @@ class Quartz {
 	 * checks if Quartz can be used on current server.
 	 */
 	static function isAvailable() {
+		$disabled = explode(', ', ini_get('disable_functions'));
+  		if(in_array('exec', $disabled)) return false;
 		if (!Quartz::_checkApp("crontab")) return false;
 		return Quartz::_getFirstAvailable() != false;
 	}
@@ -109,8 +111,8 @@ class Quartz {
 	}
 	
 	static function _checkApp($name) {
-		$result = exec($name." 2>&1");
-		return !preg_match('@^\s*[a-zA-Z]+:\s*[a-zA-Z]+:\s*command not found$@', $result);
+		$result = exec($name." 2>&1", $result, $returnValue);
+		return $returnValue != 127;
 	}
 }
 ?>

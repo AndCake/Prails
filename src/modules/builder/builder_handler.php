@@ -1491,24 +1491,29 @@ class BuilderHandler
 					foreach ($data as $mod) {
 					    $mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
 						$this->obj_data->deleteModule($mod["module_id"]);
-						$this->obj_data->insertModule($mod);
+						$modId = $this->obj_data->insertModule($mod);
 						foreach ($mod["handlers"] as $handler) {
+							$handler["fk_module_id"] = $modId;
 							$this->obj_data->deleteHandler($handler["handler_id"]);
 							$this->obj_data->insertHandler($handler);
 						}
 						foreach ($mod["datas"] as $data) {
+							$data["fk_module_id"] = $modId; 
 							$this->obj_data->deleteData($data["data_id"]);
 							$this->obj_data->insertData($data);
 						}
 						foreach ($mod["configs"] as $config) {
+							$config["fk_module_id"] = $modId;
 							$this->obj_data->clearConfiguration($config["fk_module_id"]);
 							$this->obj_data->insertConfiguration($config);
 						}
 						foreach ($mod["resources"] as $res) {
+							$res["fk_module_id"] = $modId;
 							$this->obj_data->deleteResource($res["resource_id"]);
 							$this->obj_data->insertResource($res);
 						}
 						foreach ($mod["testcases"] as $tc) {
+							$tc["fk_module_id"] = $modId;
 							$this->obj_data->deleteTestcase($tc["testcase_id"]);
 							$this->obj_data->insertTestcase($tc);
 						}

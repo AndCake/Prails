@@ -112,8 +112,7 @@ class Generator {
             }
             die();
         } else {
-            if ($this->bol_isCachable)
-            {
+            if ($this->bol_isCachable) {
                 ob_start();
                 require ($this->str_template);
                 $content = ob_get_contents();
@@ -135,8 +134,7 @@ class Generator {
                 // eval everything that is between <!! and !!>
                 if (file_exists($cacheFile))
                 require($cacheFile);
-            } else
-            {
+            } else {
                 ob_start();
                 require ($this->str_template);
                 $content = ob_get_contents();
