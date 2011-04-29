@@ -68,7 +68,7 @@
         <? } else { ?>
             <div style="display:inline-block;min-width: 400px;">
                 <? if ($arr_param["texta"]["type"] == 1) { ?>
-                	<textarea class="wysiwyg" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" cols="30" rows="10">#texta.content</textarea>
+                	<textarea class="wysiwyg" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" cols="80" rows="30">#texta.content</textarea>
                 <? } else { ?>
                 	<textarea class="wysiwyg" name="texts[content][#texta.language_id]" id="contentL#texta.language_id" cols="80" rows="30">#texta.content</textarea>
                 <? } ?>
@@ -98,7 +98,7 @@
                     // dynamically turn all fields into the new format...
                     var types = [
                         new Element("input", {type: "text"}),
-                        new Element("textarea", {"class": "wysiwyg", cols: 30, rows: 10}),
+                        new Element("textarea", {"class": "wysiwyg", cols: 80, rows: 30}),
                         new Element("textarea", {"class": "wysiwyg", cols: 80, rows: 30})
                     ];
                     var tel = types[type];

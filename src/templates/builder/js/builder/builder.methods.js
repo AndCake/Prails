@@ -190,7 +190,7 @@ Builder = Object.extend(Builder || {}, {
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
-        el.innerHTML = "<div class='blockable' id='"+el.id+"-blocked-text'></div><iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
+        el.innerHTML = "<div class='blockable' id='"+el.id+"-blocked-text'></div><iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' scrolling='no' frameborder='no'></iframe>";
 
         var crc = new PeriodicalExecuter(function(crc) {
         	try {
@@ -255,6 +255,12 @@ Builder = Object.extend(Builder || {}, {
             pl.el = el;
             pl.div = b;
             pl.win = win;
+            win.document.body.onkeyup = function(event) {
+            	if (!event) event = win.event;
+            	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
+            		win.parent.Builder.searchInBespin(win);
+            	}
+            };
             
             win.onBespinLoad = function() {
             	var env = win.document.getElementsByTagName("div")[0].bespin;
@@ -313,18 +319,81 @@ Builder = Object.extend(Builder || {}, {
     },
     searchInBespin: function(win) {
     	var bespin = win.document.getElementsByTagName("div")[0].bespin;
-		new Ext.Window({
+		window.sarwin = new Ext.Window({
 			layout: "fit",
-			title: "Find Text in Code",
+			title: "Search & Replace in Code",
 			modal: false,
 			autoScroll: true,
 			resizable: true,					
 			shadow: true,
-			width: 374,
-			height: 360,
+			width: 316,
+			height: "auto",
 			plain: true,
-			items:[]		// define search form...
-		}).show();
+			html: window.searchReplaceForm.cloneNode(true).innerHTML,
+			bbar: [{
+				text: "Find",
+				handler: startFind = function() {
+					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
+					var nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked);
+					if (nextMatch) {
+						bespin.editor.selection = nextMatch;
+						$("tosearch").focus();
+					} else {
+						Ext.Msg.alert("Not found", "There was no match for \""+$('tosearch').getValue()+"\"", function() {
+							setTimeout(function() { $("tosearch").focus(); }, 100);							
+						});
+					}
+				}
+			}, "-", {
+				text: "Replace",
+				handler: function() {
+					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
+					var nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked);
+					if (nextMatch) {
+						bespin.editor.selection = nextMatch;
+						bespin.editor.replace(nextMatch, $("toreplace").getValue());
+						$("tosearch").focus();
+					} else {
+						Ext.Msg.alert("Not found", "There was no match for \""+$('tosearch').getValue()+"\"", function() {
+							setTimeout(function() { $("tosearch").focus(); }, 100);							
+						});
+					}
+				}
+			}, "-", {
+				text: "Replace All",
+				handler: function() {
+					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					var replaced = 0;
+					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
+					while (nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked)) {
+						bespin.editor.selection = nextMatch;
+						bespin.editor.replace(nextMatch, $("toreplace").getValue());
+						replaced++;
+					} 
+					if (replaced > 0) {
+						Ext.Msg.alert("Replace complete", "Successfully replaced "+replaced+" occurrences of \""+$('tosearch').getValue()+"\" with \""+$("toreplace").getValue()+"\".");
+					} else {
+						Ext.Msg.alert("Not found", "There was no match for \""+$('tosearch').getValue()+"\"", function() {
+							setTimeout(function() { $("tosearch").focus(); }, 100);							
+						});
+					}
+				}
+			}, "-", {
+				text: "Close",
+				handler: function() { window.sarwin.destroy(); }
+			}]
+		});
+		window.sarwin.show();
+		setTimeout(function() {
+			$("tosearch").focus();
+			$("tosearch").observe("keyup", function(event) {
+				if (event.keyCode == 13) {
+					startFind();
+				}
+			});
+		}, 100);
     },
     
     addSection: function(panel) {

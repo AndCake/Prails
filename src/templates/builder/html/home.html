@@ -26,6 +26,7 @@
 			<tr><td>open item...</td><td>Ctrl+Shift+D</td></tr>
 			<tr><td>sql query tab</td><td>Ctrl+Shift+A</td></tr>
 			<tr><td>save current item</td><td>Ctrl+S</td></tr>
+			<tr><td>search/replace in code</td><td>Ctrl+F</td></tr>
 		</table>
 		<br/>
 		<h2>Futher help:</h2>
@@ -130,6 +131,40 @@
 	</fieldset>
 	</div>
 --></div>
+<div id="searchReplaceForm" style="display:none;">
+	<div class="searchReplaceForm">
+		<div class="form-entry">
+			<label for="tosearch">Find:</label>
+			<input type="text" name="tosearch" id="tosearch" value="" /> <!-- probably make this a combo box -->
+		</div>
+		<div class="form-entry">
+			<label for="toreplace">Replace with:</label>
+			<input type="text" name="toreplace" id="toreplace" value=""/>
+		</div>
+		<fieldset>
+			<legend>Direction</legend>
+			<div class="form-entry radiobox">
+				<div class="radio">
+					<input type="radio" name="dir" value="0" id="forward" checked="checked"/><label for="forward">Forward</label>
+				</div>
+				<div class="radio">
+					<input type="radio" name="dir" value="1" id="backward"/><label for="backward">Backward</label>
+				</div>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Options</legend>
+			<div class="form-entry radiobox">
+				<div class="radio">
+					<input type="checkbox" name="regexp" value="1" id="regexp"/><label for="regexp">Regular Expression</label>
+				</div>
+				<div class="radio">
+					<input type="checkbox" name="regexp" value="1" id="wrapsearch"/><label for="wrapsearch">Wrap search</label>
+				</div>
+			</div>
+		</fieldset>
+	</div>	
+</div>
 <div id="shoutbox" style="display:none;">
 	<div style="margin-left:3px;margin-top:3px;">
 	<form method="post" action="?event=builder:shout" onsubmit="try{window.dold = (new Date()).getTime();invoke('sbmsglist', 'builder:shout', this.serialize(), true);$('sbmsg').value='';$('sbmsg').blur();}catch(e){console.log(e);};return false;">
@@ -240,6 +275,8 @@
 			id: "all",
 			text: "All Testcases"
 		}];
+		window.searchReplaceForm = $("searchReplaceForm").cloneNode(true);
+		$("searchReplaceForm").remove();
 		
 		new PeriodicalExecuter(function(pe) {
 			if (window.testStarted) {

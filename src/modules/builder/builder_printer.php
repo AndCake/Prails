@@ -30,8 +30,9 @@ class BuilderPrinter
         	$obj_gen->addJavaScript("templates/main/js/prototype.js");
         	$obj_gen->addJavaScript("templates/main/js/s2.js");
             $obj_gen->addJavaScript("templates/builder/js/ext.js");
-            $obj_gen->addJavaScript("templates/builder/js/ux.util.js");
-            $obj_gen->addJavaScript("templates/builder/js/fisheye_menu.js");
+            $obj_gen->addJavaScript("templates/builder/js/ext.ux/ux.util.js");
+
+			$obj_gen->addJavaScript("templates/builder/js/fisheye_menu.js");
             $obj_gen->addJavaScript("templates/builder/js/fileselector.js");
 
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.js");

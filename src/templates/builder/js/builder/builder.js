@@ -27,6 +27,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 		
 	init: function(openedPanel) {
 	   Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+	   Ext.QuickTips.init();  // enable tooltips
 	   
 		var headerPanel = new Ext.Panel({
 			id: "qwbuilder_headerPanel",
@@ -246,6 +247,12 @@ window.Builder = Object.extend(window.Builder || {}, {
 				iconCls: "add",
 				handler: Builder.addHandler
 			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editHandler(Ext.getCmp("qwbuilder_handlerPanel").getSelectionModel().getSelectedNode());
+				}
+			}, "-", {
 				text: "Run",
 				iconCls: "run",
 				handler: function() {
@@ -310,6 +317,12 @@ window.Builder = Object.extend(window.Builder || {}, {
 				iconCls: "add",
 				handler: Builder.addData
 			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editData(Ext.getCmp("qwbuilder_dataPanel").getSelectionModel().getSelectedNode());
+				}
+			}, "-", {
 				xtype: "button",
 				text: "SQL Query",
 				iconCls: "run",
@@ -366,8 +379,14 @@ window.Builder = Object.extend(window.Builder || {}, {
 				text: "Add",
 				iconCls: "add",
 				handler: Builder.addModule
-			},"-",{
-				text: "Change Options",
+			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editModule(Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode());
+				}
+			}, "-",{
+				text: "Options",
 				iconCls: "options",
 				handler: function() {
 					Builder.editModuleOptions(Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode());
@@ -448,7 +467,13 @@ window.Builder = Object.extend(window.Builder || {}, {
 				text: "Add",
 				iconCls: "add",
 				handler: Builder.addLibrary
-			},"-", {
+			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editLibrary(Ext.getCmp("qwbuilder_libraryPanel").getSelectionModel().getSelectedNode());
+				}
+			}, "-", {
 				text: "Delete",
 				iconCls: "delete",
 				handler: function() {
@@ -500,6 +525,12 @@ window.Builder = Object.extend(window.Builder || {}, {
 				iconCls: "add",
 				handler: Builder.addTag
 			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editTag(Ext.getCmp("qwbuilder_tagPanel").getSelectionModel().getSelectedNode());
+				}
+			}, "-", {
 				text: "Delete",
 				iconCls: "delete",
 				handler: function() {
@@ -550,6 +581,12 @@ window.Builder = Object.extend(window.Builder || {}, {
 				text: "Add",
 				iconCls: "add",
 				handler: Builder.addTable
+			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					Builder.editTable(Ext.getCmp("qwbuilder_dbPanel").getSelectionModel().getSelectedNode());
+				}
 			}, "-", {
 				text: "Delete",
 				iconCls: "delete",
@@ -686,6 +723,17 @@ window.Builder = Object.extend(window.Builder || {}, {
                   Ext.getCmp("qwbuilder_langs_css").setDisabled(selNode == null);
                   Ext.getCmp("qwbuilder_langs_ct").setDisabled(selNode == null);                              
 			   }
+			}, "-", {
+				text: "Edit",
+				iconCls: "edit",
+				handler: function() {
+					var n = Ext.getCmp("qwbuilder_langsPanel").getSelectionModel().getSelectedNode();
+					if (n.isLeaf()) {
+						Builder.editText(n);
+					} else {
+						Ext.Msg.alert("Info", "Please select a text in order to edit it.");
+					}
+				}
 			}, "-", {
 			   text: "Delete",
 			   iconCls: "delete",
