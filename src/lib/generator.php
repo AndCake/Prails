@@ -295,7 +295,7 @@ class Generator {
 
     function addStyleSheet($path, $media = "screen", $browser = "all") {
         // check if stylesheet has already been loaded
-        if ($media === false) {
+        if ($media === false || in_array(substr($path, 0, 6), Array("http:/", "https:", "ftp://"))) {
 	        foreach ($this->arr_noCacheStyles as $arr_style) {
 	            if ($path == $arr_style["path"])
 	            return;

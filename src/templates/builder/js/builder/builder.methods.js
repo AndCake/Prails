@@ -259,6 +259,11 @@ Builder = Object.extend(Builder || {}, {
             	if (!event) event = win.event;
             	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
             		win.parent.Builder.searchInBespin(win);
+            		try {
+            			event.stopPropagation();
+            			event.cancelBubble = true;
+            		} catch(e){};
+            		return false;
             	}
             };
             
