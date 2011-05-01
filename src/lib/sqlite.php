@@ -98,6 +98,10 @@ class SQLite extends Cacheable {
 	  		}
 	  	}
 	  	
+	  	if (substr($str_query, 0, 12) == "ALTER TABLE ") {
+	  		$str_query = str_replace(" VARCHAR(255)", " TEXT", $str_query);
+	  	}
+	  	
 	  	return $str_query;
 	}
 	
@@ -150,7 +154,7 @@ class SQLite extends Cacheable {
 		      	$str_query = $this->_prepareQuery($str_query);
 	      	}
 	      	
-	      	if (substr($str_query, 0, 12) == "ALTER TABLE ") return null;
+	      	if (substr($str_query, 0, 12) == "ALTER TABLE " && strpos($str_query, " ADD COLUMN ") === false) return null;
 
 	      	// send SQL statement to database
 			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE "))) {

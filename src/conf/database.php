@@ -56,6 +56,7 @@ $arr_database = Array
 	    "flag_ajax"=>"INT(1) NOT NULL",
 	    "flag_cacheable"=>"INT(1) NOT NULL",
 		"hook" => "VARCHAR(255)",
+		"schedule" => "VARCHAR(255)",
 	    "code"=>"TEXT",
 	    "html_code"=>"TEXT",
 	),

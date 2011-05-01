@@ -68,7 +68,7 @@ define ("MYSQL", "MySQL");
 
 /*<KEEP-2>*/
 define ("DB_TYPE", SQLITE);
-define ("DB_CACHE_SIZE", 10 * 1024 * 1024);
+define ("DB_CACHE_SIZE", 4 * 1024 * 1024);
 /*</KEEP-2>*/
 define ("USE_AUTO_DEPLOY", false || FIRST_RUN);
 

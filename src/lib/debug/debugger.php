@@ -7,7 +7,6 @@ class Debugger {
 		$tr = $trace[($vars === null ? 2 : 1)];
 		$tr["file"] = $trace[($vars === null ? 1 : 0)]["file"];
 		$tr["line"] = $trace[($vars === null ? 1 : 0)]["line"];
-//		echo $tr["function"].":".$tr["line"]." (class ".$tr["class"].")<br/>";
 		$waitForStep = true;
 		while (!Debugger::$keepRunning && $waitForStep) {
 			$todo = @file_get_contents("cache/debugger.do");

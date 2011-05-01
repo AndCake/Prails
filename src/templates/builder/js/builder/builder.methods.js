@@ -225,6 +225,11 @@ Builder = Object.extend(Builder || {}, {
             script.src="templates/builder/js/bespin/BespinEmbedded.js";
             script.type="text/javascript";
             win.document.getElementsByTagName('head')[0].appendChild(script);
+            var style = win.document.createElement('link');
+            style.rel = "stylesheet";
+            style.href="templates/builder/js/bespin/BespinEmbedded.css";
+            style.type="text/css";
+            win.document.getElementsByTagName('head')[0].appendChild(style);
             // write the actual element to be bespinned
             var b = win.document.createElement("div");
             b.className = "bespin";

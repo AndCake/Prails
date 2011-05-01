@@ -1,5 +1,5 @@
 <div style="padding:20px;" id="container_h_#handler.handler_id">
-<? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
+<? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "autoindent": true}, "stealFocus": true'; ?>
 <form id="hformh<?=(int)$arr_param["handler"]["handler_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hHtmlCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=editor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();$('hCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();invoke(null, 'builder:editHandler&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
 	<div style="float:left;width:49%;margin-right:1%;">
 		<label for="name">Name of event handler</label><br/>
@@ -7,16 +7,22 @@
 		<input id="h_eventh_#handler.handler_id" type="hidden" value="#handler.event" />
 	</div>
 	<div style="float:left;width:50%;">
-		<br/><input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
-		<label for="ajax_#handler.handler_id">is AJAX event</label>
-		&nbsp;
-		<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
-        <label for="cache_#handler.handler_id">output is cacheable</label>
-        &nbsp;
-        <input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
-        <label for="hook_#handler.handler_id">is a hook</label>
-        <input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
-		<br/><br/>
+		<div style="float:left;width: 30%;">
+			<input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
+			<label for="ajax_#handler.handler_id">is AJAX event</label><br/>
+			<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
+        	<label for="cache_#handler.handler_id">output is cacheable</label>
+    	</div>
+        <div style="float:left;width: 70%;">
+        	<input type="checkbox" name="schedule" value="1" onclick="if(this.checked){$('container_h_#handler.handler_id').schedule(this);}else{$('hschedule#handler.handler_id').value=$('jobdetails_#handler.handler_id').innerHTML='';}" id="job_#handler.handler_id"<?=(strlen($arr_param['handler']['hook']) <= 0 && strlen($arr_param['handler']['schedule']) > 0 ? " checked='checked'" : "")?> />
+        	<label for="job_#handler.handler_id">is a job <span id="jobdetails_#handler.handler_id"></span></label>
+        	<input type="hidden" name="handler[schedule]" value='#handler.schedule' id="hschedule#handler.handler_id" />
+        	<br/>
+        	<input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
+        	<label for="hook_#handler.handler_id">is a hook</label>
+        	<input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
+        </div>
+		<div style="clear:both;"></div>
 	</div>
 	<div style="clear:both;"></div>
 	<div style="float:left;margin-right:1%;width:49%;position:relative;">
@@ -41,6 +47,75 @@
 		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>
     <!--[/noeval]-->		
 	</div>
+	<div style="display: none;" id="schedule_#handler.handler_id">
+		<div class="scheduler">
+			<div class="form-entry date">
+				<div class="label">
+					<label for="from">Active:</label>
+				</div>
+				<div class="value">
+					<input type="date" value="<?=date('Y-m-d')?>" name="active" />
+				</div>
+			</div>
+			<div class="form-entry time">
+				<div class="label">
+					<label for="from">Run Time:</label>
+				</div>
+				<div class="value">
+					<input type="time" value="<?=date('H:i')?>" name="runtime" />
+				</div>
+			</div>
+			<div class="form-entry repeat">
+				<div class="label">
+					<label for="from">Every:</label>
+				</div>
+				<div class="value">
+					<input type="text" name="repeat" value="1" />
+					<select name="type" size="1">
+						<option value="mins">Minutes</option>
+						<option value="hours">Hours</option>
+						<option value="days" selected="selected">Days</option>
+						<option value="months">Months</option>						
+					</select>
+				</div>
+			</div>
+			<div class="form-entry days">
+				<div class="label">
+					<label for="from">On these days:</label>
+				</div>
+				<div class="value radiogroup">
+					<div class="radio">
+						<input type="checkbox" name="weekday[mon]" value="1" checked="checked" id="mon_#handler.handler_id" /> 
+						<label for="mon_#handler.handler_id">Monday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[tue]" value="2" checked="checked" id="tue_#handler.handler_id" /> 
+						<label for="tue_#handler.handler_id">Tuesday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[wed]" value="3" checked="checked" id="wed_#handler.handler_id" /> 
+						<label for="wed_#handler.handler_id">Wednesday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[thu]" value="4" checked="checked" id="thu_#handler.handler_id" /> 
+						<label for="thu_#handler.handler_id">Thursday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[fri]" value="5" checked="checked" id="fri_#handler.handler_id" /> 
+						<label for="fri_#handler.handler_id">Friday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[sat]" value="6" checked="checked" id="sat_#handler.handler_id" /> 
+						<label for="sat_#handler.handler_id">Saturday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[sun]" value="0" checked="checked" id="sun_#handler.handler_id" /> 
+						<label for="sun_#handler.handler_id">Sunday</label>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">
@@ -53,6 +128,99 @@
 							"public", "static", "switch", "throw", "try", "use", "var", "while", "xor"
 		];
 		setTimeout(function() {
+			window["scheduler#handler.handler_id"] = $("schedule_#handler.handler_id").cloneNode(true);
+			$("schedule_#handler.handler_id").remove();
+			var data = eval("("+($("hschedule#handler.handler_id").value || "{}")+")");
+			if (data["time"]) {
+				var dateInfo = "every";
+				for (var all in data) {
+					if (all != "week") {
+						if (data[all][0] == "*") {
+							dateInfo += " "+data[all].split("/")[1]+" "+all+"s";
+						}
+					}
+				}
+				dateInfo += " from "+data["date"];
+				dateInfo += " at "+data["time"];
+				$("jobdetails_#handler.handler_id").innerHTML = " ("+dateInfo+" <a href='javascript:$(\"container_h_#handler.handler_id\").schedule(null);'>change</a>)";				
+			}
+
+			$("container_h_#handler.handler_id").schedule = function(el) {
+				$("container_h_#handler.handler_id").scheduleWindow = new Ext.Window({
+					title: "Schedule Job",
+					closable: true,
+					width: 400,
+					shadow: true,
+					height: "auto",
+					modal: false, 
+					html: window["scheduler#handler.handler_id"].innerHTML,
+					bbar: [{
+						xtype: "button",
+						text: "Ok",
+						handler: function() {
+							var date = $$(".scheduler .date input")[0].value;
+							var time = $$(".scheduler .time input")[0].value;
+							var repeat = $$(".scheduler .repeat input")[0].value;
+							var repInt = $$(".scheduler .repeat select")[0].value;
+							var days = $$(".scheduler .days input");
+							var dlist = [];
+							days.each(function(d){
+								if (d.checked) {
+									dlist.push(d.value);
+								}
+							});
+							
+							var crontab = {
+								min: (repInt == 'mins' ? "*/"+repeat : time.split(":")[1]),
+								hour: (repInt == 'hours' ? "*/"+repeat : time.split(":")[0]),
+								day: (repInt == 'days' ? "*/"+repeat : date.split("-")[2]),
+								month: (repInt == 'months' ? "*/"+repeat : date.split("-")[1]),
+								week: dlist.join(","),
+								time: time,
+								date: date								
+							};
+							$("hschedule#handler.handler_id").value = JSON.stringify(crontab);
+							
+							dateInfo = "every "+repeat+" "+repInt+" from "+date+" at "+time;
+							$("jobdetails_#handler.handler_id").innerHTML = " ("+dateInfo+" <a href='javascript:$(\"container_h_#handler.handler_id\").schedule(null);'>change</a>)";
+							
+							$("container_h_#handler.handler_id").scheduleWindow.close();
+						}
+					}, {
+						xtype: "button",
+						text: "Cancel",
+						handler: function() {
+							$("container_h_#handler.handler_id").scheduleWindow.close();
+						}
+					}]
+				});
+				$("container_h_#handler.handler_id").scheduleWindow.show();
+				var data = eval("("+($("hschedule#handler.handler_id").value || "{}")+")");
+				for (var all in data) {
+					if (all != "week") {
+						if (data[all][0] == "*") {
+							$$(".scheduler .repeat input")[0].value = data[all].split("/")[1];
+							$$(".scheduler .repeat select option").each(function(item) {
+								if (item.value == all+"s") {
+									item.selected = true;
+									throw $break;
+								}
+							}); 
+						}
+					} else {
+						$$(".scheduler .days input").each(function(input) {
+							if ((data[all]+",").indexOf(input.value) >= 0) {
+								input.checked = true;
+							} else {
+								input.checked = false;
+							}
+						});
+					}
+				}
+				$$(".scheduler .time input")[0].value = data["time"] || "<?=date('H:i')?>";
+				$$(".scheduler .date input")[0].value = data["date"] || "<?=date('Y-m-d')?>";
+			};
+			
       $("container_h_#handler.handler_id").save = function() {
           if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
             $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
@@ -88,15 +256,15 @@
       };
       
       $("container_h_#handler.handler_id").loadCodeTags = function(env) {
-/*
+//*
       	var arr = [];
       	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
       		arr.push({
                 name: item.text,
-                kind: "f",
-                tagfile: "",
+                kind: "F",
+                tagfile: "data.php",
                 addr: "/^"+item.text+"$/",
-                namespace: "data"
+                namespace: "$data"
       		});
       	});
       	env.editor.addTags(arr);

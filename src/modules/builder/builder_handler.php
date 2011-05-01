@@ -528,6 +528,15 @@ class BuilderHandler
             {
                 $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
                 $this->obj_data->updateHandler($_GET["handler_id"], $arr_data);
+                if (strlen($arr_data["schedule"]) > 0) {
+                	$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
+                	Quartz::addJob(JSON_decode($arr_data["schedule"], false), $mod["name"].":".$arr_param["handler"]["event"]);
+                } else {
+                	if (strlen($arr_param["handler"]["schedule"]) > 0) {
+                		$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
+                		Quartz::removeJob(JSON_decode($arr_param["handler"]["schedule"], false), $mod["name"].":".$arr_param["handler"]["event"]);
+                	}
+                } 
             } else if ((int)$_GET["handler_id"] == 0)
             {
                 $_SESSION["handler_id"] = $_GET["handler_id"] = $this->obj_data->insertHandler($arr_data);
@@ -594,21 +603,12 @@ class BuilderHandler
         {
             $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+            $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
         }
         
         if ($_GET["refresh"]) {
         	die(json_encode(Array("code"=>$arr_param["handler"][$_GET["refresh"]])));
         }
-
-        // create crc32 files
-/*
-        $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
-        if ($_GET["handler_id"] > 0 && $arr_obj["h_html_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["html_code"]) || $arr_obj["h_code".$arr_param["handler"]["handler_id"]] != crc32($arr_param["handler"]["code"]))
-        {
-            $arr_obj["h_html_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["html_code"]);
-            $arr_obj["h_code_".$_GET["handler_id"]] = crc32($arr_param["handler"]["code"]);
-            file_put_contents("builder.crc32", json_encode($arr_obj));
-        }//*/
 
         die ($this->_callPrinter("editHandler", $arr_param));
     }

@@ -220,7 +220,7 @@ class DBDeployer {
 			if (!$bol_found) {
 				array_push($lines, "\"FIRST_RUN\" => false,");
 			}
-			file_put_contents("conf/configuration.php", $pre.implode("\n", $lines).$post);
+			@file_put_contents("conf/configuration.php", $pre.implode("\n", $lines).$post);
 		}
       
 	    foreach ($arr_db as $table=>$arr_table)
@@ -251,11 +251,11 @@ class DBDeployer {
 	               {
 	                  if (strtoupper($arr_fields[$int_isIn]["Type"]) != strtoupper($value)) 
 	                  {
-	                     $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." CHANGE ".$key." ".$key." ".$value);
+	                     $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." CHANGE COLUMN ".$key." ".$key." ".$value);
 	                  }
 	               } else if ($key != $pk)
 	               {
-	                  $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD ".$key." ".$value);
+	                  $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD COLUMN ".$key." ".$value);
 	               }
 	            } else
 	            {
@@ -267,7 +267,7 @@ class DBDeployer {
 	        }
 			if (is_array($arr_fields)) foreach ($arr_fields as $arr_field) {
 			 	if (!$arr_field["isIn"] && $arr_field["Field"] != $pk) {
-			 		$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." DROP ".$arr_field["Field"]);
+			 		$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." DROP COLUMN ".$arr_field["Field"]);
 				}
 			}
 	        if (!$bol_exists) 

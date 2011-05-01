@@ -191,7 +191,6 @@ class Generator {
      */
     function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
 		$startTime = time()+microtime();
-		
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
 		file_put_contents("cache/".md5($str_name), $str_content);		
