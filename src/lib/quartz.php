@@ -50,10 +50,10 @@ class Quartz {
 			}
 		}
 		$base = dirname($_SERVER["SCRIPT_FILENAME"]);
-		$mail = "2>&1 >> ".$base."/log/quartz.log";
-		$prog = (Quartz::_getFirstAvailable())." '".$SERVER."?event=".$event."'";
+		$mail = ">> ".$base."/log/quartz.log 2>&1";
+		$prog = (Quartz::_getFirstAvailable())." '".str_replace("://", "://".$_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"]."@", $SERVER)."?event=".$event."'";
 		$cron[] = $time["min"]." ".$time["hour"]." ".$time["day"]." ".$time["month"]." ".$time["week"]." ".$prog." ".$mail." # \$id: ".$id;
-		file_put_contents("cache/temp.cron", implode("\n", $cron));
+		file_put_contents("cache/temp.cron", implode("\n", $cron)."\n");
 		exec("crontab cache/temp.cron");
 		unlink("cache/temp.cron");
 		
@@ -84,7 +84,7 @@ class Quartz {
 		foreach ($cron as $line) {
 			if (preg_match('@\s*#\s*[$]id:\s*([a-zA-Z0-9]+)\s*$@', $line, $match)) {
 				if ($id != $match[1]) { 
-					$file .= $line;
+					$file .= $line."\n";
 				} else {
 					$found = true;
 				}
@@ -100,9 +100,9 @@ class Quartz {
 	}
 	
 	static function _getFirstAvailable() {
-		if (!Quartz::_checkApp("/usr/bin/env php -q")) {
-			return null;
-		}
+        exec("whereis php", $list);
+        if (strpos(implode("\n", $list), "php ") === false) return null;
+        
 		return "/usr/bin/env php -q ".__FILE__;
 	}
 	
@@ -130,7 +130,7 @@ class Quartz {
 		return $time;
 	}
 }
-if (defined('STDIN')) {
+if (defined('STDIN')) { 
 	// job is to be executed!
 	if ($argc > 1) {
 		preg_match('/[^?]+\?event=(.*)/mi', $argv[1], $match);

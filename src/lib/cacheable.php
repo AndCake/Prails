@@ -3,77 +3,130 @@ class Cacheable {
 	
 	private $shmId = Array();
 	private $shmLen = 0;
+	private $shmMode = false;
+	private $cachePath = "cache/shm/";
 	
 	function __construct() {
-		$fname = "shmcache";
-		$i = 0;
-		do {
-			touch("cache/".$fname.$i);
-	        $key = ftok(realpath("cache/".$fname.$i), 'p');
-	        $shm = shm_attach($key, DB_CACHE_SIZE);
-	        if(!$shm) {
-	        	@unlink("cache/".$fname.$i);
-	        } else {
-	        	array_push($this->shmId, $shm);
+		if (!is_dir($this->cachePath)) {
+			@mkdir($this->cachePath);
+		}
+		if (function_exists("shm_attach")) {
+			$fname = "shmcache";
+			$i = 0;
+			do {
+				touch($this->cachePath.$fname.$i);
+		        $key = ftok(realpath("cache/".$fname.$i), 'p');
+		        $shm = shm_attach($key, DB_CACHE_SIZE);
+		        if(!$shm) {
+		        	@unlink($this->cachePath.$fname.$i);
+		        } else {
+		        	array_push($this->shmId, $shm);
+		        }
+		        $i++;
+			} while ($i < 8);
+			$this->shmLen = count($this->shmId);
+	        foreach ($this->shmId as $shm) {
+		        $counter = $this->_get($shm, 1);
+		        if (!$counter) $counter = 0;		
+		        $this->_set($shm, 1, $counter + 1);
 	        }
-	        $i++;
-		} while ($i < 8);
-		$this->shmLen = count($this->shmId);
-        foreach ($this->shmId as $shm) {
-	        $counter = shm_get_var($shm, 1);
-	        if (!$counter) $counter = 0;		
-	        shm_put_var($shm, 1, $counter + 1);
-        }
-        if (!shm_has_var($this->shmId[0], 101)) {
-			shm_put_var($this->shmId[0], 101, Array());
-        }
+		}
+		
+		if ($this->shmLen > 0) {
+			$this->shmMode = true;
+		} else {
+			array_push($this->shmId, "fs");
+			if (!is_dir($this->cachePath."fs"))	@mkdir($this->cachePath."fs");
+			$this->shmLen = count($this->shmId);
+		}
+		
+		if (!$this->_exists($this->shmId[0], 101)) {
+			$this->_set($this->shmId[0], 101, Array());
+		}
+	}
+	
+	function _exists($pos, $var) {
+		if ($this->shmMode) {
+			return shm_has_var($pos, $var);
+		} else {
+            $name = $this->cachePath . $pos . "/" . $var;
+            return (file_exists($name));
+		}
+	}
+	
+	function _set($pos, $var, $val) {
+		if ($this->shmMode) {
+			shm_put_var($pos, $var, $val);
+		} else {
+            $name = $this->cachePath . $pos . "/" . $var;
+			file_put_contents($name, serialize($val), LOCK_EX);
+		}
+	}
+	
+	function _get($pos, $var) {
+		if ($this->shmMode) {
+			return shm_get_var($pos, $var);			
+		} else {
+            $name = $this->cachePath . $pos . "/" . $var;
+			return @unserialize(file_get_contents($name));
+		}
+	}
+	
+	function _remove($pos, $var) {
+		if ($this->shmMode) {
+			shm_remove_var($pos, $var);
+		} else {
+            $name = $this->cachePath . $pos . "/" . $var;
+			@unlink($name);
+		}
 	}
 	
 	function __sleep(){
-        foreach ($this->shmId as $shm) {
+		if ($this->shmMode) foreach ($this->shmId as $shm) {
 			shm_detach($shm);
 	        shm_put_var($shm, 1, shm_get_var($shm, 1) - 1);
         }
     }
     	
 	function __destruct(){
-        foreach ($this->shmId as $shm) {
+        if ($this->shmMode) foreach ($this->shmId as $shm) {
 			shm_detach($shm);
 	        shm_put_var($shm, 1, shm_get_var($shm, 1) - 1);
         }
 	}
 
 	function __wakeup(){
-		$fname = "shmcache";
-		$i = 0;
-		do {
-	        $key = ftok(realpath("cache/".$fname.$i), 'p');
-	        $this->shmId[$i] = shm_attach($key, DB_CACHE_SIZE);
-        	shm_put_var($this->shmId[$i], 1, shm_get_var($this->shmId[$i], 1) + 1);
-		} while ($i < 8);
+		if ($this->shmMode)  {
+			$fname = "shmcache";
+			$i = 0;
+			do {
+		        $key = ftok(realpath($this->cachePath.$fname.$i), 'p');
+		        $this->shmId[$i] = shm_attach($key, DB_CACHE_SIZE);
+	        	shm_put_var($this->shmId[$i], 1, shm_get_var($this->shmId[$i], 1) + 1);
+			} while ($i < 8);
+		}
     }
     	
 	protected function cleanCacheBlock($str_table) {
-	    $name = $this->str_cachePath . $str_table;
-		$tableReference = shm_get_var($this->shmId[0], 101);
+		$tableReference = $this->_get($this->shmId[0], 101);
 	    if (is_array($tableReference[$str_table])) {
 	    	foreach ($tableReference[$str_table] as $entry) {
-	    		shm_remove_var($this->shmId[$entry % $this->shmLen], $entry);
+	    		$this->_remove($this->shmId[$entry % $this->shmLen], $entry);
 	    	}
 	    	$tableReference[$str_table] = false;
-	    	shm_put_var($this->shmId[0], 101, $tableReference);
+	    	$this->_set($this->shmId[0], 101, $tableReference);
 	    }
 	}
 	
 	protected function isCached($str_query, $cacheTime = 0) {
 		$id = crc32($str_query);
-		return shm_has_var($this->shmId[$id % $this->shmLen], $id);
+		return $this->_exists($this->shmId[$id % $this->shmLen], $id);
 	}
 	
 	protected function getCached($str_query) {
 		if ($this->isCached($str_query)) {
 			$id = crc32($str_query);
-			return shm_get_var($this->shmId[$id % $this->shmLen], $id);
+			return $this->_get($this->shmId[$id % $this->shmLen], $id);
 		} else {
 			return Array();
 		}
@@ -82,9 +135,9 @@ class Cacheable {
 	protected function setCache($str_query, $arr_result) {
 		if (!is_array($arr_result)) return;
 		$id = crc32($str_query);
-		shm_put_var($this->shmId[$id % $this->shmLen], $id, $arr_result);
-		if (shm_has_var($this->shmId[0], 101)) {
-			$tableReference = shm_get_var($this->shmId[0], 101);
+		$this->_set($this->shmId[$id % $this->shmLen], $id, $arr_result);
+		if ($this->_exists($this->shmId[0], 101)) {
+			$tableReference = $this->_get($this->shmId[0], 101);
 		} else {
 			$tableReference = Array();
 		}
@@ -100,7 +153,7 @@ class Cacheable {
 		    	array_push($tableReference[$table], crc32($str_query));
 		    }
 		}
-		shm_put_var($this->shmId[0], 101, $tableReference);		
+		$this->_set($this->shmId[0], 101, $tableReference);		
 	}
 	
 }
