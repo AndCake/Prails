@@ -528,14 +528,12 @@ class BuilderHandler
             {
                 $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
                 $this->obj_data->updateHandler($_GET["handler_id"], $arr_data);
+               	$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
+                if (strlen($arr_param["handler"]["schedule"]) > 0) {
+               		Quartz::removeJob(JSON_decode($arr_param["handler"]["schedule"], true), $mod["name"].":".$arr_param["handler"]["event"]);
+               	}
                 if (strlen($arr_data["schedule"]) > 0) {
-                	$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
-                	Quartz::addJob(JSON_decode($arr_data["schedule"], false), $mod["name"].":".$arr_param["handler"]["event"]);
-                } else {
-                	if (strlen($arr_param["handler"]["schedule"]) > 0) {
-                		$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
-                		Quartz::removeJob(JSON_decode($arr_param["handler"]["schedule"], false), $mod["name"].":".$arr_param["handler"]["event"]);
-                	}
+                	Quartz::addJob(JSON_decode($arr_data["schedule"], true), $mod["name"].":".$arr_param["handler"]["event"]);
                 } 
             } else if ((int)$_GET["handler_id"] == 0)
             {

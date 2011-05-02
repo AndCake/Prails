@@ -36,10 +36,8 @@ class Quartz {
 			$log->error("Tried to schedule job ".$event." but Quartz found no full cron support. Please check if crontab and lynx, w3m or wget is available");
 			return false;
 		}
-		$entries = Array("min", "hour", "day", "month", "week");
-		if (!is_array($time)) $time = Array();
-		foreach ($entries as $entry) { if (!$time[$entry]) $time[$entry] = "*"; }
-		
+		$time = Quartz::_normalizeTime($time);
+				
 		$id = md5(implode($time).$event);
 		
 		exec("crontab -l > cache/temp.cron");
@@ -52,7 +50,7 @@ class Quartz {
 			}
 		}
 		$base = dirname($_SERVER["SCRIPT_FILENAME"]);
-		$mail = "2>&1 > ".$base."/log/quartz.log";
+		$mail = "2>&1 >> ".$base."/log/quartz.log";
 		$prog = (Quartz::_getFirstAvailable())." '".$SERVER."?event=".$event."'";
 		$cron[] = $time["min"]." ".$time["hour"]." ".$time["day"]." ".$time["month"]." ".$time["week"]." ".$prog." ".$mail." # \$id: ".$id;
 		file_put_contents("cache/temp.cron", implode("\n", $cron));
@@ -76,8 +74,7 @@ class Quartz {
 		if (!$event) {
 			$id = $idTime; 
 		} else {
-			$entries = Array("min", "hour", "day", "month", "week");
-			foreach ($entries as $entry) { if (!$idTime[$entry]) $idTime[$entry] = "*"; }
+			$idTime = Quartz::_normalizeTime($idTime);
 			$id = md5(implode($idTime).$event);
 		}
 		exec("crontab -l > cache/temp.cron");
@@ -103,16 +100,43 @@ class Quartz {
 	}
 	
 	static function _getFirstAvailable() {
-		$apps = Array("lynx -dump", "w3m -dump", "wget -O -");
-		foreach ($apps as $app) {
-			if (Quartz::_checkApp($app)) return $app;
+		if (!Quartz::_checkApp("/usr/bin/env php -q")) {
+			return null;
 		}
-		return null;
+		return "/usr/bin/env php -q ".__FILE__;
 	}
 	
 	static function _checkApp($name) {
 		$result = exec($name." 2>&1", $result, $returnValue);
 		return $returnValue != 127;
+	}
+	
+	static function _normalizeTime($time) {
+		$entries = Array("min", "hour", "day", "month", "week");
+		if (!is_array($time)) $time = Array();
+		$foundStar = false;
+		foreach ($entries as $entry) {
+			if ($foundStar && ($entry == "day" || $entry == "month" || $entry == "hour")) {
+				$time[$entry] = "*";
+			} else if (!$time[$entry]) { 
+				$time[$entry] = "*";
+				$foundStar = true;
+			} else if ($time[$entry][0] == "*") {
+				$foundStar = true;
+			} else {
+				$time[$entry] = preg_replace('/0([0-9]+)/mi', '\1', $time[$entry]);
+			}
+		}
+		return $time;
+	}
+}
+if (defined('STDIN')) {
+	// job is to be executed!
+	if ($argc > 1) {
+		preg_match('/[^?]+\?event=(.*)/mi', $argv[1], $match);
+		echo "[".date("Y-m-d H:i:s")."] [".$match[1]."] ".file_get_contents($argv[1])."\n";
+	} else {
+		echo "[".date("Y-m-d H:i:s")."] ERROR - unable to find job to be executed!\n";
 	}
 }
 ?>
