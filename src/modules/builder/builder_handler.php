@@ -286,13 +286,13 @@ class BuilderHandler
 
         if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0)
         {
-            if (ENV_PRODUCTION) {
-                removeDir("modules/".$arr_param["module"]["name"], true);
+        	if (ENV_PRODUCTION) {
+                removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
             } else {
-                removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
-                removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
+                removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+                removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
             }
-            removeDir("templates/".$arr_param["module"]["name"], true);
+            removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
         }
 
         if ($die)

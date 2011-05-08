@@ -114,7 +114,7 @@ class Cacheable {
     		}
     	} else {
     		foreach ($this->shmId as $shm) {
-    			removeDir($this->cachePath.$shm);
+    			removeDir($this->cachePath.$shm, true);
     		}
     	}
     }
