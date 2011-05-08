@@ -1,6 +1,6 @@
 <?php
 /**
-    PRails Web Framework
+    Prails Web Framework
     Copyright (C) 2010  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
@@ -115,15 +115,42 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
 class DBEntry extends DBEntryObject {
 	private $obj_tbl = null;
 	private $prefix = null;
+    private $flags = null;
+    private $iterator_class = null;	
 	
 	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator", $prefix = "tbl_") {
-		$this->obj_tbl = new TblClass($prefix);
+		$this->obj_tbl = new Database($prefix);
 		$this->prefix = $prefix;		
+		$this->flags = $flags;
+		$this->iterator_class = $iterator_class;
 		parent::__construct($arr_data, $flags, $iterator_class);
 	}
+
+    function serialize() {
+    	$data = parent::serialize();
+        return serialize(Array("data" => $data, "prefix" => $this->prefix, "flags" => $this->flags, "iterator_class" => $this->iterator_class));
+	}
+    
+    function unserialize($data) {
+        $data = unserialize($data);
+        parent::unserialize($data["data"]);
+		$this->prefix = $data["prefix"];
+		$this->flags = $data["flags"];
+		$this->iterator_class = $data["iterator_class"];
+
+		$this->obj_tbl = new TblClass($this->prefix);
+	}	
 	
 	function get($index, $filter = "", $name = "") {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
+			if (is_array($filter)) {
+				$res = "";
+				foreach ($filter as $key => $value) {
+					if (strlen($res) > 0) $res .= " AND ";
+					$res .= $key."='".$this->obj_tbl->escape($value)."'";
+				}
+				$filter = $res;
+			}		
 			$mix = $index.md5($filter);
 			if (parent::offsetGet($mix) == null) {
 				parent::offsetSet($mix, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."' AND ".if_set($filter, "1")."")));
@@ -133,6 +160,14 @@ class DBEntry extends DBEntryObject {
 			}
 			return parent::offsetGet($mix); 
 		} else if (substr($index, -5) == "_list") {
+			if (is_array($filter)) {
+				$res = "";
+				foreach ($filter as $key => $value) {
+					if (strlen($res) > 0) $res .= " AND ";
+					$res .= $key."='".$this->obj_tbl->escape($value)."'";
+				}
+				$filter = $res;
+			}		
 			$collection_name = preg_replace("/_list\$/", "", $index);
 			$mix = $index.md5($filter);
 			if (parent::offsetGet($mix) == null) {

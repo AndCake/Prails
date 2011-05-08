@@ -146,6 +146,10 @@ class BuilderData extends Database
     {
         return $this->SqlQuery("SELECT * FROM tbl_prailsbase_library WHERE fk_user_id='".$id."'");
     }
+    
+    function selectLibraryByUserAndName($user, $name) {
+    	return @array_pop($this->get("library", Array("fk_user_id" => $user, "name" => $name)));
+    }
 
     function selectLibrary($library_id)
     {
@@ -172,6 +176,10 @@ class BuilderData extends Database
     {
         return $this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id='".$id."'");
     }
+    
+    function selectTagByUserAndName($user, $name) {
+    	return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id='".$user."' AND name='".$name."'"));
+    }
 
     function selectTag($tag_id)
     {
@@ -197,6 +205,10 @@ class BuilderData extends Database
     function listTablesFromUser($id)
     {
         return $this->SqlQuery("SELECT * FROM tbl_prailsbase_table WHERE fk_user_id='".$id."'");
+    }
+    
+    function selectTableFromUserAndName($user, $name) {
+    	return @array_pop($this->get("table", Array("fk_user_id" => $user, "name" => $name)));
     }
 
     function selectTable($table_id)

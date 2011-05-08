@@ -22,7 +22,6 @@ header('P3P: CP="CAO PSA OUR"');
 // placeholder for overload fallback plugin
 // ...
 
-session_start();
 // clean up env vars
 if (get_magic_quotes_gpc() === 1) {
     function stripslashes_deep(&$value) { 
@@ -39,8 +38,11 @@ if (get_magic_quotes_gpc() === 1) {
 }
 
 include("conf/includes.php");
-
 $log = new Logger();
+if (IS_SETUP) {
+	if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
+	$session = new SessionManager();
+}
 
 if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
 	$_SESSION["REQUEST_TIME"] = time();
@@ -57,7 +59,6 @@ if (file_exists($__cacheName)) {
 }
 
 if (IS_SETUP) {
-	if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
 	HookCore::init();
 }
 $obj_main = new MainHandler();

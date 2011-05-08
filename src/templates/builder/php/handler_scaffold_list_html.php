@@ -1,7 +1,7 @@
 <? $title = strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1); 
    $name = $arr_table['name'];
 ?>
-<h1>Listing <?=$name?>s</h1>
+<h2>Listing <?=$name?>s</h2>
 
 <? $arr_fields = explode(":", $arr_table['field_names']); $arr_types = explode(":", $arr_table["field_types"]); ?>
 

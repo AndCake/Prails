@@ -191,7 +191,23 @@ window.Builder = Object.extend(window.Builder || {}, {
 						title: "Help",
 						iconCls: "HelpTabIcon",
 						xtype: "panel",
-						html: $("help").innerHTML	
+						html: $("help").innerHTML,
+						tbar: (Builder.isDeveloper ? [{
+							xtype: "button", 
+							text: "Flush DB Cache", 
+							iconCls: "flush", 
+							handler: function() {
+								Ext.Msg.confirm("Warning!", "Do you really want to flush the DB cache? "+(Builder.productionEnvironment ? "Do this only if you really know what you are doing. Flushing the database cache in a production environment can potentially lead to massive performance degradation for some time." : ""), function(btn) {
+									if (btn == "yes") {
+										invoke("builder:flushDBCache", function(req){
+											if (req.responseText == "success") {
+												Ext.ux.util.msg("Flushing completed", "The database cache has been flushed successfully.");
+											}
+										});
+									}
+								})
+							}
+						}] : null)
 					}],
 					listeners: {
 						tabchange: function(tab, content) {

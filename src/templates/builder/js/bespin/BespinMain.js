@@ -9199,7 +9199,6 @@ CompletionController.prototype = {
 
     _syntaxChanged: function(newSyntax) {
         var ext = catalog.getExtensionByKey('completion', newSyntax);
-    	window.console && console.log(ext);
         if (ext == null) {
             this._completionEngine = null;
             return;

@@ -152,6 +152,12 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"field_names"=>"VARCHAR(1024)",
 		"field_types"=>"VARCHAR(1024)",
+	),
+	
+	// session table
+	"sessions" => Array(
+		"expires" => "INT(11) NOT NULL",
+		"session_data" => "TEXT",
 	)
 );
 

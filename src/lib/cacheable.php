@@ -106,6 +106,18 @@ class Cacheable {
 			} while ($i < 8);
 		}
     }
+    
+    function flush() {
+    	if ($this->shmMode) {
+    		foreach ($this->shmId as $shm) {
+    			shm_remove($shm);
+    		}
+    	} else {
+    		foreach ($this->shmId as $shm) {
+    			removeDir($this->cachePath.$shm);
+    		}
+    	}
+    }
     	
 	protected function cleanCacheBlock($str_table) {
 		$tableReference = $this->_get($this->shmId[0], 101);

@@ -101,7 +101,7 @@ class Logger {
     		fwrite($fp, $line);
     		fclose($fp);
 		} else {
-		    die("Error writing to log file. Please check permissions.<br/>");
+		    die($line."\nError writing to log file. Please check permissions.<br/>");
 		}
 	}
 	

@@ -34,7 +34,7 @@
 			<li><a href="api/index.html" target="_api">API Documentation</a></li>
 			<li><a href="log/framework.log" target="_log">Log file</a></li>
 			<li><a href="javascript:(function(){var s=document.createElement('script');s.src='templates/builder/js/langhelper.js';document.body.appendChild(s);})();">CMS Helper Bookmarklet</a></li>
-		</ul>		
+		</ul>
 	</div>
 </div>
 <div id="export_panel" style="display: none;">
@@ -266,6 +266,14 @@
 	};
 	
 	Ext.onReady(function() {
+		Ext.BLANK_IMAGE_URL = (function() {
+			if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
+				return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
+			} else {
+				return "templates/builder/images/default/s.gif";
+			}			
+		})();
+		
 		window.dold = 0;
 		window.firstCall = true;
 		window.detag = "";
@@ -499,6 +507,8 @@
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
+		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
+		
 		(function() {
 			try {
 				<c:hook name="builder-init"/>

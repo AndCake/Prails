@@ -1,2 +1,2 @@
 	
-	return $this->SqlQuery("SELECT * FROM tbl_<?=$arr_table['name']?> WHERE 1");
+	return $this->get("<?=$arr_table['name']?>");

@@ -34,6 +34,7 @@ include "lib/db_entry.php";
 include "lib/cacheable.php";
 include "lib/".strtolower(DB_TYPE).".php";
 include "lib/tblclass.php";
+include "lib/sessionmgr.php";
 include "lib/abstract_database.php";
 include "lib/condition.php";
 include "lib/database.php";

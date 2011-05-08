@@ -1441,14 +1441,19 @@ class BuilderHandler
 				die("error parsing input file...");
 			}
 			$magic = substr($content, 0, strpos($content, "\n")+1);
+			$moduleMapping = Array();
+			$languageMapping = Array();
 			$sections = explode($magic, substr($content, strlen($magic)));
 			foreach ($sections as $section) {
 				$data = unserialize(gzuncompress(substr($section, 1)));
 				if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
+						$arr_table = $arr_table->getArrayCopy();
 					    $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
-					    $this->obj_data->deleteTable($arr_table["table_id"]);
+					    unset($arr_table["table_id"]);
+					    $d = $this->obj_data->selectTableFromUserAndName($arr_table["fk_user_id"], $arr_table["name"]);
+					    $this->obj_data->deleteTable($d["table_id"]);
 						$this->obj_data->insertTable($arr_table);
 						// deploy table
 			            $arr_fields = Array();
@@ -1464,62 +1469,107 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "C") {
 					foreach ($data["languages"] as $lang) {
-						Generator::getInstance()->obj_lang->deleteLanguage($lang["language_id"]);						
-						Generator::getInstance()->obj_lang->insertLanguage($lang);
+						$id = $lang["language_id"];
+						unset($lang["language_id"]);
+						$id2 = 0;
+						$langs = Generator::getInstance()->obj_lang->listLanguages();
+						foreach ($langs as $lg) {
+							if ($lg["name"] == $lang["name"]) {
+								$id2 = $lg["language_id"];
+								Generator::getInstance()->obj_lang->deleteLanguage($lg["language_id"]);
+								break;						
+							}
+						}
+						$languageMapping["new"][$id] = Generator::getInstance()->obj_lang->insertLanguage($lang);
+						$languageMapping["old"][$id2] = $languageMapping["new"][$id]; 
 					}
 					foreach ($data["texts"] as $texts) {
 						foreach ($texts as $text) {
-							Generator::getInstance()->obj_lang->deleteTexts($text["text_id"]);
+							$text = $text->getArrayCopy();							
+							$id = 0;
+							unset($text["text_id"]);
+							$textList = Generator::getInstance()->obj_lang->listAllTextsByIdentifier($text["identifier"]);
+							foreach ($textList as $tl) {
+								if ($languageMapping["old"][$tl["fk_language_id"]] == $languageMapping["new"][$text["fk_language_id"]] && $text["identifier"] == $tl["identifier"]) {
+									$text["fk_language_id"] = $languageMapping["new"][$text["fk_language_id"]];
+									$id = $tl["text_id"]; 
+									break;
+								}
+							}							
+							Generator::getInstance()->obj_lang->deleteTexts($id);
 							Generator::getInstance()->obj_lang->insertText($text);
 						}
 					}
 				} else if ($section[0] == "T") {
 					foreach ($data as $tag) {
+						$tag = $tag->getArrayCopy();
+						unset($tag["tag_id"]);
                         $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
-						$this->obj_data->deleteTag($tag["tag_id"]);
+                        $t = $this->obj_data->selectTagByUserAndName($tag["fk_user_id"], $tag["name"]);
+						$this->obj_data->deleteTag($t["tag_id"]);
 						$this->obj_data->insertTag($tag);
 					}
 				} else if ($section[0] == "L") {
 					foreach ($data as $library) {
+						$library = $library->getArrayCopy();
+						unset($library["library_id"]);
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
-						$this->obj_data->deleteLibrary($library["library_id"]);
+ 					    $l = $this->obj_data->selectLibraryByUserAndName($library["fk_user_id"], $library["name"]);
+						$this->obj_data->deleteLibrary($l["library_id"]);
 						$this->obj_data->insertLibrary($library);
 					}
 				} else if ($section[0] == "M") {
 					foreach ($data as $mod) {
-					    $mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
-						$this->obj_data->deleteModule($mod["module_id"]);
+						$mod = $mod->getArrayCopy();
+						$mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
+					    $id = $mod["module_id"];
+					    unset($mod["module_id"]);
+                        $m = $this->obj_data->selectModuleByUserAndName($mod["fk_user_id"], $mod["name"]);
+					    $this->obj_data->deleteModule($m["module_id"]);
 						$modId = $this->obj_data->insertModule($mod);
 						foreach ($mod["handlers"] as $handler) {
+							$handler = $handler->getArrayCopy();
 							$handler["fk_module_id"] = $modId;
-							$this->obj_data->deleteHandler($handler["handler_id"]);
+							unset($handler["handler_id"]);
+							$h = $this->obj_data->selectHandlerByNameAndModule($id, $handler["event"]);
+							$this->obj_data->deleteHandler($h["handler_id"]);
 							$this->obj_data->insertHandler($handler);
 						}
-						foreach ($mod["datas"] as $data) {
-							$data["fk_module_id"] = $modId; 
-							$this->obj_data->deleteData($data["data_id"]);
-							$this->obj_data->insertData($data);
+						foreach ($mod["datas"] as $dat) {
+							$dat = $dat->getArrayCopy();
+							unset($dat["data_id"]);
+							$dat["fk_module_id"] = $modId;
+							$d = $this->obj_data->getDataFromName($dat["name"], $id); 
+							$this->obj_data->deleteData($d["data_id"]);
+							$this->obj_data->insertData($dat);
 						}
+						$this->obj_data->clearConfiguration($id);
 						foreach ($mod["configs"] as $config) {
+							$config = $config->getArrayCopy();
 							$config["fk_module_id"] = $modId;
-							$this->obj_data->clearConfiguration($config["fk_module_id"]);
+							unset($config["configuration_id"]);
 							$this->obj_data->insertConfiguration($config);
 						}
 						foreach ($mod["resources"] as $res) {
+							$res = $res->getArrayCopy();
+							unset($res["resource_id"]);
 							$res["fk_module_id"] = $modId;
-							$this->obj_data->deleteResource($res["resource_id"]);
+							$r = $this->obj_data->selectResourceByName($id, $res["name"]);
+							$this->obj_data->deleteResource($r["resource_id"]);
 							$this->obj_data->insertResource($res);
 						}
+						$this->obj_data->clearTestcase($id);
 						foreach ($mod["testcases"] as $tc) {
+							$tc = $tc->getArrayCopy();
+							unset($tc["testcase_id"]);
 							$tc["fk_module_id"] = $modId;
-							$this->obj_data->deleteTestcase($tc["testcase_id"]);
 							$this->obj_data->insertTestcase($tc);
 						}
 					}
 				}
 			} 
 		}
-		die("success");
+		return $this->flushDBCache();
 	}
 
 	function editText() {
@@ -1710,6 +1760,11 @@ class BuilderHandler
 		}
 		
 		return $this->_callPrinter("debug", $arr_param);
+	}
+	
+	function flushDBCache() {
+		$this->obj_data->obj_mysql->flush();
+		die("success");
 	}
 
 /*</EVENT-HANDLERS>*/

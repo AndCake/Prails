@@ -44,6 +44,10 @@ class TblClass { ///////////////////////////////////////////////////////////////
     function setCache($bol_cache) {
         $this->bol_cache = $bol_cache;
     }
+    
+    function escape($str) {
+    	return $this->obj_mysql->escape($str);
+    }
  
    
    /**

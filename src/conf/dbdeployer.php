@@ -200,9 +200,9 @@ class DBDeployer {
 	
 	static function deploy($arr_db, $table_prefix = "tbl_")
 	{
-		$obj_db = new TblClass();
-	  
-	  	if (FIRST_RUN) {
+		$obj_db = new TblClass($table_prefix);
+
+		if (FIRST_RUN) {
 	  		$cnt = file_get_contents("conf/configuration.php");
 			$pre = substr($cnt, 0, strpos($cnt, "/*<CUSTOM-SETTINGS>*/")+strlen("/*<CUSTOM-SETTINGS>*/")+1);
 			$post = substr($cnt, strpos($cnt, "/*</CUSTOM-SETTINGS>*/")-1);
@@ -230,7 +230,6 @@ class DBDeployer {
 	        else
 	            $pk = $table."_id";
 	            
-	         
 	        $str_query = "CREATE TABLE IF NOT EXISTS ".$table_prefix.$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
 	        $bol_exists = $obj_db->obj_mysql->tableExists($table_prefix.$table);
 	        if ($bol_exists) $arr_fields = $obj_db->obj_mysql->listColumns($table_prefix.$table);

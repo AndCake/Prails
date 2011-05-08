@@ -126,7 +126,7 @@ class SQLite extends Cacheable {
 	}
 	
 	function tableExists($str_table) {
-		$res = $this->query("SELECT name FROM sqlite_master WHERE name='" . $str_table . "'");
+		$res = $this->query("SELECT * FROM sqlite_master WHERE name='" . $str_table . "'");
 		return (count($res) > 0);
 	}
 	
@@ -157,7 +157,7 @@ class SQLite extends Cacheable {
 	      	if (substr($str_query, 0, 12) == "ALTER TABLE " && strpos($str_query, " ADD COLUMN ") === false) return null;
 
 	      	// send SQL statement to database
-			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE "))) {
+			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE ", "REPLACE"))) {
 				$dbr_queryResult = $link->exec($str_query);
 			} else {
 	      		$dbr_queryResult = $link->query($str_query);
