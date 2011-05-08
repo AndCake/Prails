@@ -26,7 +26,9 @@ class MainHandler
 
     function MainHandler($str_lang = "")
     {
-        $this->obj_data = new MainData();
+    	if (IS_SETUP) {
+	        $this->obj_data = new MainData();
+    	}
         $this->str_lang = $str_lang;
 		
 		// clean up any transferred vars in GET request
