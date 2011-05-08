@@ -10,8 +10,8 @@
             A TagLib is a library of special tags, that will be replaced during the include process of a template, to be precise as part of the template's compilation, by their actual content. The tag name is identified by it's file name. So if the file is called <code>box.tag</code>, the respective tag, that would then be usable, would be called <code><box></code>. All special tags are prefixed with the "<code>c</code>" prefix (so it's actually <code><c:box></code>, for example). Any valid PHP code that is part of the tag lib definition, will be evaluated at compile time. Special tags can have attributes and content. The attributes can be accessed in the tag file by <code>$tag["attributes"]["<attribute name>"]</code>. The tag's content can be accessed in the tag file by <code>$tag["body"]</code>. This code is written in normal PHP code.
         </p>
         <p class="Text_20_body">
-            There also exists a special notation for PHP code, that is to be generated during compile time by the tag: <code><@ [php code goes here] @></code>
-            . Furthermore the compiler environment for tags also has the possibility to convert macro-style variables to PHP variables at include time. This macro-style always looks like <code>#namepart.subpart</code>, whereas there can be multiple subparts be following after the first one (but may not). The compiler converts these expressions actually into code that looks like <code><?=$arr_param["namepart"]["subpart"]?></code>
+            There also exists a special notation for PHP code, that is to be generated during compile time by the tag: <code><% [php code goes here] %></code>
+            . Furthermore the compiler environment for tags also has the possibility to convert macro-style variables to PHP variables at include time. This macro-style always looks like <code>#namepart.subpart</code>, whereas there can be multiple subparts be following after the first one (but may not). The compiler converts these expressions actually into code that looks like <code><?=$arr_param["namepart"]["subpart"]? ></code>
             (with all of it's subparts, of course).
         </p>
         <p class="Text_20_body">
@@ -24,9 +24,9 @@
         <p class="Text_20_body">
             To see how one could define a new tag for the TagLib, read the following example:
             <pre>
-                <@ if (<?=$tag["attributes"]["cond"]?>) { @>
-	               <?=$tag["body"]?>
-                <@ } @>
+                <% if (<?=$tag["attributes"]["cond"]? >) { %>
+	               <?=$tag["body"]? >
+                <% } %>
             </pre>
         </p>
     </body>

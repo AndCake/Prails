@@ -5,6 +5,20 @@
 fieldset { display: block; border: 1px solid #ccc; }
 fieldset legend { font-weight: bold; }
 </style>
+<script type="text/javascript">
+//<![CDATA[
+	addLoadEvent(function() {
+		new Ajax.Request("main/setup", {
+			method: "get",
+			on404: function(req) {
+				$("error-container").insert(
+					new Element("p", {'class': "error"}).update("No mod_rewrite could be detected. Please make sure that you have it installed and activated.")
+				);
+			}
+		});
+	});
+//]]>
+</script>
 <div style="width: 700px;margin: 0px auto;">
 <h1>Welcome to the Prails Web Framework!</h1>
 <? if ($arr_param["message"] == "success") { ?>
@@ -14,6 +28,7 @@ fieldset legend { font-weight: bold; }
 <? } else { ?>
 <p>Before you can begin using Prails to develop the most awesome web applications, you first need to set your Prails instance's base configuration.</p>
 <h2>Setup</h2>
+<div id="error-container">
 <? if (!$arr_param["permissions"]) { ?>
 	<p class="error">Prails detected that important files are not writable.<br/> 
 	Please enable write access to all files and folders within the Prails directory.</p>
@@ -21,6 +36,7 @@ fieldset legend { font-weight: bold; }
 <? if ($arr_param["message"] == "error") { ?>
 	<p class="error">Your data could not be saved. Please check user permissions.</p>
 <? } ?>
+</div>
 <form method="post" action="main/setup/check">
 	<fieldset>
 		<legend>Project Data</legend>

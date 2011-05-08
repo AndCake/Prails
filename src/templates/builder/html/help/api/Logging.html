@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Logging - Prails API Documentation</title>
+</head>
+<body>
+	<h2 class="P5"><a name="_TagLibs"><span/></a>Logging</h2>
+	<p class="Text_20_body">For logging functionality there is a class called <code>Logger</code>. An instance of this class is always in the global context, which let's you write log messages into the framework.log file within the log directory. If you need some special purpose logs, you can create your own instances of that class and construct it with the path to the log file you want. By setting the global configuration value <code>DEBUG_LEVEL</code> to one of the following values, you can define what should be put into the logs and what should not.</p>
+	<table>
+		<tr><th align="left">Log Level</th><th>&nbsp;</th><th align="left">Log Messages written</th></tr>
+		<tr><td align="center">0</td><td></td><td>fatal</td></tr>
+		<tr><td align="center">1</td><td></td><td>warn, error, fatal</td></tr>
+		<tr><td align="center">2</td><td></td><td>debug, warn, error, fatal</td></tr>
+		<tr><td align="center">3</td><td></td><td>info, debug, warn, error, fatal</td></tr>
+		<tr><td align="center">4</td><td></td><td>trace, info, debug, warn, error, fatal</td></tr>
+	</table>
+	<p>Log level 2 is the default. This should be used in production environments.</p>
+	<p>As the log messages above indicate, the respective methods that can be used are:</p>
+	<code>fatal($str_msg, $bol_strace = false) 
+error($str_msg, $bol_strace = false)
+warn($str_msg, $bol_strace = false) 
+debug($str_msg, $bol_strace = false) 
+info($str_msg, $bol_strace = false) 
+trace($str_msg, $bol_strace = false)</code>
+	<p>The first parameter represents the message to be written into the error log, the second parameter is optional. If set to true it will additionally write the current stack trace into the error log. Default is false. <code>fatal</code> log messages will additionally throw an exception.</p>
+	<p><strong>Example:</strong></p>
+	<code>
+	// first getting the global logger
+	global $log;
+	$log->debug("This is just a test");
+	
+	// creating a custom logger
+	$myLog = new Logger("log/mycustom.log");
+	$myLog->error("Let's see how an error looks like...");
+	</code>
+</body>
+</html>

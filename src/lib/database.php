@@ -25,6 +25,15 @@ class Database extends TblClass {
 	function Database($prefix = "tbl_") {
 		parent::TblClass($prefix);
 	}
+	
+	/**
+	 * Retrieve more complex structured data from the database
+	 * @param STRING $query
+	 * @return Array of DBEntrys
+	 */
+	function query($query) {
+		return $this->SqlQuery($query);
+	}
 	 
 	/**
 	 * Retrieve data from a table

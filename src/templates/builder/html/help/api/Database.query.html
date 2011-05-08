@@ -2,17 +2,17 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-        <title>SqlQuery - Database - Prails API Documentation</title>
+        <title>query - Database - Prails API Documentation</title>
     </head>
     <body>
-        <h3 class="P4"><a name="_SqlQuery"><span/></a>SqlQuery</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
+        <h3 class="P4"><a name="_SqlQuery"><span/></a>query</h3><h4 class="Heading_20_4"><a name="_Description_"><span/></a>Description:</h4>
         <p class="Text_20_body">
             Sends a query to the database and returns it's result.
         </p>
         <h4 class="Heading_20_4"><a name="_Syntax_"><span/></a>Syntax:</h4>
         <p class="Text_20_body">
             <code>
-                Array SqlQuery($str_query)
+                Array query($str_query)
             </code>
         </p>
         <table border="0" cellspacing="0" cellpadding="0" class="Table16">
@@ -33,15 +33,12 @@
             </tr>
         </table>
         <p class="Text_20_body">
+        	HINT: note that you need to add the table's prefix manually (which is always "tbl_"). 
         </p>
         <h4 class="Heading_20_4"><a name="_Example_"><span/></a>Example:</h4><pre>
-            $arr_result = $this->SqlQuery("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+            $arr_result = $this->query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
         </pre>
-        <p class="Text_20_body">
-            <code>
-                $arr_result
-            </code>
-            will look like this:
+        <p class="Text_20_body"><code>$arr_result</code> will look like this:
         </p>
         <pre>
             $arr_result = Array(
