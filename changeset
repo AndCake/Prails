@@ -1,3 +1,57 @@
+V1.0.8 (May 8th, 2011)
+
+* added hooks
+* added a simple debugger for data queries and event handlers (not yet for libraries)
+* added new input tag
+* added a tools lib function to receive files uploaded via fileselector.js
+* added CMS helper tooltips and bookmarklet
+* added support for unified <%..%>
+* added RAND method for sqlite
+* added basic set up tool
+* added basic styles for overlabels
+* added input tag documentation
+* added a way to extend the IDE itself via (currently) one hook
+* added short hand for DB queries: get(index,filter,name)
+* added search+replace functionalty (can be triggered via CTRL+F in a code field)
+* added shared memory caching for DB (includes a fallback to file system, if no shared memory can be acquired)
+* added new session manager (stores sessions now in DB)
+* added mapped filtering for DBEntry::get()
+* added explicit db flush functionality at help tab
+* added side nav link in main home template
+* added functionality to not cache external CSS files and JS files
+* added first code completion implementation for PHP code (completion of data query names in handler code)
+* changed validator to use attribute 'error' instead of 'title'
+* changed overlabel to use attribute 'label' instead of 'title'
+* clean up of global css (LESS style)
+* improved SQL query page
+* improved caching of CMS contents so that contents > 1024 bytes are not stored in session anymore
+* improved database access through class Database (easier querying)
+* improved logger to show the error if it was unable to write into error log
+* decorators now get the current context as parameter
+* made LESS more robust (now shows compiler errors and increased embed max filesize)
+* made error reporting less talkative (up to now it also reported NOTICES on some servers)
+* made CMS texts type 1 have a bigger wysiwyg editor
+* re-introduced SQLite alter table support for adding columns
+* updated to newest LESSPHP code
+* updated to newest modernizr version
+* validation enhancements (now required only fields can have own global text override too) 
+* made sure the cache files are removed again
+* made sure that package import assigns contents to correct modules
+* fixed a bug with IE7 and embedded images (which did not display)
+* fixed several issues with css and image handling
+* fixed a problem with saving of SEO information and decorator detection
+* Fixed a problem with certain tag codes that were rendered incorrectly by bespin
+* fixed a bug with handlers not being re-opened after creation
+* fixed a bug in tag lib that did not allow deeper nesting of foreach intermixed with if conditions
+* fixed some issues with images not rendered correctly when pulled via HTML
+* fixed problems with language tag detection
+* fixed a bug in sqlite with ISNULL()
+* fixed a bug in CMS (missing SEO title and description)
+* fixed a bug with configuration not saved correctly if concurrently modified in same session with another module
+* fixed a bug with importing (configurations were imported incorrectly besides other side effects [wrong modules / handlers / data queries aso removed if they had the same ID])
+* fixed a bug with resetting modules after save
+
+
 V1.0.7 (February 12, 2011)
 
 * set Bespin as the new Code editor
