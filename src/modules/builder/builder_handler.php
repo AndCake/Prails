@@ -321,9 +321,11 @@ class BuilderHandler
     {
         $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
 
-        removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
-        removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
-
+        removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+        removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
+        removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+        removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
+        
         $this->obj_data->deleteModule($_GET["module_id"]);
         $this->obj_data->deleteHandlerFromModule($_GET["module_id"]);
 		$this->obj_data->clearConfiguration($_GET["module_id"]);
@@ -360,8 +362,8 @@ class BuilderHandler
                 	if (!is_array($headerInfo)) $headerInfo = Array();
                     $arr_data["header_info"] = @serialize(array_merge($headerInfo, $arr_data["header_info"]));
                 }
-                removeDir("modules/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
-                removeDir("templates/".$arr_param["module"]["name"].$arr_param["module"]["module_id"], true);
+                removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+                removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
 
                 $this->obj_data->updateModule($_GET["module_id"], $arr_data);
             } else if ((int)$_GET["module_id"] == 0)
