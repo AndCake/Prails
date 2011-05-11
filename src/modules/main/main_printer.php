@@ -21,7 +21,9 @@ class MainPrinter
 
     function MainPrinter($str_lang)
     {
-        $this->obj_lang = new LangData($str_lang);
+	if (IS_SETUP) {
+	        $this->obj_lang = new LangData($str_lang);
+	}
         $obj_gen = Generator::getInstance();
 
         /*<CSS-INCLUDES>*/

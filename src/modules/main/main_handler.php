@@ -45,7 +45,6 @@ class MainHandler
 		$_GET = $result;
         
 		$obj_gen = Generator::getInstance();
-        $obj_gen->setLanguage($this->str_lang);
         $this->obj_print = new MainPrinter($this->str_lang);
     }
 

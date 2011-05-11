@@ -134,8 +134,8 @@
             This example renders a select box and a textarea:
         </p>
         <pre>
-		<@ $arr_param['values'] = Array("" => "select...", "one", "two", "three", "four"); @>
-		<@ $arr_param['local']['content'] = "Hello World!\nThis is text."; @>
+		<% $arr_param['values'] = Array("" => "select...", "one", "two", "three", "four"); %>
+		<% $arr_param['local']['content'] = "Hello World!\nThis is text."; %>
 		<c:input type="select" name="number" values="values" class="required"/>
 		<c:input type="text" name="content" value="#local.content" overlabel="Test" label="Enter Text" multiple="5" />
         </pre>

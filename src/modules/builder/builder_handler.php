@@ -992,6 +992,7 @@ class BuilderHandler
         $filename = "templates/builder/html/help/".if_set($_GET["path"], "index.html");
 		$cnt = file_get_contents($filename);
 		$endl = "ENDL";
+		$cnt = str_replace('$', "\$", $cnt);
 		if (floatval(phpversion()) >= 5.3) $endl = "'ENDL'";
 		$cnt = str_replace(Array("<pre>", "</pre>", "<code>", "</code>"), Array("<pre><? \$cnt=<<<".$endl."\n", "\nENDL;\nhl(\$cnt); ?></pre>", "<? \$cnt=<<<".$endl."\n", "\nENDL;\nhl(\$cnt); ?".">"), $cnt);
 		$cnt = "<? function hl(\$str) {\$res = highlight_string('<? '.\$str.' ?>', true); echo str_replace('?&gt;</span>', '</span>', str_replace('&lt;?&nbsp;', '', \$res));}?>\n".$cnt;
