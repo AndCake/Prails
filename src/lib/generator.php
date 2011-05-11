@@ -193,7 +193,10 @@ class Generator {
 		$startTime = time()+microtime();
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
-		file_put_contents("cache/".md5($str_name), $str_content);		
+		if (!@file_put_contents("cache/".md5($str_name), $str_content)) {
+			global $log;
+			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
+		}		
 		
         ob_start();
         require ("cache/".md5($str_name));

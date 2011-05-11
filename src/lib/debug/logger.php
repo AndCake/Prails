@@ -96,7 +96,7 @@ class Logger {
 			$trace
 		)) . "\n";
 		
-		$fp = fopen($this->log_file, "a+");
+		$fp = @fopen($this->log_file, "a+");
 		if ($fp) {
     		fwrite($fp, $line);
     		fclose($fp);
