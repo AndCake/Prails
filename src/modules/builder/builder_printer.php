@@ -23,6 +23,7 @@ class BuilderPrinter
     {
         $this->obj_lang = new LangData("builder", $str_lang);
         $obj_gen = Generator::getInstance();
+        $obj_gen->setLanguage($str_lang);
 
         $event = explode(":", $_GET["event"]);
         if ($event[0] == "builder")

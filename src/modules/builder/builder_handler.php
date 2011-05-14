@@ -1203,12 +1203,14 @@ class BuilderHandler
     			}
     			$query = preg_replace('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', '', $query);
     		}
+    		$this->obj_data->obj_sql->setPrefix("tbl_");
     		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
     			$query .= " LIMIT [offset], [limit]";
 				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
     		}
     		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
-			$_SESSION["builder"]["currentQuery"] = $query;
+    		$this->obj_data->obj_sql->setPrefix("tbl_prailsbase_");
+    		$_SESSION["builder"]["currentQuery"] = $query;
 			$_SESSION["builder"]["currentQueryTotal"] = (int)$arr_param["totals"][0]["total"];
 			$result = Array();
 			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
@@ -1231,10 +1233,12 @@ class BuilderHandler
 			if (isset($_POST["sort"])) {
 				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 			}
-    		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
+    		$this->obj_data->obj_sql->setPrefix("tbl_");
+			if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
 				$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
     		}
-			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
+			$this->obj_data->obj_sql->setPrefix("tbl_prailsbase_");
+    		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 			
 			$result = Array();
 			if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $i => $res) {
@@ -1508,6 +1512,9 @@ class BuilderHandler
 						$tag = $tag->getArrayCopy();
 						unset($tag["tag_id"]);
                         $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
+ 					    if ($tag["fk_module_id"] > 0) {
+ 					    	$tag["fk_module_id"] = $moduleMapping[$tag["fk_module_id"]];
+ 					    }
                         $t = $this->obj_data->selectTagByUserAndName($tag["fk_user_id"], $tag["name"]);
 						$this->obj_data->deleteTag($t["tag_id"]);
 						$this->obj_data->insertTag($tag);
@@ -1517,6 +1524,9 @@ class BuilderHandler
 						$library = $library->getArrayCopy();
 						unset($library["library_id"]);
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
+ 					    if ($library["fk_module_id"] > 0) {
+ 					    	$library["fk_module_id"] = $moduleMapping[$library["fk_module_id"]];
+ 					    }
  					    $l = $this->obj_data->selectLibraryByUserAndName($library["fk_user_id"], $library["name"]);
 						$this->obj_data->deleteLibrary($l["library_id"]);
 						$this->obj_data->insertLibrary($library);
@@ -1530,6 +1540,7 @@ class BuilderHandler
                         $m = $this->obj_data->selectModuleByUserAndName($mod["fk_user_id"], $mod["name"]);
 					    $this->obj_data->deleteModule($m["module_id"]);
 						$modId = $this->obj_data->insertModule($mod);
+						$moduleMapping[$id] = $modId;
 						foreach ($mod["handlers"] as $handler) {
 							$handler = $handler->getArrayCopy();
 							$handler["fk_module_id"] = $modId;

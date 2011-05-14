@@ -16,6 +16,7 @@ class EmptyPrinter
    {
       $this->obj_lang = new LangData($str_lang);
       $obj_gen = Generator::getInstance();
+      $obj_gen->setLanguage($str_lang);
       $obj_gen->addStyleSheet("templates/empty/css/empty.css");
 	  /*<CSS-INCLUDES>*/
 	  /*</CSS-INCLUDES>*/

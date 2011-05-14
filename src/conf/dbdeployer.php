@@ -230,8 +230,13 @@ class DBDeployer {
 	        else
 	            $pk = $table."_id";
 	            
-	        $str_query = "CREATE TABLE IF NOT EXISTS ".$table_prefix.$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
-	        $bol_exists = $obj_db->obj_mysql->tableExists($table_prefix.$table);
+	        
+                if ($table == "sessions" && $table_prefix == "tbl_prailsbase_") {
+                        $str_query = "CREATE TABLE IF NOT EXISTS ".$table_prefix.$table." (".$pk." VARCHAR(20) PRIMARY KEY, ";
+                } else {
+                        $str_query = "CREATE TABLE IF NOT EXISTS ".$table_prefix.$table." (".$pk." ".$obj_db->obj_mysql->constructs["pk"].", ";
+                }
+		$bol_exists = $obj_db->obj_mysql->tableExists($table_prefix.$table);
 	        if ($bol_exists) $arr_fields = $obj_db->obj_mysql->listColumns($table_prefix.$table);
 	        foreach ($arr_table as $key=>$value)
 	        {

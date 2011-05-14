@@ -11,7 +11,7 @@ class CSSLib {
 		$this->styles = $styles;
 		$this->prefix = md5(implode("", $styles));
 		if (IS_SETUP) {
-			$this->obj_sql = new TblClass();
+			$this->obj_sql = new TblClass("tbl_prailsbase_");
 		}
 	}
 	
@@ -52,6 +52,14 @@ class CSSLib {
 		$fp = fopen($path, "w+");
 		foreach ($this->styles as $style) {
 			$content = file_get_contents($style);
+			try {
+				$content = $this->lessifyCSS($content);
+			} catch(Exception $e) {
+				global $log;
+				$log->error("Error in LESS CSS: ".$e->getMessage());
+				echo "Error in LESS CSS: ".$e->getMessage();				
+			}			
+			
 			$fpath = str_replace(basename($style), "", $style);
 			preg_match_all('@url\(["\']{0,1}([^)\'"]+)["\']{0,1}\)@', $content, $matches);
 			if (count($matches[1]) > 0) {
@@ -162,26 +170,27 @@ class CSSLib {
 	 */
 	function mergeStyles($bol_minify = false, $embed = true) {
 		$path = "cache/".$this->prefix.".".$this->time.".css";
-		if (!file_exists($path)) {
+		if (file_exists($path)) return $path;
 			
-			// remove previous version of that file
-			$dp = opendir("cache/");
-			while (($file = readdir($dp)) !== false) {
-				if (substr($file, 0, strlen($this->prefix)) == $this->prefix) {
-					@unlink("cache/".$file);
-				}
+		// remove previous version of that file
+		$dp = opendir("cache/");
+		while (($file = readdir($dp)) !== false) {
+			if (substr($file, 0, strlen($this->prefix)) == $this->prefix) {
+				@unlink("cache/".$file);
 			}
-			closedir($dp);
-			
-			$this->collectStyles($path);
+		}
+		closedir($dp);
+		
+		$this->collectStyles($path);
 
-			$css = file_get_contents($path);
-			try {
-				$css = $this->lessifyCSS($css);
-			} catch(Exception $e) {
-				echo ("Error in LESS CSS: ".$e->getMessage());				
-			}			
-            
+		$fp = fopen($path, "r");
+		$pp = fopen($path.".new", "w+");
+		$gp = gzopen(str_replace(".css", ".cgz", $path), "w9");
+		$hp = fopen(str_replace(".css", ".header.css", $path), "w+");
+		$zp = gzopen(str_replace(".css", ".header.cgz", $path), "w9");
+		while (!feof($fp)) {
+			$css = fgets($fp, 4096);
+			
             if ($bol_minify) {
             	$css = $this->minifyCSS($css);
     	    }
@@ -193,14 +202,19 @@ class CSSLib {
 			} else {
 				$headerArea = "";
 			}
+			fwrite($pp, $css);
+			fwrite($hp, $headerArea);
+			gzwrite($gp, $css);
+			gzwrite($zp, $headerArea);
 			
-        	file_put_contents($path, $css=trim($css));
-			file_put_contents(str_replace(".css", ".cgz", $path), gzencode($css, 9));
-			
-			if (strlen($headerArea) > 0) {
-				file_put_contents(str_replace(".css", ".header.css", $path), $headerArea);
-				file_put_contents(str_replace(".css", ".header.cgz", $path), gzencode($headerArea, 9));
-			}
+		}
+		fclose($fp);
+		fclose($pp);
+		fclose($hp);
+		gzclose($gp);
+		gzclose($zp);
+		if (@copy($path.".new", $path)) {
+			@unlink($path.".new");
 		}
 		
 		return $path;

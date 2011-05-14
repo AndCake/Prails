@@ -170,11 +170,13 @@ class Generator {
         preg_match_all("/\\{([a-zA-Z0-9]+\\.[a-zA-Z0-9.]+)(\\\$?)\\}/", $buffer, $arr_matches);
 
         foreach ($arr_matches[1] as $key => $str_match) {
-	    $text = $this->obj_lang->getText($str_match);
-	    if (ENV_PRODUCTION != true && strlen($arr_matches[2][$key])<=0) {
-	        $text = "<!--[LANG:".$str_match."]-->" . $text . "<!--[/LANG:".$str_match."]-->";
-	    }
-	    $buffer = str_replace($arr_matches[0][$key], $text, $buffer);
+        	if (strpos($buffer, "{".$str_match."}") !== false) {
+			    $text = $this->obj_lang->getText($str_match);
+			    if (ENV_PRODUCTION != true && strlen($arr_matches[2][$key])<=0) {
+			        $text = "<!--[LANG:".$str_match."]-->" . $text . "<!--[/LANG:".$str_match."]-->";
+			    }
+			    $buffer = str_replace($arr_matches[0][$key], $text, $buffer);
+        	}
         }
 
         return $buffer;
@@ -266,8 +268,8 @@ class Generator {
 		$cssLib = new CSSLib($styles);
 		$cssLib->cleanOldCache();
 		$path = $cssLib->mergeStyles(ENV_PRODUCTION === true, CSS_EMBED_RESOURCES);
-		
-		$str_styles .= "<link rel='stylesheet' media='screen' href='".$SERVER.$path."' />\n";
+
+		$str_styles .= "<link rel='stylesheet' type='text/css' media='screen' href='".$SERVER.$path."' />\n";
 		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".$SERVER.str_replace(".css", ".header.css", $path)."' /><![endif]-->";
 		
 		if (is_array($this->arr_noCacheStyles)) foreach ($this->arr_noCacheStyles as $ncs) {
@@ -349,6 +351,7 @@ class Generator {
     	$path = "cache/".$prefix.".".$time.".js";
     	if (!file_exists($path)) {
     		$fp = fopen($path, "w+");
+    		$gp = gzopen(str_replace(".js", ".jgz", $path), "w9");
 			$gzData = "";
             foreach ($this->arr_js as $js) {
             	$str = file_get_contents($js)."\n";
@@ -356,10 +359,10 @@ class Generator {
     			    $str = JSMIN::minify($str);
     			}
             	fwrite($fp, $str);
-				$gzData .= $str;
+				gzwrite($gp, $str);
             }
     		fclose($fp);
-			file_put_contents(str_replace(".js", ".jgz", $path), gzencode($gzData, 9));
+    		gzclose($gp);
            	@chmod($path, 0755);
            	@chmod(str_replace(".js", ".jgz", $path), 0755);
         }

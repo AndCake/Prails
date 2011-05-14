@@ -21,10 +21,11 @@ class MainPrinter
 
     function MainPrinter($str_lang)
     {
+        $obj_gen = Generator::getInstance();
 	if (IS_SETUP) {
 	        $this->obj_lang = new LangData($str_lang);
+	        $obj_gen->setLanguage($str_lang);
 	}
-        $obj_gen = Generator::getInstance();
 
         /*<CSS-INCLUDES>*/
         $obj_gen->addStyleSheet("templates/main/css/main.css");
@@ -46,6 +47,7 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/browserdetect.js");
         $obj_gen->addJavaScript("templates/main/js/cookie.js");
         $obj_gen->addJavaScript("templates/main/js/control.date.js");
+        $obj_gen->addJavaScript("templates/main/js/jquery.js");
         /*</JAVASCRIPT-INCLUDES>*/
         $obj_gen->addJavaScript("templates/main/js/global.js");
 		

@@ -9,7 +9,7 @@ AddEncoding gzip cgz
 AddType text/javascript js jgz
 AddEncoding gzip jgz
 
-<IfModule mod_rewrite.c>
+<IfModule rewrite_module>
 	RewriteEngine on
 
 	RewriteCond %{HTTP:Accept-encoding} gzip
@@ -20,7 +20,6 @@ AddEncoding gzip jgz
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
 	RewriteRule ^(.*)\.cgz $1.css [L]
- 
 
 	RewriteCond %{HTTP:Accept-encoding} gzip
 	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
