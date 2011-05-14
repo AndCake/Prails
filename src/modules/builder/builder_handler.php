@@ -1203,13 +1203,13 @@ class BuilderHandler
     			}
     			$query = preg_replace('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', '', $query);
     		}
-    		$this->obj_data->obj_sql->setPrefix("tbl_");
+    		$this->obj_data->obj_mysql->setPrefix("tbl_");
     		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
     			$query .= " LIMIT [offset], [limit]";
 				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
     		}
     		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
-    		$this->obj_data->obj_sql->setPrefix("tbl_prailsbase_");
+    		$this->obj_data->obj_mysql->setPrefix("tbl_prailsbase_");
     		$_SESSION["builder"]["currentQuery"] = $query;
 			$_SESSION["builder"]["currentQueryTotal"] = (int)$arr_param["totals"][0]["total"];
 			$result = Array();
@@ -1233,11 +1233,11 @@ class BuilderHandler
 			if (isset($_POST["sort"])) {
 				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 			}
-    		$this->obj_data->obj_sql->setPrefix("tbl_");
+    		$this->obj_data->obj_mysql->setPrefix("tbl_");
 			if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
 				$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
     		}
-			$this->obj_data->obj_sql->setPrefix("tbl_prailsbase_");
+			$this->obj_data->obj_mysql->setPrefix("tbl_prailsbase_");
     		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
 			
 			$result = Array();

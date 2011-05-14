@@ -52,13 +52,6 @@ class CSSLib {
 		$fp = fopen($path, "w+");
 		foreach ($this->styles as $style) {
 			$content = file_get_contents($style);
-			try {
-				$content = $this->lessifyCSS($content);
-			} catch(Exception $e) {
-				global $log;
-				$log->error("Error in LESS CSS: ".$e->getMessage());
-				echo "Error in LESS CSS: ".$e->getMessage();				
-			}			
 			
 			$fpath = str_replace(basename($style), "", $style);
 			preg_match_all('@url\(["\']{0,1}([^)\'"]+)["\']{0,1}\)@', $content, $matches);
@@ -183,6 +176,14 @@ class CSSLib {
 		
 		$this->collectStyles($path);
 
+		try {
+			file_put_contents($path, $this->lessifyCSS(file_get_contents($path)));
+		} catch(Exception $e) {
+			global $log;
+			$log->error("Error in LESS CSS: ".$e->getMessage());
+			echo "Error in LESS CSS: ".$e->getMessage();				
+		}			
+		
 		$fp = fopen($path, "r");
 		$pp = fopen($path.".new", "w+");
 		$gp = gzopen(str_replace(".css", ".cgz", $path), "w9");
