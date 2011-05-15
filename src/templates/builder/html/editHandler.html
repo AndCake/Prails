@@ -332,7 +332,7 @@
 				xtype: "button",
 				text: "Edit URL",
 				iconCls: "urls",
-				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 ? true : false),
+				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 || window.Builder.noRewrite ? true : false),
 				handler: function(e) {
 					Builder.editNiceUrl('#handler.event URL', '#handler.handler_id');
 				}

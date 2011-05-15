@@ -508,6 +508,7 @@
 		</c:foreach>
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
+		window.Builder.noRewrite = <?=MOD_REWRITE ? "false" : "true"?>;
 		
 		(function() {
 			try {

@@ -19,7 +19,11 @@ Builder = Object.extend(Builder || {}, {
 		if (module == "Global") {
 			var win = window.open(location.href.replace(/\?.*$/im, ""), "_new");
 		} else {
-			var win = window.open(module+"/"+event, "_new");
+			if (window.Builder.noRewrite) {
+				var win = window.open("?event="+module+":"+event, "_new");
+			} else {
+				var win = window.open(module+"/"+event, "_new");
+			}
 		}
 		win.focus();
 	},

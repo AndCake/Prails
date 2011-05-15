@@ -60,7 +60,7 @@ class SQLite extends Cacheable {
 		try {
 	        $this->arr_links[$id]["link"] = new SQLite3($arr_dbs[$str_db]["name"].".".$arr_dbs[$str_db]["host"]);
 			$this->arr_links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
-			$this->arr_links[$id]["link"]->createFunction("REPLACE", "str_replace");
+			$this->arr_links[$id]["link"]->createFunction("REPLACE", Array($this, "_ext_replace"));
 			$this->arr_links[$id]["link"]->createFunction("MD5", "md5");
 			$this->arr_links[$id]["link"]->createFunction("FLOOR", "floor");			
 			$this->arr_links[$id]["link"]->createFunction("CEIL", "ceil");			
@@ -71,6 +71,11 @@ class SQLite extends Cacheable {
 			global $log;
 			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory.\n\n");
 		}
+	}
+	
+	function _ext_replace() {
+		$arr_args = func_get_args();
+		return str_replace($arr_args[1], $arr_args[2], $arr_args[0]);
 	}
 	
 	function _ext_concat() {

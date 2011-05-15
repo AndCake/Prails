@@ -107,16 +107,92 @@
 					        defaults: {sortable: true},
 					        columns: cols
 					    }),
+					    tbar: [{
+					    	xtype: "button",
+					    	text: "Save Changes",
+					    	iconCls: "save",
+					    	disabled: hide,
+					    	handler: function() {
+								var recs = Ext.getCmp("resultGrid").getStore().getModifiedRecords();
+								if (recs.length <= 0) {
+									Ext.Msg.alert("Saving", "Nothing to be saved. No records were modified.");
+									return;
+								}
+								window.committing = recs.length;
+								for (var i = 0; i < recs.length; i++) {
+									rec = recs[i];
+									var id = rec.data[window.currentQueryTable+"_id"];
+									var c = rec.getChanges();
+									var set = "";
+									for (var each in c) {
+										if (set.length > 0) set += ", ";
+										set += each + "='"+c[each].replace("'", "''")+"'";
+									} 
+									var query = "UPDATE tbl_"+window.currentQueryTable+" SET "+set+" WHERE "+window.currentQueryTable+"_id='"+id+"'";
+									invoke(null, "builder:queryTest&check=1", {
+										"query": query
+									}, true, function() {
+										rec.commit();
+										window.committing--;
+									});
+								}
+								new PeriodicalExecuter(function(pe){
+									if (window.committing <= 0) {
+										pe.stop();
+				            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);								
+									}
+								}, 0.1);
+					    	}
+					   	}, "-", {
+			            	xtype: "button",
+			            	text: "Add Row",
+			            	iconCls: "add",
+			            	disabled: hide,
+			            	handler: function() {
+			            		<? if (DB_TYPE == SQLITE) { ?>
+			            			var addQuery = "INSERT INTO tbl_"+window.currentQueryTable+" DEFAULT VALUES";
+			            		<? } else { ?>
+			            			var addQuery = "INSERT INTO tbl_"+window.currentQueryTable+" () VALUES ()";
+			            		<? } ?>
+								invoke(null, "builder:queryTest&check=1", {
+									"query": addQuery
+								}, true, function() {
+			            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+			            		});
+			            	}
+			            }, {
+			            	xtype: "button",
+			            	text: "Delete Row",
+			            	iconCls: "delete",
+			            	disabled: hide,
+			            	handler: function() {
+			            		rec = Ext.getCmp("resultGrid").getSelectionModel().getSelections();
+			            		if (rec) {
+			            			var vars = "";
+			            			for (var i = 0; i < rec.length; i++) {
+			            				if (vars.length > 0) vars += "','";
+			            				vars += rec[i].data[window.currentQueryTable+"_id"];
+			            			}
+				            		var cond = window.currentQueryTable+"_id IN ('"+vars+"')";
+									invoke(null, "builder:queryTest&check=1", {
+										"query": "DELETE FROM tbl_"+window.currentQueryTable+" WHERE "+cond
+									}, true, function() {
+										setTimeout(function() {
+				            				window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+										}, 100);
+				            		});
+			            		}
+			            	}
+			            }, "-", "Search:", " ", new Ext.ux.form.SearchField({
+			                store: store,
+			                width:150
+			            })],
 						bbar: pb = new Ext.PagingToolbar({
 				            pageSize: 25,
 				            store: store,
 				            displayInfo: true,
 				            displayMsg: 'Displaying results {0} - {1} of {2}',
-				            emptyMsg: "No results to display",
-				            items:[/*"Search:", " ", new Ext.ux.form.SearchField({
-				                store: store,
-				                width:320
-				            })*/]
+				            emptyMsg: "No results to display"
 				        })
 					});	
 /*

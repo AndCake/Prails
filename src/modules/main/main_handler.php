@@ -76,8 +76,18 @@ class MainHandler
 			$arr_save = Array();
 			$arr_settings["PROJECT_NAME"] = $arr_project["name"];
 			$arr_settings["ENV_PRODUCTION"] = ($arr_project["env"] == "prod");
+			$arr_settings["MOD_REWRITE"] = ($_POST["rewrite"] != "false");
 			$arr_settings["IS_SETUP"] = true;
 			$arr_settings["FIRST_RUN"] = true;
+			
+			if (!$arr_settings["MOD_REWRITE"]) {
+				$ht = file_get_contents(".htaccess");
+				$start = strpos($ht, "<IfModule rewrite_module>");
+				$end = strpos($ht, "</IfModule>", $start);
+				$pre = substr($ht, 0, $start);
+				$post = substr($ht, $end + strlen("</IfModule>"));
+				$success = $success && @file_put_contents(".htaccess", $pre.$post);
+			}
 
 			foreach ($arr_settings as $key => $value) {
 				array_push($arr_save, Array("name" => $key, "value" => $value));

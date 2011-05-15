@@ -12,8 +12,11 @@ fieldset legend { font-weight: bold; }
 			method: "get",
 			on404: function(req) {
 				$("error-container").insert(
-					new Element("p", {'class': "error"}).update("No mod_rewrite could be detected. Please make sure that you have it installed and activated.")
+					new Element("p", {'class': "error"}).update("No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, mod_rewrite support will be deactivated.")
 				);
+			},
+			onSuccess: function(req) {
+				$("mod_rewrite").value = "true";
 			}
 		});
 	});
@@ -37,7 +40,8 @@ fieldset legend { font-weight: bold; }
 	<p class="error">Your data could not be saved. Please check user permissions.</p>
 <? } ?>
 </div>
-<form method="post" action="main/setup/check">
+<form method="post" action="?event=main:setup&check">
+	<input type="hidden" id="mod_rewrite" name="rewrite" value="false"/>
 	<fieldset>
 		<legend>Project Data</legend>
 		<div class="form-field">
@@ -118,6 +122,12 @@ fieldset legend { font-weight: bold; }
 	
 	<script type="text/javascript">
 	//<![CDATA[
+	    if (!window.$) {
+	    	var e = document.createElement("p");
+	    	e.className = "error";
+	    	e.innerHTML = "No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, mod_rewrite support will be deactivated."; 
+	    	document.getElementById("error-container").appendChild(e);
+	    }
 		window.userClone = $$('.users .user')[0].clone(true);
 	//]]>
 	</script>
