@@ -139,7 +139,7 @@
 								new PeriodicalExecuter(function(pe){
 									if (window.committing <= 0) {
 										pe.stop();
-				            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);								
+				            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");								
 									}
 								}, 0.1);
 					    	}
@@ -156,8 +156,8 @@
 			            		<? } ?>
 								invoke(null, "builder:queryTest&check=1", {
 									"query": addQuery
-								}, true, function() {
-			            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+								}, true, function(req) {
+			            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");
 			            		});
 			            	}
 			            }, {
@@ -178,7 +178,7 @@
 										"query": "DELETE FROM tbl_"+window.currentQueryTable+" WHERE "+cond
 									}, true, function() {
 										setTimeout(function() {
-				            				window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+				            				window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");
 										}, 100);
 				            		});
 			            		}

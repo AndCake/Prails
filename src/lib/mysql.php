@@ -143,7 +143,7 @@ class MySQL extends Cacheable {
 		         
 		         if (strtoupper(substr($str_query, 0, 7)) == "SELECT ") {
 		         	// cache result
-		         	$this->setCache($str_query, $arr_result);
+		         	$this->setCache($str_query, $arr_result, $this->prefix);
 		         } else {
                 		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		                if (count($arr_matches[0]) > 0) {

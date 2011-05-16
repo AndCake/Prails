@@ -144,8 +144,9 @@ class Cacheable {
 		}
 	}
 	
-	protected function setCache($str_query, $arr_result) {
+	protected function setCache($str_query, $arr_result, $prefix = false) {
 		if (!is_array($arr_result)) return;
+		if (!$prefix) $prefix = $this->prefix;
 		$id = crc32($str_query);
 		$this->_set($this->shmId[$id % $this->shmLen], $id, $arr_result);
 		if ($this->_exists($this->shmId[0], 101)) {
@@ -155,7 +156,7 @@ class Cacheable {
 		}
 		
 		// get affected tables
-		preg_match_all("/ [a-zA-Z0-9_.]*".$this->prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+		preg_match_all("/ [a-zA-Z0-9_.]*".$prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		if (count($arr_matches[0]) > 0) {
 		    // loop through each
 		    foreach ($arr_matches[1] as $table) {
