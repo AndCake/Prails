@@ -1484,7 +1484,7 @@ class BuilderHandler
 						foreach ($langs as $lg) {
 							if ($lg["name"] == $lang["name"]) {
 								$id2 = $lg["language_id"];
-								Generator::getInstance()->obj_lang->deleteLanguage($lg["language_id"]);
+								Generator::getInstance()->obj_lang->deleteLanguageOnly($lg["language_id"]);
 								break;						
 							}
 						}
@@ -1495,15 +1495,15 @@ class BuilderHandler
 						foreach ($texts as $text) {
 							$text = $text->getArrayCopy();							
 							$id = 0;
-							unset($text["text_id"]);
-							$textList = Generator::getInstance()->obj_lang->listAllTextsByIdentifier($text["identifier"]);
+							unset($text["texts_id"]);
+							$textList = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($text["identifier"]);
 							foreach ($textList as $tl) {
-								if ($languageMapping["old"][$tl["fk_language_id"]] == $languageMapping["new"][$text["fk_language_id"]] && $text["identifier"] == $tl["identifier"]) {
-									$text["fk_language_id"] = $languageMapping["new"][$text["fk_language_id"]];
-									$id = $tl["text_id"]; 
+								if ($languageMapping["old"][$tl["fk_language_id"]] == $languageMapping["new"][$text["fk_language_id"]]) {
+									$id = $tl["texts_id"]; 
 									break;
 								}
-							}							
+							}
+							$text["fk_language_id"] = $languageMapping["new"][$text["fk_language_id"]];
 							Generator::getInstance()->obj_lang->deleteTexts($id);
 							Generator::getInstance()->obj_lang->insertText($text);
 						}

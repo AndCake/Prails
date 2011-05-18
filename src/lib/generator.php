@@ -199,6 +199,7 @@ class Generator {
 			global $log;
 			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
 		}		
+    	unlink($str_content);
 		
         ob_start();
         require ("cache/".md5($str_name));

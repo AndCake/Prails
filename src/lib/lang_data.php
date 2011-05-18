@@ -211,6 +211,10 @@ class LangData
       $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id='".$id."'");      
    }
 
+   function deleteLanguageOnly($id) {
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id='".$id."'");
+   }
+   
 }
 
 ?>
