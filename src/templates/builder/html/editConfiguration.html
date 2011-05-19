@@ -1,5 +1,11 @@
 <div style="padding:20px;">
 <div id="config_#module.module_id"></div>
+<? $devType = Array(
+	0 => "Every Instance",
+	1 => "Development",
+	2 => "Production"
+); ?>
+<input type="hidden" id="devType#module.module_id" value="<?=(int)$_GET['type']?>"/>
 <script type="text/javascript">
 	//<![CDATA[
 	(function(){
@@ -79,15 +85,51 @@
 					var item = list[i];
 					params["configuration["+i+"][name]"] = item.data.key;
 					params["configuration["+i+"][value]"] = item.data.value;
+					params["configuration["+i+"][flag_public]"] = $("devType#module.module_id").value;
 				}
-				new Ajax.Request("?event=builder:editConfiguration&check=1&module_id=#module.module_id",{
+				new Ajax.Request("?event=builder:editConfiguration&check=1&module_id=#module.module_id&type=<?=(int)$_GET['type']?>",{
 					parameters: params,
 					onSuccess: function(req) {
 						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 					}
 				});
 			}
-		},"-");			
+		},"-", {
+		    xtype: "button",
+		    text: "<?=$devType[(int)$_GET['type']]?>",
+		    iconCls: "config",
+		    id: "instanceTypeConf#module.module_id",
+		    menu: {
+		       items: [{
+					text: 'Every Instance', 
+					iconCls: "instance", 
+					handler: function() {
+						var spanel = Ext.getCmp("qwbuilder_startupPanel");
+						var tab = spanel.getItem("tab_c_<?=(int)$arr_param['module']['module_id']?>");
+						tab.metaDataObj.url = "?event=builder:editConfiguration&module_id=#module.module_id&type=0";						
+						Builder.reloadTab('c_<?=(int)$arr_param['module']['module_id']?>');
+					}		    	   
+		       }, {
+					text: 'Development', 
+					iconCls: "instance", 
+					handler: function() {
+						var spanel = Ext.getCmp("qwbuilder_startupPanel");
+						var tab = spanel.getItem("tab_c_<?=(int)$arr_param['module']['module_id']?>");
+						tab.metaDataObj.url = "?event=builder:editConfiguration&module_id=#module.module_id&type=1";						
+						Builder.reloadTab('c_<?=(int)$arr_param['module']['module_id']?>');
+					}
+		       }, {
+		    	   text: "Production",
+		    	   iconCls: "instance",
+		    	   handler: function() {
+						var spanel = Ext.getCmp("qwbuilder_startupPanel");
+						var tab = spanel.getItem("tab_c_<?=(int)$arr_param['module']['module_id']?>");
+						tab.metaDataObj.url = "?event=builder:editConfiguration&module_id=#module.module_id&type=2";		    		   
+						Builder.reloadTab('c_<?=(int)$arr_param['module']['module_id']?>');
+		    	   }
+		       }]
+		    }			
+		});			
 	})();
 	//]]>
 </script>

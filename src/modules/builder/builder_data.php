@@ -231,9 +231,9 @@ class BuilderData extends Database
         return $this->DeleteQuery(tbl_prailsbase_table, "table_id='".$table_id."'");
     }
 
-    function listConfigurationFromModule($module_id)
+    function listConfigurationFromModule($module_id, $type = 0)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_configuration WHERE fk_module_id='".$module_id."'");
+        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_configuration WHERE fk_module_id='".$module_id."' AND (flag_public=0 OR flag_public='".$type."')");
     }
 
     function selectConfiguration($configuration_id)
@@ -256,9 +256,9 @@ class BuilderData extends Database
         return $this->DeleteQuery(tbl_prailsbase_configuration, "configuration_id='".$configuration_id."'");
     }
 	
-	function clearConfiguration($module_id) 
+	function clearConfiguration($module_id, $type = 0) 
 	{
-		return $this->DeleteQuery(tbl_prailsbase_configuration, "fk_module_id='".$module_id."'");	
+		return $this->DeleteQuery(tbl_prailsbase_configuration, "fk_module_id='".$module_id."' AND (flag_public=0 OR flag_public='".$type."')");	
 	}
 
     // history

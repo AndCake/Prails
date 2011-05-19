@@ -120,7 +120,7 @@ class BuilderHandler
     	}
         $arr_libraries = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
         $arr_tags = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
-        $arr_configuration = $this->obj_data->listConfigurationFromModule($arr_module["module_id"]);
+        $arr_configuration = $this->obj_data->listConfigurationFromModule($arr_module["module_id"], (ENV_PRODUCTION === true ? "2" : "1"));
         if ($arr_module != null && count($arr_module) > 0)
         {
             $mod = strtolower($arr_module["name"]).(ENV_PRODUCTION === true?"":$arr_module["module_id"]);
@@ -1127,7 +1127,7 @@ class BuilderHandler
                 updateConfiguration($arr_configuration);
             } else
             {
-                $this->obj_data->clearConfiguration($_GET["module_id"]);
+                $this->obj_data->clearConfiguration($_GET["module_id"], (int)$_GET["type"]);
                 foreach ($arr_configuration as $arr_conf)
                 {
                     $arr_conf["fk_module_id"] = $_GET["module_id"];
@@ -1151,7 +1151,7 @@ class BuilderHandler
             	if (gettype($value) == "boolean") $value = ($value ? "true" : "false");
                 array_push($arr_param["configuration"], Array(
                 	"fk_module_id"=>-1,
-                	"flag_public"=>1,
+                	"flag_public"=>0,
                 	"name"=>$name,
                 	"value"=>$value
                 ));
@@ -1162,7 +1162,7 @@ class BuilderHandler
             );
         } else
         {
-            $arr_param["configuration"] = $this->obj_data->listConfigurationFromModule($_GET["module_id"]);
+            $arr_param["configuration"] = $this->obj_data->listConfigurationFromModule($_GET["module_id"], (int)$_GET['type']);
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
         }
 
@@ -1382,7 +1382,8 @@ class BuilderHandler
 				$arr_module = $this->obj_data->selectModule($mod);
 				$arr_module["handlers"] = $this->obj_data->listHandlers($mod);
 				$arr_module["datas"] = $this->obj_data->listDatas($mod);
-				$arr_module["configs"] = $this->obj_data->listConfigurationFromModule($mod);
+				$arr_module["configsDevel"] = $this->obj_data->listConfigurationFromModule($mod, 1);
+				$arr_module["configsProd"] = $this->obj_data->listConfigurationFromModule($mod, 2);
 				$arr_module["resources"] = $this->obj_data->listResources($mod);
 				$arr_module["testcases"] = $this->obj_data->listTestcase($mod);
 				array_push($modules, $arr_module);				
@@ -1558,8 +1559,15 @@ class BuilderHandler
 							$this->obj_data->deleteData($d["data_id"]);
 							$this->obj_data->insertData($dat);
 						}
-						$this->obj_data->clearConfiguration($id);
-						foreach ($mod["configs"] as $config) {
+						$this->obj_data->clearConfiguration($id, 1);
+						foreach ($mod["configsDevel"] as $config) {
+							$config = $config->getArrayCopy();
+							$config["fk_module_id"] = $modId;
+							unset($config["configuration_id"]);
+							$this->obj_data->insertConfiguration($config);
+						}
+						$this->obj_data->clearConfiguration($id, 2);
+						foreach ($mod["configsProd"] as $config) {
 							$config = $config->getArrayCopy();
 							$config["fk_module_id"] = $modId;
 							unset($config["configuration_id"]);
