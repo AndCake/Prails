@@ -17,33 +17,25 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-global $arr_errors;
-
 /**
  * Pushes an error onto the error stack (which is shown after the page is rendered)
  * @param STRING $str_error  the error message to be shown.
  */
-function pushError ($str_error)
-{
+function pushError ($str_error) {
 	global $log;
 	$log->error($str_error, true);
 }
 
-function run($cmd, $arr_args = Array(), $bol_inBackground = false)
-{
+function run($cmd, $arr_args = Array(), $bol_inBackground = false) {
     $args = "";
-    foreach ($arr_args as $arg)
-    {
-        if (strlen($arg) > 0)
-        {
+    foreach ($arr_args as $arg) {
+        if (strlen($arg) > 0) {
             $args .= escapeshellarg($arg)." ";
         }
     }
-    if ($bol_inBackground)
-    {
+    if ($bol_inBackground) {
         exec("nice ".$cmd." ".$args." > ./log.txt 2>&1 &");
-    } else
-    {
+    } else {
         $arr_return = Array();
         exec($cmd." ".$args, $arr_return);
         return $arr_return;
@@ -77,8 +69,7 @@ function run($cmd, $arr_args = Array(), $bol_inBackground = false)
 function checkFields ($arr_toCheck, $arr_keys) {
     $bol_check = true;
 
-    foreach ($arr_keys as $str_key)
-    {
+    foreach ($arr_keys as $str_key) {
         $bol_check = $bol_check && (strlen($arr_toCheck[$str_key]) > 0);
     }
 
@@ -94,8 +85,7 @@ function checkFields ($arr_toCheck, $arr_keys) {
  *
  * @return STRING the embed code with scaled down width/height
  */
-function scaleEmbed($embed, $width, $height)
-{
+function scaleEmbed($embed, $width, $height) {
     if (preg_match('/\s+src=["\']http:\/\/www\.msnbc\.msn\.com\/id\/([0-9]+)\/vp\/([0-9]+)[^"\']*["\']\s+/i', $embed, $arr_matches)) {
         $videoId = $arr_matches[2];
         $playerId = $arr_matches[1];
@@ -109,8 +99,7 @@ function scaleEmbed($embed, $width, $height)
                  'launch='.$videoId.'&amp;sw=640&amp;sh=480&amp;EID=oVPEFC&amp;playerid='.$playerId.'"/>';
     }
     $embed = preg_replace("/height=\"[0-9]+\"/", "height=\"".$height."\"", preg_replace("/width=\"[0-9]+\"/", "width=\"".$width."\"", $embed));
-    if (strpos($embed, "wmode=") !== false)
-    {
+    if (strpos($embed, "wmode=") !== false) {
         $embed = preg_replace("/wmode=\"(window|transparent|opaque)\"/", "wmode=\"opaque\"", $embed);
     } else {
         $embed = str_replace("<embed ", "<embed wmode=\"opaque\" ", $embed);
@@ -126,8 +115,7 @@ function scaleEmbed($embed, $width, $height)
  *
  * @return BOOLEAN true if it contains HTML code, else false
  */
-function isEmbed($embed)
-{
+function isEmbed($embed) {
     return (preg_match("/(<\/?)(\w+)([^>]*>)/e", $embed) > 0);
 }
 
@@ -136,8 +124,7 @@ function isEmbed($embed)
  * @param STRING string	url to check
  * @return BOOLEAN true, if it is an external URL, else false 
  */
-function isExternalURL($string)
-{
+function isExternalURL($string) {
     return (preg_match("/http:\\/\\/(.*)/e", $string) > 0);
 }
 
@@ -156,8 +143,7 @@ function isExternalURL($string)
  *
  * @return STRING $a if it contains anything else than nothing, else $b
  */
-function if_set ($a,$b)
-{
+function if_set ($a,$b) {
     return (strlen($a) > 0 ? $a : $b);
 }
 
@@ -177,8 +163,7 @@ function if_set ($a,$b)
  * @param MIXED $mix_b the new content for $mix_a
  *
  */
-function set_var (&$mix_a, &$mix_b)
-{
+function set_var (&$mix_a, &$mix_b) {
     if (isset($mix_b))
     $mix_a = $mix_b;
 }
@@ -189,10 +174,8 @@ function set_var (&$mix_a, &$mix_b)
  * @param MIXED $mix_var variable to output
  * @param STRING $str_title title for output
  */
-function p_r ($mix_var,$str_title)
-{
-    if (DEBUG_ERRORS == 1)
-    {
+function p_r ($mix_var,$str_title) {
+    if (DEBUG_ERRORS == 1) {
         echo $str_title.":<pre>";
         print_r($mix_var);
         echo "</pre><hr>";
@@ -207,14 +190,11 @@ function p_r ($mix_var,$str_title)
  * 
  * @return RFC4646 compliant language identifier
  */
-function getUserLanguage($arr_allowedLanguages, $defaultLanguage)
-{
+function getUserLanguage($arr_allowedLanguages, $defaultLanguage) {
     $lang = "";
-    if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]))
-    {
+    if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) {
         $lang = $_SERVER["HTTP_ACCEPT_LANGUAGE"];
-    } else
-    {
+    } else {
         $tlDomain = substr($_SERVER["HTTP_HOST"], strrpos(".", $_SERVER["HTTP_HOST"])+1);
         if (in_array($tlDomain, Array("com", "net", "org", "info", "biz", "eu", "edu", "gov"))) return $defaultLanguage;
         return $tlDomain;
@@ -222,24 +202,18 @@ function getUserLanguage($arr_allowedLanguages, $defaultLanguage)
     $accepted_languages = preg_split('/,\s*/', $lang);
     $current_lang = $defaultLanguage;
     $current_q = 0;
-    foreach ($accepted_languages as $accepted_language)
-    {
+    foreach ($accepted_languages as $accepted_language) {
         $res = preg_match ('/^([a-z]{1,8}(?:-[a-z]{1,8})*)(?:;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i', $accepted_language, $matches);
         if (!$res) continue;
         $lang_code = explode ('-', $matches[1]);
-        if (isset($matches[2]))
-        {
+        if (isset($matches[2])) {
             $lang_quality = (float)$matches[2];
-        } else
-        {
+        } else {
             $lang_quality = 1.0;
         }
-        while (count ($lang_code))
-        {
-            if (in_array (strtolower (join ('-', $lang_code)), $arr_allowedLanguages))
-            {
-                if ($lang_quality > $current_q)
-                {
+        while (count ($lang_code)) {
+            if (in_array (strtolower (join ('-', $lang_code)), $arr_allowedLanguages)) {
+                if ($lang_quality > $current_q) {
                     $current_lang = strtolower (join ('-', $lang_code));
                     $current_q = $lang_quality;
                     break;
@@ -304,8 +278,7 @@ function removeDir($dir, $DeleteMe) {
  *
  * @return STRING text with all URLs replaced by real links.
  */
-function hyperlink($text)
-{
+function hyperlink($text) {
     // match protocol://address/path/file.extension?some=variable&another=asf%
     $text = preg_replace("/(([a-zA-Z]+:\/\/)([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9\/*-?,_&%]*))/i", "<a href=\"$1\">$3</a>", $text);
 
@@ -328,8 +301,7 @@ function hyperlink($text)
  * @param ARRAY $color Array consisting of the entries for R, G and B values for the text color
  * @param ARRAY $bgcolor Array consisting of the entries for R, G and B values for the image's background color
  */
-function text2Image($text, $font="Alix2.ttf", $W=200, $H=20, $X=0, $Y=0, $fsize=18, $color=array(0x0,0x0,0x0), $bgcolor=array(0xFF,0xFF,0xFF))
-{
+function text2Image($text, $font="Alix2.ttf", $W=200, $H=20, $X=0, $Y=0, $fsize=18, $color=array(0x0,0x0,0x0), $bgcolor=array(0xFF,0xFF,0xFF)) {
 
     $im = @imagecreate($W, $H) or die("Cannot Initialize new GD image stream");
 
@@ -363,8 +335,7 @@ function text2Image($text, $font="Alix2.ttf", $W=200, $H=20, $X=0, $Y=0, $fsize=
  *
  * @return STRING (e.g. "2 days, 4 hours ago")
  */
-function timeDiff($time, $opt = array())
-{
+function timeDiff($time, $opt = array()) {
     // The default values
     $defOptions = array(
         'to' => 0,
@@ -420,8 +391,7 @@ function timeDiff($time, $opt = array())
  *
  * @return STRING formatted string representing the variable
  */
-function tostring ($mix,$i=0)
-{
+function tostring ($mix,$i=0) {
     if (is_array($mix))
     {
         $str.="\n".str_repeat("  ",$i)."Array(";
@@ -444,8 +414,7 @@ function tostring ($mix,$i=0)
  * @param STRING $str String to be converted
  * @return STRING in UTF-8
  */
-function toUTF8 ($str)
-{
+function toUTF8 ($str) {
     // check if it is in UTF-8
     if (!preg_match('%^(?:' .
 			'[\x09\x0A\x0D\x20-\x7E]|' .
@@ -534,8 +503,7 @@ function printTagCloud($tags, $maxTags=-1, $bol_setSize=true) {
  * @param MIXED $mix variable to be alerted
  * @param BOOLEAN $always should the alert be shown eventhough debugging mode is disabled? (OPTIONAL)
  */
-function alert ($mix, $always = false)
-{
+function alert ($mix, $always = false) {
     if (DEBUG_ERRORS == 1 || $always)
     echo "<script language='JavaScript'>alert(\"".tostring($mix)."\");\n</script>";
 }
@@ -545,18 +513,17 @@ function alert ($mix, $always = false)
  *
  * @param STRING $url the URL to redirect the user to.
  */
-function jumpTo ($url = "?")
-{
+function jumpTo ($url = "?") {
     global $SERVER;
 	global $log;
 	$log->info("Redirecting user to ".$url);
-    if (($arr_url=@parse_url($url)) && $arr_url["host"])
-    {
+    if (($arr_url=@parse_url($url)) && $arr_url["host"]) {
         header ("Location: ".$url);
-    } else
-    {
+    } else {
         header ("Location: " . $SERVER.$url);
     }
+    session_write_close();
+    die();
 }
 
 /**
@@ -565,10 +532,8 @@ function jumpTo ($url = "?")
  * @param STRING $name class's name to check
  * @param STRING $desc class's normal-language description
  */
-function testClass ($name, $desc)
-{
-    if (DEBUG_LEVEL == 2)
-    {
+function testClass ($name, $desc) {
+    if (DEBUG_LEVEL == 2) {
         if (class_exists($name))
         echo $desc." loaded.<br>";
         else
