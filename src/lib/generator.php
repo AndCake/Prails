@@ -192,18 +192,20 @@ class Generator {
      */
     function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
 		$startTime = time()+microtime();
+		$nname = "cache/".md5($str_name);
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
-		if (!@file_put_contents("cache/".md5($str_name), $str_content)) {
+		if (!@file_put_contents($nname, $str_content)) {
 			global $log;
 			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
 		}		
-    	unlink($str_content);
+    	unset($str_content, $tl);
 		
         ob_start();
-        require ("cache/".md5($str_name));
+        require ($nname);
         $str_content = ob_get_contents();
         ob_end_clean();
+        unset($nname);
 		if ($bol_parseLanguage) {
             $str_content = $this->parseApplyLanguage($str_content);
 		}
