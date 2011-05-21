@@ -1433,6 +1433,18 @@ class BuilderHandler
 			}
 			echo "C";
 			echo gzcompress(serialize($arr_content), 9);
+			echo "---".$magic_border."\n";
+			echo "I";
+			$path = "static/images/";
+			$dp = opendir($path);
+			$fileMagic = "---".md5(time())."\n";
+			while (($file = readdir($dp)) !== false) {
+				if ($file[0] != '.' && is_file($path.$file) && filesize($path.$file) > 0) {
+					echo $fileMagic . $file."\n";
+					readfile($path.$file);
+				}
+			}
+			closedir($path);
 			unset($arr_content);
 		}
 		die();
@@ -1454,7 +1466,17 @@ class BuilderHandler
 			$languageMapping = Array();
 			$sections = explode($magic, substr($content, strlen($magic)));
 			foreach ($sections as $section) {
-				$data = unserialize(gzuncompress(substr($section, 1)));
+				if ($section[0] !== "I") {
+					$data = unserialize(gzuncompress(substr($section, 1)));
+				} else {
+					$fileMagic = substr($section, 1, strpos($section, "\n")+1);					
+					$files = explode($fileMagic, $section);
+					for ($i = 1; $i < count($files); $i++) {
+						$fpos = strpos($files[$i], "\n");
+						$name = substr($files[$i], 0, $fpos);
+						file_put_contents($name, substr($files[$i], $fpos+1));
+					}
+				}
 				if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
