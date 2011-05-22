@@ -56,7 +56,7 @@ class Cacheable {
 	
 	function _set($pos, $var, $val) {
 		if ($this->shmMode) {
-			shm_put_var($pos, $var, $val);
+			if ($pos !== null) shm_put_var($pos, $var, $val);
 		} else {
             $name = $this->cachePath . $pos . "/" . $var;
 			file_put_contents($name, serialize($val), LOCK_EX);
@@ -65,7 +65,8 @@ class Cacheable {
 	
 	function _get($pos, $var) {
 		if ($this->shmMode) {
-			return shm_get_var($pos, $var);			
+			if ($pos !== null) return shm_get_var($pos, $var);
+			return null;			
 		} else {
             $name = $this->cachePath . $pos . "/" . $var;
 			return @unserialize(file_get_contents($name));

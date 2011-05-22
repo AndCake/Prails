@@ -78,7 +78,7 @@
 		</fieldset>		
 		<fieldset>
 			<legend>Tables:</legend>
-			<select class="export" name="tables[]" multiple="multiple" size="5" id="tables">
+			<select class="export" name="tables[]" multiple="multiple" size="5" id="tables" style="height: 98px;">
 				<c:foreach var="tables" name="table">
 					<option selected="selected" value="#table.table_id">#table.name</option>
 				</c:foreach>
@@ -89,7 +89,7 @@
 			</div>
 		</fieldset>
 		<fieldset>
-			<legend>Translations:</legend>
+			<legend>Content Assets:</legend>
 			<select class="export" name="translations[]" multiple="multiple" size="5" id="translations">
 				<c:foreach var="texts" name="text" key="root">
 					<option selected="selected" value="#local.root">#local.root</option>
@@ -98,6 +98,10 @@
 			<div>
 				<a href="javascript:" onclick="$$('#translations option').each(function(item){item.selected=true;});">select all</a> | 
 				<a href="javascript:" onclick="$$('#translations option').each(function(item){item.selected=false;});">select none</a>
+			</div>
+			<div style="margin-top: 10px;">
+				<input type="checkbox" name="images" value="1" checked="checked" id="export-images"/>
+				<label for="export-images" onclick="this.previous().checked = !this.previous().checked;">include images</label>
 			</div>
 		</fieldset>
 		<div class="panel-bottom"> Save to:

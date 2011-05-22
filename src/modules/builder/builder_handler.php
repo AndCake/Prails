@@ -1433,6 +1433,9 @@ class BuilderHandler
 			}
 			echo "C";
 			echo gzcompress(serialize($arr_content), 9);
+			unset($arr_content);
+		}
+		if ($_POST["images"] == "1") {
 			echo "---".$magic_border."\n";
 			echo "I";
 			$path = "static/images/";
@@ -1445,7 +1448,6 @@ class BuilderHandler
 				}
 			}
 			closedir($path);
-			unset($arr_content);
 		}
 		die();
 	}
@@ -1469,12 +1471,12 @@ class BuilderHandler
 				if ($section[0] !== "I") {
 					$data = unserialize(gzuncompress(substr($section, 1)));
 				} else {
-					$fileMagic = substr($section, 1, strpos($section, "\n")+1);					
+					$fileMagic = substr($section, 1, strpos($section, "\n"));					
 					$files = explode($fileMagic, $section);
 					for ($i = 1; $i < count($files); $i++) {
 						$fpos = strpos($files[$i], "\n");
 						$name = substr($files[$i], 0, $fpos);
-						file_put_contents($name, substr($files[$i], $fpos+1));
+						file_put_contents("static/images/".$name, substr($files[$i], $fpos + 1));
 					}
 				}
 				if ($section[0] == "D") {
@@ -1507,8 +1509,8 @@ class BuilderHandler
 						foreach ($langs as $lg) {
 							if ($lg["name"] == $lang["name"]) {
 								$id2 = $lg["language_id"];
-								Generator::getInstance()->obj_lang->deleteLanguageOnly($lg["language_id"]);
-								break;						
+								Generator::getInstance()->obj_lang->deleteLanguage($lg["language_id"]);
+								break;
 							}
 						}
 						$languageMapping["new"][$id] = Generator::getInstance()->obj_lang->insertLanguage($lang);
@@ -1519,15 +1521,7 @@ class BuilderHandler
 							$text = $text->getArrayCopy();							
 							$id = 0;
 							unset($text["texts_id"]);
-							$textList = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($text["identifier"]);
-							foreach ($textList as $tl) {
-								if ($languageMapping["old"][$tl["fk_language_id"]] == $languageMapping["new"][$text["fk_language_id"]]) {
-									$id = $tl["texts_id"]; 
-									break;
-								}
-							}
 							$text["fk_language_id"] = $languageMapping["new"][$text["fk_language_id"]];
-							Generator::getInstance()->obj_lang->deleteTexts($id);
 							Generator::getInstance()->obj_lang->insertText($text);
 						}
 					}
@@ -1581,19 +1575,32 @@ class BuilderHandler
 							$this->obj_data->deleteData($d["data_id"]);
 							$this->obj_data->insertData($dat);
 						}
-						$this->obj_data->clearConfiguration($id, 1);
-						foreach ($mod["configsDevel"] as $config) {
-							$config = $config->getArrayCopy();
-							$config["fk_module_id"] = $modId;
-							unset($config["configuration_id"]);
-							$this->obj_data->insertConfiguration($config);
+						if (is_array($mod["configs"])) {
+							$this->obj_data->clearConfiguration($id, 0);
+							foreach ($mod["configs"] as $config) {
+								$config = $config->getArrayCopy();
+								$config["fk_module_id"] = $modId;
+								unset($config["configuration_id"]);
+								$this->obj_data->insertConfiguration($config);
+							}
+						}	
+						if (is_array($mod["configsDevel"])) {					
+							$this->obj_data->clearConfiguration($id, 1);
+							foreach ($mod["configsDevel"] as $config) {
+								$config = $config->getArrayCopy();
+								$config["fk_module_id"] = $modId;
+								unset($config["configuration_id"]);
+								$this->obj_data->insertConfiguration($config);
+							}
 						}
-						$this->obj_data->clearConfiguration($id, 2);
-						foreach ($mod["configsProd"] as $config) {
-							$config = $config->getArrayCopy();
-							$config["fk_module_id"] = $modId;
-							unset($config["configuration_id"]);
-							$this->obj_data->insertConfiguration($config);
+						if (is_array($mod["configsProd"])) {
+							$this->obj_data->clearConfiguration($id, 2);
+							foreach ($mod["configsProd"] as $config) {
+								$config = $config->getArrayCopy();
+								$config["fk_module_id"] = $modId;
+								unset($config["configuration_id"]);
+								$this->obj_data->insertConfiguration($config);
+							}
 						}
 						foreach ($mod["resources"] as $res) {
 							$res = $res->getArrayCopy();

@@ -116,7 +116,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 							modal: true,
 							shadow: true,
 							width: 441,
-							height: 384,
+							height: 404,
 							plain: true,
 							items: [
 							        new Ext.TabPanel({

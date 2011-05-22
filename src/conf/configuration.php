@@ -100,9 +100,16 @@ function updateConfiguration($arr_configuration, $module = false) {
 	$settings = Array();
 	foreach ($arr_configuration as $conf) {
 		$value = $conf["value"];
-		if (is_numeric($value) || (strtolower($value) == "true" || strtolower($value) == "false")) {
-			$var = @eval("return (".$value.");");
-		} else $var = $value;
+		if (trim(strtolower($value)) == "true") 
+			$var = true; 
+		else if (trim(strlolower($value)) == "false") 
+			$var = false;
+		else if (is_numeric(trim($value))) {
+			if ($value == (string)(float)$value) $value = floatval($value);
+			if ($value == (string)(int)$value) $value = intval($value);  
+		} else {
+			$var = $value;
+		}
 		if (gettype($var) == "string") {
 			$var = "\"".$var."\"";
 		} else if (gettype($var) == "boolean") {

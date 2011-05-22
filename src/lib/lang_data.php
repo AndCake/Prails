@@ -99,7 +99,15 @@ class LangData
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 GROUP BY identifier");
 		$arr_return = Array();
 		foreach ($arr_result as $arr_entry) {
-			eval("\$arr_return[\"".str_replace(".", "\"][\"", $arr_entry["identifier"])."\"] = \"".addslashes($arr_entry["content"])."\";");
+			$parts = explode(".", $arr_entry["identifier"]);
+			$curr = &$arr_return;
+			foreach ($parts as $p) {
+				if (!is_array($curr[$p])) {
+					$curr[$p] = Array();
+				}
+				$curr = &$curr[$p];
+			}
+			$curr = $arr_entry["content"];
 		}
 
 		return $arr_return;
@@ -175,11 +183,11 @@ class LangData
 	}
 	 
 	function deleteTextByIdentifier($ident) {
-		$this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "identifier='".$ident."'");
+		$this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "identifier='".$ident."' OR fk_language_id=0");
 	}
 	 
 	function deleteSection($section) {
-		$this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "identifier LIKE '".$section.".%'");
+		$this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "identifier LIKE '".$section.".%' OR fk_language_id=0");
 	}
 	 
 	function updateLanguage($id, $arr_data) {
@@ -208,7 +216,7 @@ class LangData
    
    function deleteLanguage($id) {
       $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id='".$id."'");
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id='".$id."'");      
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id='".$id."' OR fk_language_id=0");      
    }
 
    function deleteLanguageOnly($id) {
