@@ -102,7 +102,7 @@ function updateConfiguration($arr_configuration, $module = false) {
 		$value = $conf["value"];
 		if (trim(strtolower($value)) == "true") 
 			$var = true; 
-		else if (trim(strlolower($value)) == "false") 
+		else if (trim(strtolower($value)) == "false") 
 			$var = false;
 		else if (is_numeric(trim($value))) {
 			if ($value == (string)(float)$value) $value = floatval($value);
