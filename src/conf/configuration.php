@@ -100,20 +100,17 @@ function updateConfiguration($arr_configuration, $module = false) {
 	$settings = Array();
 	foreach ($arr_configuration as $conf) {
 		$value = $conf["value"];
-		if (trim(strtolower($value)) == "true") 
-			$var = true; 
-		else if (trim(strtolower($value)) == "false") 
-			$var = false;
+		if (trim(strtolower($value)) == "true" || $value === true) 
+			$var = "true"; 
+		else if (trim(strtolower($value)) == "false" || $value === false) 
+			$var = "false";
 		else if (is_numeric(trim($value))) {
-			if ($value == (string)(float)$value) $value = floatval($value);
-			if ($value == (string)(int)$value) $value = intval($value);  
+			if ($value == (string)(float)$value) $var = floatval($value);
+			if ($value == (string)(int)$value) $var = intval($value);
+		} else if (gettype($value) == "string") {  
+			$var = "\"".$value."\"";
 		} else {
 			$var = $value;
-		}
-		if (gettype($var) == "string") {
-			$var = "\"".$var."\"";
-		} else if (gettype($var) == "boolean") {
-			$var = $var ? "true" : "false";
 		}
 		array_push($settings, "\"".$conf["name"]."\" => ".$var);
 	}

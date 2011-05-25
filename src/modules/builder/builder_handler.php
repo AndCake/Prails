@@ -1005,7 +1005,7 @@ class BuilderHandler
     function logout()
     {
         $_SESSION["builder"] = Array();
-        session_destroy();
+        if (session_id() != "") session_destroy();
         header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
         header('HTTP/1.0 401 Unauthorized');
         require ("templates/builder/html/not_allowed.html");
