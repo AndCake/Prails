@@ -159,7 +159,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
       }
 	  // nothing needs to be updated... got no data.
 	  if ($i == 0) return 0;
-      $str_query = substr($str_query, 0, -2);     // ", " abhacken
+      $str_query = substr($str_query, 0, -2);     // remove ", "
 
       $str_query .= " WHERE (".$str_where.")";
 

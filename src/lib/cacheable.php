@@ -7,6 +7,10 @@ class Cacheable {
 	private $cachePath = "cache/shm/";
 	
 	function __construct() {
+		$this->_init();
+	}
+	
+	function _init() {
 		if (!is_dir($this->cachePath)) {
 			@mkdir($this->cachePath);
 		}
@@ -54,9 +58,29 @@ class Cacheable {
 		}
 	}
 	
-	function _set($pos, $var, $val) {
+	function _set($pos, $var, $val, $tryAgain = true) {
 		if ($this->shmMode) {
-			if ($pos !== null) shm_put_var($pos, $var, $val);
+			if ($pos !== null) { 
+				if (!@shm_put_var($pos, $var, $val) && $tryAgain) {
+					// sort the list of data in cache by usage rate
+					//uasort($metaMap, create_function('$a, $b', 'if ($a["used"] == $b["used"]) return 0; else if ($a["used"] < $b["used"]) return -1; else return 1;'));
+					// remove a random number of least used cache entries
+					//$goal = rand(1, 5);foreach ($metaMap as $cvar => $cacheEntry) { $this->_remove($pos, $cvar); if ($i > $goal) break; }
+					// if we were unable to set the var, try flushing and rebuilding the cache
+					$this->flush();
+					$this->_init();
+					$this->_set($pos, $var, $val, false);
+				}
+//				if ($var != 101) {
+//					$metaMap = shm_get_var($pos, 102);
+//					if (!is_array($metaMap)) $metaMap = Array();
+//					$metaMap["_".$var] = Array(
+//						"used" => 1,
+//						"added" => $_SERVER["REQUEST_TIME"]
+//					);
+//					shm_put_var($pos, 102, $metaMap);
+//				}
+			}
 		} else {
             $name = $this->cachePath . $pos . "/" . $var;
 			file_put_contents($name, serialize($val), LOCK_EX);
@@ -65,7 +89,12 @@ class Cacheable {
 	
 	function _get($pos, $var) {
 		if ($this->shmMode) {
-			if ($pos !== null) return shm_get_var($pos, $var);
+			if ($pos !== null) {
+//				$metaMap = shm_get_var($pos, 102);
+//				$metaMap["_".$var]["used"]++;
+//				shm_put_var($pos, 102, $metaMap);
+				return shm_get_var($pos, $var);
+			}
 			return null;			
 		} else {
             $name = $this->cachePath . $pos . "/" . $var;
@@ -112,6 +141,7 @@ class Cacheable {
     	if ($this->shmMode) {
     		foreach ($this->shmId as $shm) {
     			shm_remove($shm);
+    			shm_detach($shm);
     		}
     	} else {
     		foreach ($this->shmId as $shm) {
@@ -120,15 +150,23 @@ class Cacheable {
     	}
     }
     	
-	protected function cleanCacheBlock($str_table) {
+	protected function cleanCacheBlock($str_query, $prefix = false) {
+		if (!$prefix) $prefix = $this->prefix;
 		$tableReference = $this->_get($this->shmId[0], 101);
-	    if (is_array($tableReference[$str_table])) {
-	    	foreach ($tableReference[$str_table] as $entry) {
-	    		$this->_remove($this->shmId[$entry % $this->shmLen], $entry);
-	    	}
-	    	$tableReference[$str_table] = false;
-	    	$this->_set($this->shmId[0], 101, $tableReference);
-	    }
+		preg_match_all("/ [a-zA-Z0-9_.]*(".$this->prefix."[a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+		if (count($arr_matches[0]) > 0) {
+			// loop through each match
+			foreach ($arr_matches[1] as $table) {
+			    if (is_array($tableReference[$table])) {
+			    	foreach ($tableReference[$table] as $entry) {
+			    		$this->_remove($this->shmId[$entry % $this->shmLen], $entry);
+			    	}
+			    	$tableReference[$table] = false;
+			    }
+			}
+		}
+		
+	   	$this->_set($this->shmId[0], 101, $tableReference);
 	}
 	
 	protected function isCached($str_query, $cacheTime = 0) {
@@ -157,7 +195,7 @@ class Cacheable {
 		}
 		
 		// get affected tables
-		preg_match_all("/ [a-zA-Z0-9_.]*".$prefix."([a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
+		preg_match_all("/ [a-zA-Z0-9_.]*(".$prefix."[a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		if (count($arr_matches[0]) > 0) {
 		    // loop through each
 		    foreach ($arr_matches[1] as $table) {

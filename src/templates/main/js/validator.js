@@ -179,9 +179,9 @@ var Validator = Class.create({
                 this.invalidate(el, "invalid");
                 return false;
             } else if (el.getAttribute("rel") && el.getAttribute("rel").indexOf("javascript:")>=0 && (function(){return !eval("("+el.getAttribute("rel").replace("javascript:", "")+")");}).call(el)) {
-		this.invalidate(el, "invalid");
-		return false;
-	    } else {
+				this.invalidate(el, "invalid");
+				return false;
+		    } else {
                 var result = true;
                 el.classNames().each(function(cls) {
                     if (cls.indexOf("validate-") >= 0) {
@@ -195,7 +195,7 @@ var Validator = Class.create({
                         });
                         if (reg == "") {
                             // use built-in reg exp
-                            reg = me.validExpression[cls.replace("validate-", "")].matcher;
+                            reg = (me.validExpression[cls.replace("validate-", "")] || {matcher:/.*/}).matcher;
                         }
                         if (!reg.test(el.value)) {
                             me.invalidate(el, "invalid");
@@ -222,6 +222,7 @@ var Validator = Class.create({
             });
             if (!oneChecked) {
                 this.invalidate(container, "empty");
+                return false;
             } else {
                 this.hideError(container);
                 this.showSuccess(container);
@@ -266,7 +267,11 @@ var Validator = Class.create({
     showError: function(el, text) {
         el = $(el);
         el.addClassName("validate-invalid");
-        var advice = new Element("div", {id: el.name+"-"+el.id+"-advice", "class": "validate-advice"});
+        var inp = el;
+        if (inp.value === undefined) {
+        	inp = el.down("input[type='radio']");
+        }
+        var advice = new Element("div", {id: inp.name+"-"+inp.id+"-advice", "class": "validate-advice"});
         advice.update(text);
         el.insert({after: advice});
         var height = advice.getHeight();

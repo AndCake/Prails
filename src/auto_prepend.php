@@ -20,6 +20,8 @@
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	register_shutdown_function("error_alert");
     ini_set('display_errors', 0);
+    
+    $logFile = fopen("log/framework.log", "a+");
 	
 	function error_alert() {
 		if (is_null($e = error_get_last()) === false) {
@@ -51,13 +53,22 @@
 				}				
 				$function = $arr_match[1];
 				$error = $arr_errors[$e["type"]];
+				global $logFile;
 				if ($found) {
 					$rline = ($e["line"] - 1) - ($cLine + 1);
-					echo "<code><b>".$error.": </b>".$e["message"]." <b>in Module '".$module."', ".$type." '".$function."' in line ".$rline."</b>: <br/>". 
-						 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
+					if (in_array($e["type"], Array(2, 32, 128))) {
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in Module '".$module."', ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+					} else {
+						echo "<code><b>".$error.": </b>".$e["message"]." <b>in Module '".$module."', ".$type." '".$function."' in line ".$rline."</b>: <br/>". 
+							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
+					}
 				} else {
-					echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".(strlen($module)>0?$type." ".$module:"")." in line ".$e["line"].":</b> <br/><code>".
-						 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
+					if (in_array($e["type"], Array(2, 32, 128))) {
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in Module '".$module."', ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+					} else {
+						echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".(strlen($module)>0?$type." ".$module:"")." in line ".$e["line"].":</b> <br/><code>".
+							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
+					}
 				}
 			} 
 		}
