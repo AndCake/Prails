@@ -56,6 +56,7 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
     
     public function getIterator() {
         $it = $this->iterator_class;
+        if (strlen($it) <= 0) $it = "ArrayIterator";
         return new $it($this->arr_data);
     }
     
@@ -123,6 +124,7 @@ class DBEntry extends DBEntryObject {
 		$this->prefix = $prefix;		
 		$this->flags = $flags;
 		$this->iterator_class = $iterator_class;
+
 		parent::__construct($arr_data, $flags, $iterator_class);
 	}
 
@@ -133,13 +135,12 @@ class DBEntry extends DBEntryObject {
     
     function unserialize($data) {
         $data = unserialize($data);
-        parent::unserialize($data["data"]);
-		$this->prefix = $data["prefix"];
+		parent::unserialize($data["data"]);
+        $this->prefix = $data["prefix"];
 		$this->flags = $data["flags"];
 		$this->iterator_class = $data["iterator_class"];
-
 		$this->obj_tbl = new TblClass($this->prefix);
-	}	
+    }	
 	
 	function get($index, $filter = "", $name = "") {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {

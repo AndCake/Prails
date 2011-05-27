@@ -43,12 +43,15 @@
 				switch ($class[1]) {
 					case "Handler":
 						$type = "event";
+						$type = "module '".$module."', ".$type;
 						break;
 					case "Data":
 						$type = "data query";
+						$type = "module '".$module."', ".$type;
 						break;
 					default:
 						$type = "library";
+						$type = "library '".$module."', function ";
 						break;
 				}				
 				$function = $arr_match[1];
@@ -57,14 +60,14 @@
 				if ($found) {
 					$rline = ($e["line"] - 1) - ($cLine + 1);
 					if (in_array($e["type"], Array(2, 32, 128))) {
-						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in Module '".$module."', ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
 					} else {
 						echo "<code><b>".$error.": </b>".$e["message"]." <b>in Module '".$module."', ".$type." '".$function."' in line ".$rline."</b>: <br/>". 
 							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
 					}
 				} else {
 					if (in_array($e["type"], Array(2, 32, 128))) {
-						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in Module '".$module."', ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
 					} else {
 						echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".(strlen($module)>0?$type." ".$module:"")." in line ".$e["line"].":</b> <br/><code>".
 							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";

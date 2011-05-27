@@ -21,7 +21,7 @@ class Cacheable {
 				touch($this->cachePath.$fname.$i);
 		        $key = ftok(realpath("cache/".$fname.$i), 'p');
 		        $shm = shm_attach($key, DB_CACHE_SIZE);
-		        if(!$shm) {
+		        if($shm === null) {
 		        	@unlink($this->cachePath.$fname.$i);
 		        } else {
 		        	array_push($this->shmId, $shm);
@@ -51,7 +51,9 @@ class Cacheable {
 	
 	function _exists($pos, $var) {
 		if ($this->shmMode) {
-			return shm_has_var($pos, $var);
+			if ($pos !== null) {
+				return shm_has_var($pos, $var);
+			}
 		} else {
             $name = $this->cachePath . $pos . "/" . $var;
             return (file_exists($name));
@@ -60,8 +62,9 @@ class Cacheable {
 	
 	function _set($pos, $var, $val, $tryAgain = true) {
 		if ($this->shmMode) {
-			if ($pos !== null) { 
-				if (!@shm_put_var($pos, $var, $val) && $tryAgain) {
+			if ($pos !== null) {
+				shm_put_var($pos, $var, $val); 
+				if (false && !shm_put_var($pos, $var, $val) && $tryAgain) {
 					// sort the list of data in cache by usage rate
 					//uasort($metaMap, create_function('$a, $b', 'if ($a["used"] == $b["used"]) return 0; else if ($a["used"] < $b["used"]) return -1; else return 1;'));
 					// remove a random number of least used cache entries
@@ -103,11 +106,15 @@ class Cacheable {
 	}
 	
 	function _remove($pos, $var) {
-		if ($this->shmMode) {
-			shm_remove_var($pos, $var);
-		} else {
-            $name = $this->cachePath . $pos . "/" . $var;
-			@unlink($name);
+		if ($this->_exists($pos, $var)) {
+			if ($this->shmMode) {
+				if ($pos !== null) {
+					shm_remove_var($pos, $var);
+				}
+			} else {
+	            $name = $this->cachePath . $pos . "/" . $var;
+				@unlink($name);
+			}
 		}
 	}
 	
@@ -140,8 +147,10 @@ class Cacheable {
     function flush() {
     	if ($this->shmMode) {
     		foreach ($this->shmId as $shm) {
-    			shm_remove($shm);
-    			shm_detach($shm);
+    			if ($shm !== null) {
+	    			shm_remove($shm);
+	    			shm_detach($shm);
+    			}
     		}
     	} else {
     		foreach ($this->shmId as $shm) {

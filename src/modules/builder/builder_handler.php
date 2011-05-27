@@ -1379,7 +1379,7 @@ class BuilderHandler
 			echo "---".$magic_border."\n";
 			$modules = Array();
 			foreach ($_POST["modules"] as $mod) {
-				$arr_module = $this->obj_data->selectModule($mod);
+				$arr_module = $this->obj_data->selectModule($mod)->getArrayCopy();
 				$arr_module["handlers"] = $this->obj_data->listHandlers($mod);
 				$arr_module["datas"] = $this->obj_data->listDatas($mod);
 				$arr_module["configsDevel"] = $this->obj_data->listConfigurationFromModule($mod, 1);
@@ -1396,7 +1396,7 @@ class BuilderHandler
 			echo "---".$magic_border."\n";
 			$libraries = Array();
 			foreach ($_POST["libraries"] as $lib) {
-				$arr_library = $this->obj_data->selectLibrary($lib);
+				$arr_library = $this->obj_data->selectLibrary($lib)->getArrayCopy();
 				array_push($libraries, $arr_library);
 			}
 			echo "L";
@@ -1407,7 +1407,7 @@ class BuilderHandler
 			echo "---".$magic_border."\n";
 			$tags = Array();
 			foreach ($_POST["tags"] as $tag) {
-				array_push($tags, $this->obj_data->selectTag($tag));
+				array_push($tags, $this->obj_data->selectTag($tag)->getArrayCopy());
 			}
 			echo "T";
 			echo gzcompress(serialize($tags), 9);
@@ -1417,7 +1417,7 @@ class BuilderHandler
 			echo "---".$magic_border."\n";
 			$tables = Array();
 			foreach ($_POST["tables"] as $table) {
-				array_push($tables, $this->obj_data->selectTable($table));
+				array_push($tables, $this->obj_data->selectTable($table)->getArrayCopy());
 			}
 			echo "D";
 			echo gzcompress(serialize($tables), 9);
@@ -1482,7 +1482,7 @@ class BuilderHandler
 				if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
-						$arr_table = $arr_table->getArrayCopy();
+						$arr_table = $arr_table;
 					    $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
 					    unset($arr_table["table_id"]);
 					    $d = $this->obj_data->selectTableFromUserAndName($arr_table["fk_user_id"], $arr_table["name"]);
@@ -1492,8 +1492,7 @@ class BuilderHandler
 			            $arr_fields = Array();
 			            $items = explode(":", $arr_table["field_names"]);
 			            $types = explode(":", $arr_table["field_types"]);
-			            foreach ($items as $i=>$field)
-			            {
+			            foreach ($items as $i=>$field) {
 			                $arr_fields[$field] = $types[$i];
 			            }
 			            $arr_db = Array();
@@ -1527,7 +1526,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "T") {
 					foreach ($data as $tag) {
-						$tag = $tag->getArrayCopy();
+						$tag = $tag;
 						unset($tag["tag_id"]);
                         $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
  					    if ($tag["fk_module_id"] > 0) {
@@ -1539,7 +1538,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "L") {
 					foreach ($data as $library) {
-						$library = $library->getArrayCopy();
+						$library = $library;
 						unset($library["library_id"]);
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
  					    if ($library["fk_module_id"] > 0) {
@@ -1551,7 +1550,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "M") {
 					foreach ($data as $mod) {
-						$mod = $mod->getArrayCopy();
+						$mod = $mod;
 						$mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
 					    $id = $mod["module_id"];
 					    unset($mod["module_id"]);
