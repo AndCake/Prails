@@ -254,7 +254,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			width: 150,
 			minSize: 120,
 			maxSize: 540, 
-			autoScroll: false,
+			autoScroll: true,
 			root: Builder.handlerRoot,
 			rootVisible: false,
 			tbar: [{
@@ -325,7 +325,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			minSize: 120,
 			maxSize: 540, 
 			split: true,
-			autoScroll: false,
+			autoScroll: true,
 			root: Builder.dataRoot,
 			rootVisible: false,
 			tbar: [{
@@ -388,7 +388,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			maxSize: 240, 
 			border: true,
 			split: true,
-			autoScroll: false,
+			autoScroll: true,
 			root: Builder.root,
 			rootVisible: false,
 			tbar: [{
