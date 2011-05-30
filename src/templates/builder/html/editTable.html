@@ -156,11 +156,11 @@
 						added = true;
 					}
 				});
-				if (parseInt("0"+params["scaffold[fk_module_id]"]) <= 0 && $('sel_module') && !$("sel_module").disabled) {
+				if (parseInt("0"+params["scaffold[fk_module_id]"], 10) <= 0 && $('sel_module') && !$("sel_module").disabled) {
 					Ext.Msg.alert("Status", "Please provide the module you want to generate the data queries / event handlers in.").setIcon(Ext.Msg.ERROR);
 					return;
 				}
-				new Ajax.Request("?event=builder:editTable&check=1",{
+				new Ajax.Request("?event=builder:editTable&check=1&table_id=<?=(int)$arr_param['table']['table_id']?>",{
 					parameters: params,
 					onSuccess: function(req) {
 						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");

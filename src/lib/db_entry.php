@@ -184,7 +184,7 @@ class DBEntry extends DBEntryObject {
 						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
 					}
 				}
-				parent::offsetSet($mix, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").") AND ".if_set($filter, "1").""));
+				parent::offsetSet($mix, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").") AND ".if_set($filter, "1").""));
 				if (strlen($name) > 0) {
 					parent::offsetSet($name, parent::offsetGet($mix));					
 				}
@@ -216,7 +216,7 @@ class DBEntry extends DBEntryObject {
 						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
 					}
 				}
-				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "FALSE").")"));
+				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").")"));
 			}
 			return parent::offsetGet($index); 
 		} else {

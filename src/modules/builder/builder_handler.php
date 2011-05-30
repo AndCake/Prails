@@ -1482,7 +1482,7 @@ class BuilderHandler
 				if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
-						$arr_table = $arr_table;
+						if (!is_array($arr_table)) $arr_table = $arr_table->getArrayCopy();
 					    $arr_table["fk_user_id"] = $_SESSION["builder"]["user_id"];
 					    unset($arr_table["table_id"]);
 					    $d = $this->obj_data->selectTableFromUserAndName($arr_table["fk_user_id"], $arr_table["name"]);
@@ -1526,7 +1526,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "T") {
 					foreach ($data as $tag) {
-						$tag = $tag;
+						if (!is_array($tag)) $tag = $tag->getArrayCopy();
 						unset($tag["tag_id"]);
                         $tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
  					    if ($tag["fk_module_id"] > 0) {
@@ -1538,7 +1538,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "L") {
 					foreach ($data as $library) {
-						$library = $library;
+						if (!is_array($library)) $library = $library->getArrayCopy();
 						unset($library["library_id"]);
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
  					    if ($library["fk_module_id"] > 0) {
@@ -1550,7 +1550,7 @@ class BuilderHandler
 					}
 				} else if ($section[0] == "M") {
 					foreach ($data as $mod) {
-						$mod = $mod;
+						if (!is_array($mod)) $mod = $mod->getArrayCopy();
 						$mod["fk_user_id"] = $_SESSION["builder"]["user_id"];
 					    $id = $mod["module_id"];
 					    unset($mod["module_id"]);

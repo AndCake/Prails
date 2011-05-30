@@ -15,7 +15,7 @@
  * multiple - size to show (for select), also enables selecting multiple entries at once; for text input's it will enable entering multiple lines of text
  */
 ?>
-<div class="form-entry">
+<div class="form-entry <?=preg_replace('/[^a-zA-Z0-9]+/', '', $tag['attributes']['name'])?>">
 <? 
     if (strlen($tag["attributes"]["type"]) <= 0) $type = "text"; else $type = $tag["attributes"]["type"];  
     if (strlen($tag["attributes"]["label"]) > 0) { ?>

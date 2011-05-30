@@ -80,7 +80,10 @@ class DBDeployer {
 	                  }
 	               } else if ($key != $pk)
 	               {
-	                  $obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD COLUMN ".$key." ".$value);
+	            	if (strpos($value, "NOT NULL") !== false) {
+	            		$value .= " DEFAULT 0";
+	            	}
+	               	$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD COLUMN ".$key." ".$value);
 	               }
 	            } else
 	            {

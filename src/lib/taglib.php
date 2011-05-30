@@ -86,7 +86,10 @@ class TagLib {
                 if ($arr_matches[4][$key] == "price")
                 {
                     $str_param = "sprintf(\"%.2f\", \$arr_param";
-                } else
+                } else if ($arr_matches[4][$key] == "count")
+                {
+                	$str_param = "count(\$arr_param";
+                } else 
                 {
                     $str_param = "(" . $arr_matches[4][$key] . ")\$arr_param";
                 }
@@ -96,7 +99,7 @@ class TagLib {
             foreach ($parts as $part) {
                 $str_param .= "[\"" . $part . "\"]";
             }
-            if ($arr_matches[4][$key] == "price") $str_param .= ")";
+            if ($arr_matches[4][$key] == "price" || $arr_matches[4][$key] == "count") $str_param .= ")";
 			if ($arr_matches[1][$key] == "@") {
 				$buffer = str_replace($arr_matches[0][$key], $str_param, $buffer);
 			} else {
