@@ -1134,6 +1134,7 @@ function invoke($str_event, $arr_param = null)
     
     list($module, $event) = explode(":", $str_event);
 	$log->trace("Invoking ".$str_event."( ".$arr_param." )");
+	$module = strtolower($module);
     if (file_exists("modules/".$module) && file_exists("modules/".$module."/".$module.".php"))
     {
         if ($__handlerCache[$module] != null) {
