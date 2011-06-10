@@ -126,23 +126,21 @@ class MySQL extends Cacheable {
 				$int_resultCounter = 0;
 				$arr_result = Array ();
 
-				while ($arr_fetchedResult = @mysql_fetch_array ($dbr_queryResult, MYSQL_ASSOC)) {
-					// remove slashes if needed
-					if ($this->bol_stripSlashes) {
-						foreach ($arr_fetchedResult as &$mix_val) {
-							if (gettype ($mix_val) == "string" ) {
-								$mix_val = stripslashes($mix_val);
+				if (is_resource($dbr_queryResult)) {
+					while ($arr_fetchedResult = @mysql_fetch_array ($dbr_queryResult, MYSQL_ASSOC)) {
+						// remove slashes if needed
+						if ($this->bol_stripSlashes) {
+							foreach ($arr_fetchedResult as &$mix_val) {
+								if (gettype ($mix_val) == "string" ) {
+									$mix_val = stripslashes($mix_val);
+								}
 							}
 						}
+						// create resulting array
+						$arr_result[] = new DBEntry($arr_fetchedResult, 0, "ArrayIterator", $this->prefix);
 					}
-					// create resulting array
-					$arr_result[] = new DBEntry($arr_fetchedResult, 0, "ArrayIterator", $this->prefix);
-				}
-
-				if (is_resource($dbr_queryResult)) @mysql_free_result($dbr_queryResult);
-
-				if (in_array(strtoupper(substr(trim($str_query), 0, 7)), Array("SELECT ", "SHOW TA", "SHOW CO"))) {
-					// cache result
+	
+					@mysql_free_result($dbr_queryResult);
 					$this->setCache($str_query, $arr_result, $this->prefix);
 				} else {
 					$this->cleanCacheBlock($str_query, $this->prefix);
