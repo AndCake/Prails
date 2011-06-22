@@ -31,7 +31,7 @@ class BuilderHandler
         //
         if (!$_SESSION["builder"]["user_id"])
         {
-        	if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") !== false || $_GET["event"] == "builder:createImage")) {
+        	if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") === false || $_GET["event"] == "builder:createImage")) {
         		$u_group = "cms";
                 $_SESSION["builder"]["name"] = "builder";
         		$_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));

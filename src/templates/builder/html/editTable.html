@@ -1,7 +1,9 @@
 <div style="padding:20px;">
 <label for="table_name_#table.table_id">Table Name</label><br/>
 <input type="text" name="name" id="table_name_#table.table_id" value="#table.name" style="width:220px;padding:5px;" /><br/><br/>
-<div id="table_#table.table_id"></div>
+<div style="float:left;" id="table_#table.table_id"></div>
+<div style="float:left;" id="tableFKs_#table.table_id"></div>
+<div style="clear:both;"></div>
 <select name="types#table.table_id" id="types#table.table_id" style="display:none;">
 	<option value="DOUBLE">Double</option>
 	<option value="INT(1) NOT NULL">Flag</option>
@@ -85,6 +87,7 @@
 					}, {
 						header: "Field Type",
 						dataIndex: "type",
+						width: 147,
 						editor: new Ext.form.ComboBox({
 							typeAhead: true,
 							triggerAction: "all",
@@ -98,6 +101,8 @@
 			renderTo: "table_#table.table_id",
 			title: "#table.name",
 			autoHeight: true,
+			boxMaxWidth: 250,
+			width: 250,
 			clicksToEdit: 1,
 			tbar: [
 			{
