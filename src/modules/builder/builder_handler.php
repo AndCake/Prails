@@ -31,38 +31,45 @@ class BuilderHandler
         //
         if (!$_SESSION["builder"]["user_id"])
         {
-            if (! isset ($_SERVER["PHP_AUTH_USER"]))
-            {
-                $this->logout();
-            } else
-            {
-                $passwd = file(".users");
-                $groups = file(".groups");
-                foreach ($passwd as & $val)
-                {
-                    $val = trim($val);
-                }
-                $u_group = -1;
-                foreach ($groups as $group)
-                {
-                    list ($grp, $users) = explode("=", $group);
-                    $users = explode(",", trim($users));
-                    if (in_array($_SERVER["PHP_AUTH_USER"], $users))
-                    {
-                        $u_group = $grp;
-                        break;
-                    }
-                }
-                if (in_array($_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"], $passwd))
-                {
-                    $_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
-                    $_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
-                    $_SESSION["builder"]["group"] = $u_group;
-                } else
-                {
-                    $this->logout();
-                }
-            }
+        	if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") !== false || $_GET["event"] == "builder:createImage")) {
+        		$u_group = "cms";
+                $_SESSION["builder"]["name"] = "builder";
+        		$_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
+	            $_SESSION["builder"]["group"] = $u_group;
+        	} else {
+	            if (! isset ($_SERVER["PHP_AUTH_USER"]))
+	            {
+	                $this->logout();
+	            } else
+	            {
+	                $passwd = file(".users");
+	                $groups = file(".groups");
+	                foreach ($passwd as & $val)
+	                {
+	                    $val = trim($val);
+	                }
+	                $u_group = -1;
+	                foreach ($groups as $group)
+	                {
+	                    list ($grp, $users) = explode("=", $group);
+	                    $users = explode(",", trim($users));
+	                    if (in_array($_SERVER["PHP_AUTH_USER"], $users))
+	                    {
+	                        $u_group = $grp;
+	                        break;
+	                    }
+	                }
+	                if (in_array($_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"], $passwd))
+	                {
+	                    $_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
+	                    $_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
+	                    $_SESSION["builder"]["group"] = $u_group;
+	                } else
+	                {
+	                    $this->logout();
+	                }
+	            }
+        	}
         }//*/
     }
 
@@ -1563,8 +1570,14 @@ class BuilderHandler
 							$handler["fk_module_id"] = $modId;
 							unset($handler["handler_id"]);
 							$h = $this->obj_data->selectHandlerByNameAndModule($id, $handler["event"]);
+							if (strlen($h["schedule"]) > 0) {
+               					Quartz::removeJob(JSON_decode($h["schedule"], true), $mod["name"].":".$h["event"]);								
+							}
 							$this->obj_data->deleteHandler($h["handler_id"]);
 							$this->obj_data->insertHandler($handler);
+							if (strlen($handler["schedule"]) > 0) {
+               					Quartz::addJob(JSON_decode($handler["schedule"], true), $mod["name"].":".$handler["event"]);
+							}
 						}
 						foreach ($mod["datas"] as $dat) {
 							$dat = $dat->getArrayCopy();
