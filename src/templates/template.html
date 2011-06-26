@@ -14,13 +14,13 @@
        	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
        	<link rel="shortcut icon" href="favicon.ico" />
        	<meta name="publisher" content="Prails Web Framework" />
-        <base href="<?=$SERVER?>" /> 
+        <base href="<?=str_replace('http:', '', $SERVER)?>" /> 
     	<meta name="revisit-after" content="1 day" />
         <style type="text/css">
             @encoding 'UTF-8';
         </style>
         <!--[if lt IE 9]>
-            <script type="text/javascript" src="<?=$SERVER?>templates/main/js/ie9.js">IE7_PNG_SUFFIX=".png";</script>
+            <script type="text/javascript" src="<?=str_replace('http:', '', $SERVER)?>templates/main/js/ie9.js">IE7_PNG_SUFFIX=".png";</script>
         <![endif]-->
         <?=$this->getStyleSheets()?>
         <?=$this->getJavaScripts()?>

@@ -271,8 +271,8 @@ class Generator {
 		$cssLib->cleanOldCache();
 		$path = $cssLib->mergeStyles(ENV_PRODUCTION === true, CSS_EMBED_RESOURCES);
 
-		$str_styles .= "<link rel='stylesheet' type='text/css' media='screen' href='".$SERVER.$path."' />\n";
-		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".$SERVER.str_replace(".css", ".header.css", $path)."' /><![endif]-->";
+		$str_styles .= "<link rel='stylesheet' type='text/css' media='screen' href='".str_replace('http:', '', $SERVER).$path."' />\n";
+		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".str_replace('http:', '', $SERVER).str_replace(".css", ".header.css", $path)."' /><![endif]-->";
 		
 		if (is_array($this->arr_noCacheStyles)) foreach ($this->arr_noCacheStyles as $ncs) {
 			$str_styles .= "<link rel='stylesheet' media='".$ncs["media"]."' href='".$ncs["path"]."' />\n";
@@ -368,7 +368,7 @@ class Generator {
            	@chmod($path, 0755);
            	@chmod(str_replace(".js", ".jgz", $path), 0755);
         }
-        $str_js .= "<script src='" . $SERVER.$path . "' type='text/javascript'></script>\n";
+        $str_js .= "<script src='" . str_replace('http:', '', $SERVER).$path . "' type='text/javascript'></script>\n";
         
         if (is_array($this->arr_noCacheJS)) {
         	foreach ($this->arr_noCacheJS as $ncjs) {

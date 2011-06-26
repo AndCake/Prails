@@ -1,7 +1,7 @@
 <?php
 /**
     PRails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Copyright (C) 2011  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ include "conf/configuration.php";
 include "conf/database.php";
 
 // include tools
+include "lib/smtp.php";
 include "lib/tools.php";
 include "lib/quartz.php";
 include "lib/debug/logger.php";

@@ -169,20 +169,6 @@ function set_var (&$mix_a, &$mix_b) {
 }
 
 /**
- * a formatted print_r
- *
- * @param MIXED $mix_var variable to output
- * @param STRING $str_title title for output
- */
-function p_r ($mix_var,$str_title) {
-    if (DEBUG_ERRORS == 1) {
-        echo $str_title.":<pre>";
-        print_r($mix_var);
-        echo "</pre><hr>";
-    }
-}
-
-/**
  * returns the language settings preferred by the user
  * 
  * @param ARRAY allowedLanguages - list of RFC4646 compliant language identifiers (like "en-us" or "de-de")
@@ -553,37 +539,6 @@ if (!function_exists("html_entity_decode")) {
     }
 }
 
-/**
- * Send a mail to an email address, while logging - if enabled - what has been sent
- * @param object $to	recipient
- * @param object $subject subject
- * @param object $cnt	message body
- * @param object $headers[optional] any headers
- * 
- * @return true, if sending was successful, else false  
- */
-function fmail ($to, $subject, $cnt, $headers = "") {
-	global $log;
-    $content = "Sending eMail To: ".$to."\n";
-    $content .= $headers."\n";
-    $content .= "Subject: ".$subject."\n";
-    $content .= "Content: ".$cnt;
-    $log->debug($content);
-    return @mail ($to, $subject, $cnt, $headers);
-}
-
-/**
- * function returns whether the current user is logged in.
- *
- * @return BOOLEAN returns false if the user is not logged in, else true
- */
-function checkIfLoggedIn() {
-    if ($_SESSION["user"]["user_id"])
-    return true;
-
-    return false;
-}
-
 if (!function_exists("mime_content_type")) {
     function mime_content_type ($f) {
         return trim(exec('file -bi '.escapeshellarg($f))) ;
@@ -797,9 +752,9 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
     $eol = "\r\n";
     $random_hash = md5(date('r', time()));
  
-    $from = $fromname."<".$fromaddress.">";
+    $from = $fromname." <".$fromaddress.">";
     //define the headers we want passed. Note that they are separated with \r\n
-    $headers = "From: ".$from.$eol."Reply-To: ".$from.$eol;
+    $headers = "From: ".$fromaddress.$eol."Reply-To: ".$from.$eol;
     //add boundary string and mime type specification
     $headers .= "Return-Path: ".$fromname."<".$fromaddress.">".$eol;    // these two to set reply address
     $headers .= "Message-ID: <".time()."-".$fromaddress.">".$eol;
@@ -1284,10 +1239,14 @@ function receiveFile($fileName, $targetPath) {
 	if (isset($_FILES['file'])) {
 	    $ftmp = $_FILES['file']['tmp_name'];
 	    $oname = basename($_FILES["file"]["name"]);
+	    $oname = preg_replace('/[^a-zA-Z0-9._\-]/', '', $oname);
+	    if (strlen($oname) <= 0) $oname = "_";
 	    while (file_exists($targetPath.$i.$oname)) { $i++; }
 	    move_uploaded_file($ftmp, $targetPath.$i.$oname);
 	} else {
 		$oname = $fileName;
+	    $oname = preg_replace('/[^a-zA-Z0-9._\-]/', '', $oname);
+	    if (strlen($oname) <= 0) $oname = "_";
 	    while (file_exists($targetPath.$i.$oname)) { $i++; }
 		file_put_contents($targetPath.$i.$oname, file_get_contents("php://input"));
 	}	

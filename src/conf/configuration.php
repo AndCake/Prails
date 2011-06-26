@@ -1,7 +1,7 @@
 <?php
 /**
     Prails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Copyright (C) 2011  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("FRAMEWORK_VERSION", "1.0.8");
+define ("FRAMEWORK_VERSION", "1.0.9");
 define ("PROJECT_LOG", "log/framework.log");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
@@ -40,6 +40,11 @@ $arr_settings = Array(
 "ERROR_NOTIFICATION" => false,
 "ERROR_EMAIL" => "notify@example.org",
 "IS_SETUP" => false,
+"USE_SMTP" => false,
+"SMTP_HOST" => "localhost",
+"SMTP_PORT" => 25,
+"SMTP_USERNAME" => "",
+"SMTP_PASSWORD" => "",
 /*</CUSTOM-SETTINGS>*/
 );
 /*</KEEP-1>*/
