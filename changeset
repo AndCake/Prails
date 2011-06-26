@@ -1,3 +1,44 @@
+V1.0.9 (June 26th, 2011)
+
+* added a fatal message in case templates cannot be cached
+* added separable configuration for development instances, production instances and both
+* added jQuery (can be used with "_" or jQuery instead of "$")
+* added CMS export and import of static images
+* added field name as class to form-entry in input.tag 
+* added [count] postfix for hash data access (p.e. #user.post_list[count] retrieves the number of entries that are returned by #user.post_list)
+* added smtp mail sending
+* performance optimizations
+* some code clean up
+* updated less compiler to latest version
+* made sure that on production no password is needed in order to generate missing images and modules
+* made setup and total system more fail-safe in case there is no mod_rewrite
+* made sure that the session is always written when using jumpTo
+* made warnings not occur in rendered pages but instead be written to log
+* fixed some bugs with setup routine
+* fixed a bug with queryTester
+* fixed a problem with memory consumption of newly optimized less compilation
+* fixed a bug with REPLACE in sqlite
+* fixed query tester problems with new caching and session handling
+* fixed a problem with importing of cms contents
+* fixed a problem with $ at the end of content asset definitions
+* fixed a bug with templates not being rendered incorrectly due to error message thrown while evaluating it
+* fixed a problem with modal windows kept in memory after closing
+* fixed some bugs with caching, CMS export and import
+* fixed a problem with cache not being flushed correctly
+* fixed a problem with full caches in shm version
+* fixed a problem with validation of radio buttons (lead to submit although invalid)
+* fixed a typo in configuration.php
+* fixed a problem with updating configuration
+* fixed a problem with destroying session in case none was active
+* fixed error messages for libraries
+* fixed a bug with saving multiple tables concurrently
+* fixed another bug with retrieval of collections
+* fixed a problem with production instances and camel-cased module names
+* fixed a warning that appeared when running updates, inserts or deletes in a MySQL DB
+* some bug fixing on importing of database tables
+* another small cache fix (speed problem solved)
+
+
 V1.0.8 (May 8th, 2011)
 
 * added hooks
