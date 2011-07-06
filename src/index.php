@@ -1,7 +1,7 @@
 <?php
 /**
-    PRails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Prails Web Framework
+    Copyright (C) 2011  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ if (file_exists($__cacheName)) {
 		@unlink($__cacheName);
 	} else if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && HTML_CACHE_ENABLED) {
 	    require($__cacheName);
+	    session_write_close();
 	    die();
 	}
 }

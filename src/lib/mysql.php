@@ -122,11 +122,11 @@ class MySQL extends Cacheable {
 			// if query successful
 			if ($dbr_queryResult) {
 				$this->int_affectedId = @mysql_insert_id ();
-				$this->int_affectedRows = @mysql_num_rows ($dbr_queryResult);
 				$int_resultCounter = 0;
 				$arr_result = Array ();
 
 				if (is_resource($dbr_queryResult)) {
+					$this->int_affectedRows = @mysql_num_rows ($dbr_queryResult);
 					while ($arr_fetchedResult = @mysql_fetch_array ($dbr_queryResult, MYSQL_ASSOC)) {
 						// remove slashes if needed
 						if ($this->bol_stripSlashes) {

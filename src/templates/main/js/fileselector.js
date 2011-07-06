@@ -1,6 +1,6 @@
 /***********************************************************************************
- * Quixotic Worx File Upload Widget, version 1.0
- * (c) 2010 Robert Kunze, Quixotic Worx
+ * Quixotic Worx File Upload Widget, version 1.0.1
+ * (c) 2011 Robert Kunze, Quixotic Worx
  *
  * All rights reserved.
  *
@@ -85,18 +85,20 @@ var QuixoticWorxUpload = {
 			}
 			var xhr = new XMLHttpRequest();
 			
-			if (options.progress != null) {
-				options.progress.style.width = "0%";
-				xhr.upload.addEventListener("progress", prog = function(ev) {
-					var total = ev.total;
-					if (total <= 0 || total > file.fileSize && file.fileSize > 0) { total = file.fileSize; }
-					if (total <= 0 || total > file.size && file.size > 0) { total = file.size; }
-					var percent = ev.loaded / total;
-					if (percent > 1) percent = 1;
-					options.progress.style.width = (percent * 100.0) + "%";
-				}, false);
-				xhr.addEventListener("progress", prog, false);				
-			}
+			options.progress && (options.progress.style.width = "0%");
+			document.oldTitle = document.title;
+			document.title = "Uploading (0%)...";
+			xhr.upload.addEventListener("progress", prog = function(ev) {
+				var total = ev.total;
+				if (total <= 0 || total > file.fileSize && file.fileSize > 0) { total = file.fileSize; }
+				if (total <= 0 || total > file.size && file.size > 0) { total = file.size; }
+				var percent = ev.loaded / total;
+				if (percent > 1) percent = 1;
+				document.title = "Uploading ("+(percent * 100.0).toFixed(0)+"%)...";
+				options.progress && (options.progress.style.width = (percent * 100.0) + "%");
+			}, false);
+			xhr.addEventListener("progress", prog, false);				
+
 			// register for the upload finished event
 			xhr.addEventListener("load", function(event) {
 				// if existent, set the progress to 100%
@@ -114,6 +116,7 @@ var QuixoticWorxUpload = {
 					QuixoticWorxUpload.upload({fileList: files, progress: options.progress, onStart: options.onStart, onDone: options.onDone, target: options.target});
 				} else if (typeof(options.onDone) == "function") {
 					// all files have been uploaded => we're done
+					document.title = document.oldTitle;
 					options.onDone();
 				}
 			}, false);
@@ -171,6 +174,8 @@ var QuixoticWorxUpload = {
 		            	if (progress) {
 			            	progress.style.width = "0%";
 		            	}
+		            	document.oldTitle = document.title;
+		            	document.title = "Uploading";
 		            	
 		            	// first notify onStart
 						if (options.onStart) {
@@ -197,6 +202,7 @@ var QuixoticWorxUpload = {
 							if (progress) {
 								progress.style.width = (current % 10) * 10 + "%";
 							}
+							document.title = "Uploading"+("...".substr(0, current%30));
 							var finished = false;
 							try {
 								finished = (obj.document.getElementsByTagName("form").length <= 0);
@@ -210,6 +216,7 @@ var QuixoticWorxUpload = {
 								}
 								clearInterval(testInt);
 								if (onDone) {
+									document.title = document.oldTitle;
 									eval(onDone);
 								}
 							}

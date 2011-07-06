@@ -22,3 +22,20 @@ div.langtooltip {
 	margin-left: 10px;
 	border: 1px solid #cca;
 }
+
+.global-home-left-nav-button {
+	@button;
+}
+
+.global-home-left-nav {
+	float: left;
+	width: 200px;
+	background-color: #efefef;
+	border: 1px solid #369;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	-o-border-radius: 10px;
+	padding: 10px;
+	padding-top: 0px;
+	dt { margin-top: 20px; }
+}

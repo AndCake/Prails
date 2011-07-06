@@ -110,6 +110,7 @@ class Generator {
             if (!$this->bol_isCachable) {
                 @unlink($cacheFile);
             }
+            session_write_close();
             die();
         } else {
             if ($this->bol_isCachable) {
