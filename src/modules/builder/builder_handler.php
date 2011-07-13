@@ -84,7 +84,6 @@ class BuilderHandler
         $arr_param["texts"] = Generator::getInstance()->getLanguage()->listTexts();
         $groups = file(".groups");
         $users = file(".users");
-        $arr_param['groups']["none"] = "none";
         $userGroups = Array();
         foreach ($groups as $group) {
         	list($grp, $userList) = explode("=", $group);
