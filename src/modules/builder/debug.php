@@ -28,7 +28,7 @@ $lines = file($json["file"]);
 $start = 0;
 $end = 0;
 foreach ($lines as $i=>$line) {
-	if ($start > 0 && strpos($line, "function ") !== false) {
+	if ($start > 0 && (strpos($line, "function ") !== false || strpos($line, "/*</EVENT-HANDLERS>*/") !== false)) {
 		$end = $i - 1;
 		break;
 	}
@@ -36,7 +36,7 @@ foreach ($lines as $i=>$line) {
 		$start = $i;
 	}
 }
-echo "<div style='float: right; width: 49%;'><b>Variables:</b><br/><table border='1' cellspacing='0' style='border-color: #ccc;overflow: auto;' cellpadding='5'>";
+echo "<div style='float: right; height:99%;max-height:99%;overflow: auto;width: 49%;'><b>Variables:</b><br/><table border='1' cellspacing='0' style='border-color: #ccc;' cellpadding='5'>";
 if (is_array($json["variables"])) {
 	foreach ($json["variables"] as $key => $val) {
 		echo "<tr><td valign='top'>".$key."</td><td valign='top'><pre>";

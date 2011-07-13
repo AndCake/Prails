@@ -28,7 +28,7 @@ class Logger {
 	public function trace($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("trace", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[TRACE]";
+			$tag = "trace";
 			$this->addToLog($tag, $msg, $bol_strace);
 		}
 	}
@@ -36,7 +36,7 @@ class Logger {
 	public function info($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("info", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[INFO]";
+			$tag = "info";
 			$this->addToLog($tag, $msg, $bol_strace);
 		}
 	}
@@ -44,7 +44,7 @@ class Logger {
 	public function debug($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("debug", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[DEBUG]";
+			$tag = "debug";
 			$this->addToLog($tag, $msg, $bol_strace);
 		}
 	}
@@ -52,7 +52,7 @@ class Logger {
 	public function warn($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("warn", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[WARNING]";
+			$tag = "warning";
 			$this->addToLog($tag, $msg, $bol_strace);
 		}
 	}
@@ -60,7 +60,7 @@ class Logger {
 	public function error($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("error", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[ERROR]";
+			$tag = "error";
 			$this->addToLog($tag, $msg, $bol_strace);
 			if (ERROR_NOTIFICATION) {
 				fmail(ERROR_MAIL, "Error in project ".PROJECT_NAME, $msg."\n\n".$this->getStacktrace());
@@ -71,7 +71,7 @@ class Logger {
 	public function fatal($msg, $bol_strace = false) {
 		global $ARR_LOGGER_ENABLED_PROPERTIES;
 		if (in_array("fatal", $ARR_LOGGER_ENABLED_PROPERTIES)) {
-			$tag = "[FATAL]";
+			$tag = "fatal";
 			$this->addToLog($tag, $msg, $bol_strace);
 			if (ERROR_NOTIFICATION) {
 				fmail(ERROR_MAIL, "Fatal Error in project ".PROJECT_NAME, $msg."\n\n".$this->getStacktrace());
@@ -91,17 +91,18 @@ class Logger {
 		
 		$line = implode(" ", Array(
 			$this->getTime(),
-			$tag,
+			"[".strtoupper($tag)."]",
 			$msg,
 			$trace
 		)) . "\n";
 		
-		$fp = @fopen($this->log_file, "a+");
+		$fp = @fopen($this->log_file.strtolower($tag).".log", "a+");
 		if ($fp) {
     		fwrite($fp, $line);
     		fclose($fp);
 		} else {
-		    die($line."\nError writing to log file. Please check permissions.<br/>");
+			echo $line."\nError writing to log file. Please check permissions.<br/>";
+		    if (strtolower($tag) == "error" || strtolower($tag) == "fatal") die();
 		}
 	}
 	

@@ -1,3 +1,2 @@
-testgroup=testuser
+admin=testuser
 cms=
-<group-name>=<user1>,<user2>,...

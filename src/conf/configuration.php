@@ -18,7 +18,7 @@
 */
 
 define ("FRAMEWORK_VERSION", "1.0.9");
-define ("PROJECT_LOG", "log/framework.log");
+define ("PROJECT_LOG", "log/framework_");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
 $SERVER = substr($SERVER, 0, -strlen(basename($SERVER)));

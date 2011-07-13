@@ -1,3 +1,10 @@
+<style type="text/css">
+	#form-content legend { display: none; }
+	#user-list .form-entry input {
+		width: 100px;
+	}
+	#user-list th { font-weight: bold; background: #efefef; padding: 5px; }
+</style>
 <div id="header" style="display:none;">
 <h1 style="letter-spacing:0.75em;text-transform:uppercase; padding-left:10px;"><img src="templates/builder/images/logo.png" height="24" align="absmiddle" /> PHP On Rails Online Development Environment</h1>
 </div>
@@ -177,6 +184,53 @@
 	</form></div>
 	<div id="sbmsglist"></div>
 </div>
+<div id="usermgmt-form" style="display: none;">
+	<fieldset id="my-account">
+		<div style="padding: 20px;">
+		<legend>My Account</legend>
+		<div class="form-entry">
+			<div class="label">Name:</div>
+			<div class="value" style="font-style:italics;color: #666;"><?=$_SESSION["builder"]["name"]?></div>
+		</div>
+		<div class="form-entry">
+			<div class="label">User Group:</div>
+			<div class="value" style="font-style:italics;color: #666;"><?=$_SESSION["builder"]["group"]?></div>
+		</div>
+		<c:input name="user[password]" value="" type="password" class="required" label="Password:"/>
+		<c:input name="user[password2]" value="" type="password" class="required" rel="this.value == document.getElementsByName('user[password]')[0].value" label="Re-type Password:"/>
+		</div>	
+	</fieldset>
+	<c:if cond="$_SESSION['builder']['name'] == 'admin' || $_SESSION['builder']['group'] == 'admin'">
+		<fieldset id="users">
+			<legend style="font-size: 14px; font-weight: bold;padding-left:20px; padding-top: 20px;margin-bottom:1.5em;">Users</legend>
+			<div id="user-list">
+				<table border="0" width="100%">
+					<thead>
+						<tr><th>Username</th><th>Password</th><th>Assigned Group</th><th></th></tr>
+					</thead>
+					<tbody style="height:150px;position: relative;max-height: 150px;overflow: auto;">
+						<c:foreach var="users" name="user">
+							<tr>
+								<td style="padding-left: 5px;"><c:input name="users[name][]" value="#user.name"/></td>
+								<td style="padding-left: 5px;"><c:input name="users[pass][]" type="password" value="********"/></td>
+								<td style="padding-left: 5px;"><c:input type="select" name="users[group][]" values="groups" value="#user.group"/></td>
+								<td><a href="javascript:" onclick="this.up('tr').remove();"><img src='templates/builder/images/delete.gif' alt='' border="0"/></a></td>
+							</tr>
+						</c:foreach>
+					</tbody>
+					<tfoot>
+						<tr>
+							<td colspan="2" style="padding-left: 5px;">
+								<button type="button" onclick="var sel = _('#user-list tbody tr:first').html();_('#user-list tbody').append('<tr>'+sel+'</tr>');var e=_('#user-list tbody tr')[_('#user-list tbody tr').length-1];e.down('input').setAttribute('value', '');e.down('select').value='cms';">Add user</button>
+								<button type="button" onclick="var n=prompt('Enter the group\'s name:');if(n.length>0){_('#user-list select').append('<option value=\''+n+'\'>'+n+'</option>');}">Add group</button>
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</fieldset>
+	</c:if>
+</div>
 
 <script type="text/javascript">
 	//<![CDATA[
@@ -217,6 +271,59 @@
                 }
             }
         });
+	};
+	
+	var showUserMgmt = function() {
+		if (window.userMgmt) window.userMgmt.hide();
+		var buttons = [];
+		
+		<? if ($_SESSION["builder"]["name"] == "admin" || $_SESSION["builder"]["group"] == "admin") { ?>
+			buttons.push({
+				text: "All Users",
+				style: "margin-right: 135px",
+				handler: function() {
+					window.userMgmt.setTitle($("users").down('legend').innerHTML);
+					Ext.getCmp('form-content').body.dom.innerHTML = $("usermgmt-form").down('#user-list').up().innerHTML;
+				}
+			});
+		<? } ?>
+		buttons.push({
+			text: "Save",
+			handler: function() {
+				// send ajax call to store in file
+				var items = "";
+				$$("#form-content input, #form-content select").each(function(item) {
+					items += "&"+item.serialize();
+				});
+				invoke(null, "builder:editUser", items, true, function(req){
+					Ext.ux.util.msg("Changes saved", "Your new password has been set successfully.");
+					window.userMgmt.close();
+				});
+			}
+		});
+		buttons.push({
+			text: "Cancel",
+			handler: function() {
+				window.userMgmt.hide();
+			}
+		});
+		
+		window.userMgmt = new Ext.Window({
+			layout: "fit",
+			title: "My Account",
+			width: 400,
+			height: 300,
+			plain: true,
+			items: new Ext.Panel({
+				deferredRender: false,
+				autoScroll: true,
+				border: false,
+				id: "form-content",
+				html: $("usermgmt-form").down('#my-account').innerHTML
+			}),
+			buttons: buttons
+		});
+		window.userMgmt.show(this);
 	};
 	
 	var runSelfUpdate = function() {
@@ -510,7 +617,8 @@
 		<c:foreach var="texts" name="text" key="section">
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
-		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] == "cms" ? "false" : "true"?>;
+		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] != "devel" ? "false" : "true"?>;
+		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
 		window.Builder.noRewrite = <?=MOD_REWRITE ? "false" : "true"?>;
 		

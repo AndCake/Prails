@@ -30,6 +30,8 @@ div#qwbuilder_headerPanel .x-panel-body {
 .handler { background-image: url(../images/default/tree/leaf.gif) !important; }
 .handler-hook img.x-tree-node-icon, .x-tab-panel-header span.handler-hook { background-image: url(../images/plugin.png) !important; }
 .HelpTabIcon { background-image: url(../images/help.png) !important; }
+.user { background-image: url(../images/user.png) !important; }
+.users { background-image: url(../images/users.png) !important; }
 .flush { background-image: url(../images/clear.png) !important; }
 .history { background-image: url(../images/history.gif) !important; }
 .library { background-image: url(../images/library.png) !important; }

@@ -43,13 +43,22 @@ window.Builder = Object.extend(window.Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 500,
+				width: 510,
 				border: false,
 				layout: "table",
 				cls: "header-nav",
-				layoutConfig: {columns: 3, tableAttrs: {style: {width: '100%'}}},
+				layoutConfig: {columns: 4, tableAttrs: {style: {width: '100%'}}},
 				region: "east",
 				items: [{
+					xtype: "button",
+					id: "show-user-mgmt",
+					style: "margin-right: 10px;",
+					iconCls: "user",
+					text: "Account Mgmt",
+					handler: function() {
+						showUserMgmt();	
+					}					
+				},{
 					xtype: "button",
 					id: "testresult",
 					style: "margin-right: 10px;",
@@ -192,7 +201,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 						iconCls: "HelpTabIcon",
 						xtype: "panel",
 						html: $("help").innerHTML,
-						tbar: (Builder.isDeveloper ? [{
+						tbar: (Builder.isDeveloper || Builder.isAdmin ? [{
 							xtype: "button", 
 							text: "Flush DB Cache", 
 							iconCls: "flush", 
@@ -206,6 +215,13 @@ window.Builder = Object.extend(window.Builder || {}, {
 										});
 									}
 								})
+							}
+						}, "-", {
+							xtype: "button",
+							text: "Database",
+							iconCls: "run",
+							handler: function() {
+								Builder.queryTest();								
 							}
 						}] : null)
 					}],
@@ -394,23 +410,33 @@ window.Builder = Object.extend(window.Builder || {}, {
 			tbar: [{
 				text: "Add",
 				iconCls: "add",
+				disabled: window.Builder.isAdmin,
 				handler: Builder.addModule
-			}, "-", {
+			}, "-", (!window.Builder.isAdmin ? {
 				text: "Edit",
 				iconCls: "edit",
+				disabled: window.Builder.isAdmin,
 				handler: function() {
 					Builder.editModule(Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode());
 				}
-			}, "-",{
+			} : ""), (!window.Builder.isAdmin ? "-" : ""),(window.Builder.isAdmin ? {
+				text: "Edit Configuration",
+				iconCls: "config",
+				handler: function() {
+					Builder.editConfiguration(Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode());
+				}		
+			} : {
 				text: "Options",
+				disabled: window.Builder.isAdmin,
 				iconCls: "options",
 				handler: function() {
 					Builder.editModuleOptions(Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode());
 					
 				}
-			},"-", {
+			}),"-", {
 				text: "Delete",
 				iconCls: "delete",
+				disabled: window.Builder.isAdmin,
 				handler: function() {
 					if (Ext.getCmp("qwbuilder_modulePanel").getSelectionModel().getSelectedNode().id < 0) {
 						Ext.Msg.alert("Problem", "You cannot remove the global module.");
@@ -423,7 +449,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 				contextmenu: function(n, e) {
 					e.preventDefault();
 					var menu = new Ext.menu.Menu({
-						items: [{
+						items: [(window.Builder.isDeveloper ? ({
 							text: "Edit Module",
 							iconCls: "edit",
 							handler: function() {
@@ -444,13 +470,13 @@ window.Builder = Object.extend(window.Builder || {}, {
 							handler: function() {
 								Builder.editModuleResource(n);
 							}
-						},{
+						}) : "-"),{
 							text: "Edit Configuration",
 							iconCls: "config",
 							handler: function() {
 								Builder.editConfiguration(n);
 							}
-						},{
+						},(window.Builder.isDeveloper ? ({
 							text: "Delete Module",
 							disabled: (n.id < 0 ? true : false),
 							iconCls: "delete",
@@ -458,11 +484,11 @@ window.Builder = Object.extend(window.Builder || {}, {
 								Builder.delModule(n);
 								this.hide();
 							}
-						}]
+						}) : "-")]
 					}).showAt(e.getXY());					
 				},
 				dblclick: function(n) {
-					Builder.editModule(n);
+					if (window.Builder.isDeveloper) Builder.editModule(n);
 				}
 			}
 		});
@@ -637,49 +663,51 @@ window.Builder = Object.extend(window.Builder || {}, {
 			}				
 		});	
 		var navItems = [];
-		if (window.Builder.isDeveloper) {
+		if (window.Builder.isDeveloper || window.Builder.isAdmin) {
 			navItems.push(modulePanel);
-			navItems.push({
-				id: "qwbuilder_detailsPanel",
-				title: "Module Contents",
-				collapsible: true,
-				region: "south",
-				xtype: "panel",
-				width: 150,
-				minSize: 120,
-				disabled: true,
-				maxSize: 240, 
-				border: true,
-				split: true,
-				layout: "border",
-				layoutConfig: {
-					align: "stretch",
-					pack: "start"
-				},
-				items: [
-					handlerPanel,
-					dataPanel
-				]
-			});
-			navItems.push({
-				xtype: "panel",
-				id: "qwbuilder_libsPanel",
-				title: "Libraries",
-				collapsible: true,
-				region: "south",
-				width: 150,
-				minSize: 120,
-				maxSize: 240,
-				border: true,
-				split: true,
-				layout: "border",
-				layoutConfig: {
-					align: "stretch",
-					pack: "start"
-				},
-				items: [libraryPanel, tagLibPanel]
-			});
-			navItems.push(dbPanel);
+			if (!window.Builder.isAdmin) {
+				navItems.push({
+					id: "qwbuilder_detailsPanel",
+					title: "Module Contents",
+					collapsible: true,
+					region: "south",
+					xtype: "panel",
+					width: 150,
+					minSize: 120,
+					disabled: true,
+					maxSize: 240, 
+					border: true,
+					split: true,
+					layout: "border",
+					layoutConfig: {
+						align: "stretch",
+						pack: "start"
+					},
+					items: [
+						handlerPanel,
+						dataPanel
+					]
+				});
+				navItems.push({
+					xtype: "panel",
+					id: "qwbuilder_libsPanel",
+					title: "Libraries",
+					collapsible: true,
+					region: "south",
+					width: 150,
+					minSize: 120,
+					maxSize: 240,
+					border: true,
+					split: true,
+					layout: "border",
+					layoutConfig: {
+						align: "stretch",
+						pack: "start"
+					},
+					items: [libraryPanel, tagLibPanel]
+				});
+			}
+			navItems.push(dbPanel);			
 		}
 		navItems.push({
 		   xtype: "treepanel",
@@ -889,7 +917,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 		},{
 			key: "A",
 			callback: function(e) {
-				if (window.Builder.isDeveloper) {
+				if (window.Builder.isDeveloper || window.Builder.isAdmin) {
 					Builder.queryTest();
 				}
 			}

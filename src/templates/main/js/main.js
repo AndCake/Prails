@@ -117,6 +117,10 @@ function initAjaxLinks() {
 				if (this.getAttribute("href").indexOf('#') >= 0) {
 					var el = $$(this.getAttribute("href").replace(location.href.replace(/#(.*)$/gi, ''), ''))[0];
 					if (el) {
+						if (window.currentDialog && window.currentDialog.element) {
+							window.currentDialog.element.remove();
+						     $$(".ui-widget-overlay").invoke("remove");							
+						}
 						window.currentDialog = new S2.UI.Dialog(el.cloneNode(true), params).open();
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();
@@ -125,6 +129,10 @@ function initAjaxLinks() {
 				} else {
 					invoke(null, this.getAttribute("href"), null, false, function(req) {
 						params["content"] = req.responseText;
+						if (window.currentDialog && window.currentDialog.element) {
+							window.currentDialog.element.remove();
+						     $$(".ui-widget-overlay").invoke("remove");							
+						}
 						window.currentDialog = new S2.UI.Dialog(params).open();
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();

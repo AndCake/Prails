@@ -11,6 +11,11 @@ AddEncoding gzip jgz
 
 <IfModule rewrite_module>
 	RewriteEngine on
+	
+	RewriteCond %{REQUEST_FILENAME} \.users [OR]
+	RewriteCond %{REQUEST_FILENAME} \.groups [OR]
+	RewriteCond %{REQUEST_FILENAME} \.htaccess
+	RewriteRule ^(.*)$ index.php?event=builder:home [L]
 
 	RewriteCond %{HTTP:Accept-encoding} gzip
 	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]

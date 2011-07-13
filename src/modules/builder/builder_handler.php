@@ -34,7 +34,7 @@ class BuilderHandler
         	if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") === false || $_GET["event"] == "builder:createResource")) {
         		$u_group = "cms";
                 $_SESSION["builder"]["name"] = "builder";
-        		$_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
+        		$_SESSION["builder"]["user_id"] = crc32("devel");
 	            $_SESSION["builder"]["group"] = $u_group;
         	} else {
 	            if (! isset ($_SERVER["PHP_AUTH_USER"]))
@@ -59,10 +59,10 @@ class BuilderHandler
 	                        break;
 	                    }
 	                }
-	                if (in_array($_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"], $passwd))
+	                if (in_array($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"]), $passwd))
 	                {
 	                    $_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
-	                    $_SESSION["builder"]["user_id"] = crc32(($u_group == 'cms' ? 'devel' : $u_group));
+	                    $_SESSION["builder"]["user_id"] = crc32("devel");
 	                    $_SESSION["builder"]["group"] = $u_group;
 	                } else
 	                {
@@ -82,6 +82,22 @@ class BuilderHandler
         $arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["texts"] = Generator::getInstance()->getLanguage()->listTexts();
+        $groups = file(".groups");
+        $users = file(".users");
+        $arr_param['groups']["none"] = "none";
+        $userGroups = Array();
+        foreach ($groups as $group) {
+        	list($grp, $userList) = explode("=", $group);
+        	$arr_param['groups'][$grp] = $grp;
+        	$userList = explode(",", trim($userList));
+        	foreach ($userList as $usr) {
+        		$userGroups[$usr] = $grp;
+        	}
+        } 
+        foreach ($users as $user) {
+        	list($usr, $pwd) = explode(":", $user);
+        	$arr_param['users'][] = Array("name" => $usr, "group" => $userGroups[$usr]);
+        }
         
         $prailsServerBasePath = "http://prails.googlecode.com/svn/trunk/";
         // check for new {Prails} version
@@ -1829,6 +1845,54 @@ class BuilderHandler
 	function flushDBCache() {
 		$this->obj_data->obj_mysql->flush();
 		die("success");
+	}
+	
+	function editUser() {
+		if ($_POST["user"]) {
+			$data = $_POST["user"];
+			if (strlen($data['password']) > 0 && $data["password"] == $data["password2"]) {
+				$users = file(".users");
+				$result = Array();
+				foreach ($users as $user) {
+					list($name, $password) = explode(":", $user);
+					if ($name == $_SESSION['builder']['name']) {
+						array_push($result, $name.":".md5($data["password"]));
+					} else array_push($result, $user);
+				}
+				file_put_contents(".users", join("\n", $result));
+				die("success");
+			}
+		} else if ($_POST["users"]) {
+			$data = $_POST["users"];
+			$users = file(".users");
+			$newUsers = Array();
+			$groups = Array();
+			foreach ($data["name"] as $key=>$user) {
+				if ($data["pass"][$key] == "********") {
+					// use old password
+					foreach ($users as $usr) {
+						list($u, $p) = explode(":", $usr);
+						if ($u == $user) {
+							$newUsers[] = $usr;
+							break;
+						}
+					}
+					$groups[$data["group"][$key]][] = $user;
+				} else {
+					$newUsers[] = $user.":".md5($data["pass"][$key]);
+					$groups[$data["group"][$key]][] = $user;
+				}
+			}
+			// finally write file to disc
+			file_put_contents(".users", implode("\n", $newUsers));
+			$groupLines = Array();
+			foreach ($groups as $grp=>$users) {
+				$groupLines[] = $grp."=".implode(",", $users);
+			}
+			file_put_contents(".groups", implode("\n", $groupLines));
+			die("success");
+		}
+		die("error");
 	}
 
 /*</EVENT-HANDLERS>*/

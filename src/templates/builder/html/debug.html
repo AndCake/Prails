@@ -5,7 +5,7 @@
 //<![CDATA[
 	Ext.getCmp("portlet_content_debugview").getTopToolbar().add({
 		xtype: "button",
-		text: "Run",
+		text: "Resume",
 		iconCls: "play",
 		handler: function(e) {
 			$("debugview-frame").src = "modules/builder/debug.php?cmd=run";
@@ -19,7 +19,7 @@
 		}	
 	}, "-", {
 		xtype: "button",
-		text: "Stop",
+		text: "Terminate",
 		iconCls: "stop",
 		handler: function(e) {
 			$("debugview-frame").src = "modules/builder/debug.php?cmd=stop";
