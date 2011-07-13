@@ -115,7 +115,7 @@ class MainHandler
 			$users = Array();
 			foreach ($arr_user["name"] as $key=>$value) {
 				if (strlen($value) > 0 && strlen($arr_user["pass"][$key]) > 0) {
-					array_push($users, $value.":".$arr_user["pass"][$key]);
+					array_push($users, $value.":".md5($arr_user["pass"][$key]));
 					if (!is_array($groups[$arr_user["group"][$key]])) {
 						$groups[$arr_user["group"][$key]] = Array();
 					}
