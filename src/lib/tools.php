@@ -264,12 +264,12 @@ function removeDir($dir, $DeleteMe) {
  *
  * @return STRING text with all URLs replaced by real links.
  */
-function hyperlink($text) {
+function hyperlink($text, $bol_complete = false) {
     // match protocol://address/path/file.extension?some=variable&another=asf%
-    $text = preg_replace("/(([a-zA-Z]+:\/\/)([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9\/*-?,_&%]*))/i", "<a href=\"$1\">$3</a>", $text);
+    $text = preg_replace("/(([a-zA-Z]+:\/\/)([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9\/*-?,_&%]*))/i", ($bol_complete ? "<a href=\"$1\">$1</a>" : "<a href=\"$1\">$3</a>"), $text);
 
     // match www.something.domain/path/file.extension?some=variable&another=asf%
-    $text = preg_replace("/(\s)(www\.([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9,\/*-?&%]*))/i", "$1<a href=\"http://$2\">$3</a>", $text);
+    $text = preg_replace("/(\s)(www\.([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9,\/*-?&%]*))/i", ($bol_complete ? "$1<a href=\"http://$2\">$2</a>" : "$1<a href=\"http://$2\">$3</a>"), $text);
 
     return $text;
 }

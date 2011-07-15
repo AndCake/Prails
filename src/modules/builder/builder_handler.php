@@ -1872,7 +1872,7 @@ class BuilderHandler
 					foreach ($users as $usr) {
 						list($u, $p) = explode(":", $usr);
 						if ($u == $user) {
-							$newUsers[] = $usr;
+							$newUsers[] = trim($usr);
 							break;
 						}
 					}

@@ -324,7 +324,7 @@
 				xtype: "button",
 				text: "Debug",
 				iconCls: "debug",
-				tooltip: (<?=ENV_PRODUCTION === true ? "Debugging is only available on development instances" : "Run debugger"?>),
+				tooltip: '<?=ENV_PRODUCTION === true ? "Debugging is only available on development instances" : "Run debugger"?>',
 				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 || <?=ENV_PRODUCTION === true ? "true" : "false"?> ? true : false),
 				handler: function(e) {
 					Builder.debug('#handler.fk_module_id', 'handler', '#handler.handler_id');
