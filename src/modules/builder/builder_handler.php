@@ -640,6 +640,11 @@ class BuilderHandler
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
         }
         
+        if ($_GET["handler_id"] <= 0) {
+        	$arr_param["handler"]["html_code"] = file_get_contents("templates/builder/php/output_empty.php");
+        	$arr_param["handler"]["code"] = file_get_contents("templates/builder/php/handler_empty.php");
+        }
+        
         if ($_GET["refresh"]) {
         	die(json_encode(Array("code"=>$arr_param["handler"][$_GET["refresh"]])));
         }

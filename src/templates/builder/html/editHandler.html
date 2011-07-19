@@ -9,17 +9,17 @@
 	<div style="float:left;width:50%;">
 		<div style="float:left;width: 30%;">
 			<input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
-			<label for="ajax_#handler.handler_id">is AJAX event</label><br/>
+			<label for="ajax_#handler.handler_id">is AJAX event <a title="normally pages are wrapped in a base template. If you don't want that (mostly because the event is called via AJAX), tick this checkbox." class="builder-help"> ? </a></label><br/>
 			<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
-        	<label for="cache_#handler.handler_id">output is cacheable</label>
+        	<label for="cache_#handler.handler_id">output is cacheable <a title="if this is ticked, the result will be cached for all same GET requests to this event (until you remove it)." class="builder-help"> ? </a></label>
     	</div>
         <div style="float:left;width: 70%;">
         	<input type="checkbox" name="schedule" value="1" onclick="if(this.checked){$('container_h_#handler.handler_id').schedule(this);}else{$('hschedule#handler.handler_id').value=$('jobdetails_#handler.handler_id').innerHTML='';}" id="job_#handler.handler_id"<?=(strlen($arr_param['handler']['hook']) <= 0 && strlen($arr_param['handler']['schedule']) > 0 ? " checked='checked'" : "")?> />
-        	<label for="job_#handler.handler_id">is a job <span id="jobdetails_#handler.handler_id"></span></label>
+        	<label for="job_#handler.handler_id">is a job <a title="a job will be called periodically - independent of page requests by users." class="builder-help"> ? </a><span id="jobdetails_#handler.handler_id"></span></label>
         	<input type="hidden" name="handler[schedule]" value='#handler.schedule' id="hschedule#handler.handler_id" />
         	<br/>
         	<input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
-        	<label for="hook_#handler.handler_id">is a hook</label>
+        	<label for="hook_#handler.handler_id">is a hook <a title="in order to be called as soon as a certain hook sink (defined via <c:hook> or HookCore::notify) is executed, tick this." class="builder-help"> ? </a></label>
         	<input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
         </div>
 		<div style="clear:both;"></div>
