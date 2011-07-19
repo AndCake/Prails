@@ -1,0 +1,37 @@
+<table border="1" cellspacing="0" cellpadding="5">
+	<% $prev = ""; %>
+	<c:foreach var="file" name="line">
+			<% if (preg_match('/^\s*\[[0-9\-: ]+\]\s+/mi', $line)) { %>
+				<tr>
+					<td>
+						<%=str_replace(Array("[FATAL]", "[ERROR]", "[WARNING]", "[DEBUG]", "[INFO]", "[TRACE]"), Array("<span style='color:red;font-weight:bold;font-style:italic;'>[FATAL]", "<span style='color:red;'>[ERROR]", "<span style='color:orange;'>[WARNING]", "<span style=''>[DEBUG]", "<span style='color:grey;font-style:italic;font-weight:bold;'>[INFO]", "<span style='color:grey;'>[TRACE]"), htmlentities($line))%>
+							<div style="display:none;"><%=$prev%></div>
+						</span>
+					</td>
+				</tr>
+			<% $prev = ""; } else $prev = htmlentities($line) . "<br/>" . $prev; %>
+	</c:foreach>
+</table>
+
+<script type="text/javascript">
+//<![CDATA[
+	(function() {
+		setTimeout(function() {
+//			location.reload();
+		}, 5000);
+		tags = document.getElementsByTagName("span");
+		for (all in tags) {
+			if (tags[all].getElementsByTagName("div")[0].innerHTML.replace(/\s+/,'').length > 0) {
+				tags[all].style.cursor = "pointer";
+				tags[all].onclick = function() {
+					if (this.getElementsByTagName("div")[0].style.display == "none") {
+						this.getElementsByTagName("div")[0].style.display = "block";
+					} else {
+						this.getElementsByTagName("div")[0].style.display = "none";
+					}
+				};
+			}
+		}
+	})();
+//]]>
+</script>

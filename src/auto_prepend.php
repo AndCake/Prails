@@ -34,8 +34,10 @@
 				while (!$found && $cLine > 1) {
 					$found = (preg_match("/\\s*function ([^(]+)\\(\\) {/", $arr_file[$cLine--], $arr_match) > 0);
 				}
-				if (preg_match("/\\s*class ([a-zA-Z_0-9]+)\\s+/", $arr_file[1], $match) == 0) {
-					preg_match("/\\s*class ([a-zA-Z_0-9]+)\\s+/", $arr_file[2], $match);
+				$cfound = false;
+				$classLine = $e["line"] - 1;
+				while (!$cfound && $classLine > 0) {
+					$cfound = (preg_match("/\\s*class ([a-zA-Z_0-9]+)\\s+/", $arr_file[$classLine--], $match) > 0);
 				}
 				$class = preg_split("/[0-9]+/", $match[1]);
 

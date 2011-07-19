@@ -209,3 +209,21 @@ body .CodeMirror-line-numbers {
 .scheduler .form-entry .value.radiogroup { width: 250px; }
 .scheduler .form-entry .value.radiogroup .radio { float:left; padding-bottom: 5px; width: 75px; }
 .scheduler .form-entry .value.radiogroup .radio label { display:inline; }
+
+a.builder-help {
+	display: inline-block;
+	width: 15px;
+	height: 15px;
+	border: 1px solid #CCC;
+	text-align: center;
+	border-radius: 10px;
+	line-height: 15px;
+	color: black !important;
+	background-color: #EFEFEF;
+	font-family: Tahoma;
+	
+	&:hover {
+		background-color: #999;
+		color: white !important;
+	}
+}

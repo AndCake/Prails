@@ -73,9 +73,10 @@ class TagLib {
 	}
 	
 	private function makeAllVars($buffer) {
-        preg_match_all("/(#|@)([a-zA-Z_0-9]+[.][.A-Za-z0-9_]*[a-zA-Z0-9]*)(\[([a-zA-Z0-9]+)\])?/", $buffer, $arr_matches);
+        preg_match_all("/(#|@)([a-zA-Z_0-9]+[.][.A-Za-z0-9_]*[a-zA-Z0-9]*)(\[([a-zA-Z0-9]+)\](\[([^\]]+)\])?)?/", $buffer, $arr_matches);
         foreach ($arr_matches[2] as $key => $str_match) {
-            preg_match_all('/<!--\[noeval\]-->.*<!--\[\/noeval\]-->/sU', $buffer, $arr_test);
+        	$toClose = false;
+        	preg_match_all('/<!--\[noeval\]-->.*<!--\[\/noeval\]-->/sU', $buffer, $arr_test);
             $found = false;
             foreach ($arr_test[0] as $test) {
                 $found = $found || (strpos($test, $arr_matches[0][$key]) !== false);
@@ -83,13 +84,14 @@ class TagLib {
             if ($found) continue;
             $parts = explode(".", $str_match);
             if (strlen($arr_matches[4][$key]) > 0) {
-                if ($arr_matches[4][$key] == "price")
-                {
-                    $str_param = "sprintf(\"%.2f\", \$arr_param";
-                } else if ($arr_matches[4][$key] == "count")
-                {
-                	$str_param = "count(\$arr_param";
-                } else 
+            	if (file_exists("lib/tags/".$arr_matches[4][$key].".var")) {
+            		ob_start();
+            		$var["name"] = $arr_matches[4][$key];
+            		$var["modifier"] = $arr_matches[6][$key];
+            		require("lib/tags/".$arr_matches[4][$key].".var");
+            		$str_param = ob_get_clean();
+            		$toClose = $var["close"]; 
+            	} else
                 {
                     $str_param = "(" . $arr_matches[4][$key] . ")\$arr_param";
                 }
@@ -99,7 +101,7 @@ class TagLib {
             foreach ($parts as $part) {
                 $str_param .= "[\"" . $part . "\"]";
             }
-            if ($arr_matches[4][$key] == "price" || $arr_matches[4][$key] == "count") $str_param .= ")";
+            if ($toClose) $str_param .= ")";
 			if ($arr_matches[1][$key] == "@") {
 				$buffer = str_replace($arr_matches[0][$key], $str_param, $buffer);
 			} else {

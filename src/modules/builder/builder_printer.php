@@ -176,7 +176,13 @@ class BuilderPrinter
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
 	}
-    /*</PRINTER-METHODS>*/
+
+	function showLog($arr_param) {
+        $arr_param["session"] = $_SESSION;
+        Generator::getInstance()->setIsAjax(true);
+        return Generator::getInstance()->includeTemplate("templates/builder/html/showLog.html", $arr_param, false);		
+	}
+/*</PRINTER-METHODS>*/
 }
 
 ?>

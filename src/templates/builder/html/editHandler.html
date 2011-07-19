@@ -30,7 +30,7 @@
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
-		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code:</label><br/>
+		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as PHP code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
 		<!--[noeval]-->
 		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlspecialchars($arr_param["handler"]["code"])?></div>
@@ -41,7 +41,7 @@
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
-		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code:</label><br/>
+		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code <a title="In this area you can put the HTML code to be presented to the user" class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
 		<!--[noeval]-->
 		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>

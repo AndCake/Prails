@@ -1,7 +1,7 @@
 <?php
 /**
- PRails Web Framework
- Copyright (C) 2010  Robert Kunze
+ Prails Web Framework
+ Copyright (C) 2011  Robert Kunze
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
@@ -114,6 +114,15 @@ class BuilderHandler
                 $arr_param["local"]["changeset"] = file_get_contents(PRAILS_HOME_PATH."changeset");
             }
         }
+        
+        $dp = opendir("log/");
+        $arr_param["logs"] = Array();
+        while (($file = readdir($dp)) !== false) {
+        	if ($file[0] != "." && strpos($file, ".log") !== false) {
+        		array_push($arr_param["logs"], $file);
+        	}
+        }
+        closedir($dp);
 
         foreach ($arr_param["modules"] as $key=>$arr_module)
         {
@@ -131,6 +140,24 @@ class BuilderHandler
     /*<EVENT-HANDLERS>*/
     function run($arr_param=null, $bol_invoke = true)
     {
+		function makeDebuggable($code, $addBreakpoint = false) {
+			if (ENV_PRODUCTION === true) return $code;
+      		if ($addBreakpoint) {
+				$debugStart = "Debugger::breakpoint();";
+      		} else {
+             	$debugStart = "Debugger::wait();";
+            }
+
+            $lines = explode("\n", $code);
+            foreach ($lines as $i=>$line) {
+            	if (preg_match("/(\{$)|(;$)/i", $line) && (preg_match("/(^|\s+)switch\s*\(/i", $line) ||
+            			(preg_match("/^\s*\{/i", $line) && preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
+						$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
+            	}
+            }
+            return $debugStart.implode("\n", $lines);			
+		}
+		
     	if ($bol_invoke !== true) {
     		$arr_module = $this->obj_data->selectModule($bol_invoke["module_id"]);
     		$module = $arr_module["name"];
@@ -230,15 +257,7 @@ class BuilderHandler
                 {
                     $code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $arr_handler["code"]);
                     $code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
-                	if (ENV_PRODUCTION !== true) {
-                		if ($bol_invoke["handler"] == $arr_handler["handler_id"]) {
-                			$debugStart = "Debugger::breakpoint();";
-                		} else {
-                			$debugStart = "Debugger::wait();";
-                		}
-                		
-                		$code = $debugStart.preg_replace('/(\{$)|(;$)/mi', "\\1\\2Debugger::wait(get_defined_vars());", $code);
-                	}
+                    $code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
                     $handler .= "\nfunction ".$arr_handler["event"]."() {\n".$code."\n}\n";
                     $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator) {\n";
 		    		$printer .= "  global \$SERVER;\n";
@@ -247,6 +266,7 @@ class BuilderHandler
 		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
 		    		$printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
 		    		$printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
+		    		$printer .= "  \$arr_param[\"local\"] = array_merge(\$arr_param[\"local\"], \$arr_param);\n";
                     if ($arr_handler["flag_ajax"] == "1")
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
@@ -262,15 +282,7 @@ class BuilderHandler
                     $handlers[$arr_handler["event"]] = $arr_handler["html_code"];
                 }
                 if (is_array($arr_data)) foreach ($arr_data as $arr_d) {
-                	if (ENV_PRODUCTION !== true) {
-                		if ($bol_invoke["data"] == $arr_d["data_id"]) {
-                			$startDebug = "Debugger::breakpoint();";
-                		} else {
-                			$startDebug = "Debugger::wait();";
-                		}
-                		$arr_d["code"] = $startDebug.preg_replace('/(\{$)|(;$)/mi', "\\1\\2Debugger::wait(get_defined_vars());", $arr_d["code"]);
-                	}
-                	$data .= "\nfunction ".$arr_d["name"]."() {\n".$arr_d["code"]."\n}\n";
+                	$data .= "\nfunction ".$arr_d["name"]."() {\n".makeDebuggable($arr_d["code"], $bol_invoke["data"] == $arr_d["data_id"])."\n}\n";
                 }
                 $c = str_replace(
                 	Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/", "/*<JAVASCRIPT-INCLUDES>*/", "/*<CSS-INCLUDES>*/"),
@@ -1890,6 +1902,25 @@ class BuilderHandler
 			}
 			file_put_contents(".groups", implode("\n", $groupLines));
 			die("success");
+		}
+		die("error");
+	}
+	
+	function showLog() {
+		if ($_GET["log"]) {
+			$fp = fopen("log/".str_replace("../", "", $_GET["log"]), "r");
+			$file = Array();
+			while ($fp && !feof($fp)) {
+				array_unshift($file, fgets($fp, 100000));
+				$lines++;
+				if ($lines > 1000) {
+					array_pop($file);
+					$lines--;
+				}
+			}
+			fclose($fp);
+			$arr_param["file"] = $file;
+			return $this->_callPrinter("showLog", $arr_param);
 		}
 		die("error");
 	}

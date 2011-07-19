@@ -28,14 +28,20 @@ div.langtooltip {
 }
 
 .global-home-left-nav {
-	float: left;
-	width: 200px;
-	background-color: #efefef;
+	.dp20;
+	text-shadow: -1px -1px 1px #efefef;
+	#gradient>.vertical(#fff;#dddddd);
+	.box-shadow(2px 2px 10px #ccc);
 	border: 1px solid #369;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-	-o-border-radius: 10px;
+	.border-radius(10px);
 	padding: 10px;
+	text-align: center;
 	padding-top: 0px;
 	dt { margin-top: 20px; }
+	dl { text-align: left; clear: both; }
+}
+
+.global-home-content {
+	.dp50;
+	padding-left: 30px;
 }

@@ -39,7 +39,6 @@
 		<h2>Futher help:</h2>
 		<ul style="list-style-type: list;">
 			<li><a href="api/index.html" target="_api">API Documentation</a></li>
-			<li><a href="log/framework.log" target="_log">Log file</a></li>
 			<li><a href="javascript:(function(){var s=document.createElement('script');s.src='templates/builder/js/langhelper.js';document.body.appendChild(s);})();">CMS Helper Bookmarklet</a></li>
 		</ul>
 	</div>
@@ -394,6 +393,15 @@
 			id: "all",
 			text: "All Testcases"
 		}];
+		window.logs = [];
+		<? foreach ($arr_param["logs"] as $log) { ?>
+			logs.push({
+				text: "<?=$log?>",
+				handler: function() {
+					window.open("?event=builder:showLog&log=<?=$log?>", "logs");
+				}				
+			});
+		<? } ?>
 		window.searchReplaceForm = $("searchReplaceForm").cloneNode(true);
 		$("searchReplaceForm").remove();
 		

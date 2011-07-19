@@ -26,12 +26,12 @@ trace($str_msg, $bol_strace = false)</code>
 	<p>The first parameter represents the message to be written into the error log, the second parameter is optional. If set to true it will additionally write the current stack trace into the error log. Default is false. <code>fatal</code> log messages will additionally throw an exception.</p>
 	<p><strong>Example:</strong></p>
 	<code>
-	// first getting the global logger
+	// using the global logger
 	global $log;
 	$log->debug("This is just a test");
 	
-	// creating a custom logger
-	$myLog = new Logger("log/mycustom.log");
+	// creating a custom logger and writing an error log entry.
+	$myLog = new Logger("log/mycustom_");
 	$myLog->error("Let's see how an error looks like...");
 	</code>
 </body>

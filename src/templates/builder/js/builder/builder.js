@@ -43,11 +43,11 @@ window.Builder = Object.extend(window.Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 510,
+				width: 590,
 				border: false,
 				layout: "table",
 				cls: "header-nav",
-				layoutConfig: {columns: 4, tableAttrs: {style: {width: '100%'}}},
+				layoutConfig: {columns: 5, tableAttrs: {style: {width: '100%'}}},
 				region: "east",
 				items: [{
 					xtype: "button",
@@ -58,7 +58,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 					handler: function() {
 						showUserMgmt();	
 					}					
-				},{
+				}, {
 					xtype: "button",
 					id: "testresult",
 					style: "margin-right: 10px;",
@@ -223,7 +223,16 @@ window.Builder = Object.extend(window.Builder || {}, {
 							handler: function() {
 								Builder.queryTest();								
 							}
-						}] : null)
+						}, "-", (Builder.isDeveloper || Builder.isAdmin ? {
+							xtype: "button",
+							id: "logs",
+							style: "margin-right: 10px;",
+							iconCls: "handler",
+							text: "Log Files",
+							menu: {
+								items: window.logs
+							}
+						} : "")] : null)
 					}],
 					listeners: {
 						tabchange: function(tab, content) {
