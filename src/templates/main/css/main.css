@@ -18,6 +18,12 @@ div.langtooltip {
 	z-index:111111111;
 	padding: 5px 10px;
 	background: #ffc;
+	color: black;
+	font-family: Tahoma, sans-serif;
+	font-size: 11px;
+	line-height: 1.56em;
+	display: block;
+	margin: 0px;
 	margin-top:10px;
 	margin-left: 10px;
 	border: 1px solid #cca;
