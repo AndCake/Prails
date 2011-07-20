@@ -140,22 +140,24 @@ class BuilderHandler
     /*<EVENT-HANDLERS>*/
     function run($arr_param=null, $bol_invoke = true)
     {
-		function makeDebuggable($code, $addBreakpoint = false) {
-			if (ENV_PRODUCTION === true) return $code;
-      		if ($addBreakpoint) {
-				$debugStart = "Debugger::breakpoint();";
-      		} else {
-             	$debugStart = "Debugger::wait();";
-            }
-
-            $lines = explode("\n", $code);
-            foreach ($lines as $i=>$line) {
-            	if (preg_match("/(\{$)|(;$)/i", $line) && (preg_match("/(^|\s+)switch\s*\(/i", $line) ||
-            			(preg_match("/^\s*\{/i", $line) && preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
-						$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
-            	}
-            }
-            return $debugStart.implode("\n", $lines);			
+		if (!function_exists("makeDebuggable")) {
+			function makeDebuggable($code, $addBreakpoint = false) {
+				if (ENV_PRODUCTION === true) return $code;
+	      		if ($addBreakpoint) {
+					$debugStart = "Debugger::breakpoint();";
+	      		} else {
+	             	$debugStart = "Debugger::wait();";
+	            }
+	
+	            $lines = explode("\n", $code);
+	            foreach ($lines as $i=>$line) {
+	            	if (preg_match("/(\{$)|(;$)/i", $line) && (preg_match("/(^|\s+)switch\s*\(/i", $line) ||
+	            			(preg_match("/^\s*\{/i", $line) && preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
+							$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
+	            	}
+	            }
+	            return $debugStart.implode("\n", $lines);			
+			}
 		}
 		
     	if ($bol_invoke !== true) {
@@ -640,7 +642,7 @@ class BuilderHandler
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
         }
         
-        if ($_GET["handler_id"] <= 0) {
+        if ($_GET["handler_id"] <= 0 && $_GET["module_id"] > 0) {
         	$arr_param["handler"]["html_code"] = file_get_contents("templates/builder/php/output_empty.php");
         	$arr_param["handler"]["code"] = file_get_contents("templates/builder/php/handler_empty.php");
         }
