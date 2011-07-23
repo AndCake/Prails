@@ -55,7 +55,8 @@
 				handler: function(e) {
 					$('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').save();
 				}
-			},"-"]);			
+			},"-"]);
+			Ext.getCmp("portlet_content_t_<?=(int)$arr_param['tag']['tag_id']?>").getTopToolbar().doLayout();
 		}, 100);
 	//]]>
 	</script>

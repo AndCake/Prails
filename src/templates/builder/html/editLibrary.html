@@ -51,7 +51,8 @@
 				handler: function(e) {
 					$("hforml<?=(int)$arr_param['library']['library_id']?>").save();
 				}
-			},"-"]);			
+			},"-"]);
+			Ext.getCmp("portlet_content_l_<?=(int)$arr_param['library']['library_id']?>").getTopToolbar().doLayout();
 		}, 100);
 	//]]>
 	</script>

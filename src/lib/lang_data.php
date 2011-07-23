@@ -158,6 +158,9 @@ class LangData
 			} else {
 				$this->obj_sql->InsertQuery(tbl_prailsbase_texts, $entry);
 			}
+			if (strlen($text) < 1024) {
+          		$this->arr_item_cache[$arr_data["identifier"]] = $text;
+          	}			
 		}
 
 		return true;

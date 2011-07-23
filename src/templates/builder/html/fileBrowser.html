@@ -1,0 +1,227 @@
+<style type="text/css">
+	.history { background: transparent none top left no-repeat !important; }
+	.dir { 
+		background: transparent url(templates/builder/images/default/tree/folder.gif) center left no-repeat;
+		height: 16px;
+		line-height: 16px;
+		padding-left: 20px; 
+	} 
+	div.file {
+		background: transparent url(templates/builder/images/image.png) center left no-repeat;
+		height: 16px;
+		line-height: 16px;
+		padding-left: 20px; 		
+	}
+	img.file {
+		max-width: 128px;
+		max-height: 128px;
+		border: 1px solid #000;
+		background-color: white;
+		position: absolute;
+		z-index:1000;
+	}
+	.footer { border-top: 1px solid #ccc; padding-top: 5px; }
+	.footer .moptions { float: left; }
+	.footer .moptions button[onclick] {
+		position: relative;
+		top: -7px;
+	}
+	.footer .actions {
+		float: right;
+	}
+	#progress-indicator {
+		position: absolute; top: 50%;
+		left: 50%;
+		margin-left: -100px;
+		width: 200px;
+		border: 5px solid #414141;
+		height: 20px;
+		background-color: white;
+	}
+	#progress-indicator #progress {
+		background-color: orange;
+		height:100%;
+	}
+	.mtable {
+		height: 355px;
+		max-height: 355px;
+		overflow: auto;
+	}
+</style>
+<div class="mtable">
+<table id="file-table">
+	<thead>
+		<tr><th>File Name</th><th>File Size</th><th>Dimensions</th><th>Type</th><th>Last Modified</th></tr>
+	</thead>
+	<tbody>
+	<c:foreach var="files" name="file">
+		<tr>
+			<td width="220"><div class="#file.type">#file.name</div></td>
+			<td width="75"><%=round($file['size'] / 1024, 1)%> kB</td>
+			<td width="75">#file.dimensions</td>
+			<td width="120">#file.mime</td>
+			<td width="170">#file.lastModified[date]</td>
+		</tr>
+	</c:foreach>
+	</tbody>
+</table>
+</div>
+<div id="progress-indicator" style="display:none;">
+	<div id="progress"></div>
+</div>
+<div class="footer">
+	<div class="moptions">
+		<file multiple="multiple" progress="progress" onstart="$('progress-indicator').show();" target="?event=builder:fileBrowser&path=<%=$arr_param['path']%>&upload=1&name=" ondone="location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>';"><button>Upload Image(s)</button></file>
+		<button onclick="if (name=prompt('Enter folder name:')) {location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>&mkdir='+name;}">New Folder</button>
+		<button onclick="if(confirm('Do you really want to delete that item?')){window.FileBrowserDialogue.deleteItems();}">Delete Selected</button>
+	</div>
+	<div class="actions">
+		<button class="button" onclick="FileBrowserDialogue.mySubmit();">Apply</button>
+		<button class="button" onclick="tinyMCEPopup.close();">Cancel</button>
+	</div>
+	<clear></clear>
+</div>
+
+<script type="text/javascript" src="templates/main/js/tiny_mce/tiny_mce_popup.js"></script>
+<script type="text/javascript">
+Ext.ns('Ext.ux.grid');
+Ext.ux.grid.TableGrid = function(table, config){
+    config = config ||
+    {};
+    Ext.apply(this, config);
+    var cf = config.fields || [], ch = config.columns || [];
+    table = Ext.get(table);
+    
+    var ct = table.insertSibling();
+    
+    var fields = [], cols = [];
+    var headers = table.query("thead th");
+    for (var i = 0, h; h = headers[i]; i++) {
+        var text = h.innerHTML;
+        var name = 'tcol-' + i;
+        
+        fields.push(Ext.applyIf(cf[i] || {}, {
+            name: name,
+            mapping: 'td:nth(' + (i + 1) + ')/@innerHTML'
+        }));
+        
+        cols.push(Ext.applyIf(ch[i] || {}, {
+            'header': text,
+            'dataIndex': name,
+            'width': h.offsetWidth,
+            'tooltip': h.title,
+            'sortable': true
+        }));
+    }
+    
+    var ds = new Ext.data.Store({
+        reader: new Ext.data.XmlReader({
+            record: 'tbody tr'
+        }, fields)
+    });
+    
+    ds.loadData(table.dom);
+    
+    var cm = new Ext.grid.ColumnModel(cols);
+    
+    if (config.width || config.height) {
+        ct.setSize(config.width || 'auto', config.height || 'auto');
+    }
+    else {
+        ct.setWidth(table.getWidth());
+    }
+    
+    if (config.remove !== false) {
+        table.remove();
+    }
+    
+    Ext.applyIf(this, {
+        'ds': ds,
+        'cm': cm,
+        'sm': new Ext.grid.RowSelectionModel(),
+        autoHeight: true,
+        autoWidth: false
+    });
+    Ext.ux.grid.TableGrid.superclass.constructor.call(this, ct, {});
+};
+
+Ext.extend(Ext.ux.grid.TableGrid, Ext.grid.GridPanel);
+
+var FileBrowserDialogue = {
+    init : function () {
+    	Ext.override(Ext.grid.GridView, {
+    		onRowOver : function(e, t){
+	    		var row;
+	    		if ((row = this.findRowIndex(t)) !== false) {
+	    			this.addRowClass(row, "x-grid3-row-over");
+	    		}
+	
+	    		if (t.hasClassName("file")) {
+	          		var el = new Element("img", {src: "<%=$arr_param['base']%>"+t.innerHTML, className: "file"});
+	          		el.style.left = (t.cumulativeOffset().left+20)+"px";
+	          		el.style.top = (t.cumulativeOffset().top+20)+"px";
+	          		t.preview = el;
+	          		document.body.appendChild(el);	    			
+	    		}
+    		},
+    		onRowOut : function(e, t) {
+	    		var row;
+	    		if ((row = this.findRowIndex(t)) !== false) {
+	    			this.removeRowClass(row, "x-grid3-row-over");
+	    		}
+
+	    		if (t.hasClassName("file") && t.preview) {
+	    			t.preview.remove();
+	    		}
+    		}
+    	});
+        window.FileBrowserDialogue.grid = new Ext.ux.grid.TableGrid($("file-table"), {height: 355, listeners: {
+        	rowdblclick: function(grid, rowIdx, e) {
+        		var rec = window.FileBrowserDialogue.grid.getSelectionModel().getSelected();
+        		if (rec.data["tcol-0"].indexOf('"dir"') >= 0) {
+        			location.href='?event=builder:fileBrowser&path=<%=$arr_param["path"]%>'+rec.data["tcol-0"].replace(/<[^>]+>/gi, '')+"/";
+        		} else {
+        			FileBrowserDialogue.mySubmit();
+        		}
+        	}
+        }});
+    },
+    mySubmit : function () {
+    	var rec = window.FileBrowserDialogue.grid.getSelectionModel().getSelected();
+    	var URL = "<%=$arr_param['base']%>"+rec.data["tcol-0"].replace(/<[^>]+>/gi, ''); 
+        var win = tinyMCEPopup.getWindowArg("window");
+
+        // insert information now
+        win.document.getElementById(tinyMCEPopup.getWindowArg("input")).value = URL;
+
+        // are we an image browser
+        if (typeof(win.ImageDialog) != "undefined") {
+            // we are, so update image dimensions...
+            if (win.ImageDialog.getImageData)
+                win.ImageDialog.getImageData();
+
+            // ... and preview if necessary
+            if (win.ImageDialog.showPreviewImage)
+                win.ImageDialog.showPreviewImage(URL);
+        }
+
+        // close popup window
+        tinyMCEPopup.close();
+    },
+    deleteItems: function() {
+    	var sels = window.FileBrowserDialogue.grid.getSelectionModel().getSelections();
+    	window.FileBrowserDialogue.deleting = 0;
+    	$A(sels).each(function(rec) {
+        	window.FileBrowserDialogue.deleting++;
+    		invoke(null, "builder:fileBrowser&path=<%=$arr_param['path']%>&delete="+rec.data['tcol-0'].replace(/<[^>]+>/gi, ''), null, false, function(){
+    			window.FileBrowserDialogue.deleting--;
+    			if (window.FileBrowserDialogue.deleting <= 0) {
+    	        	location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>';    	    		    				
+    			}
+    		});
+    	});
+    }
+}
+
+tinyMCEPopup.onInit.add(FileBrowserDialogue.init, FileBrowserDialogue);
+</script>

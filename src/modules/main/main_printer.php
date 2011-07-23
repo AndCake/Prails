@@ -22,10 +22,10 @@ class MainPrinter
     function MainPrinter($str_lang)
     {
         $obj_gen = Generator::getInstance();
-	if (IS_SETUP) {
+		if (IS_SETUP) {
 	        $this->obj_lang = new LangData($str_lang);
 	        $obj_gen->setLanguage($str_lang);
-	}
+		}
 
         /*<CSS-INCLUDES>*/
         $obj_gen->addStyleSheet("templates/main/css/main.css");
@@ -38,7 +38,6 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/prototype.js");
         $obj_gen->addJavaScript("templates/main/js/s2.js");
         $obj_gen->addJavaScript("templates/main/js/modernizr-1.7.min.js");
-        $obj_gen->addJavaScript("templates/main/js/nicedit.js");
         $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/fileselector.js");
         $obj_gen->addJavaScript("templates/main/js/validator.js");
@@ -69,12 +68,11 @@ class MainPrinter
     }
     
     function cmsHandler($arr_param) {
-        
         $decorator = "<!--[content]-->";
         if (strlen($arr_param["text"]["decorator"]) > 0) {
             $decorator = invoke($arr_param["text"]["decorator"]);
         }
-
+        
 		if (strlen($arr_param["text"]["title"]) > 0) {
 			Generator::getInstance()->setTitle($arr_param['text']['title']);
 		}

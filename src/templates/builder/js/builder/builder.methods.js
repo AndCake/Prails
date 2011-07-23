@@ -85,11 +85,18 @@ Builder = Object.extend(Builder || {}, {
 		target.shortcuts = shortcuts;
 		target.observe("keyup", function(event) {
 			this.shortcuts.each(function(item) {
-				var key = (!isNaN(parseInt(item.key)) ? item.key : item.key.toUpperCase().charCodeAt(0));	
-				if (event.shiftKey && event.ctrlKey && event.keyCode == key) {
-					event.stop();
-					item.callback(event);
-				};
+				var key = (!isNaN(parseInt(item.key)) ? item.key : item.key.toUpperCase().charCodeAt(0));
+				if (item.alt) {
+					if (event.altKey && event.ctrlKey && event.keyCode == key) {
+						event.stop();
+						item.callback(event);
+					};
+				} else {
+					if (event.shiftKey && event.ctrlKey && event.keyCode == key) {
+						event.stop();
+						item.callback(event);
+					};
+				}
 			});
 		}.bindAsEventListener(target));
 	},
@@ -269,6 +276,24 @@ Builder = Object.extend(Builder || {}, {
             			event.cancelBubble = true;
             		} catch(e){};
             		return false;
+            	} else if (event.ctrlKey && event.altKey) {
+            		if (event.keyCode == 39) {
+            			Builder.nextTab(event);
+            		} else if (event.keyCode == 37) {
+            			Builder.previousTab(event);
+            		}
+            	} else if (event.ctrlKey && event.shiftKey) {
+            		if (event.keyCode == "D".charCodeAt(0)) {
+            			Builder.quickOpen();
+            		} else if (event.keyCode == "A".charCodeAt(0)) {
+    					Builder.queryTest();
+            		} else if (event.keyCode == "Q".charCodeAt(0)) {
+            			if (!win.parent.closed) {
+            				win.parent.closed = true;
+                			Builder.closeCurrentTab();  
+                			setTimeout(function() {win.parent.closed = false;}, 100);
+            			}
+            		}            		
             	}
             };
             

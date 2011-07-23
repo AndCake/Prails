@@ -1,6 +1,6 @@
 <div id="rm_#resource.resource_id[int]_mediator_container" style="">
 <div style="padding:20px;">
-	<form method="post" action="?event=builder:editResource&resource_id=#resource.resource_id[int]&check=1" id="resForm#resource.resource_id[int]" callback="uploaded()">
+	<form method="post" action="?event=builder:editResource&module_id=#session.module_id&resource_id=#resource.resource_id[int]&check=1" id="resForm#resource.resource_id[int]" callback="uploaded()">
 		<div style="float:left;">
 			<label for="name">Name of resource</label><br/>
 			<input type="text" name="resource[name]" value="#resource.name" style="width:200px;" />
@@ -12,7 +12,7 @@
 		<br/>
 		<label>Change Image</label><br/>
 		<FileSelector name="resource[file]" value="#resource.name" class="upload" form="resForm#resource.resource_id[int]">
-			<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&resource_id=#resource.resource_id" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){setImageSizes#resource.resource_id[int](me);}, 100);" />
+			<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&module_id=#session.module_id&resource_id=#resource.resource_id" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){setImageSizes#resource.resource_id[int](me);}, 100);" />
 		</FileSelector>
 		<? if ($arr_param["resource"]["resource_id"] > 0) { ?>
 		<br/>
@@ -40,7 +40,7 @@
 
 				FileSelector.find();
 				var mybar = Ext.getCmp("rm_#session.module_id_container").getTopToolbar();
-				while (mybar.tr.children.length > 0) { 
+				while (mybar && mybar.tr && mybar.tr.children && mybar.tr.children.length > 0) { 
 					mybar.tr.removeChild(mybar.tr.childNodes[0]);
 				}
 				Ext.getCmp("rm_#session.module_id_container").getTopToolbar().add({
@@ -48,7 +48,7 @@
 						text: "Save",
 						iconCls: "save",
 						handler: function(e) {
-							invoke(null, 'builder:editResource&resource_id=#resource.resource_id[int]&check=1', $("resForm#resource.resource_id[int]").serialize(), true, function(req){
+							invoke(null, 'builder:editResource&module_id=#session.module_id&resource_id=#resource.resource_id[int]&check=1', $("resForm#resource.resource_id[int]").serialize(), true, function(req){
 								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 								if (#resource.resource_id[int] == 0) {
 									Builder.reloadTab("rm_#session.module_id");
@@ -60,6 +60,7 @@
 							});						
 						}
 				},"-");
+				mybar.doLayout();
 			})();
 		//]]>
 		</script>		

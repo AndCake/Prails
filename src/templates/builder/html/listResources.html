@@ -66,8 +66,8 @@
 				]
 			})
 		);
-		Ext.getCmp("portlet_content_rm_#session.module_id").doLayout();
 		
+		var c;
 		<c:foreach var="resources" name="resource">
 			c = new Ext.tree.TreeNode({
 				text: "#resource.name",
@@ -78,6 +78,7 @@
 			});
 			r.appendChild(c);
 		</c:foreach>
+		Ext.getCmp("portlet_content_rm_#session.module_id").doLayout();
 	})();
 //]]>
 </script>

@@ -28,35 +28,10 @@ class Cacheable {
 		if (!is_dir($this->cachePath)) {
 			@mkdir($this->cachePath);
 		}
-		if (function_exists("shm_attach")) {
-			$fname = "shmcache";
-			$i = 0;
-			do {
-				touch($this->cachePath.$fname.$i);
-		        $key = ftok(realpath("cache/".$fname.$i), 'p');
-		        $shm = shm_attach($key, DB_CACHE_SIZE);
-		        if($shm === null) {
-		        	@unlink($this->cachePath.$fname.$i);
-		        } else {
-		        	array_push($this->shmId, $shm);
-		        }
-		        $i++;
-			} while ($i < 8);
-			$this->shmLen = count($this->shmId);
-	        foreach ($this->shmId as $shm) {
-		        $counter = $this->_get($shm, 1);
-		        if (!$counter) $counter = 0;		
-		        $this->_set($shm, 1, $counter + 1);
-	        }
-		}
 		
-		if ($this->shmLen > 0) {
-			$this->shmMode = true;
-		} else {
-			array_push($this->shmId, "fs");
-			if (!is_dir($this->cachePath."fs"))	@mkdir($this->cachePath."fs");
-			$this->shmLen = count($this->shmId);
-		}
+		array_push($this->shmId, "fs");
+		if (!is_dir($this->cachePath."fs"))	@mkdir($this->cachePath."fs");
+		$this->shmLen = count($this->shmId);
 		
 		if (!$this->_exists($this->shmId[0], 101)) {
 			$this->_set($this->shmId[0], 101, Array());
@@ -64,113 +39,40 @@ class Cacheable {
 	}
 	
 	function _exists($pos, $var) {
-		if ($this->shmMode) {
-			if ($pos !== null) {
-				return shm_has_var($pos, $var);
-			}
-		} else {
-            $name = $this->cachePath . $pos . "/" . $var;
-            return (file_exists($name));
-		}
+		$name = $this->cachePath . $pos . "/" . $var;
+        return (file_exists($name));
 	}
 	
 	function _set($pos, $var, $val, $tryAgain = true) {
-		if ($this->shmMode) {
-			if ($pos !== null) {
-				shm_put_var($pos, $var, $val); 
-				if (false && !shm_put_var($pos, $var, $val) && $tryAgain) {
-					// sort the list of data in cache by usage rate
-					//uasort($metaMap, create_function('$a, $b', 'if ($a["used"] == $b["used"]) return 0; else if ($a["used"] < $b["used"]) return -1; else return 1;'));
-					// remove a random number of least used cache entries
-					//$goal = rand(1, 5);foreach ($metaMap as $cvar => $cacheEntry) { $this->_remove($pos, $cvar); if ($i > $goal) break; }
-					// if we were unable to set the var, try flushing and rebuilding the cache
-					$this->flush();
-					$this->_init();
-					$this->_set($pos, $var, $val, false);
-				}
-//				if ($var != 101) {
-//					$metaMap = shm_get_var($pos, 102);
-//					if (!is_array($metaMap)) $metaMap = Array();
-//					$metaMap["_".$var] = Array(
-//						"used" => 1,
-//						"added" => $_SERVER["REQUEST_TIME"]
-//					);
-//					shm_put_var($pos, 102, $metaMap);
-//				}
-			}
-		} else {
-            $name = $this->cachePath . $pos . "/" . $var;
-			file_put_contents($name, serialize($val), LOCK_EX);
-		}
+        $name = $this->cachePath . $pos . "/" . $var;
+		file_put_contents($name, serialize($val), LOCK_EX);
 	}
 	
 	function _get($pos, $var) {
-		if ($this->shmMode) {
-			if ($pos !== null) {
-//				$metaMap = shm_get_var($pos, 102);
-//				$metaMap["_".$var]["used"]++;
-//				shm_put_var($pos, 102, $metaMap);
-				return shm_get_var($pos, $var);
-			}
-			return null;			
-		} else {
-            $name = $this->cachePath . $pos . "/" . $var;
-			return @unserialize(file_get_contents($name));
-		}
+        $name = $this->cachePath . $pos . "/" . $var;
+		return @unserialize(file_get_contents($name));
 	}
 	
 	function _remove($pos, $var) {
 		if ($this->_exists($pos, $var)) {
-			if ($this->shmMode) {
-				if ($pos !== null) {
-					shm_remove_var($pos, $var);
-				}
-			} else {
-	            $name = $this->cachePath . $pos . "/" . $var;
-				@unlink($name);
-			}
+            $name = $this->cachePath . $pos . "/" . $var;
+			@unlink($name);
 		}
 	}
 	
 	function __sleep(){
-		if ($this->shmMode) foreach ($this->shmId as $shm) {
-			shm_detach($shm);
-	        shm_put_var($shm, 1, shm_get_var($shm, 1) - 1);
-        }
     }
     	
 	function __destruct(){
-        if ($this->shmMode) foreach ($this->shmId as $shm) {
-			shm_detach($shm);
-	        shm_put_var($shm, 1, shm_get_var($shm, 1) - 1);
-        }
 	}
 
 	function __wakeup(){
-		if ($this->shmMode)  {
-			$fname = "shmcache";
-			$i = 0;
-			do {
-		        $key = ftok(realpath($this->cachePath.$fname.$i), 'p');
-		        $this->shmId[$i] = shm_attach($key, DB_CACHE_SIZE);
-	        	shm_put_var($this->shmId[$i], 1, shm_get_var($this->shmId[$i], 1) + 1);
-			} while ($i < 8);
-		}
     }
     
     function flush() {
-    	if ($this->shmMode) {
-    		foreach ($this->shmId as $shm) {
-    			if ($shm !== null) {
-	    			shm_remove($shm);
-	    			shm_detach($shm);
-    			}
-    		}
-    	} else {
-    		foreach ($this->shmId as $shm) {
-    			removeDir($this->cachePath.$shm, true);
-    		}
-    	}
+   		foreach ($this->shmId as $shm) {
+   			removeDir($this->cachePath.$shm, true);
+   		}
     }
     	
 	protected function cleanCacheBlock($str_query, $prefix = false) {

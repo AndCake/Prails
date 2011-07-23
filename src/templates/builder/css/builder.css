@@ -3,10 +3,13 @@ div#qwbuilder_handlerPanel {
 }
 
 div#qwbuilder_headerPanel {
-	background: #efefef url(../images/slate/panel/white-top-bottom.gif) top left repeat-x;
-	color: #fff;
+	#gradient>.vertical(#fff; #EFEBE7);
+	color: #414141;
+	text-shadow: -1px -1px 1px white;
 	font-weight: bold;
 	padding:5px;
+	font-size: 140%;
+//	border-bottom: 1px solid #A29587;
 }
 
 div#qwbuilder_headerPanel .x-panel-body {
@@ -209,6 +212,10 @@ body .CodeMirror-line-numbers {
 .scheduler .form-entry .value.radiogroup { width: 250px; }
 .scheduler .form-entry .value.radiogroup .radio { float:left; padding-bottom: 5px; width: 75px; }
 .scheduler .form-entry .value.radiogroup .radio label { display:inline; }
+.x-form-trigger.x-form-arrow-trigger { margin-top: 2px; }
+.x-layout-collapsed, #sb_panel { margin-top: 5px; }
+.x-tab-panel-header { border-bottom: 0px; }
+.x-panel-tbar-noheader .x-toolbar, .x-panel-mc .x-panel-tbar .x-toolbar { border-width: 0px; border-bottom: 1px solid #A29587; }
 
 a.builder-help {
 	display: inline-block;

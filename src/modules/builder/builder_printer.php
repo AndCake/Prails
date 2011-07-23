@@ -30,6 +30,7 @@ class BuilderPrinter
         {
         	$obj_gen->addJavaScript("templates/main/js/prototype.js");
         	$obj_gen->addJavaScript("templates/main/js/s2.js");
+        	$obj_gen->addJavaScript("templates/builder/js/ext-base.js");
             $obj_gen->addJavaScript("templates/builder/js/ext.js");
             $obj_gen->addJavaScript("templates/builder/js/ext.ux/ux.util.js");
 
@@ -49,7 +50,7 @@ class BuilderPrinter
        	    $obj_gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
-            $obj_gen->addStyleSheet("templates/builder/css/xtheme-slate.css");
+            $obj_gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
             $obj_gen->addJavaScript("templates/builder/js/codemirror.js");
             $obj_gen->addJavaScript("templates/builder/js/mirrorframe.js");
             $obj_gen->addStyleSheet("templates/builder/css/builder.css");
@@ -160,27 +161,33 @@ class BuilderPrinter
     }
 	
 	function listTestcase($arr_param) {
-        $arr_param["session"] = $_SESSION;
+        $arr_param["session"] = &$_SESSION;
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/listTestcase.html", $arr_param, false);		
 	}
 	
 	function editTestcase($arr_param) {
-        $arr_param["session"] = $_SESSION;
+        $arr_param["session"] = &$_SESSION;
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/editTestcase.html", $arr_param, false);		
 	}
 	
 	function debug($arr_param) {
-        $arr_param["session"] = $_SESSION;
+        $arr_param["session"] = &$_SESSION;
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
 	}
 
 	function showLog($arr_param) {
-        $arr_param["session"] = $_SESSION;
+        $arr_param["session"] = &$_SESSION;
         Generator::getInstance()->setIsAjax(true);
         return Generator::getInstance()->includeTemplate("templates/builder/html/showLog.html", $arr_param, false);		
+	}
+	
+	function fileBrowser($arr_param) {
+        $arr_param["session"] = &$_SESSION;
+        Generator::getInstance()->setTitle("Media Browser");
+        return Generator::getInstance()->includeTemplate("templates/builder/html/fileBrowser.html", $arr_param, false);
 	}
 /*</PRINTER-METHODS>*/
 }

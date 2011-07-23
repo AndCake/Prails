@@ -3,12 +3,12 @@
  */
 Builder = Object.extend(Builder || {}, {
 	editTestcases: function(n) {
-		Builder.addTab("?event=builder:listTestcase&fetch="+n.id+"", n.text, "tc_"+n.id, "testcase");
+		Builder.addTab("?event=builder:listTestcase&module_id="+n.id+"&fetch="+n.id+"", n.text, "tc_"+n.id, "testcase");
 	},
 	
 	editTestcase: function(n, mid) {
 		var id = (""+n.id).split(/_/g)[1];
-		var url = "?event=builder:editTestcase&testcase_id="+id+"&module_id="+mid; 
+		var url = "?event=builder:editTestcase&testcase_id="+id+"&module_id="+mid;
 		Ext.getCmp("tc_"+mid+"_container").load({
 			url: url,
 			timeout: 30,

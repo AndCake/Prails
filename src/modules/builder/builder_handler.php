@@ -268,7 +268,7 @@ class BuilderHandler
 		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
 		    		$printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
 		    		$printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
-		    		$printer .= "  \$arr_param[\"local\"] = array_merge(\$arr_param[\"local\"], \$arr_param);\n";
+		    		$printer .= "  \$arr_param[\"local\"] = array_merge(if_set(\$arr_param[\"local\"], Array()), \$arr_param);\n";
                     if ($arr_handler["flag_ajax"] == "1")
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
@@ -1782,6 +1782,7 @@ class BuilderHandler
 	}
 	
 	function editTestcase() {
+		$_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 		$_SESSION["testcase_id"] = $_GET["testcase_id"] = if_set($_GET["testcase_id"], $_SESSION["testcase_id"]);
 		
 		if ($_GET["check"] == "1") {
@@ -1930,6 +1931,57 @@ class BuilderHandler
 			return $this->_callPrinter("showLog", $arr_param);
 		}
 		die("error");
+	}
+	
+	function fileBrowser() {
+		
+		$base = "static/images/";
+		
+		if ($_GET["path"]) {
+			$rb = realpath($base);
+			$_GET["path"] = str_replace($rb."/", "", realpath($base.trim($_GET["path"], "/"))."/");
+			$base .= $_GET["path"];
+		}
+		
+		if ($_GET["upload"] == "1") {
+			$file = receiveFile($_GET["name"], $base);
+		} else if (strlen($_GET["mkdir"]) > 0) {
+			$name = preg_replace('/[^a-zA-Z0-9._\-]/', '', $_GET["mkdir"]);
+			@mkdir($base.$name, 0755, true);
+		} else if (strlen($_GET["delete"]) > 0 && $_GET["delete"] != "..") {
+			if (is_file($base.$_GET["delete"])) {
+				@unlink($base.$_GET["delete"]);
+			} else {
+				removeDir($base.$_GET["delete"], true);
+			}
+		}
+		
+		$dp = opendir($base);
+		$arr_param["base"] = $base;
+		if ($_GET["path"]) {
+			$arr_param["path"] = trim($_GET["path"], "/")."/";
+		}
+		$arr_param["files"] = Array();
+		while (($file = readdir($dp)) !== false) {
+			if ($file[0] != "." || ($file == ".." && $base != "static/images/")) {
+				$dim = "-";
+				$size = "-";
+				$mime = "Folder";
+				if (is_file($base.$file)) {
+					$mime = mime_content_type($base.$file);
+					if (strpos($mime, "image/") !== false) {
+						list($width, $height) = getimagesize($base.$file);
+						$dim = $width."x".$height; 
+					}
+					$size = filesize($base.$file);
+				}
+				$arr_param["files"][] = Array("type" => (is_dir($base.$file) ? "dir" : "file"), "name" => $file, "size" => $size, "mime" => $mime, "lastModified" => filemtime($base.$file), "dimensions" => $dim);
+			}
+		}
+		usort($arr_param["files"], create_function('$a,$b', 'if($a["type"] == "dir" && $b["type"] == "file")return -1;else if ($b["type"] == "dir" && $a["type"] == "file")return 1; return strcmp($a["name"],$b["name"]);'));
+		closedir($dp);
+		
+		return $this->_callPrinter("fileBrowser", $arr_param);
 	}
 
 /*</EVENT-HANDLERS>*/

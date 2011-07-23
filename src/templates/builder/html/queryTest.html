@@ -270,6 +270,7 @@
 					window.runQuery("SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
 				}
 			}]);
+			Ext.getCmp("portlet_content_query_test").getTopToolbar().doLayout();
 			Ext.QuickTips.init();
 			window.sqlQuery = CodeMirror.fromTextArea('query', {
 				height: "100%",
@@ -312,7 +313,13 @@
 			    autoSizeColumn: function(c) {
 			        var col = this.view.el.select("td.x-grid3-td-" + this.colModel.getColumnId(c) + " div:first-child");
 			        if (col) {
-			            var w = col.getTextWidth() + Ext.get(col.elements[0]).getFrameWidth('lr') + 2;
+			        	 	var i, e, els = col.elements, result = 0;
+					        for(i = 0; e = Ext.get(els[i]); i++) {
+					            result = Math.max(result, e.getTextWidth.apply(e, []));
+					        }
+					        gtw = result;
+					        
+			            var w = gtw + Ext.get(col.elements[0]).getFrameWidth('lr') + 2;
 			            this.colModel.setColumnWidth(c, w);
 			            return w;
 			        }

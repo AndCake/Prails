@@ -11,7 +11,7 @@ class CSSLib {
 		$this->styles = $styles;
 		$this->prefix = md5(implode("", $styles));
 		if (IS_SETUP) {
-			$this->obj_sql = new TblClass("tbl_prailsbase_");
+			$this->obj_sql = new Database("tbl_prailsbase_");
 		}
 	}
 	
@@ -123,12 +123,13 @@ class CSSLib {
 		if (count($matches[3]) > 0) {
 			foreach ($matches[3] as $key=>$match) {
 				$matches[0][$key] = preg_replace('/(([^{;]+(\{|;)))/', "", $matches[0][$key]);
+				$matches[0][$key] = trim($matches[0][$key], "}");
 				$oMatch = $match;
 				$match = trim(str_replace("'", '', str_replace('"', "", $match)));
 				// check if it is an image
 				if (strpos($match, ".png") !== false || strpos($match, ".gif") !== false ||
 					strpos($match, ".jpg") !== false || strpos($match, ".jpeg") !== false) {
-					preg_match('@templates/([^/0-9]+)([0-9]*).*/images/(.*)$@', $match, $pats);
+					preg_match('@templates/([^/0-9]+)([0-9]*).*/images/([^)]+)$@', $match, $pats);
 					if (strlen($pats[1]) > 0 && ($pats[1] != "builder" && $pats[1] != "main")) {
 						$file = @array_pop($this->obj_sql->SqlQuery("SELECT a.* FROM tbl_prailsbase_resource AS a, tbl_prailsbase_module AS b WHERE a.name='".$pats[3]."' AND LOWER(b.name)='".$pats[1]."' AND b.module_id=a.fk_module_id"));
 						// apply inline-images just for smaller images (each less than 128kB in Base64)
@@ -140,6 +141,7 @@ class CSSLib {
 							$headerArea .= trim($file["data"])."\r\n";
 							$newUrl = "\"data:".$file["type"].";base64,".trim($file["data"])."\"";
 							$newUrl2 = "mhtml:".$SERVER.str_replace(".css", ".header.css", $path)."!".$id;
+
 							$line = "\t".str_replace($oMatch, $newUrl, trim($matches[0][$key])).";\n";
 							$line .= "\t".str_replace($oMatch, $newUrl2, "*".trim($matches[0][$key])).";\n";
 							$css = str_replace($matches[0][$key], $line, $css);
@@ -192,7 +194,7 @@ class CSSLib {
 		while (!feof($fp)) {
 			$css = fgets($fp, 4096);
 			
-            if ($bol_minify) {
+			if ($bol_minify) {
             	$css = $this->minifyCSS($css);
     	    }
 			
@@ -203,6 +205,7 @@ class CSSLib {
 			} else {
 				$headerArea = "";
 			}
+           			
 			fwrite($pp, $css);
 			fwrite($hp, $headerArea);
 			gzwrite($gp, $css);

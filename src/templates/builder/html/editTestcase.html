@@ -118,7 +118,8 @@
 			handler: function(e) {
 				Builder.runTestcase({id: "c_#testcase.testcase_id"}, $("testcase_name_#testcase.testcase_id").getValue());
 			}
-		});			
+		});		
+		Ext.getCmp("tc_<?=(int)$_SESSION['module_id']?>_container").getTopToolbar().doLayout();		
 	})();
 	//]]>
 </script>

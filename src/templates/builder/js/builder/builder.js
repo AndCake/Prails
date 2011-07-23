@@ -33,7 +33,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			id: "qwbuilder_headerPanel",
 			region: "north",
 			layout: "border",
-			height: 30,
+			height: 35,
 			xtype: "panel",
 			border: false,
 			items: [{
@@ -43,11 +43,11 @@ window.Builder = Object.extend(window.Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 590,
+				width: 488,
 				border: false,
 				layout: "table",
 				cls: "header-nav",
-				layoutConfig: {columns: 5, tableAttrs: {style: {width: '100%'}}},
+				layoutConfig: {columns: 4, tableAttrs: {style: {width: '100%'}}},
 				region: "east",
 				items: [{
 					xtype: "button",
@@ -881,7 +881,8 @@ window.Builder = Object.extend(window.Builder || {}, {
 		});
 		
 		Builder.registerShortCut(document, [{
-			key: Event.KEY_LEFT, 
+			key: Event.KEY_LEFT,
+			alt: true,
 			callback: Builder.previousTab = function(e){
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				var cactive = spanel.getActiveTab();
@@ -897,6 +898,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			}
 		},{
 			key: Event.KEY_RIGHT,
+			alt: true,
 			callback: Builder.nextTab = function(e) {
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				var cactive = spanel.getActiveTab();
@@ -906,7 +908,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 						next = key + 1;
 					}
 				}.bind(cactive));
-				if (next >= 0) {
+				if (next >= 0 && next < spanel.items.length) {
 					spanel.setActiveTab(next);
 				}
 			}
