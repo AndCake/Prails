@@ -270,7 +270,7 @@ class Generator {
 
 		$cssLib = new CSSLib($styles);
 		$cssLib->cleanOldCache();
-		$path = $cssLib->mergeStyles(/*ENV_PRODUCTION === */true, CSS_EMBED_RESOURCES);
+		$path = $cssLib->mergeStyles(ENV_PRODUCTION === true, CSS_EMBED_RESOURCES);
 
 		$str_styles .= "<link rel='stylesheet' type='text/css' media='screen' href='".str_replace('http:', '', $SERVER).$path."' />\n";
 		$str_styles .= "<!--[if lte IE 7]><link rel='stylesheet' media='screen' href='".str_replace('http:', '', $SERVER).str_replace(".css", ".header.css", $path)."' /><![endif]-->";
