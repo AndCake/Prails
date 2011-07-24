@@ -194,6 +194,7 @@ Builder = Object.extend(Builder || {}, {
 	 */
     applyBespin: function(el, fn, obj) {
 		el = $(el);
+		el.setStyle("-ms-transition:all 0.5s ease-out;-o-transition:all 0.5s ease-out;-moz-transition:all 0.5s ease-out;-webkit-transition:all 0.5s ease-out;");
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
@@ -269,6 +270,8 @@ Builder = Object.extend(Builder || {}, {
             pl.win = win;
             win.document.body.onkeyup = function(event) {
             	if (!event) event = win.event;
+    			Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = win.id;
+    			window.focus();
             	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
             		win.parent.Builder.searchInBespin(win);
             		try {
@@ -292,6 +295,11 @@ Builder = Object.extend(Builder || {}, {
             				win.parent.closed = true;
                 			Builder.closeCurrentTab();  
                 			setTimeout(function() {win.parent.closed = false;}, 100);
+                    		try {
+                    			event.stopPropagation();
+                    			event.cancelBubble = true;
+                    		} catch(e){};
+                    		return false;
             			}
             		}            		
             	}
@@ -330,6 +338,20 @@ Builder = Object.extend(Builder || {}, {
     getCode: function(el) {
         el = $(el);
         return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value;
+    },
+    
+    focusBespin: function(el) {
+    	el = $(el);
+    	el.setStyle("box-shadow: 0px 0px 10px #db0;");//.morph("border: 1px solid #ccc;");
+    	setTimeout(function() {
+    		el.setStyle("box-shadow:0px 0px 0px #db0");
+    	}, 1000);
+    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
+    },
+    
+    blurBespin: function(el) {
+    	el = $(el);
+    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = false;
     },
     
     enableBespin: function(el) {
@@ -419,7 +441,11 @@ Builder = Object.extend(Builder || {}, {
 				}
 			}, "-", {
 				text: "Close",
-				handler: function() { window.sarwin.destroy(); }
+				handler: function() {
+					var hf = Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus;
+        			hf && Builder.focusBespin(hf);
+					window.sarwin.destroy();
+				}
 			}]
 		});
 		window.sarwin.show();

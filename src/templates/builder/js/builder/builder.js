@@ -894,6 +894,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 				}.bind(cactive));
 				if (prev >= 0) {
 					spanel.setActiveTab(prev);
+					spanel.getActiveTab().el.dom.hasFocus && Builder.focusBespin(spanel.getActiveTab().el.dom.hasFocus);
 				}
 			}
 		},{
@@ -910,6 +911,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 				}.bind(cactive));
 				if (next >= 0 && next < spanel.items.length) {
 					spanel.setActiveTab(next);
+					spanel.getActiveTab().el.dom.hasFocus && Builder.focusBespin(spanel.getActiveTab().el.dom.hasFocus);
 				}
 			}
 		},{
@@ -918,6 +920,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 				var spanel = Ext.getCmp("qwbuilder_startupPanel");
 				if (spanel.getActiveTab().initialConfig.closable) {
 					spanel.remove(spanel.getActiveTab());
+					spanel.getActiveTab().el.dom.hasFocus && Builder.focusBespin(spanel.getActiveTab().el.dom.hasFocus);
 				}
 			}
 		},{
