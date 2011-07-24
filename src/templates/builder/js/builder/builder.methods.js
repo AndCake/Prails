@@ -346,6 +346,7 @@ Builder = Object.extend(Builder || {}, {
     	setTimeout(function() {
     		el.setStyle("box-shadow:0px 0px 0px #db0");
     	}, 1000);
+    	document.getElementsByName(el.id)[0].contentWindow.focus();
     	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
     },
     
