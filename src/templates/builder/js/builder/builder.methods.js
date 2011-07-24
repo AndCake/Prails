@@ -271,7 +271,6 @@ Builder = Object.extend(Builder || {}, {
             win.document.body.onkeyup = function(event) {
             	if (!event) event = win.event;
     			Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = win.id;
-    			window.focus();
             	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
             		win.parent.Builder.searchInBespin(win);
             		try {
@@ -280,6 +279,7 @@ Builder = Object.extend(Builder || {}, {
             		} catch(e){};
             		return false;
             	} else if (event.ctrlKey && event.altKey) {
+        			window.focus();
             		if (event.keyCode == 39) {
             			Builder.nextTab(event);
             		} else if (event.keyCode == 37) {
