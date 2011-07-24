@@ -1,3 +1,33 @@
+V1.1.0 (July 24th, 2011)
+
+* added user management feature
+* added a media browser for the CMS
+* added bootstrap.less to global css
+* added a micro CSS grid framework to global css
+* added document title progress indicator for upload tag
+* added a new parameter for hyperlink() in order to decide whether or not the URL shown should be stemmed
+* added new variable formatter: date
+* added some skeleton code to handlers before their creation (so that they're not empty)
+* added some more quick tips for editHandler
+* added all shortcuts also within the bespin context
+* added focus indicator for code fields after changing the currently active tab
+* changed wysiwyg editor to tinymce
+* updated to ExtJS 3.4
+* updated to new design
+* improved show log files to include multiple logs
+* improved debugger code generation (now supports switch statements)
+* user credentials are now securely saved
+* optimized debugger and logging functionality (now one log for each log level)
+* made the variable formatters more flexible (are now external files)
+* some file clean-up
+* removed shm caching (too unstable)
+* fixed a few bugs with session not being saved correctly when redirecting or using cached pages
+* fixed a bug in mysql class to avoid unnecessary warnings
+* fixed a bug with runtime warnings and error not showing the class name correctly
+* fixed styles for lang helper (was hardly visible if body text was set to white)
+* fixed a bug with embedding images into minified css
+
+
 V1.0.9 (June 26th, 2011)
 
 * added a fatal message in case templates cannot be cached
