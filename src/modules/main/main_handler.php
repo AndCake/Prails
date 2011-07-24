@@ -140,12 +140,26 @@ class MainHandler
 		return $this->_callPrinter("setup", $arr_param);
     }
     
+    function pageNotFound() {
+    	$results = HookCore::notify("404");
+    	if (count($results) > 0) {
+    		foreach ($results as $res) {
+    			if (gettype($res) === "string") {
+    				return $res;
+    			}
+    		}
+    	}
+    	
+    	return $this->_callPrinter("pageNotFound", $arr_param);
+    }
+    
     
     function cmsHandler() {
         $arr_param["text"] = Generator::getInstance()->getLanguage()->selectTextByIdentifier("cms.".str_replace("/", ".", $_GET["page"]));
         
         if (!$arr_param["text"]["texts_id"]) {
-            return $this->home();
+        	
+            return $this->pageNotFound();
         }
         
         return $this->_callPrinter("cmsHandler", $arr_param);

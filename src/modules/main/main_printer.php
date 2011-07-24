@@ -61,10 +61,14 @@ class MainPrinter
         $this->str_base = "?";
     }
 
-    function home($arr_param)
-    {
+    function home($arr_param) {
         $str_content = Generator::getInstance()->includeTemplate("templates/main/html/home.html", $arr_param);
         return $str_content;
+    }
+    
+    function pageNotFound($arr_param) {
+		Generator::getInstance()->setTitle(PROJECT_NAME." - 404: Page not found");
+    	return Generator::getInstance()->includeTemplate("templates/main/html/404.html", $arr_param);
     }
     
     function cmsHandler($arr_param) {
