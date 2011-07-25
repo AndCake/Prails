@@ -91,12 +91,12 @@ if ($_GET["version"]) {
 	// run the actual installation
 
 	// configuration file needs to be merged, so create a backup...
-	if (!copy("../conf/configuration.php", "backup.configuration.php")) {
+	if (!copy("../conf/configuration.php", "backup.configuration.php") || !file_exists("backup.configuration.php")) {
 	   die("Error creating backup for configuration.");
 	}
 	
 	// backup .htaccess
-	if (!copy("../.htaccess", "backup.htaccess")) {
+	if (!copy("../.htaccess", "backup.htaccess") || !file_exists("backup.htaccess")) {
 	   die("Error creating backup for .htaccess .");
 	}
 	copy("../.groups", "backup.groups");
