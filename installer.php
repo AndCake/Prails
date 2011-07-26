@@ -105,8 +105,10 @@ if ($_GET["version"]) {
 
 	// this should copy all files to the current installation directory
 	if (!recurse_copy("prails", "..")) {
-	   die();
+	   die("Error installing new prails version.");
 	}
+    @unlink($file);
+    exec("rm -rf prails");	
 	
 	// copy back the .groups and .users file
 	if (copy("backup.groups", "../.groups")) unlink("backup.groups"); else $warnings .= "Unable to restore groups. Backup stored in ".$dir."/backup.groups .<br/>";
@@ -185,7 +187,7 @@ if ($_GET["version"]) {
     		}
     	}    	
     }
-    
+       
     die("success\n--\n".$warnings);
 }
 
