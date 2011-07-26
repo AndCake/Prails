@@ -91,6 +91,7 @@ if ($_GET["version"]) {
 	// run the actual installation
 
 	// configuration file needs to be merged, so create a backup...
+    $oldConf = file_get_contents("../conf/configuration.php");	
 	if (!copy("../conf/configuration.php", "backup.configuration.php") || !file_exists("backup.configuration.php")) {
 	   die("Error creating backup for configuration.");
 	}
@@ -130,7 +131,6 @@ if ($_GET["version"]) {
 	}
 
     // merge configuration
-    $oldConf = file_get_contents("backup.configuration.php");
     $newConf = $newBackupConf = file_get_contents("../conf/configuration.php");
     
     preg_match_all('@/\*<KEEP-([0-9]+)>\*/(([^/]|/[^*]|/\*[^<]|/\*<[^/]|/\*</[^K]|/\*</K[^E]|/\*</KE[^E]|/\*</KEE[^P])*)/\*</KEEP-\1>\*/@', $oldConf, $matches);
@@ -152,7 +152,9 @@ if ($_GET["version"]) {
         $warnings .= "Error while restoring configuration options. ";
         $warnings .= "Configuration has been reset to installation default. Original configuration has been saved in ".$dir."/backup.configuration.php .<br/>";
     } else {
-        unlink("backup.configuration.php");
+        if (!@unlink("backup.configuration.php")) {
+        	$warnings .= "Unable to remove backup configuration file.";
+        }
     }   
     
     die("success\n--\n".$warnings);
