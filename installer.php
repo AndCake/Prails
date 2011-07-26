@@ -153,9 +153,38 @@ if ($_GET["version"]) {
         $warnings .= "Configuration has been reset to installation default. Original configuration has been saved in ".$dir."/backup.configuration.php .<br/>";
     } else {
         if (!@unlink("backup.configuration.php")) {
-        	$warnings .= "Unable to remove backup configuration file.";
+        	$warnings .= "Unable to remove backup configuration file.<br/>";
         }
     }   
+    
+    $oldHandler = file_get_contents("backup.".md5("../modules/main/main_handler.php"));
+    if (strlen($oldHandler) < 0) {
+    	$warnings .= "Unable to find global handler backup.";
+    } else {
+    	$newHandler = file_get_contents("../modules/main/main_handler.php");
+    	$startPos = strpos($newHandler, "/** BEGIN_CODE **/") + strlen("/** BEGIN_CODE **/");
+    	if ($startPos - strlen("/** BEGIN_CODE **/") <= 0) {
+    		die("Error finding global home handler start!");
+    	}
+    	$endPos = strpos($newHandler, "/** END_CODE **/");
+    	if ($endPos === false) {
+    		die("Error finding global home handler end!");
+    	}
+    	$newPre = substr($newHandler, 0, $startPos);
+    	$newPost = substr($newHandler, $endPos);
+    	$oldContent = substr($oldHandler, strpos($oldHandler, "/** BEGIN_CODE **/") + strlen("/** BEGIN_CODE **/"), strpos($oldHandler, "/** END_CODE **/"));
+    	$mergedHandler = $newPre . $oldContent . $newPost;
+    	if (!@file_put_contents("../modules/main/main_handler.php", $mergedHandler)) {
+    		$warnings .= "Unable to update global handler code<br/>";
+    	} else {
+    		exec("php -l ../modules/main/main_handler.php", $error, $code);
+    		if ($code != 0) {
+    			@file_put_contents("../modules/main/main_handler.php", $newHandler);
+    			$warnings .= "Error while merging global home handler. ";
+    			$warnings .= "It has been reset to installation default. Original handler code is saved in ".$dir."/backup.".md5("../modules/main/main_handler.php")."<br/>";
+    		}
+    	}    	
+    }
     
     die("success\n--\n".$warnings);
 }
