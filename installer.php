@@ -174,7 +174,9 @@ if ($_GET["version"]) {
     	}
     	$newPre = substr($newHandler, 0, $startPos);
     	$newPost = substr($newHandler, $endPos);
-    	$oldContent = substr($oldHandler, strpos($oldHandler, "/** BEGIN_CODE **/") + strlen("/** BEGIN_CODE **/"), strpos($oldHandler, "/** END_CODE **/"));
+    	$oStartPos = strpos($oldHandler, "/** BEGIN_CODE **/") + strlen("/** BEGIN_CODE **/");
+    	$oEndPos = strpos($oldHandler, "/** END_CODE **/");
+    	$oldContent = substr($oldHandler, $oStartPos, $oEndPos - $oStartPos);
     	$mergedHandler = $newPre . $oldContent . $newPost;
     	if (!@file_put_contents("../modules/main/main_handler.php", $mergedHandler)) {
     		$warnings .= "Unable to update global handler code<br/>";
