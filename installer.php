@@ -114,6 +114,37 @@ if ($_GET["version"]) {
 	if (copy("backup.groups", "../.groups")) unlink("backup.groups"); else $warnings .= "Unable to restore groups. Backup stored in ".$dir."/backup.groups .<br/>";
     if (copy("backup.users", "../.users")) unlink("backup.users"); else $warnings .= "Unable to restore users. Backup stored in ".$dir."/backups.users .<br/>";
     
+    $users = file("../.users");
+    $adminFound = false;
+    foreach ($users as &$user) {
+    	list($name, $pwd) = explode(":", $user);
+		if ($name == "admin") {
+			$adminFound = true;
+		}
+    	if (strlen($pwd) != 32 || !preg_match('/^[a-f0-9]+$/mi', trim($pwd))) {
+    		$pwd = md5(trim($pwd));
+    		$user = $name.":".$pwd;
+    	}
+    }
+    if (!$adminFound) {
+    	$pwd = substr(md5(time()), 0, 6);
+    	$users[] = "admin:".md5($pwd);
+    	$groups = file("../.groups");
+    	$adminFound = false;
+    	foreach ($groups as &$group) {
+    		list($name, $users) = explode("=", $group);
+    		if ($name == "admin") {
+    			$users .= ",admin";
+    			$adminFound = true;
+    			$group = $name."=".$users;
+    		}
+    	}
+    	if (!$adminFound) $groups[] = "admin=admin";
+    	@file_put_contents("../.groups", implode("\n", $groups)) or $warnings .= "Unable to add new admin user to the admin group.<br/>";
+    	$warnings .= "An admin account has been added to your users to let you manage them. It's password is: ".$pwd."<br/>";
+    }
+    @file_put_contents("../.users", implode("\n", $users)) or $warnings .= "Unable to add new admin to list of users.<br/>";
+    
     // merge .htaccess
     $oldHt = file_get_contents("backup.htaccess");
     $newHt = file_get_contents("../.htaccess");
