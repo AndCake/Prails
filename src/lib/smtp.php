@@ -75,7 +75,8 @@ class SMTP {
             $this->parse("250"); 
         }
         
-        $this->send("MAIL FROM: " . $headers["From"]); 
+        $from = ini_get(sendmail_from);
+        $this->send("MAIL FROM: " . if_set($from, $headers["From"])); 
         if (!$this->parse("250")) return false; 
         
         $this->send("RCPT TO: ".$to); 

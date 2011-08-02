@@ -73,7 +73,7 @@
 						}
 					}
 					var store = new Ext.data.JsonStore({
-						url: "?event=builder:queryTest&check=2",
+						url: "?event=builder:queryTest&check=2&query="+data["query"],
 						autoDestroy: true,
 						storeId: "queryStore",
 						root: "result",
@@ -121,14 +121,15 @@
 								window.committing = recs.length;
 								for (var i = 0; i < recs.length; i++) {
 									rec = recs[i];
-									var id = rec.data[window.currentQueryTable+"_id"];
+									cqtid = window.currentQueryTable.replace(/_key$/gi, '') + "_id";
+									var id = rec.data[cqtid];
 									var c = rec.getChanges();
 									var set = "";
 									for (var each in c) {
 										if (set.length > 0) set += ", ";
 										set += each + "='"+c[each].replace("'", "''")+"'";
 									} 
-									var query = "UPDATE tbl_"+window.currentQueryTable+" SET "+set+" WHERE "+window.currentQueryTable+"_id='"+id+"'";
+									var query = "UPDATE tbl_"+window.currentQueryTable+" SET "+set+" WHERE "+cqtid+"='"+id+"'";
 									invoke(null, "builder:queryTest&check=1", {
 										"query": query
 									}, true, function() {
@@ -169,11 +170,12 @@
 			            		rec = Ext.getCmp("resultGrid").getSelectionModel().getSelections();
 			            		if (rec) {
 			            			var vars = "";
+									cqtid = window.currentQueryTable.replace(/_key$/gi, '') + "_id";			            				
 			            			for (var i = 0; i < rec.length; i++) {
 			            				if (vars.length > 0) vars += "','";
-			            				vars += rec[i].data[window.currentQueryTable+"_id"];
+			            				vars += rec[i].data[cqtid];
 			            			}
-				            		var cond = window.currentQueryTable+"_id IN ('"+vars+"')";
+				            		var cond = cqtid+" IN ('"+vars+"')";
 									invoke(null, "builder:queryTest&check=1", {
 										"query": "DELETE FROM tbl_"+window.currentQueryTable+" WHERE "+cond
 									}, true, function() {

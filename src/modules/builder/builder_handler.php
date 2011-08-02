@@ -1145,7 +1145,8 @@ class BuilderHandler
 
         $arr_param["modules"] = $this->obj_data->listModulesFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["table"] = $this->obj_data->selectTable($_GET["table_id"]);
-
+        $arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
+        
         die ($this->_callPrinter("editTable", $arr_param));
     }
 
@@ -1269,9 +1270,9 @@ class BuilderHandler
     		$_SESSION["builder"]["currentQuery"] = $query;
 			$_SESSION["builder"]["currentQueryTotal"] = (int)$arr_param["totals"][0]["total"];
 			session_write_close();
-			die(json_encode(Array("result" => $result, "total" => (int)$arr_param["totals"][0]["total"])));
+			die(json_encode(Array("result" => $result, "total" => (int)$arr_param["totals"][0]["total"], "query" => $query)));
 		} else if (isset($_POST["start"])) {
-			$query = $_SESSION["builder"]["currentQuery"];
+			$query = if_set($_SESSION["builder"]["currentQuery"], $_GET["query"]);
 			if (isset($_POST["sort"])) {
 				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 			}
@@ -1298,7 +1299,10 @@ class BuilderHandler
 			die(json_encode(Array("result" => $result, "total" => (int)$_SESSION["builder"]["currentQueryTotal"])));
 						
 		} else {
-			$arr_param["result"] = $this->obj_data->SqlQuery("SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"");
+			$query = "SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"";
+			$_SESSION["builder"]["currentQuery"] = $query;
+			
+			$arr_param["result"] = $this->obj_data->SqlQuery($query);
 		}
 
 		die ($this->_callPrinter("queryTest", $arr_param));
@@ -1887,19 +1891,21 @@ class BuilderHandler
 			$newUsers = Array();
 			$groups = Array();
 			foreach ($data["name"] as $key=>$user) {
-				if ($data["pass"][$key] == "********") {
-					// use old password
-					foreach ($users as $usr) {
-						list($u, $p) = explode(":", $usr);
-						if ($u == $user) {
-							$newUsers[] = trim($usr);
-							break;
+				if (strlen(trim($user)) > 0) {
+					if ($data["pass"][$key] == "********") {
+						// use old password
+						foreach ($users as $usr) {
+							list($u, $p) = explode(":", $usr);
+							if ($u == $user) {
+								$newUsers[] = trim($usr);
+								break;
+							}
 						}
+						$groups[$data["group"][$key]][] = $user;
+					} else {
+						$newUsers[] = $user.":".md5($data["pass"][$key]);
+						$groups[$data["group"][$key]][] = $user;
 					}
-					$groups[$data["group"][$key]][] = $user;
-				} else {
-					$newUsers[] = $user.":".md5($data["pass"][$key]);
-					$groups[$data["group"][$key]][] = $user;
 				}
 			}
 			// finally write file to disc
@@ -1910,6 +1916,27 @@ class BuilderHandler
 			}
 			file_put_contents(".groups", implode("\n", $groupLines));
 			die("success");
+		} else if ($_GET["getList"] == "1") {
+	        $groups = file(".groups");
+	        $users = file(".users");
+	        $userGroups = Array();
+	        foreach ($groups as $group) {
+	        	list($grp, $userList) = explode("=", $group);
+	        	$arr_param['groups'][$grp] = $grp;
+	        	$userList = explode(",", trim($userList));
+	        	foreach ($userList as $usr) {
+	        		$userGroups[$usr] = $grp;
+	        	}
+	        } 
+	        $arr_param["groups"]["admin"] = "admin";
+	        $arr_param["groups"]["cms"] = "cms"; 
+	        $arr_param["groups"]["devel"] = "devel";
+	        foreach ($users as $user) {
+	        	list($usr, $pwd) = explode(":", $user);
+	        	$arr_param['users'][] = Array("name" => $usr, "group" => $userGroups[$usr]);
+	        }
+	        
+	        return $this->_callPrinter("editUser", $arr_param);
 		}
 		die("error");
 	}

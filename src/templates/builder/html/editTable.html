@@ -66,6 +66,23 @@
 <script type="text/javascript">
 	//<![CDATA[
 	(function(){
+		var otherTables = [];
+		<c:foreach var="tables" name="iTable">
+		<c:if cond="$iTable['table_id'] != $arr_param['table']['table_id']">
+		otherTables.push({
+			text: "#iTable.name",
+			handler: function() {
+                var Field = grid.getStore().recordType;
+                var p = new Field({
+                    field: 'fk_#iTable.name_id',
+                    type: 'INT(11) NOT NULL'
+                });
+                grid.stopEditing();
+                grid.getStore().insert(0, p);
+			}
+		});
+		</c:if>
+		</c:foreach>
 		var grid = new Ext.grid.EditorGridPanel({
 			store: gridStore = new Ext.data.Store({
 				reader: new Ext.data.ArrayReader({
@@ -104,10 +121,9 @@
 			boxMaxWidth: 250,
 			width: 250,
 			clicksToEdit: 1,
-			tbar: [
-			{
+			tbar: [{
 				text: 'Add Field',
-			    handler : function(){
+				handler : function(){
 	                // access the Record constructor through the grid's store
 	                var Field = grid.getStore().recordType;
 	                var p = new Field({
@@ -120,8 +136,16 @@
 	            }
 	        },{
 				text: "Remove Field",
+				tooltip: "Deletes the selected field",
 				handler: function() {
 					grid.getStore().remove(grid.getSelectionModel().selection.record);
+				}
+			},{
+				text: "Add Link",
+				disabled: (otherTables.length <= 0),
+				tooltip: "Creates a link to another table",
+				menu: {
+					items: otherTables
 				}
 			}]			
 		});

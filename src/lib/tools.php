@@ -754,7 +754,7 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
  
     $from = $fromname." <".$fromaddress.">";
     //define the headers we want passed. Note that they are separated with \r\n
-    $headers = "From: ".$fromaddress.$eol."Reply-To: ".$from.$eol;
+    $headers = "From: ".$from.$eol."Reply-To: ".$from.$eol;
     //add boundary string and mime type specification
     $headers .= "Return-Path: ".$fromname."<".$fromaddress.">".$eol;    // these two to set reply address
     $headers .= "Message-ID: <".time()."-".$fromaddress.">".$eol;
@@ -792,7 +792,10 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
     }
     $message .= "--PHP-mixed-".$random_hash."--".$eol.$eol;
     //send the email
+    ini_set(sendmail_from,$fromaddress);  // the INI lines are to force the From Address to be used !
     $mail_sent = fmail( $to, $subject, $message, $headers );
+    ini_restore(sendmail_from);
+    
     return $mail_sent;
 }
 
