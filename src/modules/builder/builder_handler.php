@@ -268,7 +268,7 @@ class BuilderHandler
 		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
 		    		$printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
 		    		$printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
-		    		$printer .= "  \$arr_param[\"local\"] = array_merge(if_set(\$arr_param[\"local\"], Array()), \$arr_param);\n";
+		    		$printer .= "  \$arr_param[\"local\"] = array_merge(is_array(\$arr_param[\"local\"]) ? \$arr_param[\"local\"] : Array(), \$arr_param);\n";
                     if ($arr_handler["flag_ajax"] == "1")
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
