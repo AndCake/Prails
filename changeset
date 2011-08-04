@@ -1,3 +1,15 @@
+V1.1.1 (August 4th, 2011)
+
+* added a button at database structure editing for easier creation of foreign keys
+* fixed a problem where strange characters were added in some browsers in code when using CTRL+ALT+LEFT/CTRL+ALT+RIGHT to switch between code tabs
+* fixed a problem with dialog elements producing errors when being removed on close
+* fixed a problem with local variables not being transmitted correctly to output code
+* fixed a problem with saving users (were not shown correctly after save and re-opening of that window)
+* fixed a problem with smtp class not using sender's name for from field
+* fixed a problem with key tables not being editable via queryTest.html
+* made sure that in CMS javascript and style tags are not executed when rendering the wysiwyg field
+
+
 V1.1.0 (July 24th, 2011)
 
 * added user management feature
