@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("FRAMEWORK_VERSION", "1.1.0");
+define ("FRAMEWORK_VERSION", "1.1.1");
 define ("PROJECT_LOG", "log/framework_");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
