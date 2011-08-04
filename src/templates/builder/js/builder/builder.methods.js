@@ -285,6 +285,8 @@ Builder = Object.extend(Builder || {}, {
             		} else if (event.keyCode == 37) {
             			Builder.previousTab(event);
             		}
+            		pl.div.bespin.editor.buffer.undoManager.undo();
+            		return false;
             	} else if (event.ctrlKey && event.shiftKey) {
             		if (event.keyCode == "D".charCodeAt(0)) {
             			Builder.quickOpen();
@@ -294,7 +296,7 @@ Builder = Object.extend(Builder || {}, {
             			if (!win.parent.closed) {
             				win.parent.closed = true;
                 			Builder.closeCurrentTab();  
-                			setTimeout(function() {win.parent.closed = false;}, 100);
+                			setTimeout(function() {win && win.parent && (win.parent.closed = false);}, 100);
                     		try {
                     			event.stopPropagation();
                     			event.cancelBubble = true;
