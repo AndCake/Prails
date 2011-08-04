@@ -121,10 +121,11 @@ if ($_GET["version"]) {
 		if ($name == "admin") {
 			$adminFound = true;
 		}
-    	if (strlen($pwd) != 32 || !preg_match('/^[a-f0-9]+$/mi', trim($pwd))) {
+    	if (strlen(trim($pwd)) != 32 || !preg_match('/^[a-f0-9]+$/mi', trim($pwd))) {
     		$pwd = md5(trim($pwd));
     		$user = $name.":".$pwd;
     	}
+	$user = trim($user);
     }
     if (!$adminFound) {
     	$pwd = substr(md5(time()), 0, 6);
@@ -138,6 +139,7 @@ if ($_GET["version"]) {
     			$adminFound = true;
     			$group = $name."=".$users;
     		}
+		$group = trim($group);
     	}
     	if (!$adminFound) $groups[] = "admin=admin";
     	@file_put_contents("../.groups", implode("\n", $groups)) or $warnings .= "Unable to add new admin user to the admin group.<br/>";
