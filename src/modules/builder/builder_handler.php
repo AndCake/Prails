@@ -1153,7 +1153,7 @@ class BuilderHandler
     function deleteConfiguration() {
         $_SESSION["configuration_id"] = if_set($_GET["configuration_id"], $_SESSION["configuration_id"]);
         $this->obj_data->deleteConfiguration($_GET["configuration_id"]);
-        die ("success");
+        return $this->resetModule(true, $_GET["module_id"]);
     }
 
     function editConfiguration() {
@@ -1176,12 +1176,8 @@ class BuilderHandler
                     $this->obj_data->insertConfiguration($arr_conf);
                 }
             }
-
-            if ($_GET["die"] == "no") {
-                return true;
-            } else {
-                die ("success");
-            }
+            
+            return $this->resetModule($_GET["die"] == "no", $_GET["module_id"]);
         }
 
         if ($_GET["module_id"] < 0)
