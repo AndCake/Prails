@@ -368,7 +368,7 @@ class BuilderHandler
 		$this->obj_data->clearResource($_GET["module_id"]);
 		$this->obj_data->clearTestcase($_GET["module_id"]);
 		$this->obj_data->deleteDataFromModule($_GET["module_id"]);
-        die ("success");
+        $this->resetModule(true, $_GET["module_id"]);
     }
 
     function editModule()
@@ -385,9 +385,6 @@ class BuilderHandler
                 $arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
                 $arr_data["style_code"] = $arr_data["style_code"];
                 $arr_data["js_code"] = $arr_data["js_code"];
-            } else if ($_GET["module_id"] >= 0)
-            {
-            	$this->resetModule(false);
             }
             if ($_GET["module_id"] > 0)
             {
@@ -402,6 +399,7 @@ class BuilderHandler
                 removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
 
                 $this->obj_data->updateModule($_GET["module_id"], $arr_data);
+            	$this->resetModule(false, $_GET["module_id"]);
             } else if ((int)$_GET["module_id"] == 0)
             {
                 $_SESSION["module_id"] = $_GET["module_id"] = $this->obj_data->insertModule($arr_data);
@@ -1476,6 +1474,19 @@ class BuilderHandler
 			echo gzcompress(serialize($arr_content), 9);
 			unset($arr_content);
 		}
+		if ($_POST["db"]) {
+			echo "---".$magic_border."\n";
+			$dbs = Array();
+			$oldPrefix = $this->obj_data->str_prefix;
+			$this->obj_data->str_prefix = "tbl_";
+			foreach ($_POST["db"] as $table) {
+				$dbs[$table] = $this->obj_data->get($table);
+			}
+			$this->obj_data->str_prefix = $oldPrefix;
+			echo "A";
+			echo gzcompress(serialize($dbs), 9);
+			unset($dbs);
+		}
 		if ($_POST["images"] == "1") {
 			echo "---".$magic_border."\n";
 			echo "I";
@@ -1520,7 +1531,22 @@ class BuilderHandler
 						file_put_contents("static/images/".$name, substr($files[$i], $fpos + 1));
 					}
 				}
-				if ($section[0] == "D") {
+				if ($section[0] == "A") {
+					// import database contents
+					$oldPrefix = $this->obj_data->str_prefix;
+					$this->obj_data->str_prefix = "tbl_";
+					foreach ($data as $table => $arr_db) {
+						if (DB_TYPE == SQLITE) {
+							$this->obj_data->remove($table, "1");
+						} else {
+							$this->obj_data->query("TRUNCATE TABLE tbl_".$table);
+						}
+						foreach ($arr_db as $entry) {
+							$this->obj_data->add($table, $entry->getArrayCopy());
+						}
+					}
+					$this->obj_data->str_prefix = $oldPrefix;
+				} else if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {
 						if (!is_array($arr_table)) $arr_table = $arr_table->getArrayCopy();

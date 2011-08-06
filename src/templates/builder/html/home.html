@@ -110,6 +110,18 @@
 				<label for="export-images" onclick="this.previous().checked = !this.previous().checked;">include images</label>
 			</div>
 		</fieldset>
+		<fieldset>
+			<legend>Database Content:</legend>
+			<select class="export" name="db[]" multiple="multiple" size="5" id="dbs" style="height:98px;">
+				<c:foreach var="tables" name="table">
+					<option value="#table.name">#table.name</option>
+				</c:foreach>
+			</select>
+			<div>
+				<a href="javascript:" onclick="$$('#dbs option').each(function(item){item.selected=true;});">select all</a> | 
+				<a href="javascript:" onclick="$$('#dbs option').each(function(item){item.selected=false;});">select none</a>
+			</div>			
+		</fieldset>
 		<div class="panel-bottom"> Save to:
 		<input type="text" name="file" value="<?=preg_replace('/[^a-zA-Z0-9_.]/', '_', PROJECT_NAME)."-".date("Y-m-d").".prails"?>" />
 		<button type="submit">export</button>
