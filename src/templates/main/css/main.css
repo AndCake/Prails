@@ -4,6 +4,7 @@
 
 span.langhelper {
 	display: block;
+	cursor: pointer;
 	position: absolute;
 	width: 10px;
 	height: 10px;

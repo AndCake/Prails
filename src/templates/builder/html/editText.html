@@ -160,7 +160,7 @@
 				        method: "POST",
 				        parameters: data, 
 				        onSuccess: function(req) {
-				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0) {
+				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0 && <?=(int)$arr_param["text"]["text_id"]?> > 0) {
         						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 				           } else {
                                 loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);

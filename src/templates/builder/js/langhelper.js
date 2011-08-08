@@ -35,6 +35,8 @@
 					this.tt.remove();
 					this.tt = null;
 				}
+			}).observe("click", function() {
+				window.open('?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree='+item.data.replace('[LANG:', '').replace(']', ''), 'prails');
 			}), item);
 		}
 	});

@@ -1717,6 +1717,12 @@ class BuilderHandler
 
 		if ($_GET["path"] && $_GET["texts_id"] == 0) {
 			$arr_param["text"]["path"] = $_GET["path"];
+			if ($_GET["ident"]) {
+		    	$arr_param["text"]["path"] = substr($_GET["path"], 0, strrpos($_GET["path"], ".")+1);
+		    	$arr_param["text"]["name"] = substr($_GET["path"], strrpos($_GET["path"], ".")+1);
+		    	$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($arr_param["text"]["path"]);
+		    	$arr_param["texts"][0]["identifier"] = $_GET["path"];
+			}
 		} else {
 		    $arr_param["text"]["path"] = substr($arr_param["texts"][0]["identifier"], 0, strrpos($arr_param["texts"][0]["identifier"], ".")+1);
 		    $arr_param["text"]["name"] = substr($arr_param["texts"][0]["identifier"], strrpos($arr_param["texts"][0]["identifier"], ".")+1);

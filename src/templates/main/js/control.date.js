@@ -868,7 +868,7 @@ addLoadEvent(function() {
 		new PeriodicalExecuter(function(pe) {
 			if (item.hid.savedValue != item.value) {
 				var dlist = item.getValue().split(/-/);
-				var date = new Date(parseInt(dlist[0]), parseInt(dlist[1]) - 1, parseInt(dlist[2]));
+				var date = new Date(parseInt(dlist[0], 10), parseInt(dlist[1], 10) - 1, parseInt(dlist[2], 10));
 				if (""+((date.getTime()) / 1000) == "NaN") {
 					item.hid.value = 0;
 				} else {

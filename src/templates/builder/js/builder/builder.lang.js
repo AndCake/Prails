@@ -22,8 +22,12 @@ Builder = Object.extend(Builder || {}, {
 	},
 	
 	editText: function(n) {
-	    var id = n.id.replace("text_.", "");
-		Builder.addTab("?event=builder:editText&ident="+id+"&extjs=1", n.text, "x_"+id, "locale");
+		if (!n.id && n.ident) {
+			Builder.addTab("?event=builder:editText&ident="+n.ident+"&path="+n.ident+"&extjs=1", n.text, "x_"+n.ident, "locale");
+		} else { 
+		    var id = n.id.replace("text_.", "");
+		    Builder.addTab("?event=builder:editText&ident="+id+"&extjs=1", n.text, "x_"+id, "locale");
+		}
 	},
 	
 	deleteText: function(n) {
