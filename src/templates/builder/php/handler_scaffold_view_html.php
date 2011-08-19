@@ -8,10 +8,10 @@
 <table border="1" cellspacing="0" cellpadding="5">
 <? foreach ($arr_fields as $key=>$field) { ?>
 <tr>
-	<th><?=strtoupper($field[0]).substr($field, 1)?>: </th>
-	<td>
-		<? if ($arr_types[$key] == "INT(20)") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?>
-	</td>
+    <th><?=strtoupper($field[0]).substr($field, 1)?>: </th>
+    <td>
+        <? if ($arr_types[$key] == "INT(20)") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?>
+    </td>
 </tr>
 <? } ?>
 </table>

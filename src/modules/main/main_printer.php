@@ -37,7 +37,7 @@ class MainPrinter
         /*<JAVASCRIPT-INCLUDES>*/
         $obj_gen->addJavaScript("templates/main/js/prototype.js");
         $obj_gen->addJavaScript("templates/main/js/s2.js");
-        $obj_gen->addJavaScript("templates/main/js/modernizr-1.7.min.js");
+        $obj_gen->addJavaScript("templates/main/js/modernizr.min.js");
         $obj_gen->addJavaScript("templates/main/js/main.js");
         $obj_gen->addJavaScript("templates/main/js/fileselector.js");
         $obj_gen->addJavaScript("templates/main/js/validator.js");

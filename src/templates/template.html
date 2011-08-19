@@ -1,5 +1,5 @@
 <? global $SERVER; ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
    	<head>
 		<title><?=$this->getTitle()?></title>
@@ -19,7 +19,7 @@
         <style type="text/css">
             @encoding 'UTF-8';
         </style>
-		<script type="text/javascript" src="templates/main/js/tiny_mce/tiny_mce.js"></script>	    
+		<script type="text/javascript" src="<?=str_replace('http:', '', $SERVER)?>templates/main/js/tiny_mce/tiny_mce.js"></script>	    
         <!--[if lt IE 9]>
             <script type="text/javascript" src="<?=str_replace('http:', '', $SERVER)?>templates/main/js/ie9.js">IE7_PNG_SUFFIX=".png";</script>
         <![endif]-->

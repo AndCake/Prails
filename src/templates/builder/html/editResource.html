@@ -1,5 +1,6 @@
 <div id="rm_#resource.resource_id[int]_mediator_container" style="">
 <div style="padding:20px;">
+	<? if ($_GET["resource_id"] != -1) { ?>
 	<form method="post" action="?event=builder:editResource&module_id=#session.module_id&resource_id=#resource.resource_id[int]&check=1" id="resForm#resource.resource_id[int]" callback="uploaded()">
 		<div style="float:left;">
 			<label for="name">Name of resource</label><br/>
@@ -10,15 +11,19 @@
 		</div>
 		<div style="clear:both;"></div>
 		<br/>
-		<label>Change Image</label><br/>
+		<label>Change Resource</label><br/>
+		<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&module_id=#session.module_id&resource_id=#resource.resource_id&t=<?=time()?>" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){window.setImageSizes['rr#resource.resource_id[int]'](me);}, 100);" /><br/>
+		<qw:file target="?event=builder:editResource&module_id=#session.module_id&resource_id=<?=$arr_param['resource']['resource_id']?>&check=upload&name=" ondone="Builder.reloadTab('rm_#session.module_id');"><button type="button">Upload new file</button></qw:file>		
+<!-- 
 		<FileSelector name="resource[file]" value="#resource.name" class="upload" form="resForm#resource.resource_id[int]">
 			<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&module_id=#session.module_id&resource_id=#resource.resource_id" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){setImageSizes#resource.resource_id[int](me);}, 100);" />
 		</FileSelector>
-		<? if ($arr_param["resource"]["resource_id"] > 0) { ?>
+-->		
+		<? if ($arr_param["resource"]["resource_id"] > 0 || $_GET["module_id"] < 0) { ?>
 		<br/>
 		<label>Resource Path</label><br/>
-		<span style="font-size:11px;"><b>HTML: </b><pre>templates/<%=strtolower($arr_param['module']['name'])%>/images/<span>#resource.name</span></pre><br/>
-		<b>CSS:</b> <pre>../images/<span>#resource.name</span></pre></span>
+		<span style="font-size:11px;"><b>HTML: </b><pre>templates/<%=strtolower($arr_param['module']['name'])%>/#local.path/<span>#resource.name</span></pre><br/>
+		<b>CSS:</b> <pre>../#local.path/<span>#resource.name</span></pre></span>
 		<? } ?>
 		<script type="text/javascript">
 		//<![CDATA[
@@ -26,19 +31,22 @@
 				
 				window.uploaded = function() {
 					var img = $$("#selectedFile0 img")[0];
-					window.setImageSizes#resource.resource_id[int](img);
+					window.setImageSizes["rr#resource.resource_id[int]"](img);
 					<? if ((int)$arr_param["resource"]["resource_id"] <= 0) { ?>
 						// reload tab if new resource
 						Builder.reloadTab("rm_#session.module_id");
 					<? } ?>
 				};
 				
-				window.setImageSizes#resource.resource_id[int] = function(img) {
+				if (!window.setImageSizes)	window.setImageSizes = {};
+				window.setImageSizes["rr#resource.resource_id[int]"] = function(img) {
 					$("width#resource.resource_id[int]").innerHTML = img.naturalWidth;
 					$("height#resource.resource_id[int]").innerHTML = img.naturalHeight;					
 				};
 
-				FileSelector.find();
+				//FileSelector.find();
+				QuixoticWorxUpload.init();
+/*				
 				var mybar = Ext.getCmp("rm_#session.module_id_container").getTopToolbar();
 				while (mybar && mybar.tr && mybar.tr.children && mybar.tr.children.length > 0) { 
 					mybar.tr.removeChild(mybar.tr.childNodes[0]);
@@ -60,10 +68,23 @@
 							});						
 						}
 				},"-");
-				mybar.doLayout();
+				mybar.doLayout();//*/
 			})();
 		//]]>
 		</script>		
 	</form>
+	<? } else { ?>
+		<label>Bulk upload resources</label><br/><br/>
+		<qw:file target="?event=builder:editResource&module_id=#session.module_id&resource_id=<?=$_GET['resource_id']?>&check=upload&name=" multiple="multiple" progress="progress" onstart="$('upload-current-container').show();$('upload-current').innerHTML=this.fileName;" ondone="Builder.reloadTab('rm_#session.module_id');"><button type="button">Select & upload multiple files</button></qw:file>
+		<div id="upload-current-container" style="display:none;">Uploading file <span id="upload-current"></span>...</div>
+		<div class="progress-bar" style="position:relative;height:5px;border:1px solid #ccc;width:200px;"><div id="progress" style="position:absolute;left:0px;height:5px;background-color:rgb(255, 139, 49);"></div></div>
+		<script type="text/javascript">
+		//<![CDATA[
+			(function(){
+				QuixoticWorxUpload.init();				
+			})();
+		//]]>
+		</script>		
+	<? } ?>
 </div>
 </div>

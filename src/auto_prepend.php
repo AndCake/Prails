@@ -22,6 +22,14 @@
     ini_set('display_errors', 0);
     
     $logFile = fopen("log/framework.log", "a+");
+    
+    function findLine($arr_file, $regExp, &$startLine, $minLine) {
+		$found = false; 
+		while (!$found && $startLine > $minLine) {
+			$found = (preg_match($regExp, $arr_file[$startLine--], $arr_match) > 0);
+		}
+    	return Array($arr_match, $found);
+    }
 	
 	function error_alert() {
 		if (is_null($e = error_get_last()) === false) {
@@ -30,15 +38,18 @@
 				$arr_file = file($e["file"]);
 				$line = $arr_file[$e["line"] - 1];
 				$cLine = $e["line"] - 1;
-				$found = false; 
-				while (!$found && $cLine > 1) {
-					$found = (preg_match("/\\s*function ([^(]+)\\(\\) {/", $arr_file[$cLine--], $arr_match) > 0);
-				}
-				$cfound = false;
+				list($arr_match, $found) = findLine($arr_file, "/\\s*function ([^(]+)\\(\\) {/", $cLine, 1);
+				
+				$oLine = $e["line"] - 1;
+				list(,$ofound) = findLine($arr_file, "/\\/\\*\\[END POST-([^\\]]+)\\]\\*\\//i", $oLine, $cLine);
+				if ($ofound) $cLine = $oLine;
+				
+				$pLine = $e["line"] - 1;
+				list($post, $pfound) = findLine($arr_file, "/\\/\\*\\[BEGIN POST-([^\\]]+)\\]\\*\\//i", $pLine, $cLine);
+				if ($pfound) $post = $post[1];
+
 				$classLine = $e["line"] - 1;
-				while (!$cfound && $classLine > 0) {
-					$cfound = (preg_match("/\\s*class ([a-zA-Z_0-9]+)\\s+/", $arr_file[$classLine--], $match) > 0);
-				}
+				list($match, $cfound) = findLine($arr_file, "/\\s*class ([a-zA-Z_0-9]+)\\s+/", $classLine, 0);
 				$class = preg_split("/[0-9]+/", $match[1]);
 
 				$module = $class[0];
@@ -61,17 +72,26 @@
 				global $logFile;
 				if ($found) {
 					$rline = ($e["line"] - 1) - ($cLine + 1);
+					if ($pfound) {
+						$postName = ", endpoint '".$post."'";
+						$rline = ($e["line"] - 1) - ($pLine + 2);
+					}
+					
 					if (in_array($e["type"], Array(2, 32, 128))) {
-						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."'".$postName." in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
 					} else {
-						echo "<code><b>".$error.": </b>".$e["message"]." <b>in Module '".$module."', ".$type." '".$function."' in line ".$rline."</b>: <br/>". 
+						echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".$type." '".$function."'".$postName." in line ".$rline."</b>: <br/>". 
 							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
 					}
 				} else {
+					if ($pfound) {
+						$postName = ", endpoint '".$post."'";
+						$rline = ($e["line"] - 1) - ($pLine + 1);
+					}
 					if (in_array($e["type"], Array(2, 32, 128))) {
-						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."' in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
+						fwrite($logFile, "[".date("Y-m-d H:i:s")."] [WARNING] ".$e["message"]." in ".$type." '".$function."'".$postName." in line ".$rline.": ".$arr_file[$e["line"] - 2]."===>".$line."".$arr_file[$e["line"]]);
 					} else {
-						echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".(strlen($module)>0?$type." ".$module:"")." in line ".$e["line"].":</b> <br/><code>".
+						echo "<code><b>".$error.": </b>".$e["message"]." <b>in ".(strlen($module)>0?$type." ".$module:"")."".$postName." in line ".$e["line"].":</b> <br/><code>".
 							 htmlspecialchars($arr_file[$e["line"] - 2])."<br/><span style='color:red;border-bottom:1px dashed red;'>".htmlspecialchars($line)."</span><br/>".htmlspecialchars($arr_file[$e["line"]])."</code>";
 					}
 				}

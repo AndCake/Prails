@@ -159,7 +159,7 @@ var FileBrowserDialogue = {
 	    		if (t.hasClassName("file")) {
 	          		var el = new Element("img", {src: "<%=$arr_param['base']%>"+t.innerHTML, className: "file"});
 	          		el.style.left = (t.cumulativeOffset().left+20)+"px";
-	          		el.style.top = (t.cumulativeOffset().top+20)+"px";
+          			el.style.top = ((t.cumulativeOffset().top - t.up(".mtable").scrollTop)+20)+"px";
 	          		t.preview = el;
 	          		document.body.appendChild(el);	    			
 	    		}

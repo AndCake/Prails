@@ -263,8 +263,10 @@ class Generator {
 		$time = time();
 		$styles = Array();
 		foreach ($this->arr_styles as $style) {
-            if ($style["browser"] == "all") {
+            if ($style["browser"] == "all" && file_exists($style["path"])) {
             	array_push($styles, $style["path"]);
+			} else if ($style["browser"] == "all" && !file_exists($style["path"])) {
+				array_push($this->arr_noCacheStyles, $style);
 			}
 		}
 
@@ -343,8 +345,8 @@ class Generator {
         	if (@filectime($js) > $time) {
         		// we need to regenerate the javascript files
 				@unlink("cache/".$prefix.".".$time.".js");
-				if (file_exists("cache/".$prefix.".".$time.".jgz")) {
-					@unlink("cache/".$prefix.".".$time.".jgz");
+				if (file_exists("cache/".$prefix.".".$time.".jsgz")) {
+					@unlink("cache/".$prefix.".".$time.".jsgz");
 				}
 				$time = time();
 				break;				
@@ -354,20 +356,25 @@ class Generator {
     	$path = "cache/".$prefix.".".$time.".js";
     	if (!file_exists($path)) {
     		$fp = fopen($path, "w+");
-    		$gp = gzopen(str_replace(".js", ".jgz", $path), "w9");
+    		$gp = gzopen(str_replace(".js", ".jsgz", $path), "w9");
 			$gzData = "";
             foreach ($this->arr_js as $js) {
-            	$str = file_get_contents($js)."\n";
-                if (ENV_PRODUCTION === true) {
-    			    $str = JSMIN::minify($str);
-    			}
-            	fwrite($fp, $str);
-				gzwrite($gp, $str);
+            	if (file_exists($js)) {
+	            	$str = file_get_contents($js)."\n";
+	                if (ENV_PRODUCTION === true) {
+	    			    $str = JSMIN::minify($str);
+	    			}
+	            	fwrite($fp, $str);
+					gzwrite($gp, $str);
+            	} else {
+            		if (!is_array($this->arr_noCacheJS)) $this->arr_noCacheJS = Array();
+            		array_push($this->arr_noCacheJS, $js);
+            	}
             }
     		fclose($fp);
     		gzclose($gp);
            	@chmod($path, 0755);
-           	@chmod(str_replace(".js", ".jgz", $path), 0755);
+           	@chmod(str_replace(".js", ".jsgz", $path), 0755);
         }
         $str_js .= "<script src='" . str_replace('http:', '', $SERVER).$path . "' type='text/javascript'></script>\n";
         

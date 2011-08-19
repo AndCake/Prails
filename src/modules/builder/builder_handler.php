@@ -29,6 +29,7 @@ class BuilderHandler
         $this->cleanUpCrc();
 
         //
+       	$_SESSION["builder"] = Array();
         if (!$_SESSION["builder"]["user_id"])
         {
         	if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") === false || $_GET["event"] == "builder:createResource")) {
@@ -199,12 +200,13 @@ class BuilderHandler
 	                } else {
 	                    $libPath = "lib/custom/";
 	                }
-	                if (!file_exists($libPath.$arr_lib["name"].$arr_lib["library_id"].".php"))
+	                $libname = $libPath . $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . ".php";
+	                if (!file_exists($libname))
 	                {
 	                    $content = "<"."?php\n".$arr_lib["code"]."\n?".">";
-	                    file_put_contents($libPath.$arr_lib["name"].$arr_lib["library_id"].".php", $content);
+	                    file_put_contents($libname, $content);
 	                }
-                	$libs .= "include_once('".$libPath.$arr_lib["name"].$arr_lib["library_id"].".php');\n";
+                	$libs .= "include_once('".$libname."');\n";
             	}
             }
             $tagPath = "lib/tags/custom/";
@@ -312,7 +314,7 @@ class BuilderHandler
             }
         }
 
-        return false;
+        return invoke("main:pageNotFound", $arr_param);
     }
 
     function resetModule($die = true, $module_id = "")
@@ -395,11 +397,9 @@ class BuilderHandler
                 	if (!is_array($headerInfo)) $headerInfo = Array();
                     $arr_data["header_info"] = @serialize(array_merge($headerInfo, $arr_data["header_info"]));
                 }
-                removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
-                removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
 
-                $this->obj_data->updateModule($_GET["module_id"], $arr_data);
             	$this->resetModule(false, $_GET["module_id"]);
+                $this->obj_data->updateModule($_GET["module_id"], $arr_data);
             } else if ((int)$_GET["module_id"] == 0)
             {
                 $_SESSION["module_id"] = $_GET["module_id"] = $this->obj_data->insertModule($arr_data);
@@ -645,6 +645,27 @@ class BuilderHandler
         	$arr_param["handler"]["code"] = file_get_contents("templates/builder/php/handler_empty.php");
         }
         
+        $code = $arr_param["handler"]["code"];
+        preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+        $lastPos = 0;
+        $codes = Array();
+        array_push($codes, Array("title" => "Default", "id" => md5("h".$arr_param["handler"]["handler_id"])));
+        if (is_array($matches) && is_array($matches[1])) {         
+	        foreach ($matches[1] as $match) {
+	        	$cd = Array(
+	        		"title" => $match[0],
+	        		"id" => md5($match[0].$arr_param["handler"]["handler_id"]) 
+	        	);
+	        	$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+	        	$end = strpos($code, "/*[END ACTUAL]*/", $start);
+	        	$cd["content"] = substr($code, $start, $end - $start);
+	        	$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+	        	array_push($codes, $cd);
+	        }
+        }
+        $codes[0]["content"] = substr($code, $lastPos);
+        $arr_param["codes"] = $codes;
+                        
         if ($_GET["refresh"]) {
         	die(json_encode(Array("code"=>$arr_param["handler"][$_GET["refresh"]])));
         }
@@ -890,8 +911,8 @@ class BuilderHandler
     function listResources()
     {
         $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
-
-        $arr_param["resources"] = $this->obj_data->listResources($_SESSION["module_id"]);
+        
+       	$arr_param["resources"] = $this->obj_data->listResources($_SESSION["module_id"]);
 
         die ($this->_callPrinter("listResources", $arr_param));
     }
@@ -947,23 +968,58 @@ class BuilderHandler
                 $_SESSION["resource_id"] = $_GET["resource_id"] = $this->obj_data->insertResource($arr_data);
             }
             return $this->resetModule();
+        } else if ($_GET["check"] == "upload") {
+        	$file = receiveFile($_GET["name"], ($_GET["module_id"] < 0 ? "templates/main/resources/" : "static/"));
+        	if ($_GET["module_id"] > 0) {
+	            $content = file_get_contents($file);
+	        	$mime = mime_content_type($file);
+	        	@unlink($file);
+	            $arr_data["fk_module_id"] = $_GET["module_id"];
+	            $arr_data["type"] = $mime;
+	            $arr_data["data"] = base64_encode($content);
+	            if ($_GET["resource_id"] > 0) {
+	            	$this->obj_data->updateResource($_GET["resource_id"], $arr_data);
+	            } else {
+	                $arr_data["name"] = basename($file);
+	                $_SESSION["resource_id"] = $this->obj_data->insertResource($arr_data);
+	            }
+        	} else {
+        		$res = $this->obj_data->selectResource($_GET["resource_id"], $_GET["module_id"]);
+        		global $log;
+        		if ($res) {
+        			@copy($file, "templates/main/resources/".$res["name"]) or $log->debug("error copying to existing file");
+        			@unlink($file) or $log->debug("error removing file");
+        		}
+        	}
+        	die();
         }
 
-        $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"]);
-        $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+        $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"], $_GET["module_id"]);
+        if ($_GET["module_id"] < 0) {
+        	$arr_param["module"]["name"] = "main";	
+        	$arr_param["local"]["path"] = "resources";
+        } else {
+        	$arr_param["local"]["path"] = "images";
+        	$arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+        }
 
         die ($this->_callPrinter("editResource", $arr_param));
     }
 
     function previewResource()
     {
-        if ($_GET["resource_id"] > 0)
-        {
-            $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"]);
-            header("Content-Type: ".$arr_param["resource"]["type"]);
-            die (base64_decode($arr_param["resource"]["data"]));
-        } else
-        {
+        if ($_GET["resource_id"] > 0 || $_GET["module_id"] < 0) {
+            $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"], $_GET["module_id"]);
+            if ($arr_param["resource"] != null) {
+	            header("Content-Type: ".$arr_param["resource"]["type"]);
+            	if ($_GET["module_id"] < 0) {
+	            	readfile("templates/main/resources/".$arr_param["resource"]["name"]);
+	            	die();	
+	            } else {
+	            	die (base64_decode($arr_param["resource"]["data"]));
+	            }
+            }
+        } else {
             readfile("templates/builder/images/empty_resource.gif");
             die ();
         }
@@ -1004,15 +1060,19 @@ class BuilderHandler
     {
         if ($_GET["resource_id"] > 0)
         {
-            $arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"]);
-            $arr_param["module"] = $this->obj_data->selectModule($arr_param["resource"]["fk_module_id"]);
-
-            $mod = strtolower($arr_param["module"]["name"]);
-
-            $basePath = "templates/".$mod."/images/";
-            $path = $basePath.$arr_param["resource"]["name"];
-
-            $this->obj_data->deleteResource($_GET["resource_id"]);
+        	$arr_param["resource"] = $this->obj_data->selectResource($_GET["resource_id"], $_GET["module_id"]);
+        	if ($_GET["module_id"] < 0) {
+        		$path = "templates/main/resources/".$arr_param["resource"]["name"];
+        	} else {
+	            $arr_param["module"] = $this->obj_data->selectModule($arr_param["resource"]["fk_module_id"]);
+	
+	            $mod = strtolower($arr_param["module"]["name"]);
+	
+	            $basePath = "templates/".$mod."/images/";
+	            $path = $basePath.$arr_param["resource"]["name"];
+	
+	            $this->obj_data->deleteResource($_GET["resource_id"]);
+        	}
             @unlink($path);
         }
     }
@@ -1045,10 +1105,15 @@ class BuilderHandler
     {
         $_SESSION["builder"] = Array();
         if (session_id() != "") session_destroy();
-        header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
-        header('HTTP/1.0 401 Unauthorized');
-        require ("templates/builder/html/not_allowed.html");
-        die ();
+        if ($_GET["norelogin"] == "1") {
+        	require("templates/builder/html/loggedout.html");
+        	die();	
+        } else {
+	        header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
+	        header('HTTP/1.0 401 Unauthorized');
+	        require ("templates/builder/html/not_allowed.html");
+	        die ();
+        }
     }
 
     function deleteTable()

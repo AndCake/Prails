@@ -46,6 +46,7 @@ div#qwbuilder_headerPanel .x-panel-body {
 .step {  background-image: url(../images/step.png) !important;  }
 .stop {  background-image: url(../images/stop.png) !important;  }
 .run { background-image: url(../images/run.png) !important; }
+.form { background-image: url(../images/form.png) !important; }
 .resource { background-image: url(../images/resource.png) !important; }
 .save { background-image: url(../images/save.gif) !important; }
 .x-tree-node .query img.x-tree-node-icon, .data { background-image: url(../images/default/grid/columns.gif) !important; } 

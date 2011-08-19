@@ -101,7 +101,7 @@
 						xtype: "button",
 						text: "Edit Resources",
 						iconCls: "resource",
-						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> == 0 ? true : false),
 						handler: function(e){
 							Builder.editModuleResource({id: <?=(int)$arr_param["module"]["module_id"]?>, text: "<?=$arr_param["module"]["name"]?>"});
 						}						

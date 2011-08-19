@@ -38,8 +38,8 @@ class CSSLib {
 	        	if (@filectime($css) > $this->time && file_exists("cache/".$this->prefix.".".$this->time.".css")) {
 	        		// we need to regenerate the CSS files
 					@unlink("cache/".$this->prefix.".".$this->time.".css");
-					if (file_exists("cache/".$this->prefix.".".$this->time.".cgz")) {
-						@unlink("cache/".$this->prefix.".".$this->time.".cgz");
+					if (file_exists("cache/".$this->prefix.".".$this->time.".cssgz")) {
+						@unlink("cache/".$this->prefix.".".$this->time.".cssgz");
 					}
 					$this->time = time();
 					break;				
@@ -188,9 +188,9 @@ class CSSLib {
 		
 		$fp = fopen($path, "r");
 		$pp = fopen($path.".new", "w+");
-		$gp = gzopen(str_replace(".css", ".cgz", $path), "w9");
+		$gp = gzopen(str_replace(".css", ".cssgz", $path), "w9");
 		$hp = fopen(str_replace(".css", ".header.css", $path), "w+");
-		$zp = gzopen(str_replace(".css", ".header.cgz", $path), "w9");
+		$zp = gzopen(str_replace(".css", ".header.cssgz", $path), "w9");
 		while (!feof($fp)) {
 			$css = fgets($fp, 4096);
 			

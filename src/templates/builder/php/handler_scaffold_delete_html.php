@@ -15,10 +15,10 @@
    <? } ?>
 </table>
 
-<form method="post" action="<?=$arr_module['name']?>/delete<?=$title?>/#<?=$name?>.<?=$name?>_id&confirmed=1">
+<form method="post" action="<?=$arr_module['name']?>/delete<?=$title?>/#<?=$name?>.<?=$name?>_id">
    <fieldset>
       <a href="<?=$arr_module['name']?>/list<?=$title?>">No, better not.</a>
-      <button type="submit">Yes!</button>
+      <button type="submit" name="confirm">Yes!</button>
    </fieldset>		
 </form>
 

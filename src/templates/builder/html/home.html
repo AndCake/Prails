@@ -254,20 +254,12 @@
         });
 	};
 	
-	var showUserMgmt = function() {
+	var showUserMgmt = function(content, title) {
+		if (!title) title = "Edit Account";
+		if (!content) content = $("usermgmt-form").down('#my-account').innerHTML;
 		if (window.userMgmt) window.userMgmt.hide();
 		var buttons = [];
 		
-		<? if ($_SESSION["builder"]["name"] == "admin" || $_SESSION["builder"]["group"] == "admin") { ?>
-			buttons.push({
-				text: "All Users",
-				style: "margin-right: 135px",
-				handler: function() {
-					window.userMgmt.setTitle("All Users");
-					invoke(Ext.getCmp('form-content').body.dom, "builder:editUser", {getList: 1}, false);
-				}
-			});
-		<? } ?>
 		buttons.push({
 			text: "Save",
 			handler: function() {
@@ -291,7 +283,7 @@
 		
 		window.userMgmt = new Ext.Window({
 			layout: "fit",
-			title: "My Account",
+			title: title,
 			width: 400,
 			height: 300,
 			plain: true,
@@ -300,7 +292,7 @@
 				autoScroll: true,
 				border: false,
 				id: "form-content",
-				html: $("usermgmt-form").down('#my-account').innerHTML
+				html: content
 			}),
 			buttons: buttons
 		});
@@ -602,7 +594,31 @@
 				window.__testTargetWindowContainer.show();
 			}
 		});
-			
+		
+		window.userMgmtItems = [];
+		<? if (($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin")) { ?>
+		userMgmtItems.push({
+			text: "All Users",
+			handler: function() {
+				invoke(null, "builder:editUser", {getList: 1}, false, function(req) {
+					showUserMgmt(req.responseText, "All Users");					
+				});							
+			}
+		});
+		<? } ?>
+		userMgmtItems.push({
+			text: "Edit Account",
+			handler: function() {
+				showUserMgmt();
+			}
+		});
+		userMgmtItems.push({
+			text: "Logout",
+			handler: function() {
+				location.href = "?event=builder:logout&norelogin=1";
+			}
+		});
+					
 		
 		<c:foreach var="texts" name="text" key="section">
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);

@@ -1,8 +1,8 @@
 <script type="text/javascript">
 //<![CDATA[
 	(function() {
-		var root#session.module_id = new Ext.tree.TreeNode();
-		var r = root#session.module_id;
+		var rootResource = new Ext.tree.TreeNode();
+		var r = rootResource;
 		Ext.getCmp("portlet_content_rm_#session.module_id").add(
 			new Ext.Panel({
 				layout: "border",
@@ -23,6 +23,13 @@
 								Builder.editModuleResourceItem({id: "r_0"}, "#session.module_id");
 							}
 						},"-",{
+							xtype: "button",
+							text: "Bulk add",
+							iconCls: "add",
+							handler: function(e) {
+								Builder.editModuleResourceItem({id: "r_-1"}, "#session.module_id");
+							}
+						}, "-", {
 							xtype: "button",
 							text: "Delete",
 							iconCls: "delete",

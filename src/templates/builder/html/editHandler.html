@@ -32,9 +32,15 @@
 		</div>
 		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as PHP code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
-		<!--[noeval]-->
-		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlspecialchars($arr_param["handler"]["code"])?></div>
-		<!--[/noeval]-->
+		<div id="hcodehcontainer#handler.handler_id" class="tab-list">
+		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
+			<div class="x-tab" title="<?=$code['title']?>">
+				<!--[noeval]-->
+				<div style="border:0px solid #ccc;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlspecialchars($code["content"])?></div>
+				<!--[/noeval]-->
+			</div>
+		<? } ?>
+		</div>
 	</div>
 	<div style="float:left;width:50%;position:relative;">
 		<div style="position:absolute;right:0px;">
@@ -116,6 +122,7 @@
 			</div>
 		</div>
 	</div>
+	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlentities(file_get_contents("templates/builder/php/handler_form_empty.php"))?></div></div>	
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">
@@ -226,14 +233,27 @@
             $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
           }
           $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
-          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
+          // accumulate all code segments into one
+          var titles = {};
+          $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
+        	  var it = Builder.getCode(item);
+        	  var t = item.title;
+        	  if (titles[t]) return;
+        	  titles[t] = true;
+        	  if (t != "Default") {
+	        	  it = "/*[BEGIN POST-"+t+"]*/\nif (isset($_POST[\""+t+"\"])) { /*[ACTUAL]*/\n"+it+"/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-"+t+"]*/\n";
+        	  }
+              $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = it + $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value;
+          });
           invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
         	  Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 
 			  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
         	  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
-			  $("codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
-			  $("codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
+        	  $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
+        		  item.crc.content = Builder.getCode(item);
+        		  item.dirty = false;
+        	  });
         	  
             if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {
               var name = $("h_event_#handler.handler_id").getValue();
@@ -272,28 +292,35 @@
       };
       
       (function() {
-	      Builder.applyBespin("codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
-	         $("codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+    	  
+         Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
+            $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
+            
+	      	setTimeout(function() {
+		          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+//		          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
+	      	}, 1000);
+	      	
+	      	var initBespin = function(list) {
+	      		var item = list.pop();
+	      		if (!item || !$(item)) return;
+		        Builder.applyBespin(item, function(fr) {
+					item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
+					initBespin(list);
+			    }, Object.extend(Builder.prailsNamespace, {
+					id: "container_h_#handler.handler_id",
+					save: function() {
+						parent.$("container_h_#handler.handler_id").save();
+					}, 
+					run: function() {
+			        	Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+			    	}
+			    }));	      		
+	      	};
+	      	initBespin($$("#hcodehcontainer"+"#handler.handler_id .hcodeh"));
+	      	
 
-	         Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
-	            $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
-	            
-		      	setTimeout(function() {
-			          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
-			          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
-		      	}, 1000);				
-	            
-
-	         }, Object.extend(Builder.prailsNamespace, {
-		    	  id: "container_h_#handler.handler_id",
-		          save: function() {
-		             parent.$("container_h_#handler.handler_id").save();
-		          }, 
-		          run: function() {
-		             Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
-		          }
-		      }));
-	      }, Object.extend(Builder.prailsNamespace, {
+         }, Object.extend(Builder.prailsNamespace, {
 	    	  id: "container_h_#handler.handler_id",
 	          save: function() {
 	             parent.$("container_h_#handler.handler_id").save();
@@ -353,8 +380,73 @@
 						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("Leave History");
 					}
 				}
+			}, "-", {
+				xtype: "button",
+				text: "Add Endpoint",
+				tooltip: "Inserts an endpoint for submitting forms. In order to reach it, make sure a variable of the endpoint's name is posted.",
+				iconCls: "form",
+				handler: function(e) {
+					// first ask for the endpoint's name
+					var name = prompt("Please enter the endpoint's name:");
+					name = name.replace(/^\s+|\s+$|[^a-zA-Z0-9]+/gi, '');
+					if (!name || name.length <= 0) return;
+					
+					var found = false;
+			        $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
+			        	var t = item.title;
+			        	if (t == name) found = true;
+			        });
+			        if (found) {
+			        	Ext.Msg.alert("Problem", "An endpoint with this name already exists.");
+			        	return;
+			        }
+					
+					content = $("endpoint_#handler.handler_id").innerHTML.replace(/\[name\]/gi, name);
+					window["codeTabs#handler.handler_id"].add({title: name, id: "<?=(int)$arr_param['handler']['handler_id']?>"+name, html: content});
+
+					setTimeout(function() {
+						window["codeTabs#handler.handler_id"].setActiveTab("<?=(int)$arr_param['handler']['handler_id']?>"+name);
+					}, 100);
+					
+					var id = 'codeh<?=(int)$arr_param['handler']['handler_id']?>'+name;
+					new PeriodicalExecuter(function(pe) {
+						var item = $(id);
+						if (!item) return;
+						pe.stop();
+				        Builder.applyBespin(item, function(fr) {
+							item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
+					    }, Builder.prailsNamespace);
+					}, 0.025);
+					
+					// if there are tabs for the handler code already, add one
+					// else wrap it into tabs and add one
+				}
 			});
 			Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().doLayout();
+			window["codeTabs#handler.handler_id"] = new Ext.TabPanel({
+			    applyTo: 'hcodehcontainer#handler.handler_id',
+			    activeTab: 0,
+			    width: "auto",
+			    defaults: {
+			    	width: "auto",
+			    	closable: true,
+				    listeners: {
+				    	beforeclose: function(p) {
+				    		if (p.title != "Default") {
+				    			return confirm("Do you really want to remove that endpoint?");
+				    		} else {
+				    			return false;
+				    		}
+				    	}
+				    }
+			    },
+			    deferredRender: false,
+			    height: (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150),
+			    autoTabs: true
+			});
+			setTimeout(function() {
+				$$("#hcodehcontainer#handler.handler_id .x-panel-body, #hcodehcontainer#handler.handler_id .x-panel").invoke("setStyle", "width: auto;");
+			}, 100);
 			Ext.QuickTips.init();			
 		}, 10);
 	//]]>

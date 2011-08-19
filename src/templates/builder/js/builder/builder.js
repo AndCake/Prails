@@ -55,9 +55,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 					style: "margin-right: 10px;",
 					iconCls: "user",
 					text: "Account Mgmt",
-					handler: function() {
-						showUserMgmt();	
-					}					
+					menu: {
+						items: window.userMgmtItems
+					}
 				}, {
 					xtype: "button",
 					id: "testresult",
@@ -475,7 +475,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 						},{
 							text: "Edit Resources",
 							iconCls: "resource",
-							disabled: (n.id < 0 ? true : false),
+							disabled: false,
 							handler: function() {
 								Builder.editModuleResource(n);
 							}
@@ -941,6 +941,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 		if (openedPanel.length > 0) {
     		Ext.getCmp(openedPanel).expand(true);
 		}
+		setTimeout(function() {
+			Ext.getCmp("sb_panel").collapse();
+		}, 3000);
 	    new PeriodicalExecuter(function(pe){
 	    	new Ajax.Request("builder.crc32", {
 				method: "get",

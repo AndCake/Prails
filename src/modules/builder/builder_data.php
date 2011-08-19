@@ -349,11 +349,42 @@ class BuilderData extends Database
 
     function listResources($module_id)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id='".$module_id."'");
+    	if ($module_id < 0) {
+    		if (!file_exists("templates/main/resources")) {
+    			@mkdir("templates/main/resources", 0755);
+    		}
+			$dp = opendir("templates/main/resources/");
+			$res = Array(); 
+			while (($file = readdir($dp)) !== false) {
+				if ($file[0] != ".") {
+					array_push($res, Array("name" => $file, "resource_id" => crc32($file)));
+				}
+			}   		
+			closedir($dp);
+			return $res;
+    	} else {
+	        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id='".$module_id."'");
+    	}
     }
-    function selectResource($id)
+    function selectResource($id, $mid = 0)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE resource_id='".$id."'"));
+		if ($mid < 0) {
+    		if (!file_exists("templates/main/resources")) {
+    			@mkdir("templates/main/resources", 0755);
+    		}
+			$dp = opendir("templates/main/resources/");
+			$res = Array(); 
+			while (($file = readdir($dp)) !== false) {
+				if ($id == crc32($file)) {
+					closedir($dp);
+					return Array("name" => $file, "resource_id" => $id, "type" => mime_content_type("templates/main/resources/".$file));
+				}
+			}   		
+			closedir($dp);
+			return null;
+		} else {
+    		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE resource_id='".$id."'"));
+		}
     }
     function selectResourceByName($module_id, $name)
     {

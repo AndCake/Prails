@@ -194,7 +194,11 @@ Builder = Object.extend(Builder || {}, {
 	 */
     applyBespin: function(el, fn, obj) {
 		el = $(el);
-		el.setStyle("-ms-transition:all 0.5s ease-out;-o-transition:all 0.5s ease-out;-moz-transition:all 0.5s ease-out;-webkit-transition:all 0.5s ease-out;");
+		var sel = el;
+		if (el.hasClassName("hcodeh")) {
+			sel = el.up(".x-tab-panel");
+		}
+		sel.setStyle("-ms-transition:all 0.5s ease-out;-o-transition:all 0.5s ease-out;-moz-transition:all 0.5s ease-out;-webkit-transition:all 0.5s ease-out;");
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
@@ -344,12 +348,17 @@ Builder = Object.extend(Builder || {}, {
     
     focusBespin: function(el) {
     	el = $(el);
+    	var oel = el;
+    	if (el.hasClassName("hcodeh")) {
+    		el = el.up(".x-tab-panel");
+    		el.up(".x-tab-panel");
+    	}
     	el.setStyle("box-shadow: 0px 0px 10px #db0;");//.morph("border: 1px solid #ccc;");
     	setTimeout(function() {
     		el.setStyle("box-shadow:0px 0px 0px #db0");
     	}, 1000);
-    	document.getElementsByName(el.id)[0].contentWindow.focus();
-    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
+    	document.getElementsByName(oel.id)[0].contentWindow.focus();
+    	document.getElementsByName(oel.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
     },
     
     blurBespin: function(el) {

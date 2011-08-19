@@ -4,10 +4,10 @@ ServerSignature Off
 #php_value short_open_tag 1 
 
 # add compression types for static files
-AddType text/css css cgz
-AddEncoding gzip cgz
-AddType text/javascript js jgz
-AddEncoding gzip jgz
+AddType text/css css cssgz
+AddEncoding gzip cssgz
+AddType text/javascript js jsgz
+AddEncoding gzip jsgz
 
 <IfModule rewrite_module>
 	RewriteEngine on
@@ -18,23 +18,17 @@ AddEncoding gzip jgz
 	RewriteRule ^(.*)$ index.php?event=builder:home [L]
 
 	RewriteCond %{HTTP:Accept-encoding} gzip
+	RewriteCond %{REQUEST_FILENAME}gz -f
 	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
 	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
-	RewriteRule ^(.*)\.css $1.cgz
-
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^(.*)\.cgz $1.css [L]
+	RewriteRule ^(.*)\.css $1.cssgz [L]
 
 	RewriteCond %{HTTP:Accept-encoding} gzip
+	RewriteCond %{REQUEST_FILENAME}gz -f
 	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
 	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
-	RewriteRule ^(.*)\.js $1.jgz 
-	
-	RewriteCond %{REQUEST_FILENAME} !-d
-	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^(.*)\.jgz $1.js [L]
-	
+	RewriteRule ^(.*)\.js $1.jsgz [L] 
+		
 	#--START_CUSTOM--#
 	#--END_CUSTOM--#
 
@@ -56,11 +50,11 @@ AddEncoding gzip jgz
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-z_A-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6 [L]
+	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-z_A-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6 [QSA,L]
 	
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ([^/.]+)/([^/.]+)(/(.*))?$ index.php?event=$1:$2&$4 [L]
+	RewriteRule ([^/.]+)/([^/.]+)(/(.*))?$ index.php?event=$1:$2&$4 [QSA,L]
 	
 </IfModule>
 
@@ -79,7 +73,7 @@ AddEncoding gzip jgz
 	ExpiresByType text/css "access plus 6 months"
 	
 	# fixes a bug in IE7 under Vista / Win7 (once the MHTML is loaded, it won't be shown again, if not explicitly demanded, so we say it's expired)
-	<FilesMatch "\.header\.(css|cgz)">
+	<FilesMatch "\.header\.(css|cssgz)$">
 		BrowserMatch \bMSI[E]\s+7[.0-9]+;\s+Windows\s+NT\s+[67] EXP_HEADER
 	
 		<IfDefine EXP_HEADER>

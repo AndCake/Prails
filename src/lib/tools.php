@@ -1103,10 +1103,11 @@ function invoke($str_event, $arr_param = null)
             $obj_module = new $handlerClass();
             $__handlerCache[$module] = $obj_module;
         }
-        if (($result = $obj_module->$event($arr_param)) !== false)
-        {
+        if (method_exists($obj_module, $event) && ($result = $obj_module->$event($arr_param)) !== false) {
             return $result;
-        } else
+        } else if (!method_exists($obj_module, $event)) {
+        	return invoke("main:pageNotFound", $arr_param);
+        } else 
         {
             pushError("Error generating event result. Maybe the handler for this event does not exist.");
         }
@@ -1115,11 +1116,18 @@ function invoke($str_event, $arr_param = null)
         // we got a builder!
         if (file_exists("modules/builder") && file_exists("modules/builder/builder.php"))
         {
-            // use it!
+		    if ($module == "templates") {
+				$_GET["mod"] = $event;
+				$_GET["resource"] = substr($_SERVER["QUERY_STRING"], strpos($_SERVER["QUERY_STRING"], "/images/") + strlen("/images/"));
+				return invoke("builder:createResource", $arr_param);
+		    }
+        	
+		    // use it!
             $_GET["builder"]["event"] = $str_event;
             return invoke("builder:run", $arr_param);
         }
         pushError("could not find module for event ".$str_event);
+        return invoke("main:pageNotFound", $arr_param);
     }
 
     return false;

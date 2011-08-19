@@ -94,8 +94,12 @@ class MySQL extends Cacheable {
 	}
 
 	function tableExists($str_table) {
-		$res = $this->query("SHOW TABLES LIKE '".$str_table."'");
-		return (count($res) > 0);
+		$res = $this->query("SHOW TABLES");
+		foreach ($res as $r) {
+			$tbl = array_values($r->getArrayCopy());
+			if ($tbl[0] == $str_table) return true;
+		}
+		return false;
 	}
 
 	function escape($str) {

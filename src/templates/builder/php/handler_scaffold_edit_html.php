@@ -38,7 +38,7 @@
    <p class="error">There was an error saving your changes. Please check if you filled in all necessary fields.</p>
 <?="<? } ?>"?>
 
-<form method="post" action="<?=$arr_module['name']?>/edit<?=$title?>/#<?=$name?>.<?=$name?>_id&check=1">
+<form method="post" action="<?=$arr_module['name']?>/edit<?=$title?>/#<?=$name?>.<?=$name?>_id">
    <fieldset>
       <? foreach ($arr_fields as $key => $field) { ?>
       <div class="form-entry">
@@ -46,7 +46,7 @@
          <?=str_replace(Array("{id}", "{name}", "{value}", "{phpvalue}"), Array($field."-id", $name."[".$field."]", "#".$name.".".$field, "\$arr_param[\"".$name."\"][\"".$field."\"]"), $arr_types[$key])?>
       </div>
       <? } ?>
-      <button type="submit">save</button>
+      <button type="submit" name="save">save</button>
    </fieldset>
 </form>
 <br/>

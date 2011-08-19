@@ -1,3 +1,3 @@
+$arr_param = Array();
 
-   $arr_param = Array();
-   return out($arr_param);
+return out($arr_param);
