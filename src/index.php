@@ -19,8 +19,13 @@
 include("auto_prepend.php");
 header('P3P: CP="CAO PSA OUR"');
 
-// placeholder for overload fallback plugin
-// ...
+if (!$_COOKIE["visited"] && file_exists("cache/heavyload") && filemtime("cache/heavyload") > $_SERVER["REQUEST_TIME"] - 600) {
+	header("Location: http://".$_SERVER["HTTP_HOST"].rtrim(dirname($_SERVER['PHP_SELF']), '/')."/overload.html");
+	die();
+} else {
+	@unlink("cache/heavyload");
+}
+$startTime = microtime(true);
 
 // clean up env vars
 if (get_magic_quotes_gpc() === 1) {
@@ -43,20 +48,27 @@ if (IS_SETUP) {
 	if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
 	$session = new SessionManager();
 }
-
-if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
-	$_SESSION["REQUEST_TIME"] = time();
+if (!$_COOKIE["visited"]) {
+	setcookie("visited", "1", $_SERVER["REQUEST_TIME"] + 600, dirname($_SERVER['PHP_SELF']));
 }
 
-$__cacheName = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]);
+$__cacheName = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]) . ".".if_set($_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"], DEFAULT_LANGUAGE);
 if (file_exists($__cacheName)) {
 	if (filectime($__cacheName) < ($_SERVER["REQUEST_TIME"] - 3600)) {
 		@unlink($__cacheName);
 	} else if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && HTML_CACHE_ENABLED) {
 	    require($__cacheName);
 	    session_write_close();
+		$endTime = microtime(true);
+		if ($endTime - $startTime > 10) {
+			touch("cache/heavyload");
+		}
 	    die();
 	}
+}
+
+if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
+	$_SESSION["REQUEST_TIME"] = time();
 }
 
 if (IS_SETUP) {
@@ -66,7 +78,7 @@ $obj_main = new MainHandler();
 $obj_generator = Generator::getInstance();
 $obj_generator->setModule($obj_main);
 if ($_GET["event"]) {
-	$obj_generator->generateOutput(invoke($_GET["event"]));
+	$obj_generator->generateOutput(invoke($_GET["event"], null, true));
 } else if (($result = $obj_main->home()) !== false) {
 	$obj_generator->generateOutput ($result);
 } else {
@@ -74,4 +86,8 @@ if ($_GET["event"]) {
 	throw new Exception("FATAL: Unable to call main home handler! Please make sure it exists!");
 }
 
+$endTime = microtime(true);
+if ($endTime - $startTime > 10) {
+	touch("cache/heavyload");
+}
 ?>

@@ -235,6 +235,7 @@
           $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
           // accumulate all code segments into one
           var titles = {};
+          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
           $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
         	  var it = Builder.getCode(item);
         	  var t = item.title;

@@ -92,9 +92,9 @@ class Generator {
         if ($_SERVER["REQUEST_METHOD"] == "POST") $this->bol_isCachable = false;
         if ($this->bol_isAjax) {
             if (strlen($this->str_cacheId) > 0) {
-                $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
+                $cacheFile = "cache/page_".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
             } else {
-                $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
+                $cacheFile = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
             }
             $content = $str_content;
             $content = str_replace("<!!", "<"."?", $content);
@@ -105,26 +105,25 @@ class Generator {
 
             // continue interpretion of code... (post processing of session data)
             // eval everything that is between <!! and !!>
-            if (file_exists($cacheFile))
-            require($cacheFile);
+            if (file_exists($cacheFile)) require($cacheFile);
             if (!$this->bol_isCachable) {
                 @unlink($cacheFile);
             }
             session_write_close();
             die();
         } else {
-            if ($this->bol_isCachable) {
-                ob_start();
-                require ($this->str_template);
-                $content = ob_get_contents();
-                ob_end_clean();
-                $content = str_replace("<!!", "<"."?", $content);
-                $content = str_replace("!!>", "?".">", $content);
+            ob_start();
+            require ($this->str_template);
+            $content = ob_get_contents();
+            ob_end_clean();
+            $content = str_replace("<!!", "<"."?", $content);
+            $content = str_replace("!!>", "?".">", $content);
+        	if ($this->bol_isCachable) {
                 
                 if (strlen($this->str_cacheId) > 0) {
-                    $cacheFile = "cache/".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
+                    $cacheFile = "cache/page_".$this->str_cacheId.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
                 } else {
-                    $cacheFile = "cache/".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
+                    $cacheFile = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]).".".$this->obj_lang->language_id;
                 }
                 
                 $fp = fopen($cacheFile, "w+");
@@ -134,14 +133,8 @@ class Generator {
                 // continue interpretion of code... (post processing of session data)
                 // eval everything that is between <!! and !!>
                 if (file_exists($cacheFile))
-                require($cacheFile);
+                	require($cacheFile);
             } else {
-                ob_start();
-                require ($this->str_template);
-                $content = ob_get_contents();
-                ob_end_clean();
-                $content = str_replace("<!!", "<"."?", $content);
-                $content = str_replace("!!>", "?".">", $content);
                 $name = tempnam(realpath("cache"), time());
 
                 $fp = fopen($name, "w+");
@@ -152,6 +145,7 @@ class Generator {
                 // eval everything that is between <!! and !!>
                 require($name);
                 @unlink($name);
+                session_write_close();
             }
         }
     }
@@ -206,6 +200,7 @@ class Generator {
         require ($nname);
         $str_content = ob_get_contents();
         ob_end_clean();
+        @unlink($nname);
         unset($nname);
 		if ($bol_parseLanguage) {
             $str_content = $this->parseApplyLanguage($str_content);
@@ -213,10 +208,10 @@ class Generator {
 		$endTime = time()+microtime();
 
         if (substr(basename($str_name), -5) == ".html" || substr(basename($str_name), -4) == ".xml" ) {
-            return "<!-- TEMPLATE " . $str_name . " (".round($endTime - $startTime, 4)."s) -->\n" . $str_content."\n<!-- END TEMPLATE ".$str_name." -->\n";
-        } else {
-            return $str_content;
+            $str_content = "<!-- TEMPLATE " . $str_name . " (".round($endTime - $startTime, 4)."s) -->\n" . $str_content."\n<!-- END TEMPLATE ".$str_name." -->\n";
         }
+        
+        return $str_content;
     }
 
     function setTitle($str_title, $bol_override = true) {

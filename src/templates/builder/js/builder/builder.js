@@ -203,18 +203,49 @@ window.Builder = Object.extend(window.Builder || {}, {
 						html: $("help").innerHTML,
 						tbar: (Builder.isDeveloper || Builder.isAdmin ? [{
 							xtype: "button", 
-							text: "Flush DB Cache", 
+							text: "Invalidate Cache", 
 							iconCls: "flush", 
-							handler: function() {
-								Ext.Msg.confirm("Warning!", "Do you really want to flush the DB cache? "+(Builder.productionEnvironment ? "Do this only if you really know what you are doing. Flushing the database cache in a production environment can potentially lead to massive performance degradation for some time." : ""), function(btn) {
-									if (btn == "yes") {
-										invoke("builder:flushDBCache", function(req){
-											if (req.responseText == "success") {
-												Ext.ux.util.msg("Flushing completed", "The database cache has been flushed successfully.");
+							menu: {
+								items: [{
+									text: "Database Cache",
+									handler: function() {
+										Ext.Msg.confirm("Warning!", "Do you really want to flush the Database cache? "+(Builder.productionEnvironment ? "Do this only if you really know what you are doing. Flushing the database cache in a production environment can potentially lead to massive performance degradation for some time." : ""), function(btn) {
+											if (btn == "yes") {
+												invoke("builder:flushDBCache", function(req){
+													if (req.responseText == "success") {
+														Ext.ux.util.msg("Flushing completed", "The database cache has been flushed successfully.");
+													}
+												});
 											}
-										});
+										})
+									}									
+								}, {
+									text: "Web Content Cache",
+									handler: function() {
+										Ext.Msg.confirm("Warning!", "Invalidating the web content cache will remove all cached images, icons, LESS/CSS stylesheets and pages. Do you want to continue?", function(btn) {
+											if (btn == "yes") {
+												invoke("builder:flushWebCache", function(req){
+													if (req.responseText == "success") {
+														Ext.ux.util.msg("Invalidation completed", "The web content cache has been invalidated.");
+													}
+												});
+											}
+										})
 									}
-								})
+								}, {
+									text: "Log files",
+									handler: function() {
+										Ext.Msg.confirm("Hint", "Invalidating the log files will remove any previously logged entries. Do you want to continue?", function(btn) {
+											if (btn == "yes") {
+												invoke("builder:flushLogs", function(req){
+													if (req.responseText == "success") {
+														Ext.ux.util.msg("Invalidation completed", "The log files have been cleaned up.");
+													}
+												});												
+											}
+										})
+									}
+								}]
 							}
 						}, "-", {
 							xtype: "button",
@@ -230,7 +261,24 @@ window.Builder = Object.extend(window.Builder || {}, {
 							iconCls: "handler",
 							text: "Log Files",
 							menu: {
-								items: window.logs
+								items: window.logs,
+								listeners: {
+									beforeshow: function(menu) {
+										invoke(null, "builder:updateLogs", null, false, function(req) {
+											menu.removeAll();
+											var data = eval("("+req.responseText+")");
+											$A(data.data).each(function(item) {
+												menu.add({
+													text: item,
+													handler: function() {
+														window.open("?event=builder:showLog&log="+item, "logs");														
+													}
+												});
+											});
+											menu.doLayout();
+										});
+									}
+								}
 							}
 						} : "")] : null)
 					}],

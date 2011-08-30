@@ -116,15 +116,6 @@ class BuilderHandler
             }
         }
         
-        $dp = opendir("log/");
-        $arr_param["logs"] = Array();
-        while (($file = readdir($dp)) !== false) {
-        	if ($file[0] != "." && strpos($file, ".log") !== false) {
-        		array_push($arr_param["logs"], $file);
-        	}
-        }
-        closedir($dp);
-
         foreach ($arr_param["modules"] as $key=>$arr_module)
         {
             $arr_param["modules"][$key]["handlers"] = $this->obj_data->listHandlers($arr_module["module_id"]);
@@ -264,10 +255,10 @@ class BuilderHandler
                     $code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
                     $handler .= "\nfunction ".$arr_handler["event"]."() {\n".$code."\n}\n";
                     $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator) {\n";
-		    		$printer .= "  global \$SERVER;\n";
+		    		$printer .= "  global \$SERVER, \$SECURE_SERVER;\n";
                     $printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
                     $printer .= "  \$arr_param[\"odict\"] = &\$_SESSION[\"odict\"];\n";
-		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
+		    		$printer .= "  \$arr_param[\"server\"] = Array(\"url\" => substr(\$SERVER, 0, -1), \"secureUrl\" => substr(\$SECURE_SERVER, 0, -1), \"host\" => \$_SERVER[\"HTTP_HOST\"], \"port\" => \$_SERVER[\"SERVER_PORT\"], \"referer\" => \$_SERVER[\"HTTP_REFERER\"]);\n";
 		    		$printer .= "  \$arr_param[\"request\"] = Array(\"get\" => \$_GET, \"post\" => \$_POST);\n";
 		    		$printer .= "  \$arr_param[\"cookie\"] = &\$_COOKIE;\n";
 		    		$printer .= "  \$arr_param[\"local\"] = array_merge(is_array(\$arr_param[\"local\"]) ? \$arr_param[\"local\"] : Array(), \$arr_param);\n";
@@ -317,13 +308,11 @@ class BuilderHandler
         return invoke("main:pageNotFound", $arr_param);
     }
 
-    function resetModule($die = true, $module_id = "")
-    {
+    function resetModule($die = true, $module_id = "") {
     	$module_id = if_set($module_id, $_SESSION["module_id"]);
         $arr_param["module"] = $this->obj_data->selectModule($module_id);
 
-        if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0)
-        {
+        if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0) {
         	if (ENV_PRODUCTION) {
                 removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
             } else {
@@ -331,13 +320,21 @@ class BuilderHandler
                 removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
             }
             removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
+			exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
+/*
+			$dp = opendir("cache/");
+			while (($file = readdir($dp)) !== false) {
+				if (strpos($file, "handler_".strtolower($arr_param["module"]["name"]).":") !== false || 
+					strpos($file, "handler_".strtolower($arr_param["module"]["name"]).$module_id.":") !== false) {
+					@unlink("cache/".$file);
+				}
+			}
+			closedir($dp); //*/    
         }
 
-        if ($die)
-        {
+        if ($die) {
             die ("success");
-        } else
-        {
+        } else {
             return "success";
         }
     }
@@ -1105,12 +1102,13 @@ class BuilderHandler
     {
         $_SESSION["builder"] = Array();
         if (session_id() != "") session_destroy();
+        session_write_close();
+	    header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
+	    header('HTTP/1.0 401 Unauthorized');
         if ($_GET["norelogin"] == "1") {
         	require("templates/builder/html/loggedout.html");
         	die();	
         } else {
-	        header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
-	        header('HTTP/1.0 401 Unauthorized');
 	        require ("templates/builder/html/not_allowed.html");
 	        die ();
         }
@@ -1963,6 +1961,28 @@ class BuilderHandler
 		die("success");
 	}
 	
+	function flushWebCache() {
+		$dp = opendir("cache/");
+		while (($file = readdir($dp)) !== false) {
+			if ($file[0] != "." && !is_dir("cache/".$file)) {
+				@unlink("cache/".$file);
+			}
+		}
+		closedir($dp);
+		die("success");
+	}
+	
+	function flushLogs() {
+		$dp = opendir("log/");
+		while (($file = readdir($dp)) !== false) {
+			if ($file[0] != "." && strpos($file, ".log") !== false) {
+				@unlink("log/".$file);
+			}
+		}
+		closedir($dp);
+		die("success");		
+	}
+	
 	function editUser() {
 		if ($_POST["user"]) {
 			$data = $_POST["user"];
@@ -2051,6 +2071,18 @@ class BuilderHandler
 			return $this->_callPrinter("showLog", $arr_param);
 		}
 		die("error");
+	}
+	
+	function updateLogs() {
+        $dp = opendir("log/");
+        $arr_param["logs"] = Array();
+        while (($file = readdir($dp)) !== false) {
+        	if ($file[0] != "." && strpos($file, ".log") !== false) {
+        		array_push($arr_param["logs"], $file);
+        	}
+        }
+        closedir($dp);
+		die(json_encode(Array("data" => $arr_param['logs'])));
 	}
 	
 	function fileBrowser() {

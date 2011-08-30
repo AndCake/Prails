@@ -73,8 +73,11 @@ class MainPrinter
     
     function cmsHandler($arr_param) {
         $decorator = "<!--[content]-->";
+        
         if (strlen($arr_param["text"]["decorator"]) > 0) {
-            $decorator = invoke($arr_param["text"]["decorator"]);
+            $decorator = invoke($arr_param["text"]["decorator"], null, true);
+        } else {
+			Generator::getInstance()->setIsCachable(true);        	
         }
         
 		if (strlen($arr_param["text"]["title"]) > 0) {
@@ -84,7 +87,7 @@ class MainPrinter
 			Generator::getInstance()->setDescription($arr_param['text']['description']);
 		}
         
-        return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
+		return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
     }
     
     function setup($arr_param) {

@@ -368,14 +368,6 @@
 			text: "All Testcases"
 		}];
 		window.logs = [];
-		<? foreach ($arr_param["logs"] as $log) { ?>
-			logs.push({
-				text: "<?=$log?>",
-				handler: function() {
-					window.open("?event=builder:showLog&log=<?=$log?>", "logs");
-				}				
-			});
-		<? } ?>
 		window.searchReplaceForm = $("searchReplaceForm").cloneNode(true);
 		$("searchReplaceForm").remove();
 		

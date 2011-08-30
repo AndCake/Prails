@@ -1084,17 +1084,38 @@ function get_timestamp($date) {
  *
  * @return MIXED if successful it will return the event's result. If an error occured (like event not found) it will return false
  */
-function invoke($str_event, $arr_param = null)
+function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 {
-    global $__handlerCache;
 	global $log;
-    if (!is_array($__handlerCache)) $__handlerCache = Array();
     
-    list($module, $event) = explode(":", $str_event);
+	$cacheFile = "cache/handler_".$str_event.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"].serialize($arr_param)).".".Generator::getInstance()->obj_lang->language_id;
+	if (file_exists($cacheFile)) {
+		if (filemtime($cacheFile) >= $_SERVER["REQUEST_TIME"] - 3600) {
+			$log->trace("Fetching handler from cache ".$str_event."( ".$arr_param." )");
+			$data = json_decode(file_get_contents($cacheFile.".state"), true);
+	    	Generator::getInstance()->arr_styles = $data["styles"];
+	    	Generator::getInstance()->arr_noCacheStyles = $data["ncstyles"];
+	    	Generator::getInstance()->arr_js = $data["js"];
+	    	Generator::getInstance()->arr_noCacheJS = $data["ncjs"];
+       		Generator::getInstance()->bol_isCachable = $data["cache"];	    	
+			
+			return file_get_contents($cacheFile);
+		} else {
+			@unlink($cacheFile);
+			@unlink($cacheFile.".state");
+		}
+	}
+    
+    global $__handlerCache;
+	if (!is_array($__handlerCache)) $__handlerCache = Array();
+	
+	$oldCache = Generator::getInstance()->bol_isCachable;
+	if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = false;
+	
+	list($module, $event) = explode(":", $str_event);
 	$log->trace("Invoking ".$str_event."( ".$arr_param." )");
 	$module = strtolower($module);
-    if (file_exists("modules/".$module) && file_exists("modules/".$module."/".$module.".php"))
-    {
+    if (file_exists("modules/".$module) && file_exists("modules/".$module."/".$module.".php")) {
         if ($__handlerCache[$module] != null) {
             $obj_module = $__handlerCache[$module];
         } else {
@@ -1104,30 +1125,53 @@ function invoke($str_event, $arr_param = null)
             $__handlerCache[$module] = $obj_module;
         }
         if (method_exists($obj_module, $event) && ($result = $obj_module->$event($arr_param)) !== false) {
+        	if (Generator::getInstance()->bol_isCachable) {
+        		file_put_contents($cacheFile.".state", json_encode(Array(
+        			"styles" => Generator::getInstance()->arr_styles,
+        			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
+        			"js" => Generator::getInstance()->arr_js,
+        			"ncjs" => Generator::getInstance()->arr_noCacheJS,
+       				"cache" => Generator::getInstance()->bol_isCachable        		
+        		)));
+        		file_put_contents($cacheFile, $result);
+        	}
+       		if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
             return $result;
         } else if (!method_exists($obj_module, $event)) {
+       		if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
         	return invoke("main:pageNotFound", $arr_param);
-        } else 
-        {
+        } else {
             pushError("Error generating event result. Maybe the handler for this event does not exist.");
         }
-    } else
-    {
+    } else {
         // we got a builder!
-        if (file_exists("modules/builder") && file_exists("modules/builder/builder.php"))
-        {
+        if (file_exists("modules/builder") && file_exists("modules/builder/builder.php")) {
 		    if ($module == "templates") {
 				$_GET["mod"] = $event;
 				$_GET["resource"] = substr($_SERVER["QUERY_STRING"], strpos($_SERVER["QUERY_STRING"], "/images/") + strlen("/images/"));
-				return invoke("builder:createResource", $arr_param);
+				$result = invoke("builder:createResource", $arr_param);
+		    } else {
+			    // use it!
+	            $_GET["builder"]["event"] = $str_event;
+	            $result = invoke("builder:run", $arr_param);
 		    }
-        	
-		    // use it!
-            $_GET["builder"]["event"] = $str_event;
-            return invoke("builder:run", $arr_param);
+        } else {
+        	pushError("could not find module for event ".$str_event);
+        	$result = invoke("main:pageNotFound", $arr_param);
         }
-        pushError("could not find module for event ".$str_event);
-        return invoke("main:pageNotFound", $arr_param);
+        
+       	if (Generator::getInstance()->bol_isCachable) {
+       		file_put_contents($cacheFile.".state", json_encode(Array(
+       			"styles" => Generator::getInstance()->arr_styles,
+       			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
+       			"js" => Generator::getInstance()->arr_js,
+       			"ncjs" => Generator::getInstance()->arr_noCacheJS,
+       			"cache" => Generator::getInstance()->bol_isCachable
+       		)));
+       		file_put_contents($cacheFile, $result);
+       	}
+       	if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
+        return $result;
     }
 
     return false;
