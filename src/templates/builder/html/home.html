@@ -632,6 +632,15 @@
 			var l = Ext.getCmp("qwbuilder_langsPanel").getNodeById("text_.<?=$_GET['open_tree']?>");
 			Builder.editText({ident: '<?=$_GET["open_tree"]?>', text: (l && l.text) || "New Text"});
 		</c:if>
+		window.document.body.observe("keydown", function(event) {
+			if (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey))) {
+				event.stop();
+			}
+		}).observe("keyup", function(event) {
+			if (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey))) {
+				event.stop();
+			}
+		});
 	});
 	//]]>
 </script>

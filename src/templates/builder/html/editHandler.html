@@ -229,10 +229,20 @@
 			};
 			
       $("container_h_#handler.handler_id").save = function() {
+    	  $("h_event_#handler.handler_id").value = $("h_event_#handler.handler_id").getValue().replace(/[^a-zA-Z0-9_]/gi, ''); 
           if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
             $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
           }
-          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+          if ($("h_event_#handler.handler_id").getValue().length <= 0 || $("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
+        	  if ($("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
+        		Ext.Msg.alert("Problem", "The handler's name is invalid. Please check.");  
+        	  } else {
+        	  	Ext.Msg.alert("Problem", "Please specify the handler's name.");
+        	  }
+        	  return;
+          }
+          
+       	  $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
           // accumulate all code segments into one
           var titles = {};
           $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
