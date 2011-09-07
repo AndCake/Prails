@@ -34,7 +34,7 @@ function run($cmd, $arr_args = Array(), $bol_inBackground = false) {
         }
     }
     if ($bol_inBackground) {
-        exec("nice ".$cmd." ".$args." > ./log.txt 2>&1 &");
+        exec("nice ".$cmd." ".$args." > log/runlog.txt 2>&1 &");
     } else {
         $arr_return = Array();
         exec($cmd." ".$args, $arr_return);
@@ -1177,13 +1177,6 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
     return false;
 }
 
-function writeLog($logText,$severity=0)
-{
-	$fp = fopen("log.txt", "a");
-	fwrite($fp, $logText);
-	fclose($fp);
-	
-}
 
 /**
  * This method recursively merges two arrays; if values differ, the 
