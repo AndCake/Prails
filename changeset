@@ -1,3 +1,40 @@
+V1.1.2 (September 8th, 2011)
+
+* added a way to upload resources to the global module (warning: as with all global objects, it cannot be exported nor imported through package import)
+* added feature to cache static content assets if their decorator supports it (in case it has no decorator, it will always be cached)
+* added handler-specific caching (so now for example decorators can be cached independant from the actual page they are used in)
+* added endpoint infrastructure (POSTed data can now be executed through extra sub handlers - leads to cleaner code base)
+* added #server.secureUrl (which generates the HTTPS url for the current page)
+* added endpoint detection for precise error reporting in log files
+* added database contents export and import functionality
+* added server overload handling (detection + reaction)
+* added functionality to empty web cache and log files
+* added default language setting to be stored in conf
+* added 404 page for not-found modules / handlers
+* added bulk uploading of resources
+* added functionality to log out
+* arr_param is now always pre-defined within a handler function. It contains any value given to it via server-side invoke
+* improved CMS bookmarklet to enable directly jumping to the content asset in prails when clicking the square
+* updated to newest modernizr version
+* updated to newest jquery version
+* made sure that requested resources are always directed to the correct generation handler
+* simplified doctype to be HTML5 rather than XHTML
+* fixed a problem with not all log files being shown (or ones that don't exist anymore) in help tab
+* fixed a problem with the installer not having the passwords kept correctly
+* fixed a problem with module not being reset after changing configuration
+* fixed a problem with base href not being accepted with relative protocol in IE
+* fixed a bug with control.date computing the resulting timestamp incorrectly
+* fixed a bug with adding CSS & JS files as resources (and then accessing it) 
+* fixed a bug with checking for table existence with MySQL
+* fixed a security bug that enabled any user to edit CMS data on production systems
+* fixed a bug with logging out of the Prails IDE
+* fixed a problem with page caching
+* fixed a bug with session data not stored correctly under some circumstances
+* fixed a bug with handler code being duplicated when saved multiple times
+* fixed a problem with empty / invalid event handler names when creating or renaming a handler
+* fixed a problem where backspace or ALT-left or CMD-left could lead to leaving prails accidentally
+
+
 V1.1.1 (August 4th, 2011)
 
 * added a button at database structure editing for easier creation of foreign keys
