@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<script type="text/javascript" src="../js/codeeditor/shCore.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/shBrushCss.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/shBrushJscript.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/shBrushPhp.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/shBrushSql.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/shBrushXml.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/prailsCodeEditor.js"></script>
+	<link type="text/css" rel="stylesheet" href="../css/shCoreDefault.css"/>
+	<link type="text/css" rel="stylesheet" href="../css/prailsCodeEditor.css"/>
+</head>
+
+<body style="background: white; font-family: Helvetica">
+<script type="text/javascript">
+//<![CDATA[
+	document.body.innerHTML = '<div class="owrapper"><div class="code"><div id="highlight"></div><div id="cwrapper"></div></div></div>';
+
+	// auto-complete keywords
+	if (!window.keywords) window.keywords = [];	
+	/** examples:
+	var keywords = [{
+		prefix: "_\.",
+		items: ["bind", "bing", "tell", "toll"]
+	}, {
+		prefix: null,
+		items: ["invoke", "addLoadEvent", "investigate", "addingAll"]
+	}];
+	//*/
+		
+	/**
+	 * public functions 
+	 */
+	// override these:
+	txt.search = function() {
+		// trigger search
+		// ...
+	};
+	txt.save = function() {
+		// trigger save
+		// ...
+	};
+	
+	// don't override these:
+	txt.getCode = function() {
+		return window.txt.value;
+	};
+	txt.setCode = function(code) {
+		code = code.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&");
+		if (!this.undoStack) {
+			this.undoStack = [];
+		}
+		var me = window.txt;
+		var p = [];
+		try {
+			p = [me.selectionStart, me.selectionEnd];
+		} catch(e){};
+		me.innerHTML = code.replace(/\t/g, '    ');
+		me.value = code.replace(/\t/g, '    ');
+		try {
+		me.selectionStart = p[0];
+		me.selectionEnd = p[1];
+		} catch(e){};
+		me.undoStack.push(me.value);
+		refresh(me.value);
+		return true;
+	};
+	txt.enable = function(enable) {
+		if (enable || typeof(enable) == "undefined") {
+			txt.style.display = "block";
+		} else {
+			txt.style.display = "none";
+		}
+	};
+	txt.setBrush = function(brush) {
+		options = options.replace(/brush:[^;]+;/gi, '') + "brush: "+brush.toLowerCase()+";";
+	};
+	txt.enableHtmlScript = function(enable) {
+		if (typeof(enable) == 'undefined' || enable) {
+			options = options.replace(/html-script:[^;]+;/gi, '') + "html-script: true;";
+		} else {
+			options = options.replace(/html-script:[^;]+;/gi, '');
+		}
+	};
+	txt.addKeywords = function(prefix, items) {
+		keywords.push({prefix: prefix, items: items});
+	};
+	txt.setSearchText = function(tosearch, regexp) {
+		txt.searchTerm = tosearch;
+		if (regexp) {
+			txt.searchTerm = new RegExp(tosearch, "gi");
+		}
+		txt.searchPos = [txt.selectionStart, txt.selectionEnd];
+	};
+	txt.findNext = function(pos, wrap) {
+		var f = txt.searchTerm;
+		var found = txt.value.substr(pos).search(f);
+		if (found >= 0) {
+			return [pos + found, pos + found + txt.value.substr(pos).match(f)[0].length]; 
+		} else if (wrap) {
+			var found = txt.value.substr(0, pos).search(f);
+			if (found >= 0) {
+				return [found, found + txt.value.substr(0, pos).match(f)[0].length]; 
+			}			
+		}
+		return null;
+	};
+	txt.findPrevious = function(pos, wrap) {
+		var f = txt.searchTerm;
+		var found = txt.value.substr(0, pos).match(f);
+		if (found) {
+			var start = txt.value.lastIndexOf(found[found.length - 1]);
+			return [start, start + found[found.length - 1].length];
+		} else if (wrap) {
+			var found = txt.value.substr(pos).match(f);
+			if (found) {
+				var start = txt.value.lastIndexOf(found[found.length - 1]);
+				return [start, start + found[found.length - 1].length];
+			}
+		}
+		return null;
+	};
+	txt.setSelection = function(sel) {
+		txt.selectionStart = sel[0];
+		txt.selectionEnd = sel[1];
+	};
+	txt.replace = function(sel, text) {
+		txt.value = txt.value.substr(0, sel[0]) + text + txt.value.substr(sel[1]);
+		refresh(txt.value);
+	};
+
+	var options = "toolbar: false;";
+	
+	// initialization code:
+	/** example:
+	window.init = function() {
+		window.txt.setBrush("jscript");
+		window.txt.setCode("function myTest() {\n	return \"test\";\n}");
+		// ...
+	};
+ 	//*/
+//]]>
+</script>
+</html>

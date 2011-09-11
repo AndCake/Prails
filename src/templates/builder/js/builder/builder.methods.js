@@ -202,7 +202,7 @@ Builder = Object.extend(Builder || {}, {
 		// save the content
         var content = $(el).innerHTML;
         // create an iframe to load bespin
-        el.innerHTML = "<div class='blockable' id='"+el.id+"-blocked-text'></div><iframe src='about:blank' name='"+el.id+"' style='display:block;width:100%;' height='100%' scrolling='no' frameborder='no'></iframe>";
+        el.innerHTML = "<div class='blockable' id='"+el.id+"-blocked-text'></div><iframe src='templates/builder/html/codeeditor.html' name='"+el.id+"' style='display:block;width:100%;' height='100%' frameborder='no'></iframe>";
 
         var crc = new PeriodicalExecuter(function(crc) {
         	try {
@@ -222,120 +222,70 @@ Builder = Object.extend(Builder || {}, {
         el.crc = crc;
         
         var cwin = document.getElementsByName(el.id)[0].contentWindow;
-        var pe = new PeriodicalExecuter(function(pe) {
-        	pe.stop();
-            var win = document.getElementsByName(pe.el.id)[0].contentWindow;
-            win.id = el.id;
-            // apply context
-            win.prails = Object.clone(pe.obj);
-            // load all needed bespin components
-            var link = win.document.createElement('link');
-            link.id="bespin_base";
-            link.href="templates/builder/js/bespin";
-            win.document.getElementsByTagName('head')[0].appendChild(link);
-            var script = win.document.createElement('script');
-            script.src="templates/builder/js/bespin/BespinEmbedded.js";
-            script.type="text/javascript";
-            win.document.getElementsByTagName('head')[0].appendChild(script);
-            var style = win.document.createElement('link');
-            style.rel = "stylesheet";
-            style.href="templates/builder/js/bespin/BespinEmbedded.css";
-            style.type="text/css";
-            win.document.getElementsByTagName('head')[0].appendChild(style);
-            // write the actual element to be bespinned
-            var b = win.document.createElement("div");
-            b.className = "bespin";
-            b.setAttribute("data-bespinoptions", pe.el.getAttribute("data-bespinoptions"));
-            b.innerHTML = content;
-            win.document.body.appendChild(b);
-            win.document.body.style.margin = "0px";
-            win.document.body.style.padding = "0px";
-
-            // scan for resizing events (shrinking in particular)
-            var pl = new PeriodicalExecuter(function(pl) {
-            	if (pl.el.parentNode.visible()) {
-            		// if the container width has been reduced 
-					try {
-		                if (pl.el.clientWidth + 50 < pl.win.document.width || pl.el.clientWidth - 50 > pl.div.clientWidth) {
-		                	// adapt the inner canvas
-		                	pl.div.style.width = pl.el.clientWidth+'px';
-							pl.div.getElementsByTagName("canvas")[1].width = pl.el.clientWidth - parseInt(pl.div.getElementsByTagName("canvas")[1].style.left);
-							// and refresh views
-		                	pl.div.bespin.editor.textView.invalidate();
-	                		pl.div.bespin.editor.dimensionsChanged();
-		                }
-					} catch(e) {
-						pl.stop();
-					}
-            	}
-            }, 0.25);
-            pl.el = el;
-            pl.div = b;
-            pl.win = win;
-            win.document.body.onkeyup = function(event) {
-            	if (!event) event = win.event;
-    			Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = win.id;
-            	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
-            		win.parent.Builder.searchInBespin(win);
-            		try {
-            			event.stopPropagation();
-            			event.cancelBubble = true;
-            		} catch(e){};
-            		return false;
-            	} else if (event.ctrlKey && event.altKey) {
-        			window.focus();
-            		if (event.keyCode == 39) {
-            			Builder.nextTab(event);
-            		} else if (event.keyCode == 37) {
-            			Builder.previousTab(event);
-            		}
-            		pl.div.bespin.editor.buffer.undoManager.undo();
-            		return false;
-            	} else if (event.ctrlKey && event.shiftKey) {
-            		if (event.keyCode == "D".charCodeAt(0)) {
-            			Builder.quickOpen();
-            		} else if (event.keyCode == "A".charCodeAt(0)) {
-    					Builder.queryTest();
-            		} else if (event.keyCode == "Q".charCodeAt(0)) {
-            			if (!win.parent.closed) {
-            				win.parent.closed = true;
-                			Builder.closeCurrentTab();  
-                			setTimeout(function() {win && win.parent && (win.parent.closed = false);}, 100);
-                    		try {
-                    			event.stopPropagation();
-                    			event.cancelBubble = true;
-                    		} catch(e){};
-                    		return false;
-            			}
-            		}            		
-            	}
-            };
-            
-            win.onBespinLoad = function() {
-            	var env = win.document.getElementsByTagName("div")[0].bespin;
-            	el.crc.content = Builder.getCode(el.id);
-	            if (el.getAttribute("onload")) {
-	            	eval(el.getAttribute("onload"))(env);
-	            }
-            };
-            
-            new PeriodicalExecuter(function(pa) { try { win.onready(); pa.stop(); 'stopped for '+pe.el.id+'!'; }catch(e){};}, 0.25);
-            if (typeof(pe.fn) == "function") {
-            	// fire callback as soon as settled
-            	setTimeout(function() {pe.fn.apply(window, [win])}, 1);
+        cwin.init = function() {
+            cwin.prails = Object.clone(obj);
+            cwin.id = document.getElementsByName(el.id)[0].contentWindow.id;
+            var data = JSON.parse(el.getAttribute("data-bespinoptions"));
+            cwin.txt.setBrush(data.syntax);
+            if (data.html == true) {
+            	cwin.txt.enableHtmlScript();
             }
-        }, 0.01);
-        pe.fn = fn;
-        pe.el = el;
-        pe.obj = obj;
+            if (obj && obj.save) {
+            	cwin.txt.save = obj.save;
+            }
+            cwin.txt.setCode(content);
+            if (el.getAttribute("onload")) {
+            	eval(el.getAttribute("onload"))(cwin.txt);
+            }            
+            
+            cwin.document.body.onkeyup = function(event) {
+            	if (!event) event = cwin.event;
+				Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = cwin.id;
+	        	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
+	        		cwin.parent.Builder.searchInBespin(cwin);
+	        		try {
+	        			event.stopPropagation();
+	        			event.cancelBubble = true;
+	        		} catch(e){};
+	        		return false;
+	        	} else if (event.ctrlKey && event.altKey) {
+	    			window.focus();
+	        		if (event.keyCode == 39) {
+	        			Builder.nextTab(event);
+	        		} else if (event.keyCode == 37) {
+	        			Builder.previousTab(event);
+	        		}
+	        		return false;
+	        	} else if (event.ctrlKey && event.shiftKey) {
+	        		if (event.keyCode == "D".charCodeAt(0)) {
+	        			Builder.quickOpen();
+	        		} else if (event.keyCode == "A".charCodeAt(0)) {
+						Builder.queryTest();
+	        		} else if (event.keyCode == "Q".charCodeAt(0)) {
+	        			if (!win.parent.closed) {
+	        				win.parent.closed = true;
+	            			Builder.closeCurrentTab();  
+	            			setTimeout(function() {cwin && cwin.parent && (cwin.parent.closed = false);}, 100);
+	                		try {
+	                			event.stopPropagation();
+	                			event.cancelBubble = true;
+	                		} catch(e){};
+	                		return false;
+	        			}
+	        		}            		
+	        	}
+            };
+            if (typeof(fn) == "function") {
+            	// fire callback as soon as settled
+            	setTimeout(function() {fn.apply(window, [cwin])}, 1);
+            }
+        };
     },
     
     setCode: function(el, newval) {
     	el = $(el);
-    	var bespin = document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin;
-    	var sel = bespin.editor.selection;
-    	bespin.editor.value = newval;
-    	bespin.editor.selection = sel;
+    	var bespin = document.getElementsByName(el.id)[0].contentWindow.txt;
+    	bespin.setCode(newval);
     },
     
     /** 
@@ -343,7 +293,7 @@ Builder = Object.extend(Builder || {}, {
      */
     getCode: function(el) {
         el = $(el);
-        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.value;
+        return document.getElementsByName(el.id)[0].contentWindow.txt.getCode();
     },
     
     focusBespin: function(el) {
@@ -358,22 +308,22 @@ Builder = Object.extend(Builder || {}, {
     		el.setStyle("box-shadow:0px 0px 0px #db0");
     	}, 1000);
     	document.getElementsByName(oel.id)[0].contentWindow.focus();
-    	document.getElementsByName(oel.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
+//    	document.getElementsByName(oel.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
     },
     
     blurBespin: function(el) {
     	el = $(el);
-    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = false;
+//    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = false;
     },
     
     enableBespin: function(el) {
         el = $(el);
-        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.readOnly = false;
+        return document.getElementsByName(el.id)[0].contentWindow.txt.enable();
     },
 
     disableBespin: function(el) {
         el = $(el);
-        return document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.readOnly = true;
+        return document.getElementsByName(el.id)[0].contentWindow.txt.enable(false);
     },
     
     refreshBespin: function(el) {
@@ -387,7 +337,7 @@ Builder = Object.extend(Builder || {}, {
     	});
     },
     searchInBespin: function(win) {
-    	var bespin = win.document.getElementsByTagName("div")[0].bespin;
+    	var bespin = win.txt;
 		window.sarwin = new Ext.Window({
 			layout: "fit",
 			title: "Search & Replace in Code",
@@ -402,12 +352,12 @@ Builder = Object.extend(Builder || {}, {
 			bbar: [{
 				text: "Find",
 				handler: startFind = function() {
-					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
-					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
-					var nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked);
+					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
+					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
 					if (nextMatch) {
-						bespin.editor.setLineNumber(nextMatch.start.row + 1);
-						bespin.editor.selection = nextMatch;
+//						bespin.editor.setLineNumber(nextMatch.start.row + 1);
+						bespin.setSelection(nextMatch);
 						$("tosearch").focus();
 					} else {
 						Ext.Msg.alert("Not found", "There was no match for \""+$('tosearch').getValue()+"\"", function() {
@@ -418,13 +368,13 @@ Builder = Object.extend(Builder || {}, {
 			}, "-", {
 				text: "Replace",
 				handler: function() {
-					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
-					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
-					var nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked);
+					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
+					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
 					if (nextMatch) {
-						bespin.editor.setLineNumber(nextMatch.start.row + 1);
-						bespin.editor.selection = nextMatch;
-						bespin.editor.replace(nextMatch, $("toreplace").getValue());
+//						bespin.editor.setLineNumber(nextMatch.start.row + 1);
+						bespin.setSelection(nextMatch);
+						bespin.replace(nextMatch, $("toreplace").getValue());
 						$("tosearch").focus();
 					} else {
 						Ext.Msg.alert("Not found", "There was no match for \""+$('tosearch').getValue()+"\"", function() {
@@ -435,12 +385,12 @@ Builder = Object.extend(Builder || {}, {
 			}, "-", {
 				text: "Replace All",
 				handler: function() {
-					bespin.editor.searchController.setSearchText($("tosearch").getValue(), $("regexp").checked);
+					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var replaced = 0;
-					var dir = ($("forward").checked && {func: "findNext", attr: "end"}) || ($("backward").checked && {func: "findPrevious", attr: "start"});
-					while (nextMatch = bespin.editor.searchController[dir.func](bespin.editor.selection[dir.attr], $("wrapsearch").checked)) {
-						bespin.editor.selection = nextMatch;
-						bespin.editor.replace(nextMatch, $("toreplace").getValue());
+					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
+					while (nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked)) {
+						bespin.setSelection(nextMatch);
+						bespin.replace(nextMatch, $("toreplace").getValue());
 						replaced++;
 					} 
 					if (replaced > 0) {

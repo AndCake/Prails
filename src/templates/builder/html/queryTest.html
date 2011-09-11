@@ -25,7 +25,7 @@
 	<div style="padding:20px;">
 	<div style="float:left;width:49%;position:relative;">
 		Query
-		<div id="query_container" style="padding:2px 3px;border:1px solid #9ab;"></div>
+		<div id="query_container" data-bespinoptions='{"syntax": "sql"}' style="height:54px;padding:2px 3px;border:1px solid #9ab;"></div>
 	</div>
 	<div style="float:left;margin-left:1%;width:49%;position:relative;">
 		Clipboard
@@ -48,13 +48,13 @@
 			};
 							
 			window.runQuery = function(query, callback, hide) {
-				if ((query || window.sqlQuery.getCode()).strip().length <= 0) return false;
+				if ((query || Builder.getCode("query_container")).strip().length <= 0) return false;
 
-				var shortQuery = (query || window.sqlQuery.getCode());
+				var shortQuery = (query || Builder.getCode("query_container"));
 				if (shortQuery.length > 50) shortQuery = shortQuery.substr(0, 50);
 
 				invoke(null, "builder:queryTest&check=1", {
-					"query": query || window.sqlQuery.getCode()
+					"query": query || Builder.getCode("query_container")
 				}, true, function(req) {
 					try {
 						$("result_container").update("");
@@ -241,6 +241,7 @@
 				});				
 			};
 			
+/*
 			new Ext.form.TextArea({
 				fieldLabel: "Query",
 				grow: true,
@@ -248,7 +249,7 @@
 				width: "100%",
 				renderTo: "query_container",
 				anchor:'95%'
-			});
+			}); */
 			new Ext.form.TextArea({
 				grow: true,
 				fieldLabel: "Clipboard",
@@ -274,22 +275,25 @@
 			}]);
 			Ext.getCmp("portlet_content_query_test").getTopToolbar().doLayout();
 			Ext.QuickTips.init();
+			Builder.applyBespin($("query_container"));
+/*
 			window.sqlQuery = CodeMirror.fromTextArea('query', {
 				height: "100%",
 				parserfile: ["parsesparql.js", "../../main/js/prototype.js", "shortcuts.js"],
 				stylesheet: ["templates/builder/css/sparqlcolors.css"],
 				path: "templates/builder/js/",
 				textWrapping: true
-			});
+			});*/
 			new PeriodicalExecuter(function(pe) {
+				pe.stop();
+/*
 				if (window.sqlQuery.editor != null) {
-					pe.stop();
 					window.sqlQuery.editor.doc.parent = window;
 					window.sqlQuery.editor.doc.run = function(){
 						window.runQuery();
 					};
-					window.runQuery("SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
-				}
+				}//*/
+				window.runQuery("SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"<?=$_SESSION['builder']['user_id']?>\"", window.initTableList, true);
 			}, 0.5);
 			
 			Ext.override(Ext.CompositeElement, {

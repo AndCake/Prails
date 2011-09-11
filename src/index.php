@@ -87,7 +87,7 @@ if ($_GET["event"]) {
 }
 
 $endTime = microtime(true);
-if ($endTime - $startTime > 10) {
+if ($endTime - $startTime > 10 && array_shift(split(":", $_GET["event"])) !== "builder") {
 	touch("cache/heavyload");
 }
 ?>

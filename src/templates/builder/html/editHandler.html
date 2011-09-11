@@ -36,7 +36,7 @@
 		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
 			<div class="x-tab" title="<?=$code['title']?>">
 				<!--[noeval]-->
-				<div style="border:0px solid #ccc;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_<?=$arr_param['handler']['handler_id']?>').loadCodeTags"><?=htmlspecialchars($code["content"])?></div>
+				<div style="border:0px solid #ccc;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
 				<!--[/noeval]-->
 			</div>
 		<? } ?>
@@ -50,7 +50,7 @@
 		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code <a title="In this area you can put the HTML code to be presented to the user" class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
 		<!--[noeval]-->
-		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>
+		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>
     <!--[/noeval]-->		
 	</div>
 	<div style="display: none;" id="schedule_#handler.handler_id">
@@ -285,27 +285,16 @@
           });
           return false;     
       };
-      
-      $("container_h_#handler.handler_id").loadCodeTags = function(env) {
-//*
-      	var arr = [];
-      	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
-      		arr.push({
-                name: item.text,
-                kind: "F",
-                tagfile: "data.php",
-                addr: "/^"+item.text+"$/",
-                namespace: "$data"
-      		});
-      	});
-      	env.editor.addTags(arr);
-//*/      	
-      };
-      
+            
       (function() {
     	  
          Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
             $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
+
+            fr.txt.addKeywords(null, [
+				"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\">", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", 
+				"<a href=\"\"></a>", "<div class=\"clear\"><!-- clear floating --></div>", "<form method=\"post\" action=\"\">\n</form>", "<button type=\"\"></button>"
+			]);
             
 	      	setTimeout(function() {
 		          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
@@ -316,7 +305,14 @@
 	      		var item = list.pop();
 	      		if (!item || !$(item)) return;
 		        Builder.applyBespin(item, function(fr) {
-					item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
+		          	var arr = [];
+		          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
+		          		arr.push(item.text);
+		          	});
+		          	fr.txt.addKeywords("\\$data->", arr);
+		          	fr.txt.addKeywords(null, ["out", "invoke", "checkFields", "Generator", "scaleEmbed", "isEmbed", "isExternalURL", "if_set", "set_var", "getUserLanguage", "wordCut", "removeDir", "hyperlink", "timeDiff", "toUTF8", "jumpTo", "createThumbnail", "getThumbnailFromEmbed", "sendMail", "doGet", "doPost", "array_merge_recursive_distinct", "one_of", "receiveFile"]);
+		          	
+		        	item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
 					initBespin(list);
 			    }, Object.extend(Builder.prailsNamespace, {
 					id: "container_h_#handler.handler_id",
@@ -448,6 +444,11 @@
 				    		} else {
 				    			return false;
 				    		}
+				    	},
+				    	activate: function(p) {
+				    		try {
+				    			p.el.dom.down("iframe").contentWindow.updateSize();
+				    		} catch(e) {};
 				    	}
 				    }
 			    },

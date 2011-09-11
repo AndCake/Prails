@@ -1,0 +1,61 @@
+html, body { height: 100%; }
+body { font-size: 12px; margin: 0px; }
+div.code { height: 100%; position: relative; }
+div.owrapper { ; width: 100%; height: 100%; }
+textarea { 
+	display:block; 
+	width: 100%; 
+	height: 100%; 
+	font-size: 1em; 
+	font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace; 
+	line-height: 13px; 
+	opacity: 0.3; 
+	color: black; 
+	outline: none; 
+	border: 0px; 
+	padding: 0px;
+	margin: 0px;
+	overflow: hidden;
+	white-space: pre;
+}
+div#cwrapper {
+	position: absolute; 
+	top: 0px; 
+	right: 2px; 
+	padding: 0px;
+	z-index: 1;
+	width: 100%; 
+	height: 100%; 
+}
+ul.dialog {
+	list-style-type: none;
+	background: #efefef;
+	border: 1px solid #ccc;
+	color: #414141;
+	margin: 0px;
+	position: absolute;
+	z-index: 10;
+	padding: 5px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px #ccc;
+}
+ul.dialog li {
+	margin: 0px;
+	padding: 2px 5px;
+	border: 1px solid transparent;
+	list-style-type: none;
+}
+ul.dialog li.active {
+	color: #974400;
+	background: #ffedd1;
+	background: -moz-linear-gradient(top, #ffedd1 0%, #ffc267 50%, #ffbc57 51%, #ffd597 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffedd1), color-stop(50%,#ffc267), color-stop(51%,#ffbc57), color-stop(100%,#ffd597));
+	background: -webkit-linear-gradient(top, #ffedd1 0%,#ffc267 50%,#ffbc57 51%,#ffd597 100%);
+	background: -o-linear-gradient(top, #ffedd1 0%,#ffc267 50%,#ffbc57 51%,#ffd597 100%);
+	background: -ms-linear-gradient(top, #ffedd1 0%,#ffc267 50%,#ffbc57 51%,#ffd597 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffedd1', endColorstr='#ffd597',GradientType=0 );
+	background: linear-gradient(top, #ffedd1 0%,#ffc267 50%,#ffbc57 51%,#ffd597 100%);			
+	border: 1px solid #fbcb09;
+	border-radius: 5px;
+	text-shadow: 1px 1px 5px white;
+}

@@ -1093,12 +1093,14 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 		if (filemtime($cacheFile) >= $_SERVER["REQUEST_TIME"] - 3600) {
 			$log->trace("Fetching handler from cache ".$str_event."( ".$arr_param." )");
 			$data = json_decode(file_get_contents($cacheFile.".state"), true);
-	    	Generator::getInstance()->arr_styles = $data["styles"];
+			Generator::getInstance()->str_title = $data["title"];
+			Generator::getInstance()->str_description = $data["description"];			
+			Generator::getInstance()->arr_styles = $data["styles"];
 	    	Generator::getInstance()->arr_noCacheStyles = $data["ncstyles"];
 	    	Generator::getInstance()->arr_js = $data["js"];
 	    	Generator::getInstance()->arr_noCacheJS = $data["ncjs"];
        		Generator::getInstance()->bol_isCachable = $data["cache"];	    	
-			
+       		
 			return file_get_contents($cacheFile);
 		} else {
 			@unlink($cacheFile);
@@ -1131,7 +1133,9 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
         			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
         			"js" => Generator::getInstance()->arr_js,
         			"ncjs" => Generator::getInstance()->arr_noCacheJS,
-       				"cache" => Generator::getInstance()->bol_isCachable        		
+       				"cache" => Generator::getInstance()->bol_isCachable,
+        			"description" => Generator::getInstance()->str_description,
+       				"title" => Generator::getInstance()->str_title      		
         		)));
         		file_put_contents($cacheFile, $result);
         	}
@@ -1166,7 +1170,9 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
        			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
        			"js" => Generator::getInstance()->arr_js,
        			"ncjs" => Generator::getInstance()->arr_noCacheJS,
-       			"cache" => Generator::getInstance()->bol_isCachable
+       			"cache" => Generator::getInstance()->bol_isCachable,
+   				"description" => Generator::getInstance()->str_description,
+   				"title" => Generator::getInstance()->str_title      		
        		)));
        		file_put_contents($cacheFile, $result);
        	}
