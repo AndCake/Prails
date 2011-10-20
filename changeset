@@ -1,3 +1,30 @@
+V1.2.0 (October 20th, 2011)
+
+* added explicit use of foreign key constraints for all supported database systems (won't break existing db structures)
+* added an automated backup and restore functionality
+* added a hook for overriding the global home page rather than directly changing the handler code of it (fully backwards compatible)
+* added a simple profiling tool (therefore also added a button for all system-collected profiling data)
+* added functionality to replicate code and database structure securely to production systems
+* added PostgreSQL support
+* added library uploading (so if you have some PHP library you want to use in your project, simply upload and use it) 
+* added new code editor for all code fields:
+	* it now _really_ works with iPads & co. 
+	* includes a much better support of auto completion (try CTRL+Space) - even in output code!
+	* now also features current line hint
+	* more precise syntax highlighting
+* added Hooks documentation to built-in API documentation
+* made sure that database contents cannot be imported on production
+* made setting the default language more resistant to (DB) errors
+* Fixed a problem with parameters not intuitively transmitted when using handler names beginning with edit/delete/view (now behaves exactly as with all other handlers, is also fully  backwards compatible)
+* fixed a bug with scaffolding feature when editing multiple tables at the same time
+* fixed a bug where all CTRL+Backspace / CTRL+Left (same for CMD on Mac systems) were surpressed rather than only in textareas and input fields
+* fixed a bug in built-in API documentation: cross-references were not loaded correctly
+* fixed a bug with page caching in overload situations: the overload lock was released too early
+* fixed a bug where on slow servers, the overload page was shown prematurely in some rare cases
+* fixed a bug where the page's title and description were not correctly re-used when page was cached 
+* removed old code mirror code editor
+
+
 V1.1.2 (September 8th, 2011)
 
 * added a way to upload resources to the global module (warning: as with all global objects, it cannot be exported nor imported through package import)
