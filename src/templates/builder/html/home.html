@@ -131,7 +131,6 @@
 </div>
 <div id="import_panel" style="display: none;"><!--
 	<div style="padding: 10px;">
-	<h2>Import Package</h2>
 	<fieldset>
 		<legend>
 			File to import: 
@@ -151,8 +150,183 @@
 		
 		<p style="margin: 1em 0px;"><i>Please note:</i> you can only upload package files to a maximum size of <b><?=ini_get("post_max_size")?>B</b> each.</p>	
 	</fieldset>
+	<c:if cond="ENV_PRODUCTION === true">
+	<form method="post" action="?event=builder:restore" id="restoreForm" onsubmit="if($('restoreForm').down('select').value.empty()){Ext.Msg.alert('Problem', 'Please select a backup file to restore.');return false;}if($('dtRestore').checked) {try{Ext.Msg.confirm('Warning!', 'Do you really want to remove all database content and re-import it from the backup?', function(btn) {if (btn == 'yes') {$('restoreForm').submit();}});}catch(e){console.log(e);};return false;}">
+	<fieldset style="width:382px;">
+		<legend>Restore Backup</legend>
+		<p>Please select the backup file you want to restore.</p>
+		<select name="file" size="6" style="width: 100%;">
+			<c:foreach var="backupList" name="item">
+				<option value="#local.item">#local.item</option>
+			</c:foreach>
+		</select>
+		<input type="checkbox" name="dataRestore" value="1" id="dtRestore" /> <label for="dtRestore">also restore database contents</label>
+		<div class="panel-bottom"> Restore Procedure:
+		<button type="submit">Start</button></div>
+	</fieldset>
+	</form>
+	</c:if>
 	</div>
 --></div>
+<div id="library_upload_panel"><!-- <div style="padding: 10px;">
+	<fieldset>
+		<legend>
+			Library to import: 
+		</legend>
+		<qw:file 	
+			target="?event=builder:editLibrary&library_id=0&import=1&name=" 
+			progress="progress" 
+			onstart="$('currentFile').innerHTML='Uploading '+this.fileName+' ('+Math.round(this.fileSize / 1024)+'kB)...';" 
+			ondone="loadURL('?event=builder:home&open_nav=qwbuilder_libsPanel');"
+		>
+			<button>Click to upload</button>
+		</qw:file>
+		<div id="currentFile"></div>
+		<div style="position:relative;width:200px;height:10px;border:1px solid #ccc;background-color:#fff;display:none;">
+			<div id="progress" style="position:absolute;left:0px;top:0px;height:100%;width:0px;background-color:#cf9;border-right:1px solid #ccc;"></div>
+		</div>
+		
+		<p style="margin: 1em 0px;"><i>Please note:</i> you can only upload libraries to a maximum size of <b><?=ini_get("post_max_size")?>B</b> each.</p>
+		<p style="margin: 1em 0px;">For complex libraries it is recommended to upload the library archive in it's original packed format (.tar.gz, .tar.bz2 or .zip).</p>	
+	</fieldset>
+	</div>
+ --></div>
+<c:if cond="ENV_PRODUCTION === true">
+<div id="replicate_panel" style="display: none;"><!--
+	<div style="padding: 10px;">
+		<h2>Replication</h2>
+		<fieldset id="connection_details">
+			<legend>Source Instance</legend>
+			<p>Replication enables you to copy over features you select from one instance over to this one. Therefore, please enter the URL and credentials of the instance you want to replicate from. After successful connection, you can select the features to replicate.<br/><br/></p>
+			<c:input type="text" name="replicate[source]" value="" label="URL to source instance:" />
+			<c:input type="text" name="replicate[source_user]" value="" label="Remote user:" />
+			<c:input type="password" name="replicate[source_pass]" value="" label="Remote password:" />
+			<% /* need to do proxied HTTP request as source could be hosted somewhere else */ %>
+			<button type="button" onclick="Replication.connect(this.up().select('input'));">Connect</button>
+		</fieldset>
+		<div id="replication_details" style="display:none;">
+		<% /* code replication settings */ %>
+			<fieldset>
+				<legend>Remote Modules:</legend>
+				<select class="export" name="modules[]" multiple="multiple" size="5" id="repl_modules">
+				</select>
+				<div>
+					<a href="javascript:" onclick="$$('#repl_modules option').each(function(item){item.selected=true;});">select all</a> | 
+					<a href="javascript:" onclick="$$('#repl_modules option').each(function(item){item.selected=false;});">select none</a>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Remote Libraries:</legend>
+				<select class="export" name="libraries[]" multiple="multiple" size="5" id="repl_libraries">
+				</select>
+				<div>
+					<a href="javascript:" onclick="$$('#repl_libraries option').each(function(item){item.selected=true;});">select all</a> | 
+					<a href="javascript:" onclick="$$('#repl_libraries option').each(function(item){item.selected=false;});">select none</a>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Remote Tags:</legend>
+				<select class="export" name="tags[]" multiple="multiple" size="5" id="repl_tags">
+				</select>
+				<div>
+					<a href="javascript:" onclick="$$('#repl_tags option').each(function(item){item.selected=true;});">select all</a> | 
+					<a href="javascript:" onclick="$$('#repl_tags option').each(function(item){item.selected=false;});">select none</a>
+				</div>
+			</fieldset>		
+
+			<% /* Data replication settings */ %>
+			<fieldset>
+				<legend>Remote Tables:</legend>
+				<select class="export" name="tables[]" multiple="multiple" size="5" id="repl_tables" style="height: 98px;">
+				</select>
+				<div>
+					<a href="javascript:" onclick="$$('#repl_tables option').each(function(item){item.selected=true;});">select all</a> | 
+					<a href="javascript:" onclick="$$('#repl_tables option').each(function(item){item.selected=false;});">select none</a>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Remote Content:</legend>
+				<select class="export" name="translations[]" multiple="multiple" size="5" id="repl_translations">
+				</select>
+				<div>
+					<a href="javascript:" onclick="$$('#repl_translations option').each(function(item){item.selected=true;});">select all</a> | 
+					<a href="javascript:" onclick="$$('#repl_translations option').each(function(item){item.selected=false;});">select none</a>
+				</div>
+				<div style="margin-top: 10px;">
+					<input type="checkbox" name="images" value="1" checked="checked" id="repl_export-images"/>
+					<label for="export-images" onclick="this.previous().checked = !this.previous().checked;">include images</label>
+				</div>
+			</fieldset>
+			<div class="panel-bottom">
+				<button type="button" onclick="Replication.start($('replication_details').select('select, input'));">Start Replication</button>
+			</div>
+		</div>
+	</div> 
+--></div>
+</c:if>
+<div id="backup_panel" style="display: none;"><!-- 
+	<div style="padding: 10px;">
+		<h2>Schedule Backups</h2>
+		<p>Please select the timing when a backup should be running regularily.</p>
+		<div class="scheduler" style="border: 1px solid #ccc;margin-top: 10px;">
+			<form method="post" action="?event=builder:backup&save=1" onsubmit="convertScheduleDataToJSON(this); return false;">
+			<input type="hidden" name="backupTime" value="" id="backupTime"/>
+			<div class="form-entry repeat">
+				<div class="label">
+					<label for="from">Every:</label>
+				</div>
+				<div class="value">
+					<input type="text" name="repeat" value="0" />
+					<select name="type" size="1">
+						<option value="mins">Minutes</option>
+						<option value="hours">Hours</option>
+						<option value="days" selected="selected">Days</option>
+						<option value="months">Months</option>						
+					</select>
+				</div>
+			</div>
+			<div class="form-entry days">
+				<div class="label">
+					<label for="from">On these days:</label>
+				</div>
+				<div class="value radiogroup">
+					<div class="radio">
+						<input type="checkbox" name="weekday[mon]" value="1" checked="checked" id="mon_b" /> 
+						<label for="mon_b">Monday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[tue]" value="2" checked="checked" id="tue_b" /> 
+						<label for="tue_b">Tuesday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[wed]" value="3" checked="checked" id="wed_b" /> 
+						<label for="wed_b">Wednesday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[thu]" value="4" checked="checked" id="thu_b" /> 
+						<label for="thu_b">Thursday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[fri]" value="5" checked="checked" id="fri_b" /> 
+						<label for="fri_b">Friday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[sat]" value="6" checked="checked" id="sat_b" /> 
+						<label for="sat_b">Saturday</label>
+					</div>
+					<div class="radio">
+						<input type="checkbox" name="weekday[sun]" value="0" checked="checked" id="sun_b" /> 
+						<label for="sun_b">Sunday</label>
+					</div>
+				</div>
+			</div>
+			<div class="panel-bottom">
+				<button type="submit" name="save">Save</button>
+			</div>
+			</form>
+		</div>		
+	</div> -->
+</div>
 <div id="searchReplaceForm" style="display:none;">
 	<div class="searchReplaceForm">
 		<div class="form-entry">
@@ -216,6 +390,7 @@
 <script type="text/javascript">
 	//<![CDATA[
 	var win;
+	var schedule = JSON.parse('<?=json_encode($arr_param["backup"])?>');
 	Ext.BLANK_IMAGE_URL = (function() {
 		if (Ext.isIE8 || Ext.isGecko || Ext.isOpera || Ext.isWebkit) {
 			return "data:image/gif;base64,R0lGODlhAQABAID/AMDAwAAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
@@ -223,6 +398,31 @@
 			return "templates/builder/images/default/s.gif";
 		}			
 	})();
+	
+	var convertScheduleDataToJSON = function(form) {
+		var repeat = $$(".scheduler .repeat input")[0].value;
+		var repInt = $$(".scheduler .repeat select")[0].value;
+		var days = $$(".scheduler .days input");
+		var dlist = [];
+		days.each(function(d){
+			if (d.checked) {
+				dlist.push(d.value);
+			}
+		});
+		
+		var crontab = {
+			min: (repInt == 'mins' ? "*/"+repeat : time.split(":")[1]),
+			hour: (repInt == 'hours' ? "*/"+repeat : time.split(":")[0]),
+			day: (repInt == 'days' ? "*/"+repeat : date.split("-")[2]),
+			month: (repInt == 'months' ? "*/"+repeat : date.split("-")[1]),
+			week: dlist.join(","),
+			time: time,
+			date: date								
+		};
+		
+		$("backupTime").value = JSON.stringify(crontab);
+		form.submit();	
+	};
 	
 	var updateProgress = function(url, msg) {
 	    window._prailsInstallProgress.currentStatus = msg;
@@ -486,14 +686,32 @@
 			</c:foreach>
 			Builder.root.appendChild(module);
 		</c:foreach>
+		var addLibTree = function(root, entries) {
+			for (var all in entries) {
+				var children = !(entries[all] > 0);
+				var node = new Ext.tree.TreeNode({
+					text: all,
+					leaf: !children,
+					iconCls: !children ? "file" : "folder",
+					allowChildren: children
+				});
+				root.appendChild(node);
+				if (children) {
+					addLibTree(node, entries[all]);
+				}
+			}
+		};
 		<c:foreach var="libraries" name="library">
 			lib = new Ext.tree.TreeNode({
 				text: "#library.name",
-				leaf: true,
+				leaf: ('#library.fk_resource_id' <= 0),
 				iconCls: "library",
 				id: "l_#library.library_id",
-				allowChildren: false
+				allowChildren: ('#library.fk_resource_id' > 0)
 			});
+			if ('#library.fk_resource_id' > 0) {
+				addLibTree(lib, (#library.resource.tree));
+			}
 			Builder.libRoot.appendChild(lib);
 		</c:foreach>
 		<c:foreach var="tags" name="tag">
@@ -619,6 +837,7 @@
 		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
 		window.Builder.noRewrite = <?=MOD_REWRITE ? "false" : "true"?>;
+		window.profilerLogs = <?=(file_exists("log/profiler_system.log") ? "true" : "false")?>;
 		
 		(function() {
 			try {
@@ -633,11 +852,13 @@
 			Builder.editText({ident: '<?=$_GET["open_tree"]?>', text: (l && l.text) || "New Text"});
 		</c:if>
 		window.document.body.observe("keydown", function(event) {
-			if (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey))) {
+			var input = event.target.nodeName.toUpperCase() == "INPUT" || event.target.nodeName.toUpperCase() == "TEXTAREA";
+			if (!input && (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey)))) {
 				event.stop();
 			}
 		}).observe("keyup", function(event) {
-			if (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey))) {
+			var input = event.target.nodeName.toUpperCase() == "INPUT" || event.target.nodeName.toUpperCase() == "TEXTAREA";
+			if (!input && (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey)))) {
 				event.stop();
 			}
 		});

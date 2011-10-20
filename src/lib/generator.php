@@ -109,6 +109,11 @@ class Generator {
             if (!$this->bol_isCachable) {
                 @unlink($cacheFile);
             }
+            if (PROFILING_ENABLED === true) {
+            	global $profiler;
+            	$profiler->logEvent("page_no_cache_hit#".$_SERVER["REQUEST_URI"]);
+            }
+            
             session_write_close();
             die();
         } else {

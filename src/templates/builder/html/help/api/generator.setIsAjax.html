@@ -37,11 +37,12 @@
             The following code fragment shows the use of that function within an event's printer:
         </p>
         <pre>
-			$obj_gen = Generator::getInstance();
+        	$arr_param["users"] = $data->listUsers();
+        	
 			if ($arr_param["ajaxRequest"]) {
-				$obj_gen->setIsAjax();
+				Generator::getInstance()->setIsAjax();
 			}
-			return $obj_gen->includeTemplate("templates/user/html/view.html", $arr_param);
+			return out($arr_param);
         </pre>
     </body>
 </html>

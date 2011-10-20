@@ -1,7 +1,36 @@
 html, body { height: 100%; }
 body { font-size: 12px; margin: 0px; }
-div.code { height: 100%; position: relative; }
+div.code { height: 100%; position: relative; width: 99.9%; }
+.syntaxhighlighter table .line.currentLine {
+	background-color: #ffffef !important;
+}
 div.owrapper { ; width: 100%; height: 100%; }
+@-webkit-keyframes blink {
+	0% { opacity: 1; }
+	50% { opacity: 0.2; }
+	100% { opacity: 1; }
+}
+#cursor {
+	width: 2px;
+	background: black;
+	height: 13px;
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	z-index: 1;
+	-webkit-animation-name: blink;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count: infinite; 
+}
+.selection {
+	background-color: orange;
+	opacity: 0.2;
+	height: 13px;
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	z-index: 1;
+}
 textarea { 
 	display:block; 
 	width: 100%; 
@@ -9,7 +38,7 @@ textarea {
 	font-size: 1em; 
 	font-family: "Consolas", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace; 
 	line-height: 13px; 
-	opacity: 0.3; 
+	opacity: 0; 
 	color: black; 
 	outline: none; 
 	border: 0px; 
@@ -17,6 +46,8 @@ textarea {
 	margin: 0px;
 	overflow: hidden;
 	white-space: pre;
+	position: relative;
+	z-index: 10;
 }
 div#cwrapper {
 	position: absolute; 

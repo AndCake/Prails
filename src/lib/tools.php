@@ -1086,11 +1086,12 @@ function get_timestamp($date) {
  */
 function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 {
-	global $log;
+	global $log, $profiler;
     
 	$cacheFile = "cache/handler_".$str_event.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"].serialize($arr_param)).".".Generator::getInstance()->obj_lang->language_id;
 	if (file_exists($cacheFile)) {
 		if (filemtime($cacheFile) >= $_SERVER["REQUEST_TIME"] - 3600) {
+			if ($profiler) $profiler->logEvent("event_cache_hit#".$str_event);
 			$log->trace("Fetching handler from cache ".$str_event."( ".$arr_param." )");
 			$data = json_decode(file_get_contents($cacheFile.".state"), true);
 			Generator::getInstance()->str_title = $data["title"];
@@ -1116,6 +1117,8 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 	
 	list($module, $event) = explode(":", $str_event);
 	$log->trace("Invoking ".$str_event."( ".$arr_param." )");
+	if ($profiler) $profiler->logEvent("event_no_cache_hit#".$str_event);
+	
 	$module = strtolower($module);
     if (file_exists("modules/".$module) && file_exists("modules/".$module."/".$module.".php")) {
         if ($__handlerCache[$module] != null) {

@@ -14,6 +14,7 @@ AddEncoding gzip jsgz
 	
 	RewriteCond %{REQUEST_FILENAME} \.users [OR]
 	RewriteCond %{REQUEST_FILENAME} \.groups [OR]
+	RewriteCond %{REQUEST_FILENAME} .+\.prails$ [OR]
 	RewriteCond %{REQUEST_FILENAME} \.htaccess
 	RewriteRule ^(.*)$ index.php?event=builder:home [L]
 
@@ -50,7 +51,7 @@ AddEncoding gzip jsgz
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-z_A-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6 [QSA,L]
+	RewriteRule ([^/]+)/((edit|delete|view)([A-Z][a-z_A-Z0-9]+))(/(.*))?$ index.php?event=$1:$2&$4_id=$6&$6 [QSA,L]
 	
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f

@@ -22,7 +22,7 @@ header('P3P: CP="CAO PSA OUR"');
 if (!$_COOKIE["visited"] && file_exists("cache/heavyload") && filemtime("cache/heavyload") > $_SERVER["REQUEST_TIME"] - 600) {
 	header("Location: http://".$_SERVER["HTTP_HOST"].rtrim(dirname($_SERVER['PHP_SELF']), '/')."/overload.html");
 	die();
-} else {
+} else if (file_exists("cache/heavyload") && filemtime("cache/heavyload") <= $_SERVER["REQUEST_TIME"] - 600) {
 	@unlink("cache/heavyload");
 }
 $startTime = microtime(true);
@@ -44,23 +44,26 @@ if (get_magic_quotes_gpc() === 1) {
 
 include("conf/includes.php");
 $log = new Logger();
+$profiler = null;
 if (IS_SETUP) {
 	if (USE_AUTO_DEPLOY) DBDeployer::deploy($arr_database, "tbl_prailsbase_");
+	if (PROFILING_ENABLED === true) $profiler = new Profiler("system");
 	$session = new SessionManager();
 }
 if (!$_COOKIE["visited"]) {
 	setcookie("visited", "1", $_SERVER["REQUEST_TIME"] + 600, dirname($_SERVER['PHP_SELF']));
 }
 
-$__cacheName = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]) . ".".if_set($_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"], DEFAULT_LANGUAGE);
+$__cacheName = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]) . ".".one_of($_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"], $_COOKIE['defaultLanguage'], DEFAULT_LANGUAGE);
 if (file_exists($__cacheName)) {
 	if (filectime($__cacheName) < ($_SERVER["REQUEST_TIME"] - 3600)) {
 		@unlink($__cacheName);
 	} else if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && HTML_CACHE_ENABLED) {
 	    require($__cacheName);
-	    session_write_close();
+	    if ($profiler) $profiler->logEvent("page_cache_hit#".$_SERVER["REQUEST_URI"]);
+	    if ($session->isActive()) session_write_close();
 		$endTime = microtime(true);
-		if ($endTime - $startTime > 10) {
+		if (ENV_PRODUCTION && $endTime - $startTime > 25) {
 			touch("cache/heavyload");
 		}
 	    die();
@@ -85,9 +88,10 @@ if ($_GET["event"]) {
 	// error!!!
 	throw new Exception("FATAL: Unable to call main home handler! Please make sure it exists!");
 }
+if ($profiler) $profiler->logEvent("page_no_cache_hit#".$_SERVER["REQUEST_URI"]);
 
 $endTime = microtime(true);
-if ($endTime - $startTime > 10 && array_shift(split(":", $_GET["event"])) !== "builder") {
+if (ENV_PRODUCTION && $endTime - $startTime > 25 && array_shift(split(":", $_GET["event"])) !== "builder") {
 	touch("cache/heavyload");
 }
 ?>

@@ -1,0 +1,195 @@
+<div style="padding: 20px;">
+<script type="text/javascript" src="templates/builder/js/rgraph/RGraph.common.core.js"></script>
+<script type="text/javascript" src="templates/builder/js/rgraph/RGraph.common.tooltips.js"></script>
+<script type="text/javascript" src="templates/builder/js/rgraph/RGraph.line.js"></script>
+<style type="text/css">
+	.RGraph_tooltip {
+		position: absolute;
+		z-index: 100;
+		color: black;
+		border: 1px solid #ccc;
+		background-color: white;
+	}
+	.RGraph_tooltip:hover { display: none !important; }
+	canvas.stat {
+		width: 300px;
+		height: 150px;
+		border: 1px solid #ccc;
+		margin-right: 10px;
+		margin-bottom: 10px;
+	}
+	table#pgc { border: 1px solid #ccc; }
+	table#pgc thead tr#pagecache-head th { font-family: Verdana; font-weight: bold; font-size: 15px; padding-bottom: 5px; text-align: center; }
+	table#pgc tbody#pagecache tr:hover td, table tbody#pagecache tr:hover th {
+		background-color: #efefef;
+	}
+	table#pgc tbody#pagecache th {
+		font-size: 11px;
+		width: 30%;
+		white-space: nowrap;
+		overflow: hidden;
+	}
+	table#pgc tbody#pagecache td.avg {
+		width: 130px;
+	}
+	table#pgc tbody#pagecache td .border { 
+		border: 1px solid black; 
+		height: 15px;
+		margin-right: 10px; 
+	}
+	table#pgc tbody#pagecache td .cached {
+		display: inline-block;
+		position: relative;
+		height: 15px;
+		background-color: blue;
+	}
+	table#pgc tbody#pagecache td .uncached {
+		display: inline-block;
+		position: relative;
+		height: 15px;
+		background-color: red;
+	}
+	
+</style>
+<canvas class="stat" id="memory"></canvas>
+<canvas class="stat" id="requestTime"></canvas>
+<canvas class="stat" id="dbcache"></canvas>
+<table id="pgc" border="0" width="90%" cellspacing="0">
+	<thead>
+		<tr id="pagecache-head"><th colspan="3" align="center">Page Caching Status</th></tr>
+		<tr><th>Page</th><th>Avg Time (in ms)</th><th>Cache Status</th></tr>
+	</thead>
+	<tbody id="pagecache"></tbody>
+</table>
+<script type="text/javascript">
+//<![CDATA[
+		var mems = [];
+		var times = [];
+		var cachedPages = {};
+		var pages = {};
+		var uncachedPages = {};
+		var cachedQueries = {};
+		var uncachedQueries = {};
+		function createXHR() {
+			window.cxhr = new XMLHttpRequest();
+			cxhr.open("GET", "modules/builder/profiler_console.php", true);
+			cxhr.send(null);
+			cxhr.onreadystatechange = function() {
+				if (window.cxhr && window.cxhr.readyState == 4) {
+					try { renderData(); } catch(e){};
+				}
+			}
+		}
+		
+		function renderData() {
+			if (window.cxhr) {
+				try {
+					var lines = window.cxhr.responseText.split(/\n/);
+					for (var i = 0; i < lines.length; i++) {
+						renderItem(JSON.parse(lines[i]), i);
+					}
+				} catch(e){};
+				if (mems.length > 0 && times.length > 0 && pages) {
+					draw();
+				}
+			}			
+		}
+		
+		function renderItem(item, pos) {
+			if (!item.type) return;
+			var page = item.type.replace(/^[^#]+#/gi, '');
+			if (item.type.indexOf("page_no_cache_hit#") >= 0 || item.type.indexOf("page_cache_hit#") >= 0) {
+				mems.push(parseInt(item.memory, 10) / (1024 * 1024));
+				times.push(parseFloat(item.time, 10) * 1000);
+				if (!pages[page]) pages[page] = 0;
+				pages[page]++;
+				if (item.type.indexOf("page_cache_hit#") >= 0) {
+					if (!cachedPages[page]) cachedPages[page] = {count: 0, totalTime: 0};
+					cachedPages[page].count++;
+					cachedPages[page].totalTime += parseFloat(item.time);
+				} else {
+					if (!uncachedPages[page]) uncachedPages[page] = {count: 0, totalTime: 0};
+					uncachedPages[page].count++;
+					uncachedPages[page].totalTime += parseFloat(item.time);
+				}
+			} else if (item.type == "query_no_cache_hit") {
+				if (!uncachedQueries["_"+item.date]) uncachedQueries["_"+item.date] = 0;
+				uncachedQueries["_"+item.date]++;
+			} else if (item.type == "query_cache_hit") {
+				if (!cachedQueries["_"+item.date]) cachedQueries["_"+item.date] = 0;
+				cachedQueries["_"+item.date]++;
+			}
+		}
+		
+		createXHR();
+		
+		function draw() {
+			var m =  new RGraph.Line("memory", window.mems);
+			m.Set("chart.background.grid", true);
+			m.Set("chart.linewidth", 1);
+			m.Set("chart.title", "Memory Consumption (in MB)");
+			m.Set("chart.colors", ["red"]);
+			m.Set("chart.tooltips", (function() {
+				var res = [];
+				for (var i = 0; i < window.mems.length; i++) {
+					res.push([Math.round(window.mems[i] * 100) / 100.0+" MB"]);			
+				}
+				return res;
+			})());			
+			m.Draw();
+
+			var t =  new RGraph.Line("requestTime", window.times);
+			t.Set("chart.background.grid", true);
+			t.Set("chart.gutter.left", 50);
+			t.Set("chart.linewidth", 1);
+			t.Set("chart.title", "Processing Time (in ms)");
+			t.Set("chart.colors", ["red"]);
+			t.Set("chart.tooltips", (function() {
+				var res = [];
+				for (var i = 0; i < window.times.length; i++) {
+					res.push([Math.round(window.times[i])+" ms"]);			
+				}
+				return res;
+			})());			
+			t.Draw();
+			
+			var cached = [];
+			var uncached = [];
+			for (var all in cachedQueries) {
+				cached.push(cachedQueries[all]);
+			}
+			for (var all in uncachedQueries) {
+				uncached.push(uncachedQueries[all]);
+			}
+			var d = new RGraph.Line("dbcache", [cached, uncached]);
+			d.Set("chart.background.grid", true);
+			d.Set("chart.linewidth", 1);
+			d.Set("chart.title", "DB Performance (queries/sec)");
+			d.Set("chart.colors", ["blue", "red"]);
+//			d.Set("chart.tickmarks", "endcircle");
+			d.Set("chart.tooltips", (function() {
+				var res = [];
+				for (var i = 0; i < cached.length; i++) {
+					res.push([cached[i]+" queries (result from cache)"]);			
+				}
+				return res;
+			})(), (function() {
+				var res = [];
+				for (var i = 0; i < uncached.length; i++) {
+					res.push([uncached[i]+" queries (result from DB)"]);			
+				}
+				return res;				
+			})());
+			d.Draw();
+			
+			for (var all in pages) {
+				var totalTime = ((cachedPages[all] && cachedPages[all].totalTime) || 0) + ((uncachedPages[all] && uncachedPages[all].totalTime) || 0);
+				var cp = (cachedPages[all] && cachedPages[all].count) || 0;
+				var ucp = (uncachedPages[all] && uncachedPages[all].count) || 0;
+				var c = cp + ucp;
+				$("pagecache").insert("<tr><th>"+all+"</th><td class='avg'>"+Math.round((totalTime)/c * 1000)+"</td><td><div class='border'><div title='"+Math.round(cp / pages[all] * 100.0, 2)+"% cached' class='cached' style='width:"+(cp / pages[all] * 100.0)+"%;'></div><div title='"+Math.round(ucp / pages[all] * 100.0, 2)+"% uncached' class='uncached' style='width:"+(ucp / pages[all] * 100.0)+"%;'></div></div></td></tr>");
+			}
+		}
+//]]>
+</script>
+</div>

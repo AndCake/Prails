@@ -29,6 +29,70 @@ var Timer = function(id, fn, time) {
 	return this;
 };
 
+var drawCursor = function(el) {
+	var cnt = el.value.substr(el.selectionStart, el.selectionEnd - el.selectionStart);
+	var before = el.value.substr(0, el.selectionStart);
+	var after = el.value.substr(el.selectionEnd);
+	var currentLine = before.split(/\n/).length - 1;
+	var currentCol = (before.indexOf("\n") >= 0 ? before.match(/\n[^\n]*$/gi)[0].length : before.length+1) - 1;
+
+	var it = document.querySelectorAll(".syntaxhighlighter .line");
+	for (var i = 0, len = it.length; i< len; i++) {
+		it[i].className = it[i].className.replace(/\s*currentLine\s*/gi, '');
+		if (el.hasFocus && el.selectionStart == el.selectionEnd && it[i].className.indexOf("index"+currentLine) >= 0) {
+			it[i].className += " currentLine";
+		}
+	}
+	
+	if (el.selectionStart == el.selectionEnd && el.hasFocus) {
+		document.getElementById("cursor").style.display = "block";
+		document.getElementById("cursor").style.left = (currentCol * 7) + "px";
+		document.getElementById("cursor").style.top = (currentLine * 13) + "px";
+		var sel = document.querySelectorAll(".selection");
+		if (sel.length > 0) {
+			for (var i = 0, len=sel.length; i < len; i++) {
+				sel[i].parentNode.removeChild(sel[i]);
+			}
+		}
+	} else if (el.hasFocus) {
+		var sel = document.querySelectorAll(".selection");
+		if (sel.length > 0) {
+			for (var i = 0, len=sel.length; i < len; i++) {
+				sel[i].parentNode.removeChild(sel[i]);
+			}
+		}
+		document.getElementById("cursor").style.display = "none";
+		var cwrapper = document.getElementById("cwrapper");
+		var lines = cnt.split(/\n/);
+		for (var i = 0, len = lines.length; i < len; i++) {
+			var sel = document.createElement("div");
+			sel.className = "selection";
+			if (i == 0) {
+				sel.style.left = (currentCol * 7) + "px";
+				sel.style.top = (currentLine * 13) + "px";
+			} else {
+				sel.style.left = "0px";
+				sel.style.top = ((currentLine + i) * 13) + "px";
+			}
+			sel.style.width = (lines[i].length * 7) + "px" ;
+			cwrapper.appendChild(sel);
+		}
+	}	
+};
+
+new Timer("cursor-hint", cursorHint = function() {
+	var el = window.txt;
+	if (!el.lastPos) el.lastPos = [];
+	if (el.lastPos[0] != el.selectionStart || el.lastPos[1] != el.selectionEnd) {
+		el.lastPos[0] = el.selectionStart;
+		el.lastPos[1] = el.selectionEnd;
+		
+		drawCursor(el);
+	}
+	
+	new Timer("cursor-hint", cursorHint, 75);
+}, 75);
+
 var refresh = function(code, currentLine) {	
 	code = code.replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
 
@@ -41,7 +105,10 @@ var refresh = function(code, currentLine) {
 		if (document.getElementsByClassName("container")[0].childNodes.length > currentLine - 1) 
 			document.getElementsByClassName("container")[0].childNodes[currentLine - 1].innerHTML = currentHighlighter.parseCode(code, currentLine);
 		new Timer("global-update", function() {
-			document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
+			if (window.keypressed || typeof(window.keypressed) == "undefined") {
+				window.keypressed = false;
+				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
+			}
 		}, 100);
 		document.getElementsByClassName("gutter")[0].innerHTML = currentHighlighter.getLineNumbersHtml(code);
 	} else {
@@ -107,26 +174,31 @@ var handleAutoComplete = function(el, e) {
 	var before = el.value.substr(0, el.selectionStart);
 	var activeList = [];
 	for (var i = 0; i < window.keywords.length; i++) {
+		var itemList = (typeof(window.keywords[i].items) === "function" && window.keywords[i].items(el)) || window.keywords[i].items;
+		itemList.sort();
 		if (window.keywords[i].prefix) {
 			if (before.search(new RegExp(window.keywords[i].prefix+"$", "gi")) >= 0) {
-				for (var j = 0; j < window.keywords[i].items.length; j++) {
-					activeList.push({text: window.keywords[i].items[j], pos: 0});
+				for (var j = 0; j < itemList.length; j++) {
+					var item = itemList[j]; 
+					activeList.push({text: item, pos: 0});
 				}
 			} else {
 				for (var j = 0; j < window.keywords[i].items.length; j++) {
-					for (var k = window.keywords[i].items[j].length; k > 1; k--) {
-						if (before.search(new RegExp(window.keywords[i].prefix+window.keywords[i].items[j].substr(0, k - 1)+"$", "gi")) >= 0) {
-							activeList.push({text: window.keywords[i].items[j], pos: k - 1});
+					var item = itemList[j]; 
+					for (var k = item.length; k > 1; k--) {
+						if (before.search(new RegExp(window.keywords[i].prefix+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
+							activeList.push({text: item, pos: k - 1});
 							break;
 						}
 					}
 				}
 			}
 		} else {
-			for (var j = 0; j < window.keywords[i].items.length; j++) {
-				for (var k = window.keywords[i].items[j].length; k > 1; k--) {
-					if (before.search(new RegExp("[^a-zA-Z0-9]+"+window.keywords[i].items[j].substr(0, k - 1)+"$", "gi")) >= 0) {
-						activeList.push({text: window.keywords[i].items[j], pos: k - 1});
+			for (var j = 0; j < itemList.length; j++) {
+				var item = itemList[j]; 
+				for (var k = item.length; k > 1; k--) {
+					if (before.search(new RegExp("[^a-zA-Z0-9$]+"+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
+						activeList.push({text: item, pos: k - 1});
 						break;
 					}
 				}
@@ -136,6 +208,7 @@ var handleAutoComplete = function(el, e) {
 	if (activeList.length == 1) {
 		// just add it at current position
 		insertAt(el, activeList[0].pos, activeList[0].text);
+		el.dialogOpen = false;		
 	} else if (activeList.length > 1) {
 		// render selection dialog...			
 		var currentLine = before.split(/\n/).length;
@@ -172,6 +245,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 		this.undoStack = [];
 	}
 	var stop = false;
+	window.keypressed = true;
 	if (e.keyCode == 27 && this.dialogOpen) {
 		var el = document.querySelector("ul.dialog");
 		document.getElementById("cwrapper").removeChild(el);
@@ -220,31 +294,46 @@ txt.onkeydown = txt.onkeyup = function(e) {
 		switch (e.keyCode) {
 			case 70: 
 				this.search();
-				return false;
-			case 90: 
-				stop = true;
-				if (this.undoStack && this.undoStack.length > 0) {
+				break;
+			case 90: // handle undo/redo
+				if (e.type == "keydown") stop = true;
+				if (!e.shiftKey && this.undoStack && this.undoStack.length > 0) {
 					var entry = this.undoStack.pop();
 					this.value = entry[0];
 					this.selectionStart = entry[1];
 					this.selectionEnd = entry[2];
+					if (!this.redoStack) this.redoStack = [];
+					this.redoStack.push(entry);
+				} else if (e.shiftKey && this.redoStack && this.redoStack.length > 0) {
+					var entry = this.redoStack.pop();
+					this.value = entry[0];
+					this.selectionStart = entry[1];
+					this.selectionEnd = entry[2];
+					if (!this.undoStack) this.undoStack = [];
+					this.undoStack.push(entry);
 				}
-				break;
-			case 86:
+				refresh(this.value, this.value.substr(0, this.selectionStart).split("\n").length);
+				break; 
+			case 86:	// handle paste
 				var me = this;
 				setTimeout(function() {
 					me.value = me.value.replace(/\t/g, '    ');
-					me.undoStack.push(me.value);			
+					me.undoStack.push([me.value, me.selectionStart, me.selectionEnd]);			
 					refresh(me.value, me.value.substr(0, me.selectionStart).split("\n").length);
 				}, 10);
 				return true;
 			case 83:
 				this.save();
 				break;
+			case 88:
+				if (e.shiftKey) {
+					try { this.run(); } catch(e){window.console && console.log(e);};
+				}
+				break;
 			case 32:
 				handleAutoComplete(this, e);
 				break;
-			case 65:
+			case 65:  // select all
 				this.selectionStart = 0;
 				this.selectionEnd = this.value.length;
 				break;
@@ -291,7 +380,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			this.selectionStart = before.length + 1 + add.length;
 			this.selectionEnd = before.length + 1 + add.length;
 		}
-		this.undoStack.push(this.value);
+		this.undoStack.push([this.value, this.selectionStart, this.selectionEnd]);
 		stop = true;
 	}
 	
@@ -308,10 +397,12 @@ txt.onkeydown = txt.onkeyup = function(e) {
 	if (stop) {
 		return false;
 	}
-	while (this.undoStack.length >= 1000) {
-		this.undoStack.shift();
+	if (this.undoStack && this.undoStack[this.undoStack.length - 1] && this.value != this.undoStack[this.undoStack.length - 1][0]) {
+		while (this.undoStack.length >= 1000) {
+			this.undoStack.shift();
+		}
+		this.undoStack.push([this.value, this.selectionStart, this.selectionEnd]);
 	}
-	this.undoStack.push([this.value, this.selectionStart, this.selectionEnd]);
 };
 txt.onscroll = function() {
 	txt.style.height = (txt.scrollHeight + 20) + "px";
@@ -334,26 +425,44 @@ txt.onscroll = function() {
 
 window.onload = function() { 
 	document.getElementById("cwrapper").appendChild(txt);
+	var cursor = document.createElement("div");
+	cursor.id = "cursor";
+	document.getElementById('cwrapper').appendChild(cursor);
 	typeof(window.init) == "function" && window.init();
 
 	window.coffset = 0;
 	switch (document.getElementsByTagName("html")[0].className.replace(/^\s+|\s+$/gi, '')) {
 		case "firefox":
 			window.coffset = 1;
+			window.toffset = 2;
 			break;
 		case "opera":
 			window.coffset = 2;
+			window.toffset = 0;
 			break;
 		default:
 			window.coffset = 2;
-			break;
+			window.toffset = 0;
+		break;
 	}
 	window.cel = document.getElementsByClassName("code")[1];
 	setTimeout(window.updateSize = function() {
-		txt.style.height = (txt.scrollHeight + 20) + "px";		
 		txt.parentNode.style.width = (cel.clientWidth - window.coffset)+"px";
 		txt.parentNode.parentNode.style.width = document.getElementsByTagName("table")[0].clientWidth+"px";
-		txt.style.width = (cel.clientWidth + 2)+"px";
+		txt.style.width = (cel.clientWidth + window.toffset)+"px";
+		txt.style.height = (txt.scrollHeight) + "px";
+		setTimeout(window.updateSize, 1500);
 	}, 150);
-	refresh(txt.value, 1); 
+//	txt.value = txt.value.replace(/^\s+/g, '');
+	refresh(txt.value, 1);
+
+	window.txt.onfocus = function(e) {
+		this.hasFocus = true;
+		drawCursor(this);
+	};
+
+	window.txt.onblur = function(e) {
+		document.getElementById("cursor").style.display = "none";
+		window.txt.hasFocus = false;
+	}	
 };

@@ -51,8 +51,6 @@ class BuilderPrinter
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
             $obj_gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
-            $obj_gen->addJavaScript("templates/builder/js/codemirror.js");
-            $obj_gen->addJavaScript("templates/builder/js/mirrorframe.js");
             $obj_gen->addStyleSheet("templates/builder/css/builder.css");
 
             $obj_gen->str_template = "templates/builder/template.html";

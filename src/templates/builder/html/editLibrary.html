@@ -3,7 +3,7 @@
 <form id="hforml<?=(int)$arr_param["library"]["library_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=phpEditorl<?=(int)$arr_param["library"]["library_id"]?>.getCode();invoke(null, 'builder:editLibrary&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
 	<label for="name">Name of Library</label><br/>
 	<input type="text" id="lib_name_#library.library_id" name="library[name]" value="#library.name" /><br/><br/>
-
+	
 	<label for="codel<?=(int)$arr_param["library"]["library_id"]?>">Library Code:</label><br/>
 	<input type="hidden" id="hCodel<?=(int)$arr_param["library"]["library_id"]?>" name="library[code]" value="" />
 	<div style="border:1px solid #ccc;" rel="builder:editLibrary&refresh=code&library_id=<?=(int)$arr_param["library"]["library_id"]?>" id="codel<?=(int)$arr_param['library']['library_id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#library.code</div>
@@ -38,6 +38,7 @@
 			};
 			Builder.applyBespin("codel<?=(int)$arr_param['library']['library_id']?>", function(fr) {
 				$("codel<?=(int)$arr_param['library']['library_id']?>").down("iframe").style.height = (parseInt($("hforml<?=(int)$arr_param['library']['library_id']?>").parentNode.parentNode.style.height) - 150) + "px";				
+	          	fr.txt.addKeywords(null, ["invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
 			}, Object.extend(Builder.prailsNamespace, {
 	        	save: function() {
 	            	parent.$("hforml<?=(int)$arr_param['library']['library_id']?>").save();

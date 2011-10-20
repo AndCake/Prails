@@ -1314,7 +1314,8 @@ function fixInputString(str)
  */
 function trim(str)
 {
-	return str.replace(/^\s+/, '');
+	return str;
+	return str.replace(/^\s+/g, '');
 	return str.replace(/^\s+|\s+$/g, '');
 };
 

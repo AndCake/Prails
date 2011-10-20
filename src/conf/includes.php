@@ -29,6 +29,9 @@ include "lib/debug/logger.php";
 if (ENV_PRODUCTION !== true) {
 	include "lib/debug/debugger.php";
 }
+if (PROFILING_ENABLED === true) {
+	include "lib/debug/profiler.php";
+}
 
 // include database-classes
 include "lib/db_entry.php";

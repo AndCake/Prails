@@ -95,15 +95,15 @@ class SQLite extends Cacheable {
 			}
 		}
 
-		if (substr($str_query, 0, 6) != "INSERT") {
-			if (substr($str_query, 0, 6) == "UPDATE") {
-				$str_query = substr($str_query, 0, strrpos($str_query, " WHERE ")) . str_replace(" ISNULL(", " TESTNULL(", substr($str_query, strrpos($str_query, " WHERE ")));
+		if (strtoupper(substr($str_query, 0, 6)) != "INSERT") {
+			if (strtoupper(substr($str_query, 0, 6)) == "UPDATE") {
+				$str_query = substr($str_query, 0, strripos($str_query, " WHERE ")) . str_replace(" ISNULL(", " TESTNULL(", substr($str_query, strripos($str_query, " WHERE ")));
 			} else {
 				$str_query = str_replace(" ISNULL(", " TESTNULL(", $str_query);
 			}
 		}
 
-		if (substr($str_query, 0, 12) == "ALTER TABLE ") {
+		if (strtoupper(substr($str_query, 0, 12)) == "ALTER TABLE ") {
 			$str_query = str_replace(" VARCHAR(255)", " TEXT", $str_query);
 		}
 
@@ -145,11 +145,13 @@ class SQLite extends Cacheable {
 	}
 
 	function query($str_query, $cacheTime = 0) {
+		global $profiler;
 		$link = $this->arr_links[0]["link"];
 
 		$str_query = $this->_prepareQuery($str_query);
 
 		if (/*$cacheTime > 0 && */$this->isCached($str_query, $cacheTime)) {
+			if ($profiler) $profiler->logEvent("query_cache_hit"); 
 			return $this->getCached($str_query);
 		} else {
 			// if we currently have no connection, connect
@@ -159,10 +161,11 @@ class SQLite extends Cacheable {
 				$str_query = $this->_prepareQuery($str_query);
 			}
 
-			if (substr($str_query, 0, 12) == "ALTER TABLE " && strpos($str_query, " ADD COLUMN ") === false) return null;
+			if (strtoupper(substr($str_query, 0, 12)) == "ALTER TABLE " && stripos($str_query, " ADD COLUMN ") === false) return null;
 
 			// send SQL statement to database
-			if (in_array(substr($str_query, 0, 7), Array("INSERT ", "DELETE ", "UPDATE ", "REPLACE"))) {
+			if ($profiler) $profiler->logEvent("query_no_cache_hit"); 
+			if (in_array(strtoupper(substr($str_query, 0, 7)), Array("INSERT ", "DELETE ", "UPDATE ", "REPLACE"))) {
 				$dbr_queryResult = $link->exec($str_query);
 			} else {
 				$dbr_queryResult = $link->query($str_query);
@@ -190,8 +193,10 @@ class SQLite extends Cacheable {
 
 				if (in_array(strtoupper(substr(trim($str_query), 0, 7)), Array("SELECT ", "PRAGMA "))) {
 					// cache result
+					if ($profiler) $profiler->logEvent("query_add_cache"); 
 					$this->setCache($str_query, $arr_result, $this->prefix);
 				} else {
+					if ($profiler) $profiler->logEvent("query_clean_cache"); 
 					$this->cleanCacheBlock($str_query, $this->prefix);
 				}
 

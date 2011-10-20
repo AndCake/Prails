@@ -4,16 +4,16 @@
    $arr_types = explode(":", $arr_table['field_types']);
    
 	foreach ($arr_types as $key => $type) {
-   		if (in_array($type, Array("VARCHAR(1024)", "VARCHAR(255)", "FLOAT", "INT(11)", "DOUBLE"))) {
+   		if (in_array($type, Array("VARCHAR(1024)", "VARCHAR(255)", "FLOAT", "INT(11)", "DOUBLE", "INTEGER"))) {
    			$arr_types[$key] = "<input type='text' id='{id}' name='{name}' value='{value}' />\n";
    		} else if (in_array($type, Array("TEXT", "LONGTEXT"))) {
    			$arr_types[$key] = "<textarea id='{id}' name='{name}' cols='40' rows='8'>{value}</textarea>\n";
-   		} else if (in_array($type, Array("INT(1) NOT NULL"))) {
+   		} else if (in_array($type, Array("INT(1) NOT NULL", "TINYINT"))) {
    			$arr_types[$key] = "<input type='radio' id='{id}_on' name='{name}' value='1' <"."?=((int){phpvalue} == '1' ? \" checked='checked'\":\"\")?"."> /><label for='{id}_on'> on</label>&nbsp;&nbsp;".
 							   "<input type='radio' id='{id}_off' name='{name}' value='0' <"."?=((int){phpvalue} == '0' ? \" checked='checked'\":\"\")?".">  /><label for='{id}_off'> off</label>\n";			
    		} else if ($type == "INT(20)") {
    			$arr_types[$key] = "<input type='date' id='{id}' name='{name}' value='<"."?=((int){phpvalue} <= 0 ? time() : {phpvalue})?".">' />\n";
-   		} else if ($type == "INT(11) NOT NULL" && substr($arr_fields[$key], 0, 3) == "fk_") {
+   		} else if (in_array($type, Array("INT(11) NOT NULL", "INTEGER NOT NULL")) && substr($arr_fields[$key], 0, 3) == "fk_") {
    			$table = preg_replace("/fk_([a-zA-Z0-9]+)_id/", "\\1", $arr_fields[$key]);
    			$arr_types[$key] = "<select name='{name}' size='1'>\n<option value='' disabled='disabled'>Choose...</option>\n".
 							   "<? foreach (\$arr_param[\"".$table."s\"] as \$arr_".$table.") { ?>\n".

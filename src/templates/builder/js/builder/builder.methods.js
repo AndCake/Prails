@@ -224,7 +224,7 @@ Builder = Object.extend(Builder || {}, {
         var cwin = document.getElementsByName(el.id)[0].contentWindow;
         cwin.init = function() {
             cwin.prails = Object.clone(obj);
-            cwin.id = document.getElementsByName(el.id)[0].contentWindow.id;
+            cwin.id = document.getElementsByName(el.id)[0].contentWindow.name;
             var data = JSON.parse(el.getAttribute("data-bespinoptions"));
             cwin.txt.setBrush(data.syntax);
             if (data.html == true) {
@@ -235,7 +235,9 @@ Builder = Object.extend(Builder || {}, {
             }
             cwin.txt.setCode(content);
             if (el.getAttribute("onload")) {
-            	eval(el.getAttribute("onload"))(cwin.txt);
+            	try {
+            		eval(el.getAttribute("onload"))(cwin.txt);
+            	} catch(e){console.log(e);};
             }            
             
             cwin.document.body.onkeyup = function(event) {
@@ -308,11 +310,18 @@ Builder = Object.extend(Builder || {}, {
     		el.setStyle("box-shadow:0px 0px 0px #db0");
     	}, 1000);
     	document.getElementsByName(oel.id)[0].contentWindow.focus();
+    	document.getElementsByName(oel.id)[0].contentWindow.txt.focus();
+    	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionStart = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[0];
+    	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionEnd = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[1];
 //    	document.getElementsByName(oel.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
     },
     
     blurBespin: function(el) {
     	el = $(el);
+    	var a = [document.getElementsByName(el.id)[0].contentWindow.txt.selectionStart, document.getElementsByName(el.id)[0].contentWindow.txt.selectionEnd];
+    	document.getElementsByName(el.id)[0].contentWindow.txt.sel = a;
+    	document.getElementsByName(el.id)[0].contentWindow.txt.blur();
+    	document.getElementsByName(el.id)[0].contentWindow.blur();
 //    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = false;
     },
     

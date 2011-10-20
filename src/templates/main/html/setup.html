@@ -64,9 +64,10 @@ fieldset legend { font-weight: bold; }
 			<select name="db[type]" id="dbtype" size="1" onchange="this.value == 'MYSQL' && $$('.mysql')[0].show() || $$('.mysql')[0].hide();">
 				<option value="SQLITE" <?=($arr_param['db']['type'] == 'SQLITE' ? 'selected="selected"' : '')?>>SQLite</option>
 				<option value="MYSQL" <?=($arr_param['db']['type'] == 'MYSQL' ? 'selected="selected"' : '')?>>MySQL</option>
+				<option value="POSTGRESQL" <?=($arr_param['db']['type'] == 'POSTGRESQL' ? 'selected="selected"' : '')?>>PostgreSQL</option>
 			</select>
 		</div>
-		<div class="mysql" <?=($arr_param['db']['type'] != 'MYSQL' ? 'style="display:none;"' : '')?>>
+		<div class="mysql" <?=($arr_param['db']['type'] == 'SQLITE' ? 'style="display:none;"' : '')?>>
 			<div class="form-field">
 				<label for="dbname">* Name:</label>
 				<input id="dbname" type="text" name="db[name]" value="#db.name" class="required" />

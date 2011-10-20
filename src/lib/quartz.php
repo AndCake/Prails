@@ -30,15 +30,15 @@ class Quartz {
 	 * @param STRING $event event's name (for example user:notify)
 	 * @return job's ID if the job has been scheduled successfully, else FALSE
 	 */
-	static function addJob($time, $event) {
+	static function addJob($time, $event, $id = null) {
 		global $SERVER, $log;
 		if (!Quartz::isAvailable()) {
 			$log->error("Tried to schedule job ".$event." but Quartz found no full cron support. Please check if crontab and lynx, w3m or wget is available");
 			return false;
 		}
 		$time = Quartz::_normalizeTime($time);
-				
-		$id = md5(implode($time).$event);
+
+		if (!$id) $id = md5(implode($time).$event);
 		
 		exec("crontab -l > cache/temp.cron");
 		$cron = file("cache/temp.cron");
@@ -66,16 +66,16 @@ class Quartz {
 	 * @param MIXED $event event's name in case no ID has been specified
 	 * @return TRUE if successfully removed, else false
 	 */
-	static function removeJob($idTime, $event = false) {
+	static function removeJob($idTime, $event = false, $id = null) {
 		if (!Quartz::isAvailable()) {
 			$log->error("Tried to remove scheduled job ".$event." but Quartz found no full cron support.");
 			return false;
 		}
-		if (!$event) {
+		if (!$event && !$id) {
 			$id = $idTime; 
 		} else {
 			$idTime = Quartz::_normalizeTime($idTime);
-			$id = md5(implode($idTime).$event);
+			if (!$id) $id = md5(implode($idTime).$event);
 		}
 		exec("crontab -l > cache/temp.cron");
 		$cron = file("cache/temp.cron");
@@ -97,6 +97,31 @@ class Quartz {
 		unlink("cache/temp.cron");
 		
 		return $found;
+	}
+	
+	static function getJob($id) {
+		$lineData = null;
+		exec("crontab -l > cache/temp.cron");
+		$cron = file("cache/temp.cron");
+		$file = "";
+		$found = false;
+		foreach ($cron as $line) {
+			if (preg_match('@\s*#\s*[$]id:\s*([a-zA-Z0-9]+)\s*$@', $line, $match)) {
+				if ($id == $match[1]) {
+					$lineItems = explode(" ", $line);
+					$lineData = Array(
+						"min" => $lineItems[0],
+						"hour" => $lineItems[1],
+						"day" => $lineItems[2],
+						"month" => $lineItems[3],
+						"week" => $lineItems[4]
+					);
+					break;
+				}
+			}
+		}
+		unlink("cache/temp.cron");
+		return $lineData;
 	}
 	
 	static function _getFirstAvailable() {

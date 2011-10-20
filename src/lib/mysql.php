@@ -86,6 +86,12 @@ class MySQL extends Cacheable {
 			}
 		}
 
+		if ((strtoupper(substr($str_query, 0, 12)) == "ALTER TABLE " || strtoupper(substr($str_query, 0, 13)) == "CREATE TABLE ") && 
+			stripos($str_query, " REFERENCES ") !== false) {
+			// clean out foreign key constraints as MySQL MyISAM does not support that...
+			$str_query = preg_replace('/ REFERENCES [a-zA-Z0-9_]+/mi', '', $str_query);
+		}
+		
 		return $str_query;
 	}
 
@@ -107,11 +113,13 @@ class MySQL extends Cacheable {
 	}
 
 	function query($str_query, $cacheTime = 0) {
+		global $profiler;
 		$link = $this->arr_links[0]["link"];
 
 		$str_query = $this->_prepareQuery($str_query);
 
 		if (/*$cacheTime > 0 && */$this->isCached($str_query, $cacheTime)) {
+			if ($profiler) $profiler->logEvent("query_cache_hit"); 
 			return $this->getCached($str_query);
 		} else {
 			// if we currently have no connection, connect
@@ -121,6 +129,8 @@ class MySQL extends Cacheable {
 				$str_query = $this->_prepareQuery($str_query);
 			}
 
+			if ($profiler) $profiler->logEvent("query_no_cache_hit");
+			 
 			// send SQL statement to database
 			$dbr_queryResult = @mysql_query ($str_query, $link);
 			// if query successful
@@ -145,8 +155,10 @@ class MySQL extends Cacheable {
 					}
 	
 					@mysql_free_result($dbr_queryResult);
+					if ($profiler) $profiler->logEvent("query_add_cache"); 
 					$this->setCache($str_query, $arr_result, $this->prefix);
 				} else {
+					if ($profiler) $profiler->logEvent("query_clean_cache"); 
 					$this->cleanCacheBlock($str_query, $this->prefix);
 				}
 

@@ -3,7 +3,7 @@
    
    $names = Array(); $fks = Array();
    foreach ($field_types as $key => $type) {
-      if ($type != "INT(11) NOT NULL" && substr($field_names[$key], 0, 3) != "fk_") {
+      if (!in_array($type, Array("INT(11) NOT NULL", "INTEGER NOT NULL")) && substr($field_names[$key], 0, 3) != "fk_") {
       	$names[$key] = $field_names[$key];
       } else {
       	array_push($fks, Array("field" => $field_names[$key], "table" => preg_replace("/fk_([a-zA-Z0-9]+)_id/", "\\1", $field_names[$key]), "id" => str_replace("fk_", "", $field_names[$key])));

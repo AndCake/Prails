@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-define ("FRAMEWORK_VERSION", "1.1.2");
+define ("FRAMEWORK_VERSION", "1.2.0");
 define ("PROJECT_LOG", "log/framework_");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
@@ -36,6 +36,7 @@ $arr_settings = Array(
 "ENV_PRODUCTION" => false,
 "DEVELOPER_CHAT_ENABLED" => true,
 "DEBUG_LEVEL" => 2,
+"PROFILING_ENABLED" => false,
 "CSS_EMBED_RESOURCES" => true,
 "ERROR_NOTIFICATION" => false,
 "ERROR_EMAIL" => "notify@example.org",
@@ -70,6 +71,7 @@ switch (DEBUG_LEVEL) {
 
 define ("SQLITE", "SQLite");
 define ("MYSQL", "MySQL");
+define ("POSTGRESQL", "PostgreSQL");
 
 /*<KEEP-2>*/
 define ("DB_TYPE", SQLITE);
@@ -86,7 +88,7 @@ switch ($_SERVER["SERVER_ADDR"])
    	  		"host"=>"localhost",
    	  		"name"=>"test",			// database name - change this
    	  		"user"=>"root",			// database user - change this
-   	  		"pass"=>"",			// database password - change this
+   	  		"pass"=>"",				// database password - change this
    	  	),
    	  );
 }

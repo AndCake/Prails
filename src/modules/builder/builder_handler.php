@@ -83,6 +83,18 @@ class BuilderHandler
         $arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
         $arr_param["texts"] = Generator::getInstance()->getLanguage()->listTexts();
+        $arr_param["backup"] = Quartz::getJob("backupjob");
+        $arr_param["backupList"] = Array();
+       	if (!is_dir("static/backups")) {
+       		@mkdir("static/backups", 0755);
+       	}
+        $dp = opendir("static/backups");
+        while (($file = readdir($dp)) !== false) {
+        	if ($file[0] != ".") {
+        		array_push($arr_param["backupList"], $file);
+        	}
+        }
+        closedir($dp);
         $groups = file(".groups");
         $users = file(".users");
         $userGroups = Array();
@@ -164,7 +176,7 @@ class BuilderHandler
         $arr_libraries = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
         $arr_tags = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
         $arr_configuration = $this->obj_data->listConfigurationFromModule($arr_module["module_id"], (ENV_PRODUCTION === true ? "2" : "1"));
-        if ($arr_module != null && count($arr_module) > 0)
+        if ($arr_module != null && count($arr_module) > 0)	
         {
             $mod = strtolower($arr_module["name"]).(ENV_PRODUCTION === true?"":$arr_module["module_id"]);
             @mkdir("modules/".$mod, 0755);
@@ -182,18 +194,32 @@ class BuilderHandler
             $config .= "/*</CUSTOM-SETTINGS>*/\n);\nforeach (\$arr_".$mod."_settings as \$key=>\$value) {\n\tif(!defined(\$key)) define(\$key, \$value);\n}\n";
 
             $libs = "\n";
-            foreach ($arr_libraries as $arr_lib)
-            {
+            foreach ($arr_libraries as $arr_lib) {
             	if ((int)$arr_lib["fk_module_id"] == 0 || $arr_lib["fk_module_id"] == $arr_module["module_id"]) {
-	                if ($arr_lib["fk_module_id"] == $arr_module["module_id"])
-	                {
+	                if ($arr_lib["fk_module_id"] == $arr_module["module_id"]) {
 	                    $libPath = "modules/".$mod."/lib/";
 	                } else {
 	                    $libPath = "lib/custom/";
 	                }
+	                if ($arr_lib["fk_resource_id"] > 0) {
+	                	$libPath .= $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . "/";
+	                	if (!file_exists($libPath)) {
+	                		mkdir($libPath, 0755);
+	                	}
+	                	$libfile = $libPath.$arr_lib["resource"]["name"];
+	                	file_put_contents($libfile, base64_decode($arr_lib["resource"]["data"]));
+			        	preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $libfile, $match);
+			        	if (strlen($match[1]) > 0) {
+			        		// unpack it to get contents
+			        		$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+			        		exec("cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile));
+			        	}
+	                }
 	                $libname = $libPath . $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . ".php";
-	                if (!file_exists($libname))
-	                {
+	                if (file_exists($libname)) {
+	                	$libName = $libPath . $arr_lib["name"].(ENV_PRODUCTION === true ? "" : $arr_lib["library_id"])."_loader.php";
+	                }
+	                if (!file_exists($libname)) {
 	                    $content = "<"."?php\n".$arr_lib["code"]."\n?".">";
 	                    file_put_contents($libname, $content);
 	                }
@@ -201,8 +227,7 @@ class BuilderHandler
             	}
             }
             $tagPath = "lib/tags/custom/";
-            foreach ($arr_tags as $arr_tag)
-            {
+            foreach ($arr_tags as $arr_tag) {
                 file_put_contents($tagPath.$arr_tag["name"].(ENV_PRODUCTION===true ? "" : $arr_tag["fk_user_id"]).".tag", $arr_tag["html_code"]);
             }
 
@@ -310,6 +335,9 @@ class BuilderHandler
 
     function resetModule($die = true, $module_id = "") {
     	$module_id = if_set($module_id, $_SESSION["module_id"]);
+    	if (strlen($module_id) <= 0 || $module_id <= 0) {
+    		if ($die) die("success"); else return "success";
+    	} 
         $arr_param["module"] = $this->obj_data->selectModule($module_id);
 
         if (strlen($arr_param["module"]["name"]) > 0 && $arr_param["module"]["module_id"] > 0) {
@@ -321,15 +349,6 @@ class BuilderHandler
             }
             removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
 			exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
-/*
-			$dp = opendir("cache/");
-			while (($file = readdir($dp)) !== false) {
-				if (strpos($file, "handler_".strtolower($arr_param["module"]["name"]).":") !== false || 
-					strpos($file, "handler_".strtolower($arr_param["module"]["name"]).$module_id.":") !== false) {
-					@unlink("cache/".$file);
-				}
-			}
-			closedir($dp); //*/    
         }
 
         if ($die) {
@@ -361,12 +380,12 @@ class BuilderHandler
         removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
         removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
         
-        $this->obj_data->deleteModule($_GET["module_id"]);
         $this->obj_data->deleteHandlerFromModule($_GET["module_id"]);
-		$this->obj_data->clearConfiguration($_GET["module_id"]);
+		$this->obj_data->deleteDataFromModule($_GET["module_id"]);
+        $this->obj_data->clearConfiguration($_GET["module_id"]);
 		$this->obj_data->clearResource($_GET["module_id"]);
 		$this->obj_data->clearTestcase($_GET["module_id"]);
-		$this->obj_data->deleteDataFromModule($_GET["module_id"]);
+		$this->obj_data->deleteModule($_GET["module_id"]);
         $this->resetModule(true, $_GET["module_id"]);
     }
 
@@ -772,7 +791,24 @@ class BuilderHandler
 
     function deleteLibrary()
     {
-        $this->obj_data->deleteLibrary($_GET["library_id"]);
+        $lib = $this->obj_data->selectLibrary($_GET["library_id"]);
+        if ($lib["fk_resource_id"] > 0) {
+        	$this->obj_data->deleteResource($lib["fk_resource_id"]);
+          	if ($lib["fk_resource_id"] > 0) {
+				if (ENV_PRODUCTION) {
+					removeDir("lib/custom/".$lib["name"], true);
+				} else {
+					removeDir("lib/custom/".$lib['name'].$_GET["library_id"], true);
+				}
+           	} else {
+           		if (ENV_PRODUCTION) {
+           		    @unlink("lib/custom/".$lib["name"].".php");
+              	} else {
+                   	@unlink("lib/custom/".$lib["name"].$_GET["library_id"].".php");
+                }
+           	}
+        }
+    	$this->obj_data->deleteLibrary($_GET["library_id"]);
         die ("success");
     }
 
@@ -797,13 +833,20 @@ class BuilderHandler
                 $_SESSION["library_id"] = $_GET["library_id"] = $this->obj_data->insertLibrary($arr_library);
             }
             $this->obj_data->insertLibraryHistory($_GET["library_id"], $arr_param["library"], $arr_library);
-            if (strlen($arr_param["library"]["name"]) > 0)
-            {
-                if (ENV_PRODUCTION) {
-                    @unlink("lib/custom/".$arr_param["library"]["name"].".php");
-                } else {
-                    @unlink("lib/custom/".$arr_param["library"]["name"].$_GET["library_id"].".php");
-                }
+            if (strlen($arr_param["library"]["name"]) > 0) {
+            	if ($arr_param["library"]["fk_resource_id"] > 0) {
+					if (ENV_PRODUCTION) {
+						removeDir("lib/custom/".$arr_param["library"]["name"], true);
+					} else {
+						removeDir("lib/custom/".$arr_param["library"]['name'].$_GET["library_id"], true);
+					}
+            	} else {
+            		if (ENV_PRODUCTION) {
+            		    @unlink("lib/custom/".$arr_param["library"]["name"].".php");
+                	} else {
+                    	@unlink("lib/custom/".$arr_param["library"]["name"].$_GET["library_id"].".php");
+	                }
+            	}
             }
             echo $_GET["library_id"]."\n";
 /*/
@@ -821,6 +864,61 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectLibrary($_GET["library_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
+        } else if ($_GET["import"] == "1") {
+        	$libName = preg_replace('/[^a-zA-Z0-9_]/mi', '', substr($_GET["name"], 0, strpos($_GET["name"], ".")));
+        	if (strlen($libName) <= 0 || file_exists("lib/custom/".$libName."/")) {
+        		$libName = preg_replace('/[^a-zA-Z0-9_]/mi', '', $_GET["name"]);
+        		if (strlen($libName) <= 0 || file_exists("lib/custom/".$libName."/")) {
+        			$libName = "NewLibrary";
+        			$i = "";
+        			while (file_exists("lib/custom/".$libName.$i."/")) {
+        				$i++;
+        			}
+        			$libName = $libName.$i;
+        		}
+        	}
+        	$file = receiveFile($_GET["name"], "lib/custom/".$libName.'/');
+        	preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $file, $match);
+        	if (strlen($match[1]) > 0) {
+        		// unpack it to get contents
+        		$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+        		exec("cd ".dirname($file)."; ".$progs[$match[1]].basename($file));
+        		function getTree($root, $exclude = Array()) {
+        			$tree = Array();
+        			$dp = opendir($root);
+        			while (($na = readdir($dp)) !== false) {
+        				if ($na[0] != "." && !in_array($root.'/'.$na, $exclude)) {
+        					$tree[$na] = filesize($root.'/'.$na);
+        					if (is_dir($root.'/'.$na)) {
+        						$tree[$na] = getTree($root.'/'.$na);
+        					}
+        				}
+        			}
+        			closedir($dp);
+        			return $tree;
+        		}
+        		$tree = getTree(dirname($file), Array($file));
+        	} else {
+        		$tree = Array();
+        		$tree[basename($file)] = filesize($file);
+        	}
+            $content = file_get_contents($file);
+            $arr_data["fk_module_id"] = 0;
+            $arr_data["type"] = mime_content_type($file);
+            $arr_data["data"] = base64_encode($content);
+            $arr_data["tree"] = json_encode($tree);
+            $arr_data["name"] = $_GET["name"];
+            $resource_id = $this->obj_data->insertResource($arr_data);
+        	
+        	$arr_param["library"]["name"] = $libName;
+        	$arr_param["library"]["fk_resource_id"] = $resource_id;
+        	$arr_param["library"]["fk_user_id"] = $_SESSION["builder"]["user_id"];
+        	$arr_param["library"]["fk_module_id"] = 0;
+        	ob_start();
+        	require("templates/builder/php/library_upload_scaffold.php");
+        	$arr_param["library"]["code"] = ob_get_clean();
+            $_SESSION["library_id"] = $_GET["library_id"] = $this->obj_data->insertLibrary($arr_param["library"]);
+//        	removeDir("lib/custom/".$libName."/", true);
         }
 
         $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
@@ -875,9 +973,10 @@ class BuilderHandler
             $arr_obj = json_decode(file_get_contents("builder.crc32"), true);
             $arr_obj["t_html_code_".$_GET["tag_id"]] = crc32($arr_tag["html_code"]);
             file_put_contents("builder.crc32", json_encode($arr_obj));//*/
-
-            return $this->resetModule();
-            //           die("success");
+			if ($arr_tag["fk_module_id"] > 0 || $arr_param["tag"]["fk_module_id"] > 0) {
+            	return $this->resetModule();
+			}
+            die("success");
         } else if ($_GET["check"] == "2")
         {
             $arr_data = $_POST;
@@ -1305,7 +1404,7 @@ class BuilderHandler
     		$this->obj_data->str_prefix = "tbl_";
     		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
     			$query .= " LIMIT [offset], [limit]";
-				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1");
+				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1=1");
     		}
     		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
     		$this->obj_data->str_prefix = "tbl_prailsbase_";
@@ -1471,14 +1570,19 @@ class BuilderHandler
 		die ($data);
 	}
 	
-	function export() {
-		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT\n");
-		header("Content-Transfer-Encoding: binary");
-		header("Content-type: application/octet-stream");
-		header("Content-Disposition: attachment; filename=\"".$_POST["file"]."\"");
+	function export($file = null) {
+		if (!is_array($file) && strlen($file) > 0) {
+			$fp = fopen($file, "w");
+		} else {
+			header("Expires: Mon, 26 Jul 1997 05:00:00 GMT\n");
+			header("Content-Transfer-Encoding: binary");
+			header("Content-type: application/octet-stream");
+			header("Content-Disposition: attachment; filename=\"".$_POST["file"]."\"");
+			$fp = fopen("php://stdout", "w");
+		}
 		$magic_border = md5(serialize($_POST));
 		if ($_POST["modules"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$modules = Array();
 			foreach ($_POST["modules"] as $mod) {
 				$arr_module = $this->obj_data->selectModule($mod)->getArrayCopy();
@@ -1490,55 +1594,55 @@ class BuilderHandler
 				$arr_module["testcases"] = $this->obj_data->listTestcase($mod);
 				array_push($modules, $arr_module);				
 			}
-			echo "M";
-			echo gzcompress(serialize($modules), 9);
+			fwrite($fp, "M");
+			fwrite($fp, gzcompress(serialize($modules), 9));
 			unset($modules);
 		}
 		if ($_POST["libraries"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$libraries = Array();
 			foreach ($_POST["libraries"] as $lib) {
 				$arr_library = $this->obj_data->selectLibrary($lib)->getArrayCopy();
 				array_push($libraries, $arr_library);
 			}
-			echo "L";
-			echo gzcompress(serialize($libraries), 9);
+			fwrite($fp, "L");
+			fwrite($fp, gzcompress(serialize($libraries), 9));
 			unset($libraries);
 		}
 		if ($_POST["tags"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$tags = Array();
 			foreach ($_POST["tags"] as $tag) {
 				array_push($tags, $this->obj_data->selectTag($tag)->getArrayCopy());
 			}
-			echo "T";
-			echo gzcompress(serialize($tags), 9);
+			fwrite($fp, "T");
+			fwrite($fp, gzcompress(serialize($tags), 9));
 			unset($tags);
 		}
 		if ($_POST["tables"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$tables = Array();
 			foreach ($_POST["tables"] as $table) {
 				array_push($tables, $this->obj_data->selectTable($table)->getArrayCopy());
 			}
-			echo "D";
-			echo gzcompress(serialize($tables), 9);
+			fwrite($fp, "D");
+			fwrite($fp, gzcompress(serialize($tables), 9));
 			unset($tables);
 		}
 		if ($_POST["translations"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$arr_content = Array();
 			$arr_content["texts"] = Array();
 			$arr_content["languages"] = Generator::getInstance()->obj_lang->listLanguages();
 			foreach ($_POST["translations"] as $root) {
 				array_push($arr_content["texts"], Generator::getInstance()->obj_lang->listAllTextsFromRoot($root));
 			}
-			echo "C";
-			echo gzcompress(serialize($arr_content), 9);
+			fwrite($fp, "C");
+			fwrite($fp, gzcompress(serialize($arr_content), 9));
 			unset($arr_content);
 		}
 		if ($_POST["db"]) {
-			echo "---".$magic_border."\n";
+			fwrite($fp, "---".$magic_border."\n");
 			$dbs = Array();
 			$oldPrefix = $this->obj_data->str_prefix;
 			$this->obj_data->str_prefix = "tbl_";
@@ -1546,32 +1650,43 @@ class BuilderHandler
 				$dbs[$table] = $this->obj_data->get($table);
 			}
 			$this->obj_data->str_prefix = $oldPrefix;
-			echo "A";
-			echo gzcompress(serialize($dbs), 9);
+			fwrite($fp, "A");
+			fwrite($fp, gzcompress(serialize($dbs), 9));
 			unset($dbs);
 		}
 		if ($_POST["images"] == "1") {
-			echo "---".$magic_border."\n";
-			echo "I";
+			fwrite($fp, "---".$magic_border."\n");
+			fwrite($fp, "I");
 			$path = "static/images/";
 			$dp = opendir($path);
 			$fileMagic = "---".md5(time())."\n";
 			while (($file = readdir($dp)) !== false) {
 				if ($file[0] != '.' && is_file($path.$file) && filesize($path.$file) > 0) {
-					echo $fileMagic . $file."\n";
-					readfile($path.$file);
+					fwrite($fp, $fileMagic . $file."\n");
+					if (!is_array($file) && strlen($file) > 0) {
+						$sp = fopen($path.$file, "r");
+						while (!feof($sp)) {
+							fwrite($fp, fread($sp, 4096));
+						}
+						fclose($sp);
+					} else {
+						readfile($path.$file);
+					}
 				}
 			}
 			closedir($path);
 		}
+		fclose($fp);
 		die();
 	}
 	
-	function import() {
+	function import($content = null, $dataRestore = null) {
 		if ($_FILES["file"]) {
 			$content = file_get_contents($_FILES["file"]["tmp_name"]);
 		} else {
-			$content = file_get_contents("php://input");
+			if ($content == null || is_array($content)) {
+				$content = file_get_contents("php://input");
+			}
 		}
 		if (isset($content) && !empty($content)) {
 			// import everything we find
@@ -1594,8 +1709,9 @@ class BuilderHandler
 						file_put_contents("static/images/".$name, substr($files[$i], $fpos + 1));
 					}
 				}
-				if ($section[0] == "A") {
-					// import database contents
+				if ($section[0] == "A") { // import database contents
+					// ignore DB contents explicitly on production so that nothing will be imported accidentally
+					if (ENV_PRODUCTION === true && !$dataRestore) continue;
 					$oldPrefix = $this->obj_data->str_prefix;
 					$this->obj_data->str_prefix = "tbl_";
 					foreach ($data as $table => $arr_db) {
@@ -1686,7 +1802,8 @@ class BuilderHandler
 					    unset($mod["module_id"]);
                         $m = $this->obj_data->selectModuleByUserAndName($mod["fk_user_id"], $mod["name"]);
 					    $this->obj_data->deleteModule($m["module_id"]);
-						$modId = $this->obj_data->insertModule($mod);
+						$this->resetModule(false, $m["module_id"]);
+					    $modId = $this->obj_data->insertModule($mod);
 						$moduleMapping[$id] = $modId;
 						foreach ($mod["handlers"] as $handler) {
 							$handler = $handler->getArrayCopy();
@@ -2134,6 +2251,119 @@ class BuilderHandler
 		closedir($dp);
 		
 		return $this->_callPrinter("fileBrowser", $arr_param);
+	}
+	
+	function backup() {
+		if ($_GET["save"]) {
+			$id = "backupjob";
+            if (Quartz::getJob($id)) {
+           		Quartz::removeJob(null, false, $id);
+           	}
+            if (strlen($_POST["backupTime"]) > 0) {
+              	Quartz::addJob(JSON_decode($_POST["backupTime"], true), "builder:backup", $id);
+            } 
+			
+			jumpTo("?event=builder:home");
+		}
+       	$arr_param["modules"] = $this->obj_data->listModulesFromUser($_SESSION["builder"]["user_id"]);
+       	$arr_param["libraries"] = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
+       	$arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
+       	$arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
+       	$arr_param["translations"] = Generator::getInstance()->getLanguage()->listTexts();
+       	
+       	$toPost = Array("modules" => Array(), "libraries" => Array(), "tags" => Array(), "tables" => Array(), "translations" => Array(), "db" => Array(), "images" => 1);
+       	foreach ($arr_param["modules"] as $mod) {
+       		array_push($toPost["modules"], $mod["module_id"]);
+       	}
+       	foreach ($arr_param["libraries"] as $mod) {
+       		array_push($toPost["libraries"], $mod["library_id"]);
+       	}
+       	foreach ($arr_param["tags"] as $mod) {
+       		array_push($toPost["tags"], $mod["tag_id"]);
+       	}
+       	foreach ($arr_param["tables"] as $mod) {
+       		array_push($toPost["tables"], $mod["table_id"]);
+       	}
+       	foreach ($arr_param["translations"] as $root => $mod) {
+       		array_push($toPost["translations"], $root);
+       	}
+       	$_POST = $toPost;
+       	if (!is_dir("static/backups")) {
+       		@mkdir("static/backups", 0755);
+       	}
+       	return $this->export("static/backups/".PROJECT_NAME."-".date("Ymd-Hi").".prails");
+	}
+	
+	function restore() {
+       	if (!is_dir("static/backups")) {
+       		@mkdir("static/backups", 0755);
+       	}
+       	
+       	if (strlen($_POST["file"]) > 0) {
+       		if (file_exists("static/backups/".$_POST["file"]) && dirname(realpath("static/backups/".$_POST["file"])) == realpath("static/backups")) {
+       			$this->import(file_get_contents("static/backups/".$_POST["file"]), $_POST["dataRestore"] == "1");
+       			die("success");
+       		} else {
+       			die("file not found");
+       		}
+       	} else {
+       		$list = "";
+       		$dp = opendir("static/backups");
+       		while (($file = readdir($dp)) !== false) {
+       			if ($file[0] != ".") {
+       				$list .= $file."\n";
+       			}
+       		}
+       		closedir($dp);
+       		die($list);
+       	}
+	}
+	
+	function replication() {
+		if ($_POST["get"] == "details") {
+			$credentials = $_POST["replicate"];
+			$ctx = stream_context_create(Array(
+				'http' => Array(
+					"method" => "GET",
+					"header" => "Authorization: Basic ".base64_encode($credentials["source_user"].":".$credentials["source_pass"])
+				)
+			)); 
+			$return = file_get_contents(trim($credentials["source"],'/')."/?event=builder:replication&get=detailsjson", false, $ctx);
+			if (strlen(trim($return)) == 0) header("HTTP/1.1 404 Not Found");
+			die($return);
+		} else if ($_GET["get"] == "detailsjson") {
+        	$arr_param["modules"] = $this->obj_data->listModulesFromUser($_SESSION["builder"]["user_id"]);
+        	$arr_param["libraries"] = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
+        	$arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
+        	$arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
+        	$arr_translations = Generator::getInstance()->getLanguage()->listTexts();
+        	$arr_result = Array();
+        	foreach ($arr_param as $key => $value) {
+        		$arr_result[$key] = Array();
+        		foreach ($value as $entry) {
+        			if (gettype($entry) != "array") {
+        				array_push($arr_result[$key], $entry->getArrayCopy());
+        			} else {
+        				array_push($arr_result[$key], $entry);
+        			}
+        		}
+        	}
+        	foreach ($arr_translations as $key => $value) {
+        		$arr_result["translations"][$key] = $value;
+        	}
+        	die(json_encode($arr_result));
+		} else if (isset($_POST["start"])) {
+			$credentials = $_POST["replicate"];
+			$ctx = stream_context_create(Array(
+				'http' => Array(
+					"method" => "POST",
+					"header" => "Authorization: Basic ".base64_encode($credentials["source_user"].":".$credentials["source_pass"]),
+					"content" => http_build_query($_POST)."&file=replication-data.prails"
+				)
+			)); 
+			$this->import(file_get_contents(trim($credentials["source"],'/')."/?event=builder:export", false, $ctx));
+			die("success");
+		}
 	}
 
 /*</EVENT-HANDLERS>*/

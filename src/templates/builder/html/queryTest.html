@@ -24,11 +24,11 @@
 	</style>
 	<div style="padding:20px;">
 	<div style="float:left;width:49%;position:relative;">
-		Query
+		SQL Editor
 		<div id="query_container" data-bespinoptions='{"syntax": "sql"}' style="height:54px;padding:2px 3px;border:1px solid #9ab;"></div>
 	</div>
 	<div style="float:left;margin-left:1%;width:49%;position:relative;">
-		Clipboard
+		Scratch Pad
 		<div id="clip_container"></div>
 	</div>
 	<div style="clear:both;margin-bottom:3px;"></div>
@@ -197,34 +197,7 @@
 				            emptyMsg: "No results to display"
 				        })
 					});	
-/*
-					if (callback === true && false) {
-						pb.addButton({
-							xtype: "button",
-							text: "Add Row",
-							iconCls: "add",
-							handler: function() {
-						       	var store = Ext.getCmp("resultGrid").getStore();
-						        var orec, row;
-						        if(store.recordType) {
-						            orec = new store.recordType();
-						            orec.data = {};
-						            orec.fields.each(function(field) {
-						                orec.data[field.name] = field.defaultValue;
-						            });
-						            orec.data.newRecord = true;
-						            orec.commit();
-						            store.add(orec);
-
-						            row = store.indexOf(orec);
-						            if(row && undefined !== Ext.getCmp("resultGrid").editOnAddCol) {
-						                Ext.getCmp("resultGrid").startEditing(row, this.editOnAddCol);
-						            }
-						        }
-							}
-						});
-					}
-//*/					
+				
 					grid.store.on('load',grid.autoSizeColumns,grid);
 					grid.on('afteredit', function(e) {
 //						if (e.field) 
@@ -241,15 +214,6 @@
 				});				
 			};
 			
-/*
-			new Ext.form.TextArea({
-				fieldLabel: "Query",
-				grow: true,
-				id: "query",
-				width: "100%",
-				renderTo: "query_container",
-				anchor:'95%'
-			}); */
 			new Ext.form.TextArea({
 				grow: true,
 				fieldLabel: "Clipboard",
@@ -276,14 +240,6 @@
 			Ext.getCmp("portlet_content_query_test").getTopToolbar().doLayout();
 			Ext.QuickTips.init();
 			Builder.applyBespin($("query_container"));
-/*
-			window.sqlQuery = CodeMirror.fromTextArea('query', {
-				height: "100%",
-				parserfile: ["parsesparql.js", "../../main/js/prototype.js", "shortcuts.js"],
-				stylesheet: ["templates/builder/css/sparqlcolors.css"],
-				path: "templates/builder/js/",
-				textWrapping: true
-			});*/
 			new PeriodicalExecuter(function(pe) {
 				pe.stop();
 /*

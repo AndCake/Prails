@@ -40,18 +40,21 @@ class LangData
 		if (IS_SETUP) {
 			$arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
 			if (strlen($str_lang) <= 0 && DEFAULT_LANGUAGE != $arr_result["language_id"]) {
-				  $conf = getConfiguration();
-				  $conf["DEFAULT_LANGUAGE"] = $arr_result["language_id"];
-				  $toSave = Array();
-				  foreach ($conf as $name => $val) {
-				  	$toSave[] = Array("name" => $name, "value" => $val);
-				  }
-				  updateConfiguration($toSave);
+				try {
+					  $conf = getConfiguration();
+					  $conf["DEFAULT_LANGUAGE"] = (int)$arr_result["language_id"];
+					  $toSave = Array();
+					  foreach ($conf as $name => $val) {
+					  	$toSave[] = Array("name" => $name, "value" => $val);
+					  }
+					  updateConfiguration($toSave);
+				  } catch(Exception $ex) {};				  
 			}
 			$str_lang = $arr_result["abbreviation"];
 			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
 			$this->language_id = $arr_result["language_id"];
 			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
+			setcookie("defaultLang", $this->language_id);
 			if (!$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang]) $_SESSION["LangData_LANGUAGE_SETTING"][$str_lang] = Array();
 		}
 	}
@@ -65,7 +68,7 @@ class LangData
 	      	"  content " .
 	      	"FROM ".tbl_prailsbase_texts." " .
 	      	"WHERE " .
-	      	"	fk_language_id='".$this->language_id."' " .
+	      	"	fk_language_id=".$this->language_id." " .
 	      	" AND " .
 	      	"  identifier='".$str_item."'"
 	      	);
@@ -88,7 +91,7 @@ class LangData
           	"  * " .
           	"FROM ".tbl_prailsbase_texts." " .
           	"WHERE " .
-          	"	fk_language_id='".$this->language_id."' " .
+          	"	fk_language_id=".$this->language_id." " .
           	" AND " .
           	"  identifier='".$str_item."'"
           	));
@@ -101,11 +104,11 @@ class LangData
 	}
 
 	function listLanguages() {
-		return $this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE 1 ORDER BY name");
+		return $this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE 1=1 ORDER BY name");
 	}
 	 
 	function listTexts() {
-		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 GROUP BY identifier");
+		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 GROUP BY identifier, texts_id, fk_language_id, content");
 		$arr_return = Array();
 		foreach ($arr_result as $arr_entry) {
 			$parts = explode(".", $arr_entry["identifier"]);
@@ -137,7 +140,7 @@ class LangData
 	}
 
 	function getAllTextsByIdentifier($ident) {
-		$texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1");
+		$texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1=1");
 		foreach ($texts as &$text) {
 			$text["default"] = $text["isDefault"];
 		}
@@ -204,13 +207,15 @@ class LangData
 	 
 	function updateLanguage($id, $arr_data) {
 		$arr_data["isDefault"] = $arr_data["default"];
-		$arr_languages = $this->listLanguages();
-		foreach ($arr_languages as $lang) {
-			if ($lang["isDefault"] == 1 && $id == $lang["language_id"]) {
+//		$arr_languages = $this->listLanguages();
+        $this->obj_sql->UpdateQuery(tbl_prailsbase_language, Array("isDefault" => "0"), "1=1");
+/*
+        foreach ($arr_languages as $lang) {
+			if ($lang["isDefault"] == 0 && $id == $lang["language_id"]) {
 				$arr_data["isDefault"] = 1;
 			}
-		}
-		$this->obj_sql->UpdateQuery(tbl_prailsbase_language, $arr_data, "language_id='".$id."'");
+		}//*/
+		$this->obj_sql->UpdateQuery(tbl_prailsbase_language, $arr_data, "language_id=".$id."");
 	}
 
 	function insertLanguage($arr_data) {
@@ -221,24 +226,19 @@ class LangData
       if ($arr_data["isDefault"] == 1 && $count > 0) {
           // if the to-be-created language should be the new default, then 
           // set all other default languages to non-default
-          $this->obj_sql->UpdateQuery(tbl_prailsbase_language, Array("isDefault" => "0"), "1");
+          $this->obj_sql->UpdateQuery(tbl_prailsbase_language, Array("isDefault" => "0"), "1=1");
       }
       $id = $this->obj_sql->InsertQuery(tbl_prailsbase_language, $arr_data);
-      if ($arr_data["isDefault"] == 1) {
-          $c = file_get_contents("conf/configuration.php");
-          $c = preg_replace('/(define\s*\(["\']DEFAULT_LANGUAGE[\'"]\s*,\s*)[^)]+(\);)/mi', '\1"'.$id.'"\2', $c);
-          file_put_contents("conf/configuration.php", $c);
-      }
       return $id;
    }
    
    function deleteLanguage($id) {
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id='".$id."'");
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id='".$id."' OR fk_language_id=0");      
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id=".$id." OR fk_language_id=0");      
+   	  $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".$id."");
    }
 
    function deleteLanguageOnly($id) {
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id='".$id."'");
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".$id."");
    }
    
 }

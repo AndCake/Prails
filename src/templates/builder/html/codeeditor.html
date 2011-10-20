@@ -43,6 +43,11 @@
 		// ...
 	};
 	
+	txt.run = function() {
+		// trigger run 
+		// ...
+	};
+	
 	// don't override these:
 	txt.getCode = function() {
 		return window.txt.value;
@@ -63,7 +68,7 @@
 		me.selectionStart = p[0];
 		me.selectionEnd = p[1];
 		} catch(e){};
-		me.undoStack.push(me.value);
+		me.undoStack.push([me.value, me.selectionStart, me.selectionEnd]);
 		refresh(me.value);
 		return true;
 	};

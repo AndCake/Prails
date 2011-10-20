@@ -14,7 +14,7 @@
     <c:foreach var="<?=$name?>s" name="<?=$name?>">
     <tr>		
         <? foreach ($arr_fields as $key => $field) { ?>
-        <td><? if ($arr_types[$key] == "INT(20)") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?></td>
+        <td><? if ($arr_types[$key] == "INT(20)" || $arr_types[$key] == "BIGINT") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?></td>
         <? } ?> 
         <td>
             <? if ($_POST["h_scaffold"]["view"] && $_POST["d_scaffold"]["select"]) { ?>

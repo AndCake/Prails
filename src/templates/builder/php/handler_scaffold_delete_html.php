@@ -10,7 +10,7 @@
    <? foreach ($arr_fields as $field) { ?>
    <tr>
       <th><?=$field?></th>
-      <td><? if ($arr_types[$key] == "INT(20)") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?></td>
+      <td><? if ($arr_types[$key] == "INT(20)" || $arr_types[$key] == "BIGINT") { ?><?="<?=date('Y-m-d', \$arr_param['".$name."']['".$field."'])?>"?><? } else { ?>#<?=$name?>.<?=$field?><? } ?></td>
    </tr>
    <? } ?>
 </table>

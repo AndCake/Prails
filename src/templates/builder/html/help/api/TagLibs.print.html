@@ -35,7 +35,7 @@
             This example renders a POSTed user input.
         </p>
         <pre>
-        	<@ $arr_param["test"]["message"] = $_POST["user"]["input"]; @>
+        	<% $arr_param["test"]["message"] = $_POST["user"]["input"]; %>
         	<c:print value="test.message"/>
         </pre>
     </body>

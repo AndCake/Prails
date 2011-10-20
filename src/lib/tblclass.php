@@ -113,14 +113,15 @@ class TblClass { ///////////////////////////////////////////////////////////////
       $str_query = "INSERT INTO ".$str_table." (";
 	  $fields = Array();
 	  $values = Array();
+	  $res = Array();
+	  foreach ($arr_data as $key=>$dat) {
+	  	$res[strtolower($key)] = $dat;
+	  }
+	  $arr_data = $res;
       foreach ($arr_columns as $arr_col) {
-         if (isset($arr_data[$arr_col["Field"]])) {        	
-/*
-         	 if (preg_match("/[^\\\]'/", $arr_data[$arr_col["Field"]]) && $bol_escape && $bol_enclose) {
-         		 $arr_data[$arr_col["Field"]] = addslashes($arr_data[$arr_col["Field"]]);
-         	 }*/         	
+         if (isset($arr_data[strtolower($arr_col["Field"])])) {     	
 			 array_push($fields, $arr_col["Field"]);
-			 array_push($values, ($bol_escape?$this->obj_mysql->escape($arr_data[$arr_col["Field"]]):$arr_data[$arr_col["Field"]]));
+			 array_push($values, ($bol_escape?$this->obj_mysql->escape($arr_data[strtolower($arr_col["Field"])]):$arr_data[strtolower($arr_col["Field"])]));
          }
       }
       $str_query .= implode(", ", $fields) . ") VALUES ('" . implode("', '", $values)."')";
@@ -139,21 +140,26 @@ class TblClass { ///////////////////////////////////////////////////////////////
     *
     * @return INT number of tupel changed
     */
-   function UpdateQuery ($str_table, $arr_data, $str_where = "1", $bol_enclose=true) {
+   function UpdateQuery ($str_table, $arr_data, $str_where = "1=1", $bol_enclose=true) {
       $arr_columns = $this->obj_mysql->listColumns($str_table);
 
       $str_query = "UPDATE ".$str_table." SET ";
 	  $i = 0;
-      foreach ($arr_columns as $arr_col) {
-         if (isset($arr_data[$arr_col["Field"]])) {
+	  $res = Array();
+	  foreach ($arr_data as $key=>$dat) {
+	  	$res[strtolower($key)] = $dat;
+	  }
+	  $arr_data = $res;
+	  foreach ($arr_columns as $arr_col) {
+         if (isset($arr_data[strtolower($arr_col["Field"])])) {
          	$i++;
          	if ($bol_enclose) {
-         		if (preg_match("/[^\\\]'/", $arr_data[$arr_col["Field"]])) {
-	         		$arr_data[$arr_col["Field"]] = $this->obj_mysql->escape($arr_data[$arr_col["Field"]]);
+         		if (preg_match("/[^\\\]'/", $arr_data[strtolower($arr_col["Field"])])) {
+	         		$arr_data[$arr_col["Field"]] = $this->obj_mysql->escape($arr_data[strtolower($arr_col["Field"])]);
 	         	}
-	            $str_query .= $arr_col["Field"]."='".$arr_data[$arr_col["Field"]]."', ";
+	            $str_query .= $arr_col["Field"]."='".$arr_data[strtolower($arr_col["Field"])]."', ";
          	} else {
-         		$str_query .= $arr_col["Field"]."=".$arr_data[$arr_col["Field"]].", ";
+         		$str_query .= $arr_col["Field"]."=".$arr_data[strtolower($arr_col["Field"])].", ";
          	}
          }
       }
@@ -176,7 +182,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
     * @param STRING $str_table table's name
     * @param STRING $str_where WHERE condition
     */
-   function DeleteQuery ($str_table, $str_where = "0") {
+   function DeleteQuery ($str_table, $str_where = "0=1") {
       $str_query = "DELETE FROM ".$str_table." WHERE (".$str_where.")";
       
       $this->SqlQuery($str_query);
@@ -199,9 +205,13 @@ class TblClass { ///////////////////////////////////////////////////////////////
       	// dump query if needed
     	if ($this->bol_dumpSqlQuery!=0) print ($str_sqlString."<br/>");
     	$this->obj_mysql->setPrefix($this->str_prefix);
+    	global $profiler;
+    	if ($profiler) $profiler->logEvent("queryStart");
     	$arr_result = $this->obj_mysql->query($str_sqlString, ($this->bol_cache?DB_CACHE_TTL:0));
     	$this->int_affectedId = $this->obj_mysql->int_affectedId;
     	$this->int_affectedRows = $this->obj_mysql->int_affectedRows;
+    	
+    	if ($profiler) $profiler->logEvent("queryEnd");
     	
     	return $arr_result;
 	} // end SqlQuery //////////////////////////////////////////////////////////

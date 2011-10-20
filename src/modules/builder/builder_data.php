@@ -29,33 +29,33 @@ class BuilderData extends Database
     // module
     function listModulesFromUser($user_id)
     {
-        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id='".$user_id."' ORDER BY name");
+        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id=".$user_id." ORDER BY name");
     }
 
     function selectModuleByUserAndName($user_id, $name, $fs = false)
     {
     	if ($fs) $nq = "LOWER(name)"; else $nq = "name";
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id='".$user_id."' AND ".$nq."='".$name."' ORDER BY name"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE fk_user_id=".$user_id." AND ".$nq."='".$name."' ORDER BY name"));
     }
 
     function selectHandlerByNameAndModule($module_id, $event)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id='".$module_id."' AND event='".$event."' ORDER BY event"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id=".$module_id." AND event='".$event."' ORDER BY event"));
     }
 
     function listHandlerFromModule($module_id)
     {
-        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id='".$module_id."' ORDER BY event");
+        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id=".$module_id." ORDER BY event");
     }
 
     function listDataFromModule($module_id)
     {
-        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE fk_module_id='".$module_id."' ORDER BY name");
+        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE fk_module_id=".$module_id." ORDER BY name");
     }
 
     function selectModule($module_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE module_id='".$module_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_module." WHERE module_id=".$module_id));
     }
 
     function insertModule($arr_data)
@@ -65,23 +65,24 @@ class BuilderData extends Database
 
     function updateModule($module_id, $arr_data)
     {
-        return $this->UpdateQuery(tbl_prailsbase_module, $arr_data, "module_id='".$module_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_module, $arr_data, "module_id=".$module_id);
     }
 
     function deleteModule($module_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_module, "module_id='".$module_id."'");
+		$this->DeleteQuery(tbl_prailsbase_module_history, "fk_original_id=".$module_id);
+    	return $this->DeleteQuery(tbl_prailsbase_module, "module_id=".$module_id);
     }
 
     // handler
     function listHandlers($module_id)
     {
-        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id='".$module_id."' ORDER BY event");
+        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE fk_module_id=".$module_id." ORDER BY event");
     }
 
     function selectHandler($handler_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE handler_id='".$handler_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_handler." WHERE handler_id=".$handler_id));
     }
 
     function insertHandler($arr_data)
@@ -91,35 +92,37 @@ class BuilderData extends Database
 
     function updateHandler($handler_id, $arr_data)
     {
-    	return $this->UpdateQuery(tbl_prailsbase_handler, $arr_data, "handler_id='".$handler_id."'");
+    	return $this->UpdateQuery(tbl_prailsbase_handler, $arr_data, "handler_id=".$handler_id);
     }
 
     function deleteHandler($handler_id)
     {
-    	return $this->DeleteQuery(tbl_prailsbase_handler, "handler_id='".$handler_id."'");
+		$this->DeleteQuery(tbl_prailsbase_handler_history, "fk_original_id=".$handler_id);
+    	return $this->DeleteQuery(tbl_prailsbase_handler, "handler_id=".$handler_id);
     }
 	
 	function deleteHandlerFromModule($module_id) {
-		return $this->DeleteQuery(tbl_prailsbase_handler, "fk_module_id='".$module_id."'");
+		$this->DeleteQuery(tbl_prailsbase_handler_history, "fk_module_id=".$module_id);
+		return $this->DeleteQuery(tbl_prailsbase_handler, "fk_module_id=".$module_id);
 	}
 	
 	function selectDecoratorEventsFromUser($user) {
-	   return $this->SqlQuery("SELECT *, CONCAT(m.name, ':', h.event) AS name FROM tbl_prailsbase_handler AS h, tbl_prailsbase_module AS m WHERE h.fk_module_id=module_id AND m.fk_user_id='".$user."' AND (h.html_code LIKE '%<!--[content]-->%' OR h.html_code LIKE '%<c:body%/>%')");
+	   return $this->SqlQuery("SELECT *, CONCAT(m.name, ':', h.event) AS name FROM tbl_prailsbase_handler AS h, tbl_prailsbase_module AS m WHERE h.fk_module_id=module_id AND m.fk_user_id=".$user." AND (h.html_code LIKE '%<!--[content]-->%' OR h.html_code LIKE '%<c:body%/>%')");
 	}
 
     // data
     function listDatas($module_id)
     {
-        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE fk_module_id='".$module_id."' ORDER BY name");
+        return $this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE fk_module_id=".$module_id." ORDER BY name");
     }
 
     function selectData($data_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE data_id='".$data_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_data." WHERE data_id=".$data_id));
     }
 	
 	function getDataFromName($name, $module_id) {
-		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_data WHERE name='".$name."' AND fk_module_id='".$module_id."'"));
+		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_data WHERE name='".$name."' AND fk_module_id=".$module_id));
 	}
 
     function insertData($arr_data)
@@ -129,22 +132,24 @@ class BuilderData extends Database
 
     function updateData($data_id, $arr_data)
     {
-        return $this->UpdateQuery(tbl_prailsbase_data, $arr_data, "data_id='".$data_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_data, $arr_data, "data_id=".$data_id);
     }
 
     function deleteData($data_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_data, "data_id='".$data_id."'");
+		$this->DeleteQuery(tbl_prailsbase_data_history, "fk_original_id=".$data_id);
+    	return $this->DeleteQuery(tbl_prailsbase_data, "data_id=".$data_id);
     }
 
 	function deleteDataFromModule($module_id) {
-		return $this->DeleteQuery(tbl_prailsbase_data, "fk_module_id='".$module_id."'");
+		$this->DeleteQuery(tbl_prailsbase_data_history, "fk_module_id=".$module_id);
+		return $this->DeleteQuery(tbl_prailsbase_data, "fk_module_id=".$module_id);
 	}	
 
     // library
     function listLibrariesFromUser($id)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_library WHERE fk_user_id='".$id."'");
+        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_library WHERE fk_user_id=".$id);
     }
     
     function selectLibraryByUserAndName($user, $name) {
@@ -153,7 +158,7 @@ class BuilderData extends Database
 
     function selectLibrary($library_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_library." WHERE library_id='".$library_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_library." WHERE library_id=".$library_id));
     }
 
     function insertLibrary($arr_library)
@@ -163,27 +168,28 @@ class BuilderData extends Database
 
     function updateLibrary($library_id, $arr_library)
     {
-        return $this->UpdateQuery(tbl_prailsbase_library, $arr_library, "library_id='".$library_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_library, $arr_library, "library_id=".$library_id);
     }
 
     function deleteLibrary($library_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_library, "library_id='".$library_id."'");
+		$this->DeleteQuery(tbl_prailsbase_library_history, "fk_original_id=".$library_id);
+    	return $this->DeleteQuery(tbl_prailsbase_library, "library_id=".$library_id);
     }
 
     // tag
     function listTagsFromUser($id)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id='".$id."'");
+        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id=".$id);
     }
     
     function selectTagByUserAndName($user, $name) {
-    	return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id='".$user."' AND name='".$name."'"));
+    	return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_tag WHERE fk_user_id=".$user." AND name='".$name."'"));
     }
 
     function selectTag($tag_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_tag." WHERE tag_id='".$tag_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_tag." WHERE tag_id=".$tag_id));
     }
 
     function insertTag($arr_tag)
@@ -193,18 +199,19 @@ class BuilderData extends Database
 
     function updateTag($tag_id, $arr_tag)
     {
-        return $this->UpdateQuery(tbl_prailsbase_tag, $arr_tag, "tag_id='".$tag_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_tag, $arr_tag, "tag_id=".$tag_id);
     }
 
     function deleteTag($tag_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_tag, "tag_id='".$tag_id."'");
+		$this->DeleteQuery(tbl_prailsbase_tag_history, "fk_original_id=".$tag_id);
+    	return $this->DeleteQuery(tbl_prailsbase_tag, "tag_id=".$tag_id);
     }
 
     // table
     function listTablesFromUser($id)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_table WHERE fk_user_id='".$id."'");
+        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_table WHERE fk_user_id=".$id);
     }
     
     function selectTableFromUserAndName($user, $name) {
@@ -213,7 +220,7 @@ class BuilderData extends Database
 
     function selectTable($table_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_table." WHERE table_id='".$table_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_table." WHERE table_id=".$table_id));
     }
 
     function insertTable($arr_table)
@@ -223,22 +230,23 @@ class BuilderData extends Database
 
     function updateTable($table_id, $arr_table)
     {
-        return $this->UpdateQuery(tbl_prailsbase_table, $arr_table, "table_id='".$table_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_table, $arr_table, "table_id=".$table_id);
     }
 
     function deleteTable($table_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_table, "table_id='".$table_id."'");
+		$this->DeleteQuery(tbl_prailsbase_table_history, "fk_original_id=".$table_id);
+    	return $this->DeleteQuery(tbl_prailsbase_table, "table_id=".$table_id);
     }
 
     function listConfigurationFromModule($module_id, $type = 0)
     {
-        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_configuration WHERE fk_module_id='".$module_id."' AND (flag_public=0 OR flag_public='".$type."')");
+        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_configuration WHERE fk_module_id=".$module_id." AND (flag_public=0 OR flag_public=".$type.")");
     }
 
     function selectConfiguration($configuration_id)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_configuration." WHERE configuration_id='".$configuration_id."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM ".tbl_prailsbase_configuration." WHERE configuration_id=".$configuration_id));
     }
 
     function insertConfiguration($arr_configuration)
@@ -248,17 +256,19 @@ class BuilderData extends Database
 
     function updateConfiguration($configuration_id, $arr_configuration)
     {
-        return $this->UpdateQuery(tbl_prailsbase_configuration, $arr_configuration, "configuration_id='".$configuration_id."'");
+        return $this->UpdateQuery(tbl_prailsbase_configuration, $arr_configuration, "configuration_id=".$configuration_id);
     }
 
     function deleteConfiguration($configuration_id)
     {
-        return $this->DeleteQuery(tbl_prailsbase_configuration, "configuration_id='".$configuration_id."'");
+		$this->DeleteQuery(tbl_prailsbase_configuration_history, "fk_original_id=".$configuration_id);
+    	return $this->DeleteQuery(tbl_prailsbase_configuration, "configuration_id=".$configuration_id);
     }
 	
 	function clearConfiguration($module_id, $type = 0) 
 	{
-		return $this->DeleteQuery(tbl_prailsbase_configuration, "fk_module_id='".$module_id."' AND (flag_public=0 OR flag_public='".$type."')");	
+		$this->DeleteQuery(tbl_prailsbase_configuration_history, "fk_module_id=".$module_id." AND (flag_public=0 OR flag_public=".$type.")");
+		return $this->DeleteQuery(tbl_prailsbase_configuration, "fk_module_id=".$module_id." AND (flag_public=0 OR flag_public=".$type.")");	
 	}
 
     // history
@@ -294,10 +304,10 @@ class BuilderData extends Database
     }
     function listModuleHistory($module_id)
     {
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id='".$module_id."' AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
 		if (count($arr_days) > 0) {
 			$last = $arr_days[count($arr_days) - 1];
-			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id='".$module_id."' AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
+			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
 			@array_pop($arr_last);
 		} else $arr_last = Array();
         return array_merge($arr_days, $arr_last);
@@ -308,10 +318,10 @@ class BuilderData extends Database
     }
     function listHandlerHistory($handler_id)
     {
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id='".$handler_id."' AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
 		if (count($arr_days) > 0) {
 			$last = $arr_days[count($arr_days) - 1];
-			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id='".$handler_id."' AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
+			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
 			@array_pop($arr_last);
 		} else $arr_last = Array();
         return array_merge($arr_days, $arr_last);
@@ -322,10 +332,10 @@ class BuilderData extends Database
     }
     function listDataHistory($data_id)
     {
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id='".$data_id."' AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
 		if (count($arr_days) > 0) {
 			$last = $arr_days[count($arr_days) - 1];
-			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id='".$data_id."' AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
+			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
 			@array_pop($arr_last);
 		} else $arr_last = Array();
         return array_merge($arr_days, $arr_last);
@@ -363,7 +373,7 @@ class BuilderData extends Database
 			closedir($dp);
 			return $res;
     	} else {
-	        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id='".$module_id."'");
+	        return $this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id=".$module_id);
     	}
     }
     function selectResource($id, $mid = 0)
@@ -383,12 +393,12 @@ class BuilderData extends Database
 			closedir($dp);
 			return null;
 		} else {
-    		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE resource_id='".$id."'"));
+    		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE resource_id=".$id));
 		}
     }
     function selectResourceByName($module_id, $name)
     {
-        return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id='".$module_id."' AND name='".$name."'"));
+        return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_resource WHERE fk_module_id=".$module_id." AND name='".$name."'"));
     }
     function insertResource($arr_data)
     {
@@ -396,19 +406,21 @@ class BuilderData extends Database
     }
     function updateResource($resource_id, $arr_data)
     {
-        $this->UpdateQuery("tbl_prailsbase_resource", $arr_data, "resource_id='".$resource_id."'");
+        $this->UpdateQuery("tbl_prailsbase_resource", $arr_data, "resource_id=".$resource_id);
     }
     function deleteResource($resource_id)
     {
-        $this->DeleteQuery("tbl_prailsbase_resource", "resource_id='".$resource_id."'");
+		$this->DeleteQuery(tbl_prailsbase_resource_history, "fk_original_id=".$resource_id);
+    	$this->DeleteQuery("tbl_prailsbase_resource", "resource_id=".$resource_id);
     }
     function clearResource($module_id)
     {
-        $this->DeleteQuery("tbl_prailsbase_resource", "fk_module_id='".$module_id."'");
+		$this->DeleteQuery(tbl_prailsbase_resource_history, "fk_module_id=".$module_id);
+    	$this->DeleteQuery("tbl_prailsbase_resource", "fk_module_id=".$module_id);
     }
     
 	function findHandlerByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE event LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE event LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id=".$uid);
 		$arr_return = Array();
 		foreach ($result as $res) {
 			array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -416,7 +428,7 @@ class BuilderData extends Database
 		return $arr_return;
 	}
 	function findDataByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (Data Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (Data Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND a.fk_module_id=module_id AND fk_user_id=".$uid);
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -424,7 +436,7 @@ class BuilderData extends Database
                 return $arr_return;
 	}
 	function findLibByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('l_', library_id) AS id, CONCAT(a.name,' (Library)') AS name, 'Library' AS type FROM tbl_prailsbase_library AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND ((a.fk_module_id=module_id AND b.fk_user_id='".$uid."') OR (a.fk_user_id='".$uid."')) GROUP BY library_id");
+		$result = $this->SqlQuery("SELECT CONCAT('l_', library_id) AS id, CONCAT(a.name,' (Library)') AS name, 'Library' AS type FROM tbl_prailsbase_library AS a, tbl_prailsbase_module AS b WHERE a.name LIKE '%".$name."%' AND ((a.fk_module_id=module_id AND b.fk_user_id=".$uid.") OR (a.fk_user_id=".$uid.")) GROUP BY library_id");
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -432,7 +444,7 @@ class BuilderData extends Database
                 return $arr_return;
 	}
 	function findTagByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('t_', tag_id) AS id,  CONCAT(name,' (Tag)') AS name, 'Tag' AS type FROM tbl_prailsbase_tag WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('t_', tag_id) AS id,  CONCAT(name,' (Tag)') AS name, 'Tag' AS type FROM tbl_prailsbase_tag WHERE name LIKE '%".$name."%' AND fk_user_id=".$uid);
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -440,7 +452,7 @@ class BuilderData extends Database
                 return $arr_return;
 	}
 	function findModuleByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('m_', module_id) AS id,  CONCAT(name,' (Module)') AS name, 'Module' AS type FROM tbl_prailsbase_module WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('m_', module_id) AS id,  CONCAT(name,' (Module)') AS name, 'Module' AS type FROM tbl_prailsbase_module WHERE name LIKE '%".$name."%' AND fk_user_id=".$uid);
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -448,7 +460,7 @@ class BuilderData extends Database
                 return $arr_return;
 	}
 	function findTableByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('db_', table_id) AS id,  CONCAT(name,' (Database Table)') AS name, 'Database Table' AS type FROM tbl_prailsbase_table WHERE name LIKE '%".$name."%' AND fk_user_id='".$uid."'");
+		$result = $this->SqlQuery("SELECT CONCAT('db_', table_id) AS id,  CONCAT(name,' (Database Table)') AS name, 'Database Table' AS type FROM tbl_prailsbase_table WHERE name LIKE '%".$name."%' AND fk_user_id=".$uid);
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -540,22 +552,24 @@ class BuilderData extends Database
 	
 	// TEST CASES
 	function listTestcase($module_id = -1) {
-		return $this->SqlQuery("SELECT * FROM tbl_prailsbase_testcase WHERE ".($module_id >= 0 ? "fk_module_id='".$module_id."'" : "1"));
+		return $this->SqlQuery("SELECT * FROM tbl_prailsbase_testcase WHERE ".($module_id >= 0 ? "fk_module_id=".$module_id : "1"));
 	}
 	function selectTestcase($testcase_id) {
-		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_testcase WHERE testcase_id='".$testcase_id."'"));
+		return @array_pop($this->SqlQuery("SELECT * FROM tbl_prailsbase_testcase WHERE testcase_id=".$testcase_id));
 	}
 	function updateTestcase($testcase_id, $arr_data) {
-		$this->UpdateQuery("tbl_prailsbase_testcase", $arr_data, "testcase_id='".$testcase_id."'");
+		$this->UpdateQuery("tbl_prailsbase_testcase", $arr_data, "testcase_id=".$testcase_id."");
 	}
 	function insertTestcase($arr_data) {
 		return $this->InsertQuery("tbl_prailsbase_testcase", $arr_data);
 	}
 	function deleteTestcase($testcase_id) {
-		$this->DeleteQuery("tbl_prailsbase_testcase", "testcase_id='".$testcase_id."'");
+		$this->DeleteQuery("tbl_prailsbase_testcase_history", "fk_original_id=".$testcase_id."");
+		$this->DeleteQuery("tbl_prailsbase_testcase", "testcase_id=".$testcase_id."");
 	}
 	function clearTestcase($module_id) {
-		$this->DeleteQuery("tbl_prailsbase_testcase", "fk_module_id='".$module_id."'");
+		$this->DeleteQuery("tbl_prailsbase_testcase_history", "fk_module_id=".$module_id."");
+		$this->DeleteQuery("tbl_prailsbase_testcase", "fk_module_id=".$module_id."");
 	}
 	
     /*</DB-METHODS>*/

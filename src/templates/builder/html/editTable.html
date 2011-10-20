@@ -6,23 +6,23 @@
 <div style="clear:both;"></div>
 <select name="types#table.table_id" id="types#table.table_id" style="display:none;">
 	<option value="DOUBLE">Double</option>
-	<option value="INT(1) NOT NULL">Flag</option>
+	<option value="TINYINT NOT NULL">Flag</option>
 	<option value="FLOAT">Float</option>
-	<option value="INT(11) NOT NULL">Foreign Key</option>
-	<option value="INT(11)">Integer</option>
+	<option value="INTEGER NOT NULL">Foreign Key</option>
+	<option value="INTEGER">Integer</option>
 	<option value="VARCHAR(1024)">Long String</option>
 	<option value="LONGTEXT">Long Text</option>
 	<option value="VARCHAR(255)">String</option>
 	<option value="TEXT">Text</option>
-	<option value="INT(20)">Timestamp</option>
+	<option value="BIGINT">Timestamp</option>
 </select>
 <!-- always enable scaffolding -->
 <fieldset>
 	<div class="">
-		<input type="checkbox" name="scaffold_data" value="1" id="sfd" onchange="$('data_scaffold').toggle();if(this.checked||$('sfh').checked)$('sel_module').disabled=false;else $('sel_module').disabled=true;" />
-		<label for="sfd">also create data queries</label>
+		<input type="checkbox" name="scaffold_data" value="1" id="sfd#table.table_id" onchange="$('data_scaffold#table.table_id').toggle();if(this.checked||$('sfh#table.table_id').checked)$('sel_module#table.table_id').disabled=false;else $('sel_module#table.table_id').disabled=true;" />
+		<label for="sfd#table.table_id">also create data queries</label>
 	</div>
-	<div id="data_scaffold" class="scaffold" style="display:none;">
+	<div id="data_scaffold#table.table_id" class="scaffold" style="display:none;">
 		<h3>Create Data Queries For: </h3>
 		<input type="checkbox" class="tosave" name="d_scaffold[list]" value="1" id="list" checked="checked" />
 		<label for="list">list</label>
@@ -36,10 +36,10 @@
 		<label for="delete">delete</label> 
 	</div>
 	<div class="">
-		<input type="checkbox" name="scaffold_handlers" value="1" id="sfh" onchange="$('handler_scaffold').toggle();if(this.checked||$('sfd').checked)$('sel_module').disabled=false;else $('sel_module').disabled=true;" />
-		<label for="sfh">also create event handlers</label>
+		<input type="checkbox" name="scaffold_handlers" value="1" id="sfh#table.table_id" onchange="$('handler_scaffold#table.table_id').toggle();if(this.checked||$('sfd#table.table_id').checked)$('sel_module#table.table_id').disabled=false;else $('sel_module#table.table_id').disabled=true;" />
+		<label for="sfh#table.table_id">also create event handlers</label>
 	</div>
-	<div id="handler_scaffold" class="scaffold" style="display:none;">
+	<div id="handler_scaffold#table.table_id" class="scaffold" style="display:none;">
 		<h3>Create Event Handlers For: </h3>
 		<input type="checkbox" class="tosave" name="h_scaffold[list]" value="1" id="hlist" checked="checked" />
 		<label for="hlist">overview</label>
@@ -51,8 +51,8 @@
 		<label for="remove">delete</label> 
 	</div>
 	<div class="">
-		<label for="sel_module">create in module</label>			
-		<select id="sel_module" class="tosave" name="scaffold[fk_module_id]" size="1" disabled="true">
+		<label for="sel_module#table.table_id">create in module</label>			
+		<select id="sel_module#table.table_id" class="tosave" name="scaffold[fk_module_id]" size="1" disabled="true">
 			<option value="0" disabled="true" selected="selected">Please choose</option>
 			<c:foreach var="modules" name="module">
 				<option value="#module.module_id">#module.name</option>
@@ -75,7 +75,7 @@
                 var Field = grid.getStore().recordType;
                 var p = new Field({
                     field: 'fk_#iTable.name_id',
-                    type: 'INT(11) NOT NULL'
+                    type: 'INTEGER NOT NULL REFERENCES tbl_#iTable.name'
                 });
                 grid.stopEditing();
                 grid.getStore().insert(0, p);
@@ -185,7 +185,7 @@
 						added = true;
 					}
 				});
-				if (parseInt("0"+params["scaffold[fk_module_id]"], 10) <= 0 && $('sel_module') && !$("sel_module").disabled) {
+				if (parseInt("0"+params["scaffold[fk_module_id]"], 10) <= 0 && $('sel_module#table.table_id') && !$("sel_module#table.table_id").disabled) {
 					Ext.Msg.alert("Status", "Please provide the module you want to generate the data queries / event handlers in.").setIcon(Ext.Msg.ERROR);
 					return;
 				}

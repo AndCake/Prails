@@ -54,7 +54,7 @@
 			};			
 			Builder.applyBespin("coded<?=(int)$arr_param["data"]["data_id"]?>", function(fr) {
 				$("coded<?=(int)$arr_param['data']['data_id']?>").down("iframe").style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-
+				fr.txt.addKeywords("\\$this->", ["query", "add", "set", "update", "get", "select", "ins", "insert", "remove", "del", "delete", "update", "edit"]);
 		      	setTimeout(function() {
 						$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");				
 		      	}, 1000);				
@@ -65,46 +65,6 @@
 				}
 	      	}));
 	      	
-			/*/
-			window.phpEditord<?=(int)$arr_param["data"]["data_id"]?> = CodeMirror.fromTextArea('coded<?=(int)$arr_param["data"]["data_id"]?>', {
-				height: "100%",
-				parserfile: ["tokenizephp.js", "parsephp.js"],
-				stylesheet: ["templates/builder/css/phpcolors.css"],
-				path: "templates/builder/js/",
-				textWrapping: false,
-				crc32: <?=crc32($arr_param["data"]["code"])?>,
-				crc32Id: "d_code_#data.data_id",
-				mergeUrl: "?event=builder:editData&check=2&type=code&data_id=<?=(int)$arr_param['data']['data_id']?>",	
-				autoMatchParens: true,				
-				saveFunction: function() {
-					if (window.keywords.indexOf($("d_name_#data.data_id").getValue()) >= 0) {
-						$("d_name_#data.data_id").value = "_"+$("d_name_#data.data_id").getValue();
-					}
-					$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value=phpEditord<?=(int)$arr_param["data"]["data_id"]?>.getCode();
-					invoke(null, 'builder:editData&check=1&module_id=<?=if_set($arr_param['data']['fk_module_id'], $_SESSION["module_id"])?>&data_id=<?=(int)$arr_param['data']['data_id']?>', $('hformd<?=(int)$arr_param["data"]["data_id"]?>').serialize(), true, function(req) {
-						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
-						if (<?=(int)$arr_param["data"]["data_id"]?> == 0) {
-							var name = $("d_name_#data.data_id").getValue();
-							var id = req.responseText.split(/\s/g)[0];
-							var mid = <?=(int)$_SESSION["module_id"]?>;
-							var module = Builder.root.findChild("id", mid);
-							Builder.closeTab("d_0");
-							var n = new Ext.tree.TreeNode({
-								text: name,
-								leaf: true,
-								id: "d_"+id,
-								allowChildren: false
-							});
-							n.cls = "query";
-							module.datas.push(n);
-							Builder.editData(n);
-							Builder.resetTree(Builder.dataRoot, module.datas);
-						}
-					});
-					return false;			
-				}			
-			});
-			//*/
 			Ext.getCmp("portlet_content_d_<?=(int)$arr_param['data']['data_id']?>").getTopToolbar().add({
 				xtype: "button",
 				text: "Save",

@@ -19,7 +19,7 @@
 
 class DBDeployer {
 
-	static function deploy($arr_db, $table_prefix = "tbl_")
+	static function deploy($arr_db, $table_prefix = "tbl_", $indexFields = Array())
 	{
 		$obj_db = new TblClass($table_prefix);
 
@@ -84,6 +84,9 @@ class DBDeployer {
 	            		$value .= " DEFAULT 0";
 	            	}
 	               	$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." ADD COLUMN ".$key." ".$value);
+	               	if (preg_match('/^fk_[a-zA-Z_0-9\-]+_id$/mi', $key)) {
+	               		$obj_db->SqlQuery("CREATE INDEX ".$table."_".$key."_index ON ".$table_prefix.$table." (".$key.")");
+	               	}
 	               }
 	            } else
 	            {
@@ -96,12 +99,18 @@ class DBDeployer {
 			if (is_array($arr_fields)) foreach ($arr_fields as $arr_field) {
 			 	if (!$arr_field["isIn"] && $arr_field["Field"] != $pk) {
 			 		$obj_db->SqlQuery("ALTER TABLE ".$table_prefix.$table." DROP COLUMN ".$arr_field["Field"]);
+			 		if (preg_match('/^fk_[a-zA-Z_0-9\-]+_id$/mi', $arr_field["Field"])) {
+			 			$obj_db->SqlQuery("DROP INDEX ".$table."_".$arr_field["Field"]."_index");
+			 		}
 				}
 			}
 	        if (!$bol_exists) 
 	        {
 	            $str_query = substr($str_query, 0, -2).")";
 	            $obj_db->SqlQuery($str_query);
+	            
+	            // create indices for all foreign keys of that table
+	            // ...
 	        }        
 		}
 	}

@@ -43,7 +43,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 				region: "center"
 			},{
 				xtype: "panel",
-				width: 488,
+				width: 515,
 				border: false,
 				layout: "table",
 				cls: "header-nav",
@@ -118,7 +118,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 					iconCls: "package",
 					text: "Package",
 					handler: function(){
-						new Ext.Window({
+						window.packageWindow = new Ext.Window({
 							layout: "fit",
 							title: "Package",
 							iconCls: "package",
@@ -138,17 +138,51 @@ window.Builder = Object.extend(window.Builder || {}, {
 							        		title: "Import",
 							        		id: "import",
 							        		html: $("import_panel").innerHTML.replace(/<!--|-->/gmi, "")
+							        	}, {
+							        		title: "Replication",
+							        		tabTip: (!$("replicate_panel") ? "Replication can only be run on a production instance." : ""),
+							        		disabled: !$("replicate_panel"),
+							        		id: "replication",
+							        		html: ($("replicate_panel") && $("replicate_panel").innerHTML.replace(/<!--|-->/gmi, "")) || "" 
+							        	}, {
+							        		title: "Schedule Backups",
+							        		id: "backupschedule",
+							        		html: $("backup_panel").innerHTML.replace(/<!--|-->/gmi, "")
 							        	}],
 							        	listeners: {
 							        		tabchange: function(panel, tab) {
 							        			if (tab.getId() == "import") {
 							        				QuixoticWorxUpload.init();							        				
+							        			} else if (tab.id == "backupschedule") {
+							        				var data = window.schedule; 
+							        				if (data) for (var all in data) {
+							        					if (all != "week") {
+							        						if (data[all][0] == "*") {
+							        							$$(".scheduler .repeat input")[0].value = data[all].split("/")[1];
+							        							$$(".scheduler .repeat select option").each(function(item) {
+							        								if (item.value == all+"s") {
+							        									item.selected = true;
+							        									throw $break;
+							        								}
+							        							}); 
+							        						}
+							        					} else {
+							        						$$(".scheduler .days input").each(function(input) {
+							        							if ((data[all]+",").indexOf(input.value) >= 0) {
+							        								input.checked = true;
+							        							} else {
+							        								input.checked = false;
+							        							}
+							        						});
+							        					}
+							        				}							        				
 							        			}
 							        		}
 							        	}
 							        })
 							]
-						}).show(this);
+						});
+						window.packageWindow.show(this);
 						QuixoticWorxUpload.init();
 					}
 				}, {
@@ -257,7 +291,6 @@ window.Builder = Object.extend(window.Builder || {}, {
 						}, "-", (Builder.isDeveloper || Builder.isAdmin ? {
 							xtype: "button",
 							id: "logs",
-							style: "margin-right: 10px;",
 							iconCls: "handler",
 							text: "Log Files",
 							menu: {
@@ -280,7 +313,20 @@ window.Builder = Object.extend(window.Builder || {}, {
 									}
 								}
 							}
-						} : "")] : null)
+						} : ""),
+						(Builder.isDeveloper || Builder.isAdmin ? "-" : ""),
+						(Builder.isDeveloper || Builder.isAdmin ? {
+							xtype: "button",
+							id: "profiler",
+							disabled: !window.profilerLogs,
+							style: "margin-right: 10px;",
+							iconCls: "debug",
+							text: "Profiler",
+							handler: function() {
+								Builder.addTab("templates/builder/html/showProfiler.html", "System Profiler", "sys-prof", "debug");
+							}
+						} : "")
+						] : null)
 					}],
 					listeners: {
 						tabchange: function(tab, content) {
@@ -578,7 +624,11 @@ window.Builder = Object.extend(window.Builder || {}, {
 				handler: function() {
 					Builder.delLibrary(Ext.getCmp("qwbuilder_libraryPanel").getSelectionModel().getSelectedNode());
 				}
-			}, "-"],
+			}, "-", {
+				text: "Upload",
+				iconCls: "library",
+				handler: Builder.uploadLibrary
+			}],
 			listeners: {
 				contextmenu: function(n, e) {
 					e.preventDefault();
@@ -769,7 +819,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 		navItems.push({
 		   xtype: "treepanel",
 		   id: "qwbuilder_langsPanel",
-		   title: "Translations",
+		   title: "Static Content",
 		   collapsible: true,
 		   region: "south",
 		   width: 150,
@@ -1060,3 +1110,64 @@ window.Builder = Object.extend(window.Builder || {}, {
 			}
 		};	
 })();
+
+window.Replication = {
+	credentials: null,
+	
+	connect: function(items) {
+		var data='';
+		items.each(function(item){
+			data += '&'+item.serialize();
+		});
+		new Ajax.Request('?event=builder:replication', {
+			parameters: data+'&get=details', 
+			method: "POST",
+			onSuccess: function(req) {
+				Replication.credentials = data;
+				Replication.applyData(JSON.parse(req.responseText));
+			},
+			onFailure: function(req) {
+				Ext.Msg.alert("Connection Problem", "There was a problem with establishing the connection. Please check URL and credentials.")
+			}
+		});		
+	},
+	
+	applyData: function(data) {
+		$A(data.modules).each(function(module) {
+			$("repl_modules").insert("<option value='"+module.module_id+"'>"+module.name+"</option>");
+		});
+
+		$A(data.libraries).each(function(module) {
+			$("repl_libraries").insert("<option value='"+module.library_id+"'>"+module.name+"</option>");
+		});
+
+		$A(data.tags).each(function(module) {
+			$("repl_tags").insert("<option value='"+module.tag_id+"'>"+module.name+"</option>");
+		});
+
+		$A(data.tables).each(function(module) {
+			$("repl_tables").insert("<option value='"+module.table_id+"'>"+module.name+"</option>");
+		});
+		for (var root in data.translations) {
+			$("repl_translations").insert("<option value='"+root+"'>"+root+"</option>");
+		}
+		$("connection_details").hide();
+		$("replication_details").show();
+	},
+	
+	start: function(selects) {
+		var data = "";
+		$A(selects).each(function(item){
+			data += "&"+item.serialize();
+		});
+		invoke(null, "builder:replication", Replication.credentials + data + "&start", true, function(req) {
+			// replication completed...
+			if (req.responseText == "success") {
+				Ext.Msg.alert("Replication Status", "The replication completed successfully.");
+				packageWindow.close();
+			} else {
+				Ext.Msg.alert("Replication Status", "There was a problem during replication: "+req.responseText);
+			}
+		});
+	}
+};

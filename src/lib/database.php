@@ -38,7 +38,7 @@ class Database extends TblClass {
 	/**
 	 * Retrieve data from a table
 	 * @param STRING $table table name (with or without prefix)
-	 * @param MIXED $filter retrieve what? (example: "customer_id='12'" or Array("customer_id" => 12))
+	 * @param MIXED $filter retrieve what? (example: "customer_id=12" or Array("customer_id" => 12))
 	 * @param STRING $sort what and how to sort (example: "lastModified ASC")
 	 */
 	function get($table, $filter = "", $sort = "", $start=0, $limit=999999) {
@@ -49,7 +49,11 @@ class Database extends TblClass {
 			$res = "";
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
-				$res .= $key."='".$this->escape($value)."'";
+				if (substr($key, -3) == "_id") {
+					$res .= $key."=".$value;					
+				} else {
+					$res .= $key."='".$this->escape($value)."'";
+				}
 			}
 			$filter = $res;
 		}
@@ -87,7 +91,11 @@ class Database extends TblClass {
 			$res = "";
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
-				$res .= $key."='".$this->escape($value)."'";
+				if (substr($key, -3) == "_id") {
+					$res .= $key."=".$value;					
+				} else {
+					$res .= $key."='".$this->escape($value)."'";
+				}
 			}
 			$filter = $res;
 		}
@@ -110,7 +118,11 @@ class Database extends TblClass {
 			$res = "";
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
-				$res .= $key."='".$this->escape($value)."'";
+				if (substr($key, -3) == "_id") {
+					$res .= $key."=".$value;					
+				} else {
+					$res .= $key."='".$this->escape($value)."'";
+				}
 			}
 			$filter = $res;
 		}

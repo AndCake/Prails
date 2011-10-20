@@ -54,7 +54,16 @@ class MainHandler
     		return invoke("main:setup");
     	}
     	
-		/** BEGIN_CODE **/
+        $results = HookCore::notify("global-home");
+    	if (count($results) > 0) {
+    		foreach ($results as $res) {
+    			if (gettype($res) === "string") {
+    				return $res;
+    			}
+    		}
+    	}
+    	
+		/** BEGIN_CODE **/    	
    $arr_param = Array(
       "modules" => $this->obj_data->listModules()
    );
@@ -103,7 +112,7 @@ class MainHandler
 					'"user"=>"root",			// database user - change this',
 					'"pass"=>"",			// database password - change this'
 				), Array(
-					'define ("DB_TYPE", MYSQL);',
+					'define ("DB_TYPE", '.$arr_db["type"].');',
 					'"name"=>"'.$arr_db["name"].'",			// database name - change this',
 					'"user"=>"'.$arr_db["user"].'",			// database user - change this',
 					'"pass"=>"'.$arr_db["pass"].'",			// database password - change this'
@@ -158,7 +167,6 @@ class MainHandler
         $arr_param["text"] = Generator::getInstance()->getLanguage()->selectTextByIdentifier("cms.".str_replace("/", ".", $_GET["page"]));
         
         if (!$arr_param["text"]["texts_id"]) {
-        	
             return $this->pageNotFound();
         }
         

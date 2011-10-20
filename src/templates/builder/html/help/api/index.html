@@ -73,7 +73,10 @@
 						<li><a target="content" href="generator.setIsCachable.html">setIsCachable</a></li>
 						<li><a target="content" href="generator.setKeywords.html">setKeywords</a></li>
 						<li><a target="content" href="generator.setTitle.html">setTitle</a></li>
-					</ol
+					</ol>
+				</li>
+				<li>
+					<a target="content" href="Hooks.html">Hooks</a>
 				</li>
 			</ol>
 		</div>
@@ -82,17 +85,29 @@
 		
 		<script type="text/javascript">
 			(function() {
+				var loadPage = function(t) {
+					new Ajax.Updater("content", t, {
+						onComplete: function(req) {
+							window.lastLoaded = t;
+							req.responseText.match(/<title>(.*)<\/title>/gi);
+							document.title = RegExp.$1;
+
+							$$("a[target]").each(function(item) {
+								item.onclick = function() {
+									var t = this.getAttribute("href");
+									location.href = location.href.replace(location.hash, "") + "#"+t;
+									loadPage(t);
+									return false;
+								};
+							});
+						}
+					});					
+				}
 				setInterval(function() {
 					if (location.hash.length > 0) {
 						var t = location.hash.replace("#", "");
 						if (t != window.lastLoaded) {
-							new Ajax.Updater("content", t, {
-								onComplete: function(req) {
-									window.lastLoaded = t;
-									req.responseText.match(/<title>(.*)<\/title>/gi);
-									document.title = RegExp.$1;
-								}
-							});
+							loadPage(t);
 						}
 					}
 				}, 250);
@@ -100,13 +115,7 @@
 					item.onclick = function() {
 						var t = this.getAttribute("href");
 						location.href = location.href.replace(location.hash, "") + "#"+t;
-						new Ajax.Updater(this.target, t, {
-							onComplete: function(req) {
-								window.lastLoaded = t;
-								req.responseText.match(/<title>(.*)<\/title>/gi);
-								document.title = RegExp.$1;
-							}
-						});
+						loadPage(t);
 						return false;
 					};
 				});
