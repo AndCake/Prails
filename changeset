@@ -17,7 +17,7 @@ V1.2.0 (October 20th, 2011)
 * made setting the default language more resistant to (DB) errors
 * Fixed a problem with parameters not intuitively transmitted when using handler names beginning with edit/delete/view (now behaves exactly as with all other handlers, is also fully  backwards compatible)
 * fixed a bug with scaffolding feature when editing multiple tables at the same time
-* fixed a bug where all CTRL+Backspace / CTRL+Left (same for CMD on Mac systems) were surpressed rather than only in textareas and input fields
+* fixed a bug where all CTRL+Backspace / CTRL+Left (same for CMD on Mac systems) were surpressed rather than only in non-textareas and non-input fields
 * fixed a bug in built-in API documentation: cross-references were not loaded correctly
 * fixed a bug with page caching in overload situations: the overload lock was released too early
 * fixed a bug where on slow servers, the overload page was shown prematurely in some rare cases
