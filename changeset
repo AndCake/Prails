@@ -1,3 +1,13 @@
+V1.2.1 (October 24th, 2011)
+
+* added variable highlighting for handler code 
+* updated several scaffolded handler codes to make sure that $arr_param is not overridden
+* fixed backups not being found after creation
+* fixed a problem with importing _very_ large exports/backups
+* fixed a bug where cache entries may be written concurrently
+* fixed a bug with code editor in conjunction with search&replace (did not immediately update the code field and did not correctly show the found items
+
+
 V1.2.0 (October 20th, 2011)
 
 * added explicit use of foreign key constraints for all supported database systems (won't break existing db structures)
