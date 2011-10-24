@@ -378,18 +378,16 @@ function timeDiff($time, $opt = array()) {
  * @return STRING formatted string representing the variable
  */
 function tostring ($mix,$i=0) {
-    if (is_array($mix))
-    {
+    if (is_array($mix)) {
         $str.="\n".str_repeat("  ",$i)."Array(";
         $k = 0;
-        foreach ($mix as $key=>$val)
-        {
+        foreach ($mix as $key=>$val) {
             $str.="\"".$key."\"=>".tostring($val, $i + 1).($k < count($mix) - 1 ? "," : "");
             $k++;
         }
         $str.=")";
     } else
-    return "".$mix."";
+    	return "".substr($mix, 0, 100)."";
     return $str;
 }
 

@@ -1603,6 +1603,9 @@ class BuilderHandler
 			$libraries = Array();
 			foreach ($_POST["libraries"] as $lib) {
 				$arr_library = $this->obj_data->selectLibrary($lib)->getArrayCopy();
+				if ($arr_library["fk_resource_id"] > 0) {
+					$arr_library["resource"] = $this->obj_data->selectResource($arr_library["fk_resource_id"])->getArrayCopy();
+				}
 				array_push($libraries, $arr_library);
 			}
 			fwrite($fp, "L");
@@ -1682,22 +1685,53 @@ class BuilderHandler
 	
 	function import($content = null, $dataRestore = null) {
 		if ($_FILES["file"]) {
-			$content = file_get_contents($_FILES["file"]["tmp_name"]);
+			$fp = fopen($_FILES["file"]["tmp_name"], "r");
+//			$content = file_get_contents($_FILES["file"]["tmp_name"]);
 		} else {
 			if ($content == null || is_array($content)) {
-				$content = file_get_contents("php://input");
+				$fp = fopen("php://input", "r");
+//				$content = file_get_contents("php://input");
+			} else {
+				$fp = fopen($content, "r");
 			}
 		}
-		if (isset($content) && !empty($content)) {
+		if ($fp) {
 			// import everything we find
-			if (substr($content, 0, 3) !== "---") {
+			if (fread($fp, 3) !== "---") {
 				die("error parsing input file...");
 			}
-			$magic = substr($content, 0, strpos($content, "\n")+1);
+			function readUntil($fp, $edge) {
+				$data = "";
+				while (!feof($fp)) {
+					$line = fgets($fp);
+					if (in_array(($mgc = preg_replace('/^.*(---[a-fA-F0-9]+)$/mi', '\1', $line)), $edge)) {
+						return $data . str_replace($mgc, '', $line);
+					} else {
+						$data .= $line;
+					}
+				}
+				return $data;
+			}
+			$magic = "---" . fgets($fp, 1024);
 			$moduleMapping = Array();
 			$languageMapping = Array();
 			$sections = explode($magic, substr($content, strlen($magic)));
-			foreach ($sections as $section) {
+			while (!feof($fp)) {
+				$section = fread($fp, 1);
+				if ($section !== "I") {
+					$data = unserialize(gzuncompress(readUntil($fp, Array($magic))));
+				} else {
+					$fileMagic = fgets($fp);
+					while (($file = readUntil($fp, Array($magic, $fileMagic)))) {
+						$fpos = strpos($file, "\n");
+						$name = substr($file, 0, $fpos);
+						file_put_contents("static/images/".$name, substr($file, $fpos + 1));
+					}
+					continue;
+				}
+				
+/*			}
+//			foreach ($sections as $section) {
 				if ($section[0] !== "I") {
 					$data = unserialize(gzuncompress(substr($section, 1)));
 				} else {
@@ -1708,7 +1742,7 @@ class BuilderHandler
 						$name = substr($files[$i], 0, $fpos);
 						file_put_contents("static/images/".$name, substr($files[$i], $fpos + 1));
 					}
-				}
+				}*/
 				if ($section[0] == "A") { // import database contents
 					// ignore DB contents explicitly on production so that nothing will be imported accidentally
 					if (ENV_PRODUCTION === true && !$dataRestore) continue;
@@ -1789,6 +1823,11 @@ class BuilderHandler
  					    $library["fk_user_id"] = $_SESSION["builder"]["user_id"];
  					    if ($library["fk_module_id"] > 0) {
  					    	$library["fk_module_id"] = $moduleMapping[$library["fk_module_id"]];
+ 					    }
+ 					    if ($library["fk_resource_id"] > 0 && $library["resource"]["resource_id"] > 0) {
+ 					    	unset($library["resource"]["resource_id"]);
+ 					    	$rid = $this->obj_data->insertResource($library["resource"]);
+ 					    	$library["fk_resource_id"] = $rid;
  					    }
  					    $l = $this->obj_data->selectLibraryByUserAndName($library["fk_user_id"], $library["name"]);
 						$this->obj_data->deleteLibrary($l["library_id"]);
@@ -2301,7 +2340,7 @@ class BuilderHandler
        	
        	if (strlen($_POST["file"]) > 0) {
        		if (file_exists("static/backups/".$_POST["file"]) && dirname(realpath("static/backups/".$_POST["file"])) == realpath("static/backups")) {
-       			$this->import(file_get_contents("static/backups/".$_POST["file"]), $_POST["dataRestore"] == "1");
+       			$this->import("static/backups/".$_POST["file"], $_POST["dataRestore"] == "1");
        			die("success");
        		} else {
        			die("file not found");

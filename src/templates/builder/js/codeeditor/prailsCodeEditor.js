@@ -43,7 +43,31 @@ var drawCursor = function(el) {
 			it[i].className += " currentLine";
 		}
 	}
-	
+	if (el.hasFocus && options.indexOf('php')) {
+		var sel = document.querySelectorAll(".highlight");
+		for (var i = 0, len = sel.length; i < len; i++) {
+			sel[i].parentNode.removeChild(sel[i]);
+		}
+		var varName = before.match(/(\$[a-zA-Z0-9_]+)$/gi);
+		if (varName && varName.length > 0) {
+			var p = after.match(/^[a-zA-Z0-9_]*\b/gi);
+			varName = varName[0] + (p && p[0]);
+			var pos = el.value.indexOf(varName);
+			while (pos >= 0) {
+				var hl = document.createElement("DIV");
+				hl.className = "highlight";
+				var cc = el.value.substr(0, pos);
+				var cl = cc.split(/\n/).length - 1;
+				cc = (cc.indexOf("\n") >= 0 ? cc.match(/\n[^\n]*$/gi)[0].length : cc.length+1) - 1;
+				hl.style.left = (cc * 7) + "px";
+				hl.style.top = ((cl * 13) - 2) + "px";
+				hl.style.width = (varName.length * 7)+"px";
+				var cwrapper = document.getElementById("cwrapper");
+				cwrapper.appendChild(hl);
+				pos = el.value.indexOf(varName, pos + varName.length);
+			}
+		}
+	}
 	if (el.selectionStart == el.selectionEnd && el.hasFocus) {
 		document.getElementById("cursor").style.display = "block";
 		document.getElementById("cursor").style.left = (currentCol * 7) + "px";
@@ -102,7 +126,7 @@ var refresh = function(code, currentLine) {
 		break;
 	}
 	if (currentHighlighter) {
-		if (document.getElementsByClassName("container")[0].childNodes.length > currentLine - 1) 
+		if (typeof(currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes.length > currentLine - 1) 
 			document.getElementsByClassName("container")[0].childNodes[currentLine - 1].innerHTML = currentHighlighter.parseCode(code, currentLine);
 		new Timer("global-update", function() {
 			if (window.keypressed || typeof(window.keypressed) == "undefined") {
@@ -463,6 +487,7 @@ window.onload = function() {
 
 	window.txt.onblur = function(e) {
 		document.getElementById("cursor").style.display = "none";
+    	this.sel = [this.selectionStart, this.selectionEnd];
 		window.txt.hasFocus = false;
 	}	
 };

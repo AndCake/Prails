@@ -1,3 +1,3 @@
-$arr_param = Array();
+// your home handler code here...
 
 return out($arr_param);

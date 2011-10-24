@@ -185,9 +185,7 @@ class Generator {
      * concept ideas for new caching algorithm:
      *	- definition of data sinks (=event)
      *	- when change event for certain data occurs, data sink is used to re-generate the templates
-     *	-
      *	- sub templates are also cached
- 
      *
      */
     function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
@@ -195,7 +193,7 @@ class Generator {
 		$nname = "cache/".md5($str_name);
 		$tl = new TagLib();
 		$str_content = $tl->compile(file_get_contents($str_name));
-		if (!@file_put_contents($nname, $str_content)) {
+		if (!file_put_contents($nname, $str_content, LOCK_EX)) {
 			global $log;
 			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
 		}		

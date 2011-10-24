@@ -8,14 +8,15 @@
 <form id="hformx<?=$arr_param["texts"][0]['identifier']?>" method="post" action="" onsubmit="">
     <div class="formfield" style="white-space:nowrap;">
     	<label for="name">Text Identifier:</label><br/>
+    	<input type="hidden" name="texts[old_identifier]" value="<%=(strlen($arr_param['texts'][0]['identifier']) > 0 ? $arr_param['text']['path'].$arr_param['text']['name'] : '')%>" />
     	<input type="hidden" name="texts[identifier]" value="#text.path" />
         <? if (substr($arr_param["text"]["path"], 0, 4) == "cms.") { ?>
             <? $arr_param["text"]["type"] = $int_textType = 2; ?>
         <? } ?>
     	<input type="hidden" class="id-value" name="texts[texts_id]" value="<?=(int)$_SESSION['texts_id']?>" />
-    	<c:if cond="strlen($arr_param['texts'][0][identifier])>0">
+    	<c:if cond="strlen($arr_param['texts'][0][identifier])>0 && false">
         	<input type="hidden" id="text_name_#texts.texts_id" name="texts[name]" value="#text.name" /> 
-   	    	<span style="font-size:10px;color:#999;">#text.path</span><span class="value">#text.name</span>
+   	    	<span style="font-size:10px;color:#999;">#text.path</span><span class="value">#text.name</span>    	
         <c:else />
         	<span style="font-size:10px;color:#999;">#text.path</span><input type="text" id="text_name_#texts.texts_id" name="texts[name]" value="#text.name" />            	   
     	</c:if>

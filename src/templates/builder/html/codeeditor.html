@@ -130,9 +130,13 @@
 	txt.setSelection = function(sel) {
 		txt.selectionStart = sel[0];
 		txt.selectionEnd = sel[1];
+		this.sel = sel;
+		txt.hasFocus = true;
+		drawCursor(txt);
 	};
 	txt.replace = function(sel, text) {
 		txt.value = txt.value.substr(0, sel[0]) + text + txt.value.substr(sel[1]);
+		window.keypressed = true;
 		refresh(txt.value);
 	};
 

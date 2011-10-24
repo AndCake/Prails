@@ -33,7 +33,7 @@ class LangData
 		} else {
 			$this->setLanguage($str_lang);
 		}
-		$this->arr_item_cache = &$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang];
+		$this->arr_item_cache = Array(); //&$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang];
 	}
 	 
 	function setLanguage($str_lang) {
@@ -68,7 +68,7 @@ class LangData
 	      	"  content " .
 	      	"FROM ".tbl_prailsbase_texts." " .
 	      	"WHERE " .
-	      	"	fk_language_id=".$this->language_id." " .
+	      	"	fk_language_id=".(int)$this->language_id." " .
 	      	" AND " .
 	      	"  identifier='".$str_item."'"
 	      	);
@@ -91,7 +91,7 @@ class LangData
           	"  * " .
           	"FROM ".tbl_prailsbase_texts." " .
           	"WHERE " .
-          	"	fk_language_id=".$this->language_id." " .
+          	"	fk_language_id=".(int)$this->language_id." " .
           	" AND " .
           	"  identifier='".$str_item."'"
           	));
@@ -149,7 +149,7 @@ class LangData
 	}
 	 
 	function getAllTextsById($id) {
-		$arr_text = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id='".$id."'"));
+		$arr_text = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id=".(int)$id));
 
 		return $this->getAllTextsByIdentifier($arr_text["identifier"]);
 	}
@@ -164,9 +164,13 @@ class LangData
 			$entry["decorator"] = $arr_data["decorator"];
 			$entry["type"] = $arr_data["type"];
 			$entry["content"] = $text;
-			$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id='".$lang."' AND identifier='".$entry["identifier"]."'"));
+			if (strlen($arr_data["old_identifier"]) > 0) {
+				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$entry["old_identifier"]."'"));
+			} else {
+				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$entry["identifier"]."'"));
+			}
 			if ($exists != null) {
-				$this->obj_sql->UpdateQuery(tbl_prailsbase_texts, $entry, "texts_id='".$exists["texts_id"]."'");
+				$this->obj_sql->UpdateQuery(tbl_prailsbase_texts, $entry, "texts_id=".(int)$exists["texts_id"]);
 			} else {
 				$this->obj_sql->InsertQuery(tbl_prailsbase_texts, $entry);
 			}
@@ -179,7 +183,7 @@ class LangData
 	}
 	 
 	function updateTextType($id, $type) {
-		$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id='".$id."'"));
+		$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id=".(int)$id));
 		if ($exists != null) {
 			$entry["type"] = $type;
 			$this->obj_sql->UpdateQuery(tbl_prailsbase_texts, $entry, "identifier='".$exists["identifier"]."'");
@@ -193,7 +197,7 @@ class LangData
 	}
 	 
 	function deleteTexts($id) {
-		$arr_text = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id='".$id."'"));
+		$arr_text = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE texts_id=".(int)$id));
 		$this->deleteTextByIdentifier($arr_text["identifier"]);
 	}
 	 
@@ -215,7 +219,7 @@ class LangData
 				$arr_data["isDefault"] = 1;
 			}
 		}//*/
-		$this->obj_sql->UpdateQuery(tbl_prailsbase_language, $arr_data, "language_id=".$id."");
+		$this->obj_sql->UpdateQuery(tbl_prailsbase_language, $arr_data, "language_id=".(int)$id."");
 	}
 
 	function insertLanguage($arr_data) {
@@ -233,12 +237,12 @@ class LangData
    }
    
    function deleteLanguage($id) {
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id=".$id." OR fk_language_id=0");      
-   	  $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".$id."");
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_texts, "fk_language_id=".(int)$id." OR fk_language_id=0");      
+   	  $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".(int)$id."");
    }
 
    function deleteLanguageOnly($id) {
-      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".$id."");
+      $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".(int)$id."");
    }
    
 }

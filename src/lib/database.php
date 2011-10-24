@@ -50,7 +50,7 @@ class Database extends TblClass {
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
 				if (substr($key, -3) == "_id") {
-					$res .= $key."=".$value;					
+					$res .= $key."=".(int)$value;					
 				} else {
 					$res .= $key."='".$this->escape($value)."'";
 				}
@@ -92,7 +92,7 @@ class Database extends TblClass {
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
 				if (substr($key, -3) == "_id") {
-					$res .= $key."=".$value;					
+					$res .= $key."=".(int)$value;
 				} else {
 					$res .= $key."='".$this->escape($value)."'";
 				}
@@ -119,7 +119,7 @@ class Database extends TblClass {
 			foreach ($filter as $key => $value) {
 				if (strlen($res) > 0) $res .= " AND ";
 				if (substr($key, -3) == "_id") {
-					$res .= $key."=".$value;					
+					$res .= $key."=".(int)$value;					
 				} else {
 					$res .= $key."='".$this->escape($value)."'";
 				}

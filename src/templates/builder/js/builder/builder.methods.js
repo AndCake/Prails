@@ -253,8 +253,10 @@ Builder = Object.extend(Builder || {}, {
 	        	} else if (event.ctrlKey && event.altKey) {
 	    			window.focus();
 	        		if (event.keyCode == 39) {
+	        			Builder.blurBespin(el);
 	        			Builder.nextTab(event);
 	        		} else if (event.keyCode == 37) {
+	        			Builder.blurBespin(el);
 	        			Builder.previousTab(event);
 	        		}
 	        		return false;
@@ -313,16 +315,14 @@ Builder = Object.extend(Builder || {}, {
     	document.getElementsByName(oel.id)[0].contentWindow.txt.focus();
     	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionStart = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[0];
     	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionEnd = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[1];
-//    	document.getElementsByName(oel.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = true;
+    	document.getElementsByName(oel.id)[0].contentWindow.txt.onfocus.apply(document.getElementsByName(oel.id)[0].contentWindow.txt);
     },
     
     blurBespin: function(el) {
     	el = $(el);
-    	var a = [document.getElementsByName(el.id)[0].contentWindow.txt.selectionStart, document.getElementsByName(el.id)[0].contentWindow.txt.selectionEnd];
-    	document.getElementsByName(el.id)[0].contentWindow.txt.sel = a;
+    	document.getElementsByName(el.id)[0].contentWindow.txt.onblur.apply(document.getElementsByName(el.id)[0].contentWindow.txt);
     	document.getElementsByName(el.id)[0].contentWindow.txt.blur();
     	document.getElementsByName(el.id)[0].contentWindow.blur();
-//    	document.getElementsByName(el.id)[0].contentWindow.document.getElementsByTagName("div")[0].bespin.editor.focus = false;
     },
     
     enableBespin: function(el) {

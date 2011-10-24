@@ -157,7 +157,7 @@
 		<p>Please select the backup file you want to restore.</p>
 		<select name="file" size="6" style="width: 100%;">
 			<c:foreach var="backupList" name="item">
-				<option value="#local.item">#local.item</option>
+				<option value="<%=$item%>"><%=$item%></option>
 			</c:foreach>
 		</select>
 		<input type="checkbox" name="dataRestore" value="1" id="dtRestore" /> <label for="dtRestore">also restore database contents</label>
@@ -709,9 +709,9 @@
 				id: "l_#library.library_id",
 				allowChildren: ('#library.fk_resource_id' > 0)
 			});
-			if ('#library.fk_resource_id' > 0) {
+			<% if ($library["fk_resource_id"] > 0 && $library['resource']['resource_id'] > 0) { %>
 				addLibTree(lib, (#library.resource.tree));
-			}
+			<% } %>
 			Builder.libRoot.appendChild(lib);
 		</c:foreach>
 		<c:foreach var="tags" name="tag">
