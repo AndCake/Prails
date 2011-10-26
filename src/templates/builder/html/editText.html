@@ -15,10 +15,10 @@
         <? } ?>
     	<input type="hidden" class="id-value" name="texts[texts_id]" value="<?=(int)$_SESSION['texts_id']?>" />
     	<c:if cond="strlen($arr_param['texts'][0][identifier])>0 && false">
-        	<input type="hidden" id="text_name_#texts.texts_id" name="texts[name]" value="#text.name" /> 
+        	<input type="hidden" id="text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>" name="texts[name]" value="#text.name" /> 
    	    	<span style="font-size:10px;color:#999;">#text.path</span><span class="value">#text.name</span>    	
         <c:else />
-        	<span style="font-size:10px;color:#999;">#text.path</span><input type="text" id="text_name_#texts.texts_id" name="texts[name]" value="#text.name" />            	   
+        	<span style="font-size:10px;color:#999;">#text.path</span><input type="text" id="text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>" name="texts[name]" value="#text.name" />            	   
     	</c:if>
     </div>
     <div class="formfield">
@@ -161,7 +161,7 @@
 				        method: "POST",
 				        parameters: data, 
 				        onSuccess: function(req) {
-				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0 && <?=(int)$arr_param["text"]["text_id"]?> > 0) {
+				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0 && <?=(int)$arr_param["texts"][0]["texts_id"]?> > 0) {
         						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 				           } else {
                                 loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);
@@ -298,9 +298,9 @@
 			<? if (count($arr_param["texts"]) <= 0) { ?>
 			editLanguage({});
 			<? } ?>
-			$$("#hformx<?=$arr_param["texts"][0]['identifier']?> #text_name_#texts.texts_id").each(function(item) {
+			$("hformx<?=$arr_param["texts"][0]['identifier']?>").select("#text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>").each(function(item) {
 				item.observe("change", function(event) {
-					$$("#hformx<?=$arr_param["texts"][0]['identifier']?> .url_preview").each(function(p) {
+					$("hformx<?=$arr_param["texts"][0]['identifier']?>").select(".url_preview").each(function(p) {
 						p.innerHTML = item.value;
 					});
 				});

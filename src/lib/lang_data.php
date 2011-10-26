@@ -165,7 +165,7 @@ class LangData
 			$entry["type"] = $arr_data["type"];
 			$entry["content"] = $text;
 			if (strlen($arr_data["old_identifier"]) > 0) {
-				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$entry["old_identifier"]."'"));
+				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$arr_data["old_identifier"]."'"));
 			} else {
 				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$entry["identifier"]."'"));
 			}

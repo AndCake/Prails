@@ -1578,7 +1578,7 @@ class BuilderHandler
 			header("Content-Transfer-Encoding: binary");
 			header("Content-type: application/octet-stream");
 			header("Content-Disposition: attachment; filename=\"".$_POST["file"]."\"");
-			$fp = fopen("php://stdout", "w");
+			$fp = tmpfile();
 		}
 		$magic_border = md5(serialize($_POST));
 		if ($_POST["modules"]) {
@@ -1679,6 +1679,15 @@ class BuilderHandler
 			}
 			closedir($path);
 		}
+		if (is_array($file) || strlen($file) <= 0) {
+			fseek($fp, 0);
+  			while (!feof($fp)) { 
+    			$buffer = fread($fp, 2048); 
+    			echo $buffer; 
+    			ob_flush(); 
+    			flush(); 
+  			}
+ 		}
 		fclose($fp);
 		die();
 	}
