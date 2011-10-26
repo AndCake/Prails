@@ -1,3 +1,9 @@
+V1.2.2 (October 26th, 2011)
+
+* fixed a problem with exporting
+* fixed a bug with saving content assets, which led to creation of new versions of it
+
+
 V1.2.1 (October 24th, 2011)
 
 * added variable highlighting for handler code 
