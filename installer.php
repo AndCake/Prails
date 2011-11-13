@@ -102,6 +102,7 @@ if ($_GET["version"]) {
 	}
 	copy("../.groups", "backup.groups");
     copy("../.users", "backup.users");
+	copy("../favicon.ico", "backup.favicon.ico");
 
 	// this should copy all files to the current installation directory
 	if (!recurse_copy("prails", "..")) {
@@ -113,7 +114,7 @@ if ($_GET["version"]) {
 	// copy back the .groups and .users file
 	if (copy("backup.groups", "../.groups")) unlink("backup.groups"); else $warnings .= "Unable to restore groups. Backup stored in ".$dir."/backup.groups .<br/>";
     if (copy("backup.users", "../.users")) unlink("backup.users"); else $warnings .= "Unable to restore users. Backup stored in ".$dir."/backups.users .<br/>";
-    
+   	copy("backup.favicon.ico", "../favicon.ico"); 
     $users = file("../.users");
     $adminFound = false;
     foreach ($users as &$user) {
