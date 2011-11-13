@@ -13,8 +13,12 @@
 	//<![CDATA[
 		setTimeout(function() {
 			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function() {
+		    	  if (this.saving) return;
+		    	  this.saving = true;				
 				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
+				var me = this;
 				invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
+					me.saving = false;
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 
 					$("codel<?=(int)$arr_param['library']['library_id']?>").crc.content = Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
@@ -38,7 +42,21 @@
 			};
 			Builder.applyBespin("codel<?=(int)$arr_param['library']['library_id']?>", function(fr) {
 				$("codel<?=(int)$arr_param['library']['library_id']?>").down("iframe").style.height = (parseInt($("hforml<?=(int)$arr_param['library']['library_id']?>").parentNode.parentNode.style.height) - 150) + "px";				
-	          	fr.txt.addKeywords(null, ["invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+
+				fr.txt.addKeywords(null, function(txt) {
+        			var res = [];
+        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*$/gi);
+        			if (matches) {
+	        			for (var a = 0; a < matches.length; a++) {
+	        				if ((",$arr_param,$data,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+	        					res.push(matches[a]);
+	        				}
+	        			}
+        			}
+        			return res;
+				};
+				fr.txt.addKeywords(null, ["invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+
 			}, Object.extend(Builder.prailsNamespace, {
 	        	save: function() {
 	            	parent.$("hforml<?=(int)$arr_param['library']['library_id']?>").save();

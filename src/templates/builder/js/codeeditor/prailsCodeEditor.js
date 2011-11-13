@@ -29,7 +29,7 @@ var Timer = function(id, fn, time) {
 	return this;
 };
 
-var drawCursor = function(el) {
+var drawCursor = function(el, updateScrolling) {
 	var cnt = el.value.substr(el.selectionStart, el.selectionEnd - el.selectionStart);
 	var before = el.value.substr(0, el.selectionStart);
 	var after = el.value.substr(el.selectionEnd);
@@ -102,6 +102,18 @@ var drawCursor = function(el) {
 			cwrapper.appendChild(sel);
 		}
 	}	
+
+	if (updateScrolling !== false && !el.mousepressed) {
+		if (document.querySelector("#cwrapper .selection")) {
+			var sel = document.querySelectorAll("#cwrapper .selection");
+			sel = sel[sel.length - 1];
+			document.body.scrollTop = parseInt(sel.style.top) - (document.body.clientHeight / 2);
+			document.body.scrollLeft = (parseInt(sel.style.left) + sel.clientWidth) - (document.body.clientWidth / 2);
+		} else if (document.getElementById("cursor") && document.getElementById("cursor").style.display != "none") {
+			document.body.scrollTop = parseInt(document.getElementById("cursor").style.top) - (document.body.clientHeight / 2);
+			document.body.scrollLeft = parseInt(document.getElementById("cursor").style.left) - (document.body.clientWidth / 2);
+		}
+	}
 };
 
 new Timer("cursor-hint", cursorHint = function() {
@@ -268,6 +280,10 @@ txt.onkeydown = txt.onkeyup = function(e) {
 	if (!this.undoStack) {
 		this.undoStack = [];
 	}
+	if (!this.hasFocus) {
+		this.hasFocus = true;
+		drawCursor(this, false);
+	}
 	var stop = false;
 	window.keypressed = true;
 	if (e.keyCode == 27 && this.dialogOpen) {
@@ -352,6 +368,8 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			case 88:
 				if (e.shiftKey) {
 					try { this.run(); } catch(e){window.console && console.log(e);};
+				} else {
+					return true;
 				}
 				break;
 			case 32:
@@ -415,7 +433,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			//me.style.height = (me.scrollHeight + 20) + "px";
 			window.txt.parentNode.style.width = (window.cel.clientWidth - window.coffset)+"px";
 			window.txt.style.width = (window.cel.clientWidth + 2)+"px";	
-			document.getElementsByClassName("syntaxhighlighter")[0].scrollLeft = (txt.clientWidth + document.querySelector(".syntaxhighlighter .gutter").clientWidth) - document.getElementsByClassName("syntaxhighlighter")[0].clientWidth;
+//			document.getElementsByClassName("syntaxhighlighter")[0].scrollLeft = (txt.clientWidth + document.querySelector(".syntaxhighlighter .gutter").clientWidth) - document.getElementsByClassName("syntaxhighlighter")[0].clientWidth;
 		}, 1);
 	}, 5);
 	if (stop) {
@@ -480,9 +498,15 @@ window.onload = function() {
 //	txt.value = txt.value.replace(/^\s+/g, '');
 	refresh(txt.value, 1);
 
+	window.txt.onmousedown = function(e) {
+		this.mousepressed = true;
+	};
+	window.txt.onmouseup = function(e) {
+		this.mousepressed = false;
+	};
 	window.txt.onfocus = function(e) {
 		this.hasFocus = true;
-		drawCursor(this);
+		drawCursor(this, false);
 	};
 
 	window.txt.onblur = function(e) {

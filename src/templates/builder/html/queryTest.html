@@ -41,7 +41,7 @@
 					item.observe("click", function(event){
 						if (!this.up().down("td", 1)) return false;
 						var tbl = this.up().down("td", 1).innerHTML.stripTags().strip();
-						window.runQuery("SELECT * FROM tbl_"+tbl+" WHERE 1", true);
+						window.runQuery("SELECT * FROM tbl_"+tbl+" WHERE 1=1", true);
 						event.stop();
 					}.bindAsEventListener(item));
 				});				
@@ -73,7 +73,7 @@
 						}
 					}
 					var store = new Ext.data.JsonStore({
-						url: "?event=builder:queryTest&check=2&query="+data["query"],
+						url: "?event=builder:queryTest&check=2&total="+data['total']+"&query="+data["query"],
 						autoDestroy: true,
 						storeId: "queryStore",
 						root: "result",
@@ -98,7 +98,7 @@
 					        	rowselect: function(e, d, g) {
 					        		if (hide) {
 					        			window.currentQueryTable = g.data["table_name"].replace(/<[^>]+>/gi, '');
-										window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1", true);
+										window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1=1", true);
 					        		}
 					        	}
 					        }
@@ -129,7 +129,7 @@
 										if (set.length > 0) set += ", ";
 										set += each + "='"+c[each].replace("'", "''")+"'";
 									} 
-									var query = "UPDATE tbl_"+window.currentQueryTable+" SET "+set+" WHERE "+cqtid+"='"+id+"'";
+									var query = "UPDATE tbl_"+window.currentQueryTable+" SET "+set+" WHERE "+cqtid+"="+id+"";
 									invoke(null, "builder:queryTest&check=1", {
 										"query": query
 									}, true, function() {
@@ -140,7 +140,7 @@
 								new PeriodicalExecuter(function(pe){
 									if (window.committing <= 0) {
 										pe.stop();
-				            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");								
+				            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1=1");								
 									}
 								}, 0.1);
 					    	}
@@ -158,7 +158,7 @@
 								invoke(null, "builder:queryTest&check=1", {
 									"query": addQuery
 								}, true, function(req) {
-			            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");
+			            			window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1=1");
 			            		});
 			            	}
 			            }, {
@@ -172,15 +172,15 @@
 			            			var vars = "";
 									cqtid = window.currentQueryTable.replace(/_key$/gi, '') + "_id";			            				
 			            			for (var i = 0; i < rec.length; i++) {
-			            				if (vars.length > 0) vars += "','";
+			            				if (vars.length > 0) vars += ",";
 			            				vars += rec[i].data[cqtid];
 			            			}
-				            		var cond = cqtid+" IN ('"+vars+"')";
+				            		var cond = cqtid+" IN ("+vars+")";
 									invoke(null, "builder:queryTest&check=1", {
 										"query": "DELETE FROM tbl_"+window.currentQueryTable+" WHERE "+cond
 									}, true, function() {
 										setTimeout(function() {
-				            				window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1");
+				            				window.runQuery("SELECT * FROM tbl_"+window.currentQueryTable+" WHERE 1=1");
 										}, 100);
 				            		});
 			            		}

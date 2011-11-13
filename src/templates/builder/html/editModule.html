@@ -40,10 +40,14 @@
         	//<![CDATA[
 				setTimeout(function() {
 					$("container_m_#module.module_id").save = function() {
+				    	  if (this.saving) return;
+				    	  this.saving = true;
+						
 						$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
 						$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
-					
+					    var me = this;
 						invoke(null, 'builder:editModule&check=1&module_id=<?=(int)$arr_param['module']['module_id']?>', $('hform<?=(int)$arr_param["module"]["module_id"]?>').serialize(), true, function(req) {
+							me.saving = false;
 							Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 							$("js_code<?=(int)$arr_param["module"]["module_id"]?>").crc.content = Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
 							$("js_code<?=(int)$arr_param["module"]["module_id"]?>").dirty = false;

@@ -365,7 +365,6 @@ Builder = Object.extend(Builder || {}, {
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
 					if (nextMatch) {
-//						bespin.editor.setLineNumber(nextMatch.start.row + 1);
 						bespin.setSelection(nextMatch);
 						$("tosearch").focus();
 					} else {
@@ -381,7 +380,6 @@ Builder = Object.extend(Builder || {}, {
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
 					if (nextMatch) {
-//						bespin.editor.setLineNumber(nextMatch.start.row + 1);
 						bespin.setSelection(nextMatch);
 						bespin.replace(nextMatch, $("toreplace").getValue());
 						$("tosearch").focus();

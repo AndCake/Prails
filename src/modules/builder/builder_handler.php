@@ -1300,6 +1300,7 @@ class BuilderHandler
             $arr_db[$arr_table["name"]] = $arr_fields;
             DBDeployer::deploy($arr_db);
             echo $_GET["table_id"]."\n";
+			$this->obj_data->obj_mysql->flush();            
             die ("success");
         }
 
@@ -1452,7 +1453,7 @@ class BuilderHandler
 				array_push($result, Array("error" => $arr_param["error"])); 
 			}
 			ob_flush();			
-			die(json_encode(Array("result" => $result, "total" => (int)$_SESSION["builder"]["currentQueryTotal"])));
+			die(json_encode(Array("result" => $result, "total" => (int)$_GET["total"])));
 						
 		} else {
 			$query = "SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"";
@@ -2413,6 +2414,13 @@ class BuilderHandler
 			die("success");
 		}
 	}
+	
+	function getStyleDefs() {
+		readfile("templates/builder/css/stylepanel.css");
+		echo "\n\n";
+		readfile("templates/main/css/global.css");
+		die();
+	}	
 
 /*</EVENT-HANDLERS>*/
 
