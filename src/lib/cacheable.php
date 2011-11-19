@@ -40,12 +40,18 @@ class Cacheable {
 	
 	function _exists($pos, $var) {
 		$name = $this->cachePath . $pos . "/" . $var;
+		if (DBCACHE_ENABLED === false) {
+			return false;
+		}
         return (file_exists($name));
 	}
 	
 	function _set($pos, $var, $val, $tryAgain = true) {
         $name = $this->cachePath . $pos . "/" . $var;
-		file_put_contents($name, serialize($val), LOCK_EX);
+		if (DBCACHE_ENABLED === false) {
+			return;
+		}
+        file_put_contents($name, serialize($val), LOCK_EX);
 	}
 	
 	function _get($pos, $var) {
@@ -77,6 +83,9 @@ class Cacheable {
     	
 	protected function cleanCacheBlock($str_query, $prefix = false) {
 		if (!$prefix) $prefix = $this->prefix;
+		if (DBCACHE_ENABLED === false) {
+			return;
+		}
 		$tableReference = $this->_get($this->shmId[0], 101);
 		preg_match_all("/ [a-zA-Z0-9_.]*(".$this->prefix."[a-z0-9A-Z_]+) /i", $str_query, $arr_matches);
 		if (count($arr_matches[0]) > 0) {
@@ -110,6 +119,9 @@ class Cacheable {
 	
 	protected function setCache($str_query, $arr_result, $prefix = false) {
 		if (!is_array($arr_result)) return;
+		if (DBCACHE_ENABLED === false) {
+			return;
+		}
 		if (!$prefix) $prefix = $this->prefix;
 		$id = crc32($str_query);
 		$this->_set($this->shmId[$id % $this->shmLen], $id, $arr_result);

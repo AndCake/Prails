@@ -36,6 +36,7 @@ $arr_settings = Array(
 "ENV_PRODUCTION" => false,
 "DEVELOPER_CHAT_ENABLED" => true,
 "DEBUG_LEVEL" => 2,
+"DBCACHE_ENABLED" => true,
 "PROFILING_ENABLED" => false,
 "CSS_EMBED_RESOURCES" => true,
 "ERROR_NOTIFICATION" => false,

@@ -22,11 +22,16 @@
 	
 		setTimeout(function() {
 			$("container_d_#data.data_id").save = function() {
+  	    	    if (this.saving) return;
+	    	    this.saving = true;
+				
 				if (window.keywords.indexOf($("d_name_#data.data_id").getValue()) >= 0) {
 					$("d_name_#data.data_id").value = "_"+$("d_name_#data.data_id").getValue();
 				}
 				$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");
+				var me = this;
 				invoke(null, 'builder:editData&check=1&module_id=<?=if_set($arr_param['data']['fk_module_id'], $_SESSION["module_id"])?>&data_id=<?=(int)$arr_param['data']['data_id']?>', $('hformd<?=(int)$arr_param["data"]["data_id"]?>').serialize(), true, function(req) {
+					me.saving = false;
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 
 					$("coded<?=(int)$arr_param["data"]["data_id"]?>").crc.content = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");
@@ -54,6 +59,19 @@
 			};			
 			Builder.applyBespin("coded<?=(int)$arr_param["data"]["data_id"]?>", function(fr) {
 				$("coded<?=(int)$arr_param['data']['data_id']?>").down("iframe").style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+        		fr.txt.addKeywords(null, function(txt) {
+        			var res = [];
+        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+        			if (matches) {
+	        			for (var a = 0; a < matches.length; a++) {
+	        				if ((","+res.join(",")+",").indexOf(matches[a]) < 0) {
+	        					res.push(matches[a]);
+	        				}
+	        			}
+        			}
+        			return res;
+        		});
+
 				fr.txt.addKeywords("\\$this->", ["query", "add", "set", "update", "get", "select", "ins", "insert", "remove", "del", "delete", "update", "edit"]);
 		      	setTimeout(function() {
 						$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");				

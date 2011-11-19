@@ -501,12 +501,13 @@ function jumpTo ($url = "?") {
     global $SERVER;
 	global $log;
 	$log->info("Redirecting user to ".$url);
-    if (($arr_url=@parse_url($url)) && $arr_url["host"]) {
+	session_regenerate_id(true);
+    session_write_close();
+	if (($arr_url=@parse_url($url)) && $arr_url["host"]) {
         header ("Location: ".$url);
     } else {
         header ("Location: " . $SERVER.$url);
     }
-    session_write_close();
     die();
 }
 
