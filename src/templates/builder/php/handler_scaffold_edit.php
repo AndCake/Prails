@@ -12,7 +12,7 @@
    $field_names = implode('", "', $names);
 ?>
 /*[BEGIN POST-save]*/
-if (isset($_POST["new"])) { 
+if (isset($_POST["save"])) { 
 	/*[ACTUAL]*/
 $arr_data = $_POST["<?=$arr_table['name']?>"];
 		

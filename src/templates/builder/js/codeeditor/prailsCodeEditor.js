@@ -36,6 +36,11 @@ var drawCursor = function(el, updateScrolling) {
 	var currentLine = before.split(/\n/).length - 1;
 	var currentCol = (before.indexOf("\n") >= 0 ? before.match(/\n[^\n]*$/gi)[0].length : before.length+1) - 1;
 
+	el.currentCol = currentCol;
+	el.currentLine = currentLine;
+	el.before = before;
+	el.after = after;
+
 	var it = document.querySelectorAll(".syntaxhighlighter .line");
 	for (var i = 0, len = it.length; i< len; i++) {
 		it[i].className = it[i].className.replace(/\s*currentLine\s*/gi, '');
@@ -129,8 +134,11 @@ new Timer("cursor-hint", cursorHint = function() {
 	new Timer("cursor-hint", cursorHint, 75);
 }, 75);
 
-var refresh = function(code, currentLine) {	
-	code = code.replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
+var refresh = function(code, currentLine, replaceit) {
+	var fullrefresh = replaceit === false; 
+	if (!replaceit) {
+		code = code.replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
+	}
 
 	var currentHighlighter = null;
 	for (var all in SyntaxHighlighter.vars.highlighters) {
@@ -138,14 +146,19 @@ var refresh = function(code, currentLine) {
 		break;
 	}
 	if (currentHighlighter) {
-		if (typeof(currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes.length > currentLine - 1) 
-			document.getElementsByClassName("container")[0].childNodes[currentLine - 1].innerHTML = currentHighlighter.parseCode(code, currentLine);
-		new Timer("global-update", function() {
-			if (window.keypressed || typeof(window.keypressed) == "undefined") {
-				window.keypressed = false;
+		if (typeof(currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes.length > currentLine) 
+			document.getElementsByClassName("container")[0].childNodes[currentLine].innerHTML = currentHighlighter.parseCode(code, currentLine + 1);
+
+		if (fullrefresh) {
+			//new Timer("global-refresh", function() {
+				Timer && Timer.fns && Timer.fns["global-refresh"] && Timer.fns["global-refresh"].timer && Timer.fns["global-refresh"].timer.cancel();
 				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
-			}
-		}, 100);
+//			}, 75);
+		} else {
+			new Timer("global-refresh", function() {
+				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
+			}, 250);	
+		}
 		document.getElementsByClassName("gutter")[0].innerHTML = currentHighlighter.getLineNumbersHtml(code);
 	} else {
 		var b = document.getElementById("highlight").firstChild;
@@ -167,8 +180,10 @@ var refresh = function(code, currentLine) {
 
 var handleIncDec = function(el, e) {
 	var a = [el.selectionStart, el.selectionEnd];
-	var before = el.value.substr(0, el.selectionStart);
-	var after = el.value.substr(el.selectionEnd);
+	var before = el.before;
+	if (!before) before = el.before = el.value.substr(0, el.selectionStart);
+	var after = el.after;
+	if (!after) after = el.after = el.value.substr(el.selectionEnd);
 	var offset = 1;
 	if (el.selectionStart != el.selectionEnd) {
 		// tab is pressed with actual selection active...
@@ -207,7 +222,8 @@ var handleAutoComplete = function(el, e) {
 		document.getElementById("cwrapper").removeChild(ds[i]);
 	}
 	
-	var before = el.value.substr(0, el.selectionStart);
+	var before = el.before;
+	if (!before) before = el.before = el.value.substr(0, el.selectionStart);
 	var activeList = [];
 	for (var i = 0; i < window.keywords.length; i++) {
 		var itemList = (typeof(window.keywords[i].items) === "function" && window.keywords[i].items(el)) || window.keywords[i].items;
@@ -247,8 +263,8 @@ var handleAutoComplete = function(el, e) {
 		el.dialogOpen = false;		
 	} else if (activeList.length > 1) {
 		// render selection dialog...			
-		var currentLine = before.split(/\n/).length;
-		var currentCol = before.indexOf("\n") >= 0 ? before.match(/\n[^\n]+$/gi)[0].length : before.length;
+		var currentLine = el.currentLine || before.split(/\n/).length;
+		var currentCol = el.currentCol || (before.indexOf("\n") >= 0 ? before.match(/\n[^\n]+$/gi)[0].length : before.length);
 		var dialog = document.createElement("ul");
 		dialog.className = "dialog";
 		for (var i = 0; i < activeList.length; i++) {
@@ -267,8 +283,8 @@ var handleAutoComplete = function(el, e) {
 
 var insertAt = function(el, pos, text) {
 	var a = [el.selectionStart, el.selectionEnd];
-	var before = el.value.substr(0, el.selectionStart);
-	var after = el.value.substr(el.selectionStart);
+	var before = el.before || (el.before = el.value.substr(0, el.selectionStart));
+	var after = el.after || (el.after = el.value.substr(el.selectionStart));
 	el.value = before.substr(0, before.length - pos) + text + after;
 	el.selectionStart = a[0] + (text.length - pos);
 	el.selectionEnd = el.selectionStart;
@@ -280,6 +296,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 	if (!this.undoStack) {
 		this.undoStack = [];
 	}
+	var fullrefresh = null;
 	if (!this.hasFocus) {
 		this.hasFocus = true;
 		drawCursor(this, false);
@@ -306,8 +323,8 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			return false;
 		} 
 		if (e.keyCode == 37 && (e.metaKey || e.ctrlKey) && !e.shiftKey) {
-			var before = this.value.substr(0, this.selectionStart);
-			var after = this.value.substr(this.selectionEnd);
+			var before = this.before || (this.before = this.value.substr(0, this.selectionStart));
+			var after = this.after || (this.after = this.value.substr(this.selectionEnd));
 			var lastN = before.search(/\n\s*[^\n]+$/gi);
 			if (lastN >= 0) {
 				this.selectionStart = lastN + 1;
@@ -352,14 +369,14 @@ txt.onkeydown = txt.onkeyup = function(e) {
 					if (!this.undoStack) this.undoStack = [];
 					this.undoStack.push(entry);
 				}
-				refresh(this.value, this.value.substr(0, this.selectionStart).split("\n").length);
+				refresh(this.value, this.currentLine, false);
 				break; 
 			case 86:	// handle paste
 				var me = this;
 				setTimeout(function() {
 					me.value = me.value.replace(/\t/g, '    ');
 					me.undoStack.push([me.value, me.selectionStart, me.selectionEnd]);			
-					refresh(me.value, me.value.substr(0, me.selectionStart).split("\n").length);
+					refresh(me.value, this.currentLine, false);
 				}, 10);
 				return true;
 			case 83:
@@ -369,6 +386,9 @@ txt.onkeydown = txt.onkeyup = function(e) {
 				if (e.shiftKey) {
 					try { this.run(); } catch(e){window.console && console.log(e);};
 				} else {
+					setTimeout(function() {
+						refresh(me.value, this.currentLine, false);
+					}, 10);
 					return true;
 				}
 				break;
@@ -389,7 +409,11 @@ txt.onkeydown = txt.onkeyup = function(e) {
 		stop = true;
 		if (e.type == "keyup") {
 			handleIncDec(this, e);
+			fullrefresh = false;
 		}
+	}
+	if (e.keyCode == 8 || e.keyCode == 46) {
+		fullrefresh = false;
 	}
 
 	if (e.keyCode == 13) {
@@ -401,7 +425,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			document.getElementById("cwrapper").removeChild(el.parentNode);
 			this.dialogOpen = false;
 		} else {
-			var before = this.value.substr(0, this.selectionStart);
+			var before = this.before || (this.before = this.value.substr(0, this.selectionStart));
 			var simpleBefore = before.replace(/\s*/gi, '');
 			var prevLine = before.search(/\n +[^\n]+$/gi) + 1;
 			var add = "";
@@ -409,7 +433,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 				before.match(/\n( +)[^\n]+$/gi);
 				add = RegExp.$1;
 			}
-			var after = this.value.substr(this.selectionEnd);
+			var after = this.after || (this.after = this.value.substr(this.selectionEnd));
 			
 			// detect PHP & JS block start
 			var oadd = add;
@@ -421,6 +445,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			}
 			this.selectionStart = before.length + 1 + add.length;
 			this.selectionEnd = before.length + 1 + add.length;
+			refresh(this.value, this.currentLine + 1, false);
 		}
 		this.undoStack.push([this.value, this.selectionStart, this.selectionEnd]);
 		stop = true;
@@ -428,7 +453,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 	
 	me = this;
 	new Timer("refreshing", function() {
-		refresh(me.value, me.value.substr(0, me.selectionStart).split("\n").length);
+		refresh(me.value, me.currentLine, fullrefresh);
 		new Timer("resizing", function() {
 			//me.style.height = (me.scrollHeight + 20) + "px";
 			window.txt.parentNode.style.width = (window.cel.clientWidth - window.coffset)+"px";

@@ -123,6 +123,7 @@ var Validator = Class.create({
             animated: true
         }, options || {});
         this.form = form;
+        this.form.validator = this;
         
         var me = this;
         

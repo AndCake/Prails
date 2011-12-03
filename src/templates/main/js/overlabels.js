@@ -33,6 +33,10 @@ addLoadEvent(Overlabel.init = function() {
 		} else {
 			if (!$(item).up().hasClassName("withLabel")) {
 				convertToOverlabel(item, item.getAttribute("label"));
+			} else {
+				if (item.value && item.value.length > 0) {
+					item.up(".value").down("label.overlabel-apply").hide();
+				}
 			}
 		}
 	});	

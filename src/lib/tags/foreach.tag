@@ -3,6 +3,6 @@
 <? if ($tag["attributes"]["key"]) { ?>
 	<@ $arr_param["local"]["<?=$tag["attributes"]["key"]?>"] = $<?=$tag["attributes"]["key"]?>; @>
 <? } ?>
-	<@ $arr_param["<?=$tag["attributes"]["name"]?>"] = $<?=$tag["attributes"]["name"]?>; @>
+	<@ $arr_param["<?=$tag["attributes"]["name"]?>"] = $arr_param["local"]["<?=$tag['attributes']['name']?>"] = $<?=$tag["attributes"]["name"]?>; @>
 	<?=$tag["body"]?>
 <@ } @>

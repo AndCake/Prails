@@ -85,6 +85,9 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 						}
 					}, 100);
 				}
+				setTimeout(function() {
+					document.fire("dom:loaded");	
+				}, 10);				
 				onSuccess(req);
 			}	
 		});
