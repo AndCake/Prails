@@ -24,7 +24,7 @@
 			$("container_d_#data.data_id").save = function() {
   	    	    if (this.saving) return;
 	    	    this.saving = true;
-				
+				document.title = "Saving data query "+$("d_name_#data.data_id").getValue()+"...";
 				if (window.keywords.indexOf($("d_name_#data.data_id").getValue()) >= 0) {
 					$("d_name_#data.data_id").value = "_"+$("d_name_#data.data_id").getValue();
 				}
@@ -32,6 +32,7 @@
 				var me = this;
 				invoke(null, 'builder:editData&check=1&module_id=<?=if_set($arr_param['data']['fk_module_id'], $_SESSION["module_id"])?>&data_id=<?=(int)$arr_param['data']['data_id']?>', $('hformd<?=(int)$arr_param["data"]["data_id"]?>').serialize(), true, function(req) {
 					me.saving = false;
+					document.title = "Prails Home";
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 
 					$("coded<?=(int)$arr_param["data"]["data_id"]?>").crc.content = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");

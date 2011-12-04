@@ -16,8 +16,10 @@
 	//<![CDATA[
 		setTimeout(function() {
 			$('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').save = function() {
+				document.title = "Saving tag "+$("tag_name_#tag.tag_id").value+"...";
 				$('hCodet<?=(int)$arr_param["tag"]["tag_id"]?>').value=Builder.getCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>');
 				invoke(null, 'builder:editTag&check=1&tag_id=<?=(int)$arr_param['tag']['tag_id']?>', $('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').serialize(), true, function(req) {
+					document.title = "Prails Home";
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 					
 					$('codet<?=(int)$arr_param["tag"]["tag_id"]?>').crc.content = Builder.getCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>');

@@ -231,6 +231,7 @@
       $("container_h_#handler.handler_id").save = function() {
     	  if (this.saving) return;
     	  this.saving = true;
+    	  document.title = "Saving handler "+$("h_event_#handler.handler_id").getValue()+"...";
     	  $("h_event_#handler.handler_id").value = $("h_event_#handler.handler_id").getValue().replace(/[^a-zA-Z0-9_]/gi, ''); 
           if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
             $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
@@ -241,6 +242,7 @@
         	  } else {
         	  	Ext.Msg.alert("Problem", "Please specify the handler's name.");
         	  }
+        	  document.title = "Prails Home";
         	  this.saving = false;
         	  return;
           }
@@ -263,6 +265,7 @@
           invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
         	  me.saving = false;
         	  Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
+        	  document.title = "Prails Home";
 
 			  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
         	  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;

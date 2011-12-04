@@ -14,11 +14,13 @@
 		setTimeout(function() {
 			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function() {
 		    	  if (this.saving) return;
-		    	  this.saving = true;				
+		    	  this.saving = true;
+		    	document.title = "Saving Library "+$("lib_name_#library.library_id").getValue()+"...";
 				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
 				var me = this;
 				invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
 					me.saving = false;
+					document.title = "Prails Home";
 					Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 
 					$("codel<?=(int)$arr_param['library']['library_id']?>").crc.content = Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
