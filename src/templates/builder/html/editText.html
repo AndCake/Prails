@@ -23,10 +23,12 @@
     </div>
     <div class="formfield">
         <label>Content Size:</label><br/>
-        <select name="texts[type]" size="1" onchange="setNewTextType(this.value, '<?=$arr_param["texts"][0]['identifier']?>');">
+        <select name="texts[type]" size="1" onchange="setNewTextType(this.value, '<?=$arr_param['texts'][0][identifier]?>');">
             <option value="0"<?=(int)$arr_param["text"]["type"] == 0 ? "selected='selected'" : ""?>>Single Line</option>
             <option value="1"<?=(int)$arr_param["text"]["type"] == 1 ? "selected='selected'" : ""?>>Multiple Lines</option>
+<? if (substr($arr_param["text"]["path"], 0, 4) == "cms.") { ?>
             <option value="2"<?=(int)$arr_param["text"]["type"] == 2 ? "selected='selected'" : ""?>>Page Template</option>
+<? } ?>            
         </select>
     </div>
     <c:if cond="$arr_param['text']['type'] == 2 && count($arr_param['decorators']) > 0">
@@ -65,29 +67,71 @@
 	<div style="clear:both;"></div>
     </div>
     </c:if>
-    <div id="texts_<?=$arr_param["texts"][0]['identifier']?>">
-    <c:foreach var="texts" name="texta">
-    <div class="formfield" style="<? if ($arr_param['text']['type'] > 0) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: 20px;margin-bottom: 20px;">
-    	<label for="contentl#texta.texts_id">in <span id="">#texta.name</span>:</label><br/> <!-- make language be editable and removable! -->
-        <? if ($arr_param["text"]["type"] <= 0) { ?>
-            <input type="text" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" value="<?=htmlspecialchars($arr_param['texta']['content'])?>" style="width:400px;" />
-        <? } else { ?>
-            <div style="display:<?=($arr_param['text']['type'] == '1') ? "inline-" : ""?>block;min-width: 400px;">
-                <? if ($arr_param["text"]["type"] == 1) { ?>
-                	<textarea class="wysiwyg" rel="file_browser_callback=wysiwygFileBrowser|theme_advanced_toolbar_align=center" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" cols="80" rows="30"><c:print value="texta.content"/></textarea>
-                <? } else { ?>
-                	<textarea class="wysiwyg" rel="file_browser_callback=wysiwygFileBrowser|theme_advanced_toolbar_align=center|plugins=,autoresize" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" cols="80" rows="30"><c:print value="texta.content"/></textarea>
-                <? } ?>
-            </div>
-        <? } ?>
-    	<div style="clear:both;"></div>
-    </div>
-    </c:foreach>
+    <div id="texts_tabs_<?=$arr_param['texts'][0]['identifier']?>">
+    	<div class="x-tab" title="Contents">    
+		    <div id="texts_<?=$arr_param["texts"][0]['identifier']?>">
+			    <c:foreach var="texts" name="texta">
+			    <div class="formfield" style="<? if ($arr_param['text']['type'] > 0) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: <?=($arr_param["text"]["type"] == 2 ? 0 : 20)?>px;margin-bottom: 20px;">
+			    	<label for="contentl#texta.texts_id">in <span id="">#texta.name</span>:</label><br/> <!-- make language be editable and removable! -->
+			        <? if ($arr_param["text"]["type"] <= 0) { ?>
+			            <input type="text" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" value="<?=htmlspecialchars($arr_param['texta']['content'])?>" style="width:400px;" />
+			        <? } else { ?>
+			            <div style="display:<?=($arr_param['text']['type'] == '1') ? "inline-" : ""?>block;min-width: 400px;">
+			                <? if ($arr_param["text"]["type"] == 1) { ?>
+			                	<textarea class="wysiwyg" rel="file_browser_callback=wysiwygFileBrowser|theme_advanced_toolbar_align=center" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" cols="80" rows="30"><c:print value="texta.content"/></textarea>
+			                <? } else { ?>
+			                	<textarea class="wysiwyg" rel="file_browser_callback=wysiwygFileBrowser|theme_advanced_toolbar_align=center|plugins=,autoresize" name="texts[content][#texta.language_id]" id="contentl#texta.texts_id" cols="80" rows="30"><c:print value="texta.content"/></textarea>
+			                <? } ?>
+			            </div>
+			        <? } ?>
+			    	<div style="clear:both;"></div>
+			    </div>
+			    </c:foreach>
+    		</div>
+    	</div>
+    	<div class="x-tab" title="Custom Attributes">
+		    <div id="texts_attr_<?=$arr_param['texts'][0]['identifier']?>" style="padding: 10px;">
+		    	<c:foreach var="custom_struct.data" name="value" key="key">
+		    		<div class="formfield">
+		    			<div class="label">#value.displayName <a href="javascript:" title="#local.key"> ? </a></div>
+		    			<div class="value">
+		    				<c:if cond="$value['type'] == 'longtext'">
+		    					<textarea rows="5" name="texts[custom][#local.key]"><%=$arr_param['text']['custom'][$key]%></textarea>
+		    				<c:else/>
+		    					<input name="texts[custom][#local.key]" value="<%=$arr_param['text']['custom'][$key]%>" type="#value.type"/>
+		    				</c:if>
+		    			</div>
+		    		</div>
+		    	</c:foreach>
+		    	<button type="button" id="cadefbtn">Edit Custom Attribute definitions</button>
+		    </div>
+    	</div>
     </div>
 	<div style="clear:both;"></div>
 	<script type="text/javascript">
 	//<![CDATA[
 		setTimeout(function() {
+			// init tabs for custom attributes
+			window["textTabs<?=$arr_param['texts'][0]['identifier']?>"] = new Ext.TabPanel({
+			    applyTo: 'texts_tabs_<?=$arr_param['texts'][0]['identifier']?>',
+			    activeTab: 0,
+			    width: "auto",
+			    defaults: {
+			    	width: "auto",
+			    	closable: false,
+				    listeners: {
+				    	activate: function(p) {}
+				    }
+			    },
+			    deferredRender: false,
+			    height: (parseInt($("hformx<?=$arr_param['texts'][0]['identifier']?>").parentNode.parentNode.style.height) - 170),
+			    autoTabs: true
+			});
+			$("cadefbtn").observe('click', function(event){
+				// open window and list the existing attributes
+				// ...
+			});
+			
 			window.wysiwygFileBrowser = function(field_name, url, type, win) {
 				var cmsURL = "<? global $SERVER; echo $SERVER;?>?event=builder:fileBrowser";
 			    if (cmsURL.indexOf("?") < 0) {
@@ -114,7 +158,7 @@
 			    return false;
 			};
             window.setNewTextType = function(type, id) {
-                if (id.length > 0) {
+                if ($("hformx"+id).select(".id-value")[0].value.length > 0) {
                     new Ajax.Request("?event=builder:editText&texts_id="+$("hformx"+id).select(".id-value")[0].value+"&check=2", {
                         parameters: {
                             id: $("hformx"+id).select(".id-value")[0].value,
@@ -128,12 +172,15 @@
                 } else {
                     // dynamically turn all fields into the new format...
                     var types = [
-                        new Element("input", {type: "text"}),
+                        new Element("input", {type: "text", style: 'width: 400px;'}),
                         new Element("textarea", {"class": "wysiwyg", cols: 80, rows: 30}),
                         new Element("textarea", {"class": "wysiwyg", cols: 80, rows: 30})
                     ];
                     var tel = types[type];
                     $("texts_"+id).select("input, textarea").each(function(item) {
+                    	if (item.nodeName.toUpperCase() == "TEXTAREA") {
+                    		item.next("span.mceEditor").remove();
+                    	}
                         var el = tel.cloneNode(true);
                         if (item._editor) {
 //                            item._editor.removeInstance(item.id);

@@ -568,6 +568,25 @@ class BuilderData extends Database
 		$this->DeleteQuery("tbl_prailsbase_testcase", "fk_module_id=".(int)$module_id."");
 	}
 	
+	function selectCustom($type) {
+		$result = @array_pop($this->get("tbl_prailsbase_custom", "type='".$type."'"));
+		if ($result != null) {
+			$result = $result->getArrayCopy();
+			$result["data"] = json_decode($result["data"], true);
+		} 
+		
+		return $result;
+	}
+	
+	function updateCustom($id, $arr_data) {
+		$arr_data["data"] = json_encode($arr_data["data"]);
+		$this->UpdateQuery("tbl_prailsbase_custom", $arr_data, "custom_id='".$id."'");
+	}
+	
+	function deleteCustom($id) {
+		$this->DeleteQuery("tbl_prailsbase_custom", "custom_id='".$id."'");
+	}
+		
     /*</DB-METHODS>*/
 }
 

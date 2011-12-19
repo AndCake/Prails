@@ -73,7 +73,9 @@ class Generator {
     }
 
     function setLanguage($lang) {
+    	global $currentLang;
         $this->obj_lang = new LangData($lang);
+        $currentLang = $this->obj_lang;
     }
 
     function getLanguage() {

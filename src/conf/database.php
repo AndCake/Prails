@@ -33,6 +33,12 @@ $arr_database = Array
 		"decorator" => "VARCHAR(255)",
 		"title" => "VARCHAR(255)",
 		"description" => "TEXT",
+		"custom" => "TEXT",
+	),
+	
+	"custom" => Array(
+		"type" => "VARCHAR(255)",
+		"data" => "TEXT",
 	),
 	
 	// builder tables

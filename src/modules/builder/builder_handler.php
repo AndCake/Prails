@@ -1959,13 +1959,16 @@ class BuilderHandler
 		    $arr_param["text"]["decorator"] = $arr_param["texts"][0]["decorator"];
 		    $arr_param["text"]["title"] = $arr_param['texts'][0]["title"];
 		    $arr_param["text"]["description"] = $arr_param['texts'][0]["description"];
+		    $arr_param["text"]["custom"] = $arr_param['texts'][0]['custom'];
 		}
 		
         if ($arr_param["text"]["type"] == 2 || substr($arr_param["text"]["path"], 0, 4) == "cms.") {
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
 			$arr_param["text"]["type"] = 2;
         }
-
+        
+        $arr_param["custom_struct"] = $this->obj_data->selectCustom("texts");
+        
 		return $this->_callPrinter("editText", $arr_param);
 	}
 	

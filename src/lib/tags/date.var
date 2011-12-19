@@ -1,2 +1,2 @@
-date("<?=(strlen($var["modifier"])>0 ? str_replace("\"", "\\\"", $var["modifier"]) : "m/d/Y H:i:s")?>", $arr_param
+date("<?=(strlen($var["modifier"])>0 ? str_replace("\"", "\\\"", $var["modifier"]) : "m/d/Y")?>", $arr_param
 <? $var["close"] = true; ?>

@@ -496,19 +496,25 @@ function alert ($mix, $always = false) {
  * Redirect the user to another site.
  *
  * @param STRING $url the URL to redirect the user to.
+ * @param BOOL $clientSide the redirect should be made on the client-side, rather than server-side
  */
-function jumpTo ($url = "?") {
+function jumpTo ($url = "?", $clientSide = false) {
     global $SERVER;
 	global $log;
 	$log->info("Redirecting user to ".$url);
-	session_regenerate_id(true);
-    session_write_close();
-	if (($arr_url=@parse_url($url)) && $arr_url["host"]) {
+	if (!($arr_url=@parse_url($url)) || !$arr_url["host"]) {
+		$url = $SERVER.$url;
+	}
+	
+	if (!$clientSide) {
+		session_regenerate_id(true);
+	    session_write_close();
         header ("Location: ".$url);
-    } else {
-        header ("Location: " . $SERVER.$url);
-    }
-    die();
+    	die();
+	} else {
+	    Generator::getInstance()->setIsAjax(true);
+    	echo "<meta http-equiv='refresh' content='0;url=".$url."'/><script type='text/javascript'>location.href='".$url."';</script>";
+	}
 }
 
 /**

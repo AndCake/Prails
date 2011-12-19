@@ -24,7 +24,7 @@ class MySQL extends Cacheable {
 	var $int_MySqlErrNo;
 	var $int_affectedId;
 	var $int_affectedRows;
-	var $bol_stripSlashes = true;
+	var $bol_stripSlashes = false;
 	var $lastError = "";
 	var $prefix = null;
 

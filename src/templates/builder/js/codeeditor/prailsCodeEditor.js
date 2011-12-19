@@ -437,12 +437,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			
 			// detect PHP & JS block start
 			var oadd = add;
-			if (simpleBefore[simpleBefore.length - 1] == '{') {
-				add += "    ";
-				this.value = before + "\n" + add + "\n" + oadd + "}" + after;
-			} else {
-				this.value = before + "\n" + add + after;
-			}
+			this.value = before + "\n" + add + after;
 			this.selectionStart = before.length + 1 + add.length;
 			this.selectionEnd = before.length + 1 + add.length;
 			refresh(this.value, this.currentLine + 1, false);
