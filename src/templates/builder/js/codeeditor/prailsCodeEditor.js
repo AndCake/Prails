@@ -1,3 +1,14 @@
+window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame       || 
+              window.webkitRequestAnimationFrame || 
+              window.mozRequestAnimationFrame    || 
+              window.oRequestAnimationFrame      || 
+              window.msRequestAnimationFrame     || 
+              function( callback ){
+                window.setTimeout(callback, 1000 / 60);
+              };
+    })();
+
 var Timer = function(id, fn, time) {
 	var me = this;
 	if (!Timer.fns) Timer.fns = {};
@@ -29,12 +40,16 @@ var Timer = function(id, fn, time) {
 	return this;
 };
 
-var drawCursor = function(el, updateScrolling) {
+function drawCursor(el, updateScrolling) {
 	var cnt = el.value.substr(el.selectionStart, el.selectionEnd - el.selectionStart);
 	var before = el.value.substr(0, el.selectionStart);
 	var after = el.value.substr(el.selectionEnd);
-	var currentLine = before.split(/\n/).length - 1;
-	var currentCol = (before.indexOf("\n") >= 0 ? before.match(/\n[^\n]*$/gi)[0].length : before.length+1) - 1;
+	el._lines = before.split("\n");
+	var currentLine = el._lines.length - 1;
+	var currentCol = (el._lines.length > 0 ? el._lines[el._lines.length - 1].length + 1 : before.length+1) - 1;
+	el.lines = el._lines;
+	var cll = el.value.indexOf("\n", el.selectionStart);
+	el.lines[el.lines.length - 1] += el.value.substring(el.selectionStart, cll === -1 ? el.value.length: cll);
 
 	el.currentCol = currentCol;
 	el.currentLine = currentLine;
@@ -43,7 +58,9 @@ var drawCursor = function(el, updateScrolling) {
 
 	var it = document.querySelectorAll(".syntaxhighlighter .line");
 	for (var i = 0, len = it.length; i< len; i++) {
-		it[i].className = it[i].className.replace(/\s*currentLine\s*/gi, '');
+		if (it[i].className.indexOf("currentLine") >= 0) {
+			it[i].className = it[i].className.replace(/\s*currentLine\s*/g, '');
+		}
 		if (el.hasFocus && el.selectionStart == el.selectionEnd && it[i].className.indexOf("index"+currentLine) >= 0) {
 			it[i].className += " currentLine";
 		}
@@ -62,8 +79,9 @@ var drawCursor = function(el, updateScrolling) {
 				var hl = document.createElement("DIV");
 				hl.className = "highlight";
 				var cc = el.value.substr(0, pos);
-				var cl = cc.split(/\n/).length - 1;
-				cc = (cc.indexOf("\n") >= 0 ? cc.match(/\n[^\n]*$/gi)[0].length : cc.length+1) - 1;
+				var ccs = cc.split("\n");
+				var cl = ccs.length - 1;
+				cc = (ccs.length > 0 ? ccs[ccs.length-1].length+1 : cc.length+1) - 1;
 				hl.style.left = (cc * 7) + "px";
 				hl.style.top = ((cl * 13) - 2) + "px";
 				hl.style.width = (varName.length * 7)+"px";
@@ -109,19 +127,21 @@ var drawCursor = function(el, updateScrolling) {
 	}	
 
 	if (updateScrolling !== false && !el.mousepressed) {
-		if (document.querySelector("#cwrapper .selection")) {
-			var sel = document.querySelectorAll("#cwrapper .selection");
-			sel = sel[sel.length - 1];
-			document.body.scrollTop = parseInt(sel.style.top) - (document.body.clientHeight / 2);
-			document.body.scrollLeft = (parseInt(sel.style.left) + sel.clientWidth) - (document.body.clientWidth / 2);
-		} else if (document.getElementById("cursor") && document.getElementById("cursor").style.display != "none") {
-			document.body.scrollTop = parseInt(document.getElementById("cursor").style.top) - (document.body.clientHeight / 2);
-			document.body.scrollLeft = parseInt(document.getElementById("cursor").style.left) - (document.body.clientWidth / 2);
-		}
+		new Timer("selection-scroller", function() {
+			if (document.querySelector("#cwrapper .selection")) {
+				var sel = document.querySelectorAll("#cwrapper .selection");
+				sel = sel[sel.length - 1];
+				document.body.scrollTop = parseInt(sel.style.top) - (document.body.clientHeight / 2);
+				document.body.scrollLeft = (parseInt(sel.style.left) + sel.clientWidth) - (document.body.clientWidth / 2);
+			} else if (document.getElementById("cursor") && document.getElementById("cursor").style.display != "none") {
+				document.body.scrollTop = parseInt(document.getElementById("cursor").style.top) - (document.body.clientHeight / 2);
+				document.body.scrollLeft = parseInt(document.getElementById("cursor").style.left) - (document.body.clientWidth / 2);
+			}
+		}, 100);
 	}
 };
 
-new Timer("cursor-hint", cursorHint = function() {
+requestAnimFrame(cursorHint = function() {
 	var el = window.txt;
 	if (!el.lastPos) el.lastPos = [];
 	if (el.lastPos[0] != el.selectionStart || el.lastPos[1] != el.selectionEnd) {
@@ -130,36 +150,48 @@ new Timer("cursor-hint", cursorHint = function() {
 		
 		drawCursor(el);
 	}
-	
-	new Timer("cursor-hint", cursorHint, 75);
-}, 75);
+	requestAnimFrame(cursorHint);
+});
 
-var refresh = function(code, currentLine, replaceit) {
+requestAnimFrame(globalRefresh = function() {
+	if (txt.refreshWanted && typeof(txt.currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes[txt.currentLine]) {
+		txt.refreshWanted = false;
+		document.getElementsByClassName("container")[0].childNodes[txt.currentLine].innerHTML = txt.currentHighlighter.parseCode(txt.lines, txt.currentLine + 1);
+	}
+	requestAnimFrame(globalRefresh);
+});
+
+function refresh(code, currentLine, replaceit) {
 	var fullrefresh = replaceit === false; 
 	if (!replaceit) {
 		code = code.replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
 	}
 
-	var currentHighlighter = null;
-	for (var all in SyntaxHighlighter.vars.highlighters) {
-		currentHighlighter = SyntaxHighlighter.vars.highlighters[all];
-		break;
+	var currentHighlighter = txt.currentHighlighter;
+	if (!currentHighlighter) {
+		for (var all in SyntaxHighlighter.vars.highlighters) {
+			currentHighlighter = SyntaxHighlighter.vars.highlighters[all];
+			break;
+		}
 	}
 	if (currentHighlighter) {
-		if (typeof(currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes.length > currentLine) 
-			document.getElementsByClassName("container")[0].childNodes[currentLine].innerHTML = currentHighlighter.parseCode(code, currentLine + 1);
+		txt.currentHighlighter = currentHighlighter;
+		if (typeof(txt.currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes[txt.currentLine]) {
+			document.getElementsByClassName("container")[0].childNodes[txt.currentLine].innerHTML = txt.lines[txt.currentLine].replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
+		}
+		txt.refreshWanted = true;
 
 		if (fullrefresh) {
-			//new Timer("global-refresh", function() {
-				Timer && Timer.fns && Timer.fns["global-refresh"] && Timer.fns["global-refresh"].timer && Timer.fns["global-refresh"].timer.cancel();
-				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
-//			}, 75);
+			Timer && Timer.fns && Timer.fns["global-refresh"] && Timer.fns["global-refresh"].timer && Timer.fns["global-refresh"].timer.cancel();
+			document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
 		} else {
 			new Timer("global-refresh", function() {
 				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
-			}, 250);	
+			}, 1000);
 		}
-		document.getElementsByClassName("gutter")[0].innerHTML = currentHighlighter.getLineNumbersHtml(code);
+		new Timer("gutter-update", function() {
+			document.getElementsByClassName("gutter")[0].innerHTML = currentHighlighter.getLineNumbersHtml(code);
+		}, 75);
 	} else {
 		var b = document.getElementById("highlight").firstChild;
 		var d = document.createElement("pre");

@@ -1932,6 +1932,9 @@ class BuilderHandler
 			// update / insert texts
 			$arr_data = $_POST["texts"];
 			Generator::getInstance()->obj_lang->updateTexts($arr_data);
+			if ($arr_data["type"] == '2') {
+				$this->flushWebCache(true);
+			}
 		} else if ($_GET["check"] == "2") {
 		    Generator::getInstance()->obj_lang->updateTextType($_POST["id"], $_POST["type"]);
 		    die("success");
@@ -2130,7 +2133,7 @@ class BuilderHandler
 		die("success");
 	}
 	
-	function flushWebCache() {
+	function flushWebCache($return = false) {
 		$dp = opendir("cache/");
 		while (($file = readdir($dp)) !== false) {
 			if ($file[0] != "." && !is_dir("cache/".$file)) {
@@ -2138,7 +2141,20 @@ class BuilderHandler
 			}
 		}
 		closedir($dp);
-		die("success");
+		if (!$return || is_array($return)) {
+			die("success");
+		} else {
+			return "success";
+		}
+	}
+	
+	function flushCustomModules($return = false) {
+		$arr_modules = $this->obj_data->listModulesFromUser($_SESSION['builder']['user_id']);
+		foreach ($arr_modules as $mod) {
+			$this->resetModule(false, $mod['module_id']);
+		}
+		if (!$return || is_array($return)) die("success");
+		return "success";
 	}
 	
 	function flushLogs() {

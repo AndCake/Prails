@@ -2015,19 +2015,21 @@ sh.Highlighter.prototype = {
 	
 	parseCode: function(code, line) {
 		var gutter = this.getParam('gutter');
-		if (gutter)
+		if (gutter && !line)
 			lineNumbers = this.figureOutLineNumbers(code);
 		
 		var html, matches;
 		if (line) 
-			code = code.split("\n")[line - 1];
+			code = code[line - 1];
 
 		// find matches in the code using brushes regex list
 		matches = this.findMatches(this.regexList, code);
 		// processes found matches into the html
 		html = this.getMatchesHtml(code, matches);
 		// finally, split all lines so that they wrap well
-		html = this.getCodeLinesHtml(html, lineNumbers, (typeof(line) != "undefined" && line != null));
+		if (typeof(line) === "undefined" || line == null) {
+			html = this.getCodeLinesHtml(html, lineNumbers, (typeof(line) != "undefined" && line != null));
+		}
 		
 		return html;
 	},

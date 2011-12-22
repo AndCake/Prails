@@ -267,6 +267,19 @@ window.Builder = Object.extend(window.Builder || {}, {
 										})
 									}
 								}, {
+									text: "Module Cache",
+									handler: function() {
+										Ext.Msg.confirm("Warning!", "Purging the module cache will remove all currently generated modules from the file system. Do you want to continue?", function(btn) {
+											if (btn == "yes") {
+												invoke('builder:flushCustomModules', function(req){
+													if (req.responseText == 'success') {
+														Ext.ux.util.msg('Purging completed', 'The module cache has been purged.');
+													}
+												});
+											}
+										});
+									}
+								}, {
 									text: "Log files",
 									handler: function() {
 										Ext.Msg.confirm("Hint", "Invalidating the log files will remove any previously logged entries. Do you want to continue?", function(btn) {
