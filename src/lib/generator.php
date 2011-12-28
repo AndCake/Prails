@@ -68,10 +68,6 @@ class Generator {
         $this->bol_isAjax = $bol_ajax;
     }
 
-    function setModule($obj_module) {
-        $this->obj_mod = $obj_module;
-    }
-
     function setLanguage($lang) {
     	global $currentLang;
         $this->obj_lang = new LangData($lang);
@@ -193,7 +189,7 @@ class Generator {
     function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
 		$startTime = time()+microtime();
 		$nname = "cache/".md5($str_name);
-		$tl = new TagLib();
+		$tl = new TagLib($str_name);
 		$str_content = $tl->compile(file_get_contents($str_name));
 		if (!file_put_contents($nname, $str_content, LOCK_EX)) {
 			global $log;

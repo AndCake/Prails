@@ -34,7 +34,7 @@ $arr_settings = Array(
 /*<CUSTOM-SETTINGS>*/
 "PROJECT_NAME" => "Prails Web Framework",
 "ENV_PRODUCTION" => false,
-"DEVELOPER_CHAT_ENABLED" => true,
+"DEVELOPER_CHAT_ENABLED" => false,
 "DEBUG_LEVEL" => 2,
 "DBCACHE_ENABLED" => true,
 "PROFILING_ENABLED" => false,

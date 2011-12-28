@@ -404,6 +404,8 @@
 		var repInt = $$(".scheduler .repeat select")[0].value;
 		var days = $$(".scheduler .days input");
 		var dlist = [];
+		var time = "0:0";
+		var date = "<?=date('Y-m-d')?>";
 		days.each(function(d){
 			if (d.checked) {
 				dlist.push(d.value);

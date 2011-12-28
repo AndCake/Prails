@@ -130,6 +130,7 @@ var Validator = Class.create({
         if (this.options.cancelSubmit) {
             form.observe("submit", function(event) {
                 if (!me.checkAllValid()) {
+                	$$(".validate-invalid")[0].scrollTo();
                     event.stop();
                 }
             });

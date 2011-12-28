@@ -49,9 +49,15 @@
 		</div>
 		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code <a title="In this area you can put the HTML code to be presented to the user" class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
-		<!--[noeval]-->
-		<div style="border:1px solid #ccc;" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlspecialchars($arr_param["handler"]["html_code"])?></div>
-    <!--[/noeval]-->		
+		<div id="hhtmlcodehcontainer#handler.handler_id" class="tab-list">
+		<? if (is_array($arr_param['html_codes'])) foreach ($arr_param['html_codes'] as $code) { ?>
+			<div class="x-tab" title="<?=$code['title']?>">
+				<!--[noeval]-->
+				<div title="<?=$code['title']?>" style="border:0px solid #ccc;" class="hhtmlcodeh" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id'].$code['id']?>" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
+    			<!--[/noeval]-->		
+			</div>
+		<? } ?>
+		</div>
 	</div>
 	<div style="display: none;" id="schedule_#handler.handler_id">
 		<div class="scheduler">
@@ -123,6 +129,7 @@
 		</div>
 	</div>
 	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_#handler.handler_id').addKeywords"><?=htmlentities(file_get_contents("templates/builder/php/handler_form_empty.php"))?></div></div>	
+	<div id="template_#handler.handler_id" style="display:none;"><div title="[name]" class="hhtmlcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlentities(file_get_contents("templates/builder/php/output_empty.php"))?></div></div>	
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">
@@ -247,7 +254,20 @@
         	  return;
           }
           
-       	  $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+       	  //$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
+          var titles = {};
+          $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hhtmlcodeh").each(function(item) {
+        	  var it = Builder.getCode(item);
+        	  var t = item.title;
+        	  if (titles[t]) return;
+        	  titles[t] = true;
+        	  if (t != "Default") {
+	        	  it = "<part-"+t+">\n"+it+"</part-"+t+">\n";
+        	  }
+              $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = it + $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value;
+          });
+       	  
           // accumulate all code segments into one
           var titles = {};
           $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
@@ -295,79 +315,85 @@
       };
             
       (function() {
-    	  
-         Builder.applyBespin("html_codeh<?=(int)$arr_param['handler']['handler_id']?>", function(fr) {
-            $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";          
+ 	     var initBespin = function(list) {
+ 	     	var item = list.pop();
+ 	      	if (!item || !$(item)) return;
+ 		    Builder.applyBespin(item, function(fr) {
+ 			    	$("container_h_#handler.handler_id").addKeywords = function(txt) {
+ 		        		txt.addKeywords(null, function(txt) {
+ 		        			var res = [];
+ 		        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+ 		        			if (matches) {
+ 			        			for (var a = 0; a < matches.length; a++) {
+ 			        				if ((",$arr_param,$data,$SERVER,$SECURE_SERVER,$currentLang,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+ 			        					res.push(matches[a]);
+ 			        				}
+ 			        			}
+ 		        			}
+ 		        			return res;
+ 		        		});
+ 			          	var arr = [];
+ 			          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
+ 			          		arr.push(item.text);
+ 			          	});
+ 			          	txt.addKeywords("\\$data->", arr);
+ 			          	txt.addKeywords("Generator::", ["getInstance()"]);
+ 			          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
+ 			          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+ 			          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+ 			          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+ 		        	};
+ 		        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
+ 		          	
+ 		        	item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
+ 					initBespin(list);
+ 			    }, Object.extend(Builder.prailsNamespace, {
+ 					id: "container_h_#handler.handler_id",
+ 					save: function() {
+ 						parent.$("container_h_#handler.handler_id").save();
+ 					}, 
+ 					run: function() {
+ 			        	Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+ 			    	}
+ 			    }));	      		
+       	 };
+		initBespin($$("#hcodehcontainer"+"#handler.handler_id .hcodeh"));
+      	
+//*
+		var initHtml = function(list) {
+      		var item = list.pop();
+      		if (!item || !$(item)) return;
+	        Builder.applyBespin(item, function(fr) {
+	            item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+	            
+	            var arr = [];
+	          	$A(Builder.tagRoot.childNodes).each(function(item) {
+	          		arr.push(item.text);
+	          	});
+	          	fr.txt.addKeywords("<c"+":", arr);
 
-            var arr = [];
-          	$A(Builder.tagRoot.childNodes).each(function(item) {
-          		arr.push(item.text);
-          	});
-          	fr.txt.addKeywords("<c"+":", arr);
-
-            fr.txt.addKeywords(null, [
-				"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\">", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", 
-				"<a href=\"\"></a>", "<div class=\"clear\"><!-- clear floating --></div>", "<form method=\"post\" action=\"\">\n</form>", "<button type=\"\"></button>"
-			]);
-
-	      	setTimeout(function() {
-		          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+	            fr.txt.addKeywords(null, [
+					"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\">", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", 
+					"<a href=\"\"></a>", "<div class=\"clear\"><!-- clear floating --></div>", "<form method=\"post\" action=\"\">\n</form>", "<button type=\"\"></button>"
+				]);
+	            
+				initHtml(list);
+		    }, Object.extend(Builder.prailsNamespace, {
+				id: "container_h_#handler.handler_id",
+				save: function() {
+					parent.$("container_h_#handler.handler_id").save();
+				}, 
+				run: function() {
+		        	Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+		    	}
+		    }));
+    	 };
+    	 initHtml($$("#hhtmlcodehcontainer"+"#handler.handler_id .hhtmlcodeh"));//*/
+    	 
+      	 setTimeout(function() {
+//	          $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
 //		          $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("codeh<?=(int)$arr_param['handler']['handler_id']?>");
-	      	}, 1000);
-	      	
-	      	var initBespin = function(list) {
-	      		var item = list.pop();
-	      		if (!item || !$(item)) return;
-		        Builder.applyBespin(item, function(fr) {
-		        	$("container_h_#handler.handler_id").addKeywords = function(txt) {
-		        		txt.addKeywords(null, function(txt) {
-		        			var res = [];
-		        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
-		        			if (matches) {
-			        			for (var a = 0; a < matches.length; a++) {
-			        				if ((",$arr_param,$data,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
-			        					res.push(matches[a]);
-			        				}
-			        			}
-		        			}
-		        			return res;
-		        		});
-			          	var arr = [];
-			          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
-			          		arr.push(item.text);
-			          	});
-			          	txt.addKeywords("\\$data->", arr);
-			          	txt.addKeywords("Generator::", ["getInstance()"]);
-			          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
-			          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
-			          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
-		        	};
-		        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
-		          	
-		        	item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
-					initBespin(list);
-			    }, Object.extend(Builder.prailsNamespace, {
-					id: "container_h_#handler.handler_id",
-					save: function() {
-						parent.$("container_h_#handler.handler_id").save();
-					}, 
-					run: function() {
-			        	Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
-			    	}
-			    }));	      		
-	      	};
-	      	initBespin($$("#hcodehcontainer"+"#handler.handler_id .hcodeh"));
-	      	
-
-         }, Object.extend(Builder.prailsNamespace, {
-	    	  id: "container_h_#handler.handler_id",
-	          save: function() {
-	             parent.$("container_h_#handler.handler_id").save();
-	          }, 
-	          run: function() {
-	             Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
-	          }
-	      }));
+      	 }, 1000);
       })();
 
 			Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().add({
@@ -453,10 +479,96 @@
 						if (!item) return;
 						pe.stop();
 				        Builder.applyBespin(item, function(fr) {
+					    	$("container_h_#handler.handler_id").addKeywords = function(txt) {
+				        		txt.addKeywords(null, function(txt) {
+				        			var res = [];
+				        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+				        			if (matches) {
+					        			for (var a = 0; a < matches.length; a++) {
+					        				if ((",$arr_param,$data,$SERVER,$SECURE_SERVER,$currentLang,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+					        					res.push(matches[a]);
+					        				}
+					        			}
+				        			}
+				        			return res;
+				        		});
+					          	var arr = [];
+					          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
+					          		arr.push(item.text);
+					          	});
+					          	txt.addKeywords("\\$data->", arr);
+					          	txt.addKeywords("Generator::", ["getInstance()"]);
+					          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
+					          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+					          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+					          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+				        	};
+				        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
+				        	
 							item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
 					    }, Builder.prailsNamespace);
 					}, 0.025);
 					
+					// if there are tabs for the handler code already, add one
+					// else wrap it into tabs and add one
+				}
+			}, {
+				xtype: "button",
+				text: "Add Template",
+				tooltip: "Inserts a template for including or outputting.",
+				iconCls: "form",
+				handler: function(e) {
+					// first ask for the endpoint's name
+					var name = prompt("Please enter the template's name:");
+					name = name.replace(/^\s+|\s+$|[^a-zA-Z0-9]+/gi, '');
+					if (!name || name.length <= 0) return;
+						
+					var found = false;
+				    $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hhtmlcodeh").each(function(item) {
+				       	var t = item.title;
+				       	if (t == name) found = true;
+				    });
+				    if (found) {
+				       	Ext.Msg.alert("Problem", "A template with this name already exists for that handler.");
+				       	return;
+				    }
+						
+					content = $("template_#handler.handler_id").innerHTML.replace(/\[name\]/gi, name);
+					window["htmlCodeTabs#handler.handler_id"].add({title: name, id: "hhtml_<?=(int)$arr_param['handler']['handler_id']?>"+name, html: content});
+
+					setTimeout(function() {
+						window["htmlCodeTabs#handler.handler_id"].setActiveTab("hhtml_<?=(int)$arr_param['handler']['handler_id']?>"+name);
+					}, 100);
+						
+					var id = "#hhtml_<?=(int)$arr_param['handler']['handler_id']?>"+name+" .hhtmlcodeh";
+					new PeriodicalExecuter(function(pe) {
+						var item = $$(id)[0];
+						if (!item) return;
+						pe.stop();
+				        Builder.applyBespin(item, function(fr) {
+				            item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+				            
+				            var arr = [];
+				          	$A(Builder.tagRoot.childNodes).each(function(item) {
+				          		arr.push(item.text);
+				          	});
+				          	fr.txt.addKeywords("<c"+":", arr);
+
+				            fr.txt.addKeywords(null, [
+								"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\">", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", 
+								"<a href=\"\"></a>", "<div class=\"clear\"><!-- clear floating --></div>", "<form method=\"post\" action=\"\">\n</form>", "<button type=\"\"></button>"
+							]);
+					    }, Object.extend(Builder.prailsNamespace, {
+							id: "container_h_#handler.handler_id",
+							save: function() {
+								parent.$("container_h_#handler.handler_id").save();
+							}, 
+							run: function() {
+					        	Builder.runHandler("<?=$arr_param['module']['name']?>", "<?=$arr_param['handler']['event']?>");         
+					    	}
+					    }));
+					}, 0.025);
+						
 					// if there are tabs for the handler code already, add one
 					// else wrap it into tabs and add one
 				}
@@ -473,6 +585,32 @@
 				    	beforeclose: function(p) {
 				    		if (p.title != "Default") {
 				    			return confirm("Do you really want to remove that endpoint?");
+				    		} else {
+				    			return false;
+				    		}
+				    	},
+				    	activate: function(p) {
+				    		try {
+				    			p.el.dom.down("iframe").contentWindow.updateSize();
+				    		} catch(e) {};
+				    	}
+				    }
+			    },
+			    deferredRender: false,
+			    height: (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150),
+			    autoTabs: true
+			});
+			window["htmlCodeTabs#handler.handler_id"] = new Ext.TabPanel({
+			    applyTo: 'hhtmlcodehcontainer#handler.handler_id',
+			    activeTab: 0,
+			    width: "auto",
+			    defaults: {
+			    	width: "auto",
+			    	closable: true,
+				    listeners: {
+				    	beforeclose: function(p) {
+				    		if (p.title != "Default") {
+				    			return confirm("Do you really want to remove that template?");
 				    		} else {
 				    			return false;
 				    		}

@@ -31,11 +31,11 @@ class AbstractHandler {
      * @param $arr_param [ARRAY]   some data that may be needed
      * @returns [BOOLEAN]    TRUE if call successful, else FALSE
      */
-    public function _callPrinter ($str_func, $arr_param, $decorator = "")
+    public function _callPrinter ($str_func, $arr_param, $decorator = "", $template = "")
     {
         if (method_exists($this->obj_print, $str_func))
         {
-            return $this->obj_print->$str_func($arr_param, $decorator);
+            return $this->obj_print->$str_func($arr_param, $decorator, $template);
         } else
         {
             pushError("Could not call ".$str_func." in Printer.");

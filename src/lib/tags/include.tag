@@ -9,4 +9,6 @@
 	<@=Generator::getInstance()->includeTemplate("<?=$path?>", $arr_param)@>
 <? } else if (strlen($tag["attributes"]["event"])>0) { ?>
 	<@=invoke("<?=$tag['attributes']['event']?>", $arr_param)@>
+<? } else if (strlen($tag['attributes']['template']) > 0) { ?>
+	<@=Generator::getInstance()->includeTemplate("<?=str_replace('.html', '.'.$tag['attributes']['template'].".html", $this->template)?>", $arr_param);@>
 <? } ?>

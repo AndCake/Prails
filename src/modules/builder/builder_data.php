@@ -580,11 +580,16 @@ class BuilderData extends Database
 	
 	function updateCustom($id, $arr_data) {
 		$arr_data["data"] = json_encode($arr_data["data"]);
-		$this->UpdateQuery("tbl_prailsbase_custom", $arr_data, "custom_id='".$id."'");
+		if (@array_pop($this->get("tbl_prailsbase_custom", "type='".$id."'")) != null) {
+			$this->UpdateQuery("tbl_prailsbase_custom", $arr_data, "type='".$id."'");
+		} else {
+			$arr_data["type"] = $id;
+			$this->InsertQuery("tbl_prailsbase_custom", $arr_data);
+		}
 	}
 	
 	function deleteCustom($id) {
-		$this->DeleteQuery("tbl_prailsbase_custom", "custom_id='".$id."'");
+		$this->DeleteQuery("tbl_prailsbase_custom", "type='".$id."'");
 	}
 		
     /*</DB-METHODS>*/

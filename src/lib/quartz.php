@@ -53,6 +53,7 @@ class Quartz {
 		$mail = ">> ".$base."/log/quartz.log 2>&1";
 		$prog = (Quartz::_getFirstAvailable())." '".str_replace("://", "://".$_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"]."@", $SERVER)."?event=".$event."'";
 		$cron[] = $time["min"]." ".$time["hour"]." ".$time["day"]." ".$time["month"]." ".$time["week"]." ".$prog." ".$mail." # \$id: ".$id;
+		
 		file_put_contents("cache/temp.cron", implode("\n", $cron)."\n");
 		exec("crontab cache/temp.cron");
 		unlink("cache/temp.cron");
@@ -143,7 +144,7 @@ class Quartz {
 		foreach ($entries as $entry) {
 			if ($foundStar && ($entry == "day" || $entry == "month" || $entry == "hour")) {
 				$time[$entry] = "*";
-			} else if (!$time[$entry]) { 
+			} else if (!isset($time[$entry]) || strlen($time[$entry]) <= 0) { 
 				$time[$entry] = "*";
 				$foundStar = true;
 			} else if ($time[$entry][0] == "*") {

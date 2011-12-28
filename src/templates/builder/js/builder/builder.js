@@ -158,13 +158,15 @@ window.Builder = Object.extend(window.Builder || {}, {
 							        				if (data) for (var all in data) {
 							        					if (all != "week") {
 							        						if (data[all][0] == "*") {
-							        							$$(".scheduler .repeat input")[0].value = data[all].split("/")[1];
-							        							$$(".scheduler .repeat select option").each(function(item) {
-							        								if (item.value == all+"s") {
-							        									item.selected = true;
-							        									throw $break;
-							        								}
-							        							}); 
+							        							if (data[all].indexOf('/') > 0) {
+							        								$$(".scheduler .repeat input")[0].value = data[all].split("/")[1];
+								        							$$(".scheduler .repeat select option").each(function(item) {
+								        								if (item.value == all+"s") {
+								        									item.selected = true;
+								        									throw $break;
+								        								}
+								        							});
+							        							}
 							        						}
 							        					} else {
 							        						$$(".scheduler .days input").each(function(input) {

@@ -27,12 +27,13 @@ class LangData
 	function LangData($str_lang)
 	{
 		$this->obj_sql = new TblClass("tbl_prailsbase_");
+/*		
 		if (strlen($_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"]) > 0) {
 			$str_lang = $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"];
 			$this->language_id = $_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"];
-		} else {
+		} else { //*/
 			$this->setLanguage($str_lang);
-		}
+//		}
 		$this->arr_item_cache = Array(); //&$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang];
 	}
 	 

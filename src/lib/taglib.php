@@ -31,6 +31,11 @@ class TagLib {
 	private $unclosedPos = Array();
 	private $depth = 0;
 	private $html = "";
+	private $template = "";
+	
+	public function TagLib($template = "") {
+		$this->template = $template;
+	}
 	
 	public function compile($html, $allowedDepth = 0) {
 		$this->html = $html;
@@ -99,7 +104,11 @@ class TagLib {
                 $str_param = "\$arr_param";
             }
             foreach ($parts as $part) {
-                $str_param .= "[\"" . $part . "\"]";
+            	if (is_numeric($part)) {
+            		$str_param .= "[" . $part . "]";	
+            	} else {
+                	$str_param .= "[\"" . $part . "\"]";
+            	}
             }
             if ($toClose) $str_param .= ")";
 			if ($arr_matches[1][$key] == "@") {

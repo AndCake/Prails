@@ -278,8 +278,8 @@ class BuilderHandler
                     $code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $arr_handler["code"]);
                     $code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
                     $code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
-                    $handler .= "\nfunction ".$arr_handler["event"]."() {\n  \$arr_param = func_get_arg(0);\n".$code."\n}\n";
-                    $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator) {\n";
+                    $handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arr_param = func_get_arg(0);\n".$code."\n}\n";
+                    $printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator, \$template) {\n";
 		    		$printer .= "  global \$SERVER, \$SECURE_SERVER;\n";
                     $printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
                     $printer .= "  \$arr_param[\"odict\"] = &\$_SESSION[\"odict\"];\n";
@@ -295,7 +295,7 @@ class BuilderHandler
 						$printer .= "  Generator::getInstance()->setIsCachable();\n";
 		    		}
                     $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator, \$arr_param) : \"<!--[content]-->\");\n";
-                    $printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"].".html\", \$arr_param);\n";
+                    $printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"]."\".(strlen(\$template) > 0 && strtolower(\$template) != \"default\" ? \".\".\$template : \"\").\".html\", \$arr_param);\n";
                     $printer .= "  \$str_content = str_replace(\"<!--[content]-->\", \$str_content, \$decoration);\n";
                     $printer .= "  return \$str_content;\n}\n";
 
@@ -315,9 +315,27 @@ class BuilderHandler
                 file_put_contents($path.$mod."_data.php", $c[1]);
                 file_put_contents($path.$mod."_handler.php", $c[2]);
                 file_put_contents($path.$mod."_printer.php", $c[3]);
-                foreach ($handlers as $key=>$value)
-                {
-                    file_put_contents("templates/".$mod."/html/".$key.".html", $value);
+                foreach ($handlers as $key=>$code) { 
+			        preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+			        $lastPos = 0;
+			        $codes = Array();
+			        array_push($codes, Array("title" => "Default", "id" => md5("h".$arr_param["handler"]["handler_id"])));
+			        if (is_array($matches) && is_array($matches[1])) {         
+				        foreach ($matches[1] as $match) {
+				        	$cd = Array(
+				        		"title" => $match[0],
+				        		"id" => md5("html_".$match[0].$arr_param["handler"]["handler_id"]) 
+				        	);
+				        	$start = $match[1] + strlen("".$match[0].">\n");
+				        	$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+				        	$val = substr($code, $start, $end - $start);
+				        	$lastPos = $end + strlen("</part-".$match[0].">\n");
+				        	file_put_contents("templates/".$mod."/html/".$key.".".$match[0].".html", $val);
+				        }
+			        }
+			        $value = substr($code, $lastPos);
+                	
+                	file_put_contents("templates/".$mod."/html/".$key.".html", $value);
                 }
                 @chmod("templates/".$mod, 0755);
                 @chmod("templates/".$mod."/css/", 0755);
@@ -660,6 +678,27 @@ class BuilderHandler
         	$arr_param["handler"]["html_code"] = file_get_contents("templates/builder/php/output_empty.php");
         	$arr_param["handler"]["code"] = file_get_contents("templates/builder/php/handler_empty.php");
         }
+        
+        $code = $arr_param['handler']['html_code'];
+        preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+        $lastPos = 0;
+        $codes = Array();
+        array_push($codes, Array("title" => "Default", "id" => md5("h".$arr_param["handler"]["handler_id"])));
+        if (is_array($matches) && is_array($matches[1])) {         
+	        foreach ($matches[1] as $match) {
+	        	$cd = Array(
+	        		"title" => $match[0],
+	        		"id" => md5($match[0].$arr_param["handler"]["handler_id"]) 
+	        	);
+	        	$start = $match[1] + strlen("".$match[0].">\n");
+	        	$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+	        	$cd["content"] = substr($code, $start, $end - $start);
+	        	$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+	        	array_push($codes, $cd);
+	        }
+        }
+        $codes[0]["content"] = substr($code, $lastPos);
+        $arr_param["html_codes"] = $codes;
         
         $code = $arr_param["handler"]["code"];
         preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
@@ -1938,6 +1977,9 @@ class BuilderHandler
 		} else if ($_GET["check"] == "2") {
 		    Generator::getInstance()->obj_lang->updateTextType($_POST["id"], $_POST["type"]);
 		    die("success");
+	    } else if ($_GET["check"] == "cadef") {
+	    	$this->obj_data->updateCustom("texts", $_POST["custom"]);
+	    	die("successdef");
 	    }
 		
 		if ($_GET["ident"]) {
@@ -2328,7 +2370,7 @@ class BuilderHandler
            		Quartz::removeJob(null, false, $id);
            	}
             if (strlen($_POST["backupTime"]) > 0) {
-              	Quartz::addJob(JSON_decode($_POST["backupTime"], true), "builder:backup", $id);
+              	Quartz::addJob(json_decode($_POST["backupTime"], true), "builder:backup", $id);
             } 
 			
 			jumpTo("?event=builder:home");

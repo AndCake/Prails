@@ -26,6 +26,7 @@
 	table#pgc tbody#pagecache th {
 		font-size: 11px;
 		width: 30%;
+		max-width: 500px;
 		white-space: nowrap;
 		overflow: hidden;
 	}
@@ -166,7 +167,6 @@
 			d.Set("chart.linewidth", 1);
 			d.Set("chart.title", "DB Performance (queries/sec)");
 			d.Set("chart.colors", ["blue", "red"]);
-//			d.Set("chart.tickmarks", "endcircle");
 			d.Set("chart.tooltips", (function() {
 				var res = [];
 				for (var i = 0; i < cached.length; i++) {

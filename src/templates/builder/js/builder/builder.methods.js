@@ -195,7 +195,7 @@ Builder = Object.extend(Builder || {}, {
     applyBespin: function(el, fn, obj) {
 		el = $(el);
 		var sel = el;
-		if (el.hasClassName("hcodeh")) {
+		if (el.hasClassName("hcodeh") || el.hasClassName("hhtmlcodeh")) {
 			sel = el.up(".x-tab-panel");
 		}
 		sel.setStyle("-ms-transition:all 0.5s ease-out;-o-transition:all 0.5s ease-out;-moz-transition:all 0.5s ease-out;-webkit-transition:all 0.5s ease-out;");
@@ -220,70 +220,77 @@ Builder = Object.extend(Builder || {}, {
         crc.content = content;
         crc.el = el;
         el.crc = crc;
-        
-        var cwin = document.getElementsByName(el.id)[0].contentWindow;
-        cwin.init = function() {
-            cwin.prails = Object.clone(obj);
-            cwin.id = document.getElementsByName(el.id)[0].contentWindow.name;
-            var data = JSON.parse(el.getAttribute("data-bespinoptions"));
-            cwin.txt.setBrush(data.syntax);
-            if (data.html == true) {
-            	cwin.txt.enableHtmlScript();
-            }
-            if (obj && obj.save) {
-            	cwin.txt.save = obj.save;
-            }
-            cwin.txt.setCode(content);
-            if (el.getAttribute("onload")) {
-            	try {
-            		eval(el.getAttribute("onload"))(cwin.txt);
-            	} catch(e){console.log(e);};
-            }            
-            
-            cwin.document.body.onkeyup = function(event) {
-            	if (!event) event = cwin.event;
-				Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = cwin.id;
-	        	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
-	        		cwin.parent.Builder.searchInBespin(cwin);
-	        		try {
-	        			event.stopPropagation();
-	        			event.cancelBubble = true;
-	        		} catch(e){};
-	        		return false;
-	        	} else if (event.ctrlKey && event.altKey) {
-	    			window.focus();
-	        		if (event.keyCode == 39) {
-	        			Builder.blurBespin(el);
-	        			Builder.nextTab(event);
-	        		} else if (event.keyCode == 37) {
-	        			Builder.blurBespin(el);
-	        			Builder.previousTab(event);
-	        		}
-	        		return false;
-	        	} else if (event.ctrlKey && event.shiftKey) {
-	        		if (event.keyCode == "D".charCodeAt(0)) {
-	        			Builder.quickOpen();
-	        		} else if (event.keyCode == "A".charCodeAt(0)) {
-						Builder.queryTest();
-	        		} else if (event.keyCode == "Q".charCodeAt(0)) {
-	        			if (!win.parent.closed) {
-	        				win.parent.closed = true;
-	            			Builder.closeCurrentTab();  
-	            			setTimeout(function() {cwin && cwin.parent && (cwin.parent.closed = false);}, 100);
-	                		try {
-	                			event.stopPropagation();
-	                			event.cancelBubble = true;
-	                		} catch(e){};
-	                		return false;
-	        			}
-	        		}            		
-	        	}
+        var initWin = function() {
+            var cwin = document.getElementsByName(el.id)[0].contentWindow;
+            cwin.init = function() {
+                cwin.prails = Object.clone(obj);
+                cwin.id = document.getElementsByName(el.id)[0].contentWindow.name;
+                var data = JSON.parse(el.getAttribute("data-bespinoptions"));
+                cwin.txt.setBrush(data.syntax);
+                if (data.html == true) {
+                	cwin.txt.enableHtmlScript();
+                }
+                if (obj && obj.save) {
+                	cwin.txt.save = obj.save;
+                }
+                cwin.txt.setCode(content);
+                if (el.getAttribute("onload")) {
+                	try {
+                		eval(el.getAttribute("onload"))(cwin.txt);
+                	} catch(e){console.log(e);};
+                }            
+                
+                cwin.document.body.onkeyup = function(event) {
+                	if (!event) event = cwin.event;
+    				Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = cwin.id;
+    	        	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
+    	        		cwin.parent.Builder.searchInBespin(cwin);
+    	        		try {
+    	        			event.stopPropagation();
+    	        			event.cancelBubble = true;
+    	        		} catch(e){};
+    	        		return false;
+    	        	} else if (event.ctrlKey && event.altKey) {
+    	    			window.focus();
+    	        		if (event.keyCode == 39) {
+    	        			Builder.blurBespin(el);
+    	        			Builder.nextTab(event);
+    	        		} else if (event.keyCode == 37) {
+    	        			Builder.blurBespin(el);
+    	        			Builder.previousTab(event);
+    	        		}
+    	        		return false;
+    	        	} else if (event.ctrlKey && event.shiftKey) {
+    	        		if (event.keyCode == "D".charCodeAt(0)) {
+    	        			Builder.quickOpen();
+    	        		} else if (event.keyCode == "A".charCodeAt(0)) {
+    						Builder.queryTest();
+    	        		} else if (event.keyCode == "Q".charCodeAt(0)) {
+    	        			if (!win.parent.closed) {
+    	        				win.parent.closed = true;
+    	            			Builder.closeCurrentTab();  
+    	            			setTimeout(function() {cwin && cwin.parent && (cwin.parent.closed = false);}, 100);
+    	                		try {
+    	                			event.stopPropagation();
+    	                			event.cancelBubble = true;
+    	                		} catch(e){};
+    	                		return false;
+    	        			}
+    	        		}            		
+    	        	}
+                };
+                if (typeof(fn) == "function") {
+                	// fire callback as soon as settled
+                	setTimeout(function() {fn.apply(window, [cwin])}, 1);
+                }
             };
-            if (typeof(fn) == "function") {
-            	// fire callback as soon as settled
-            	setTimeout(function() {fn.apply(window, [cwin])}, 1);
-            }
-        };
+        	
+         };
+         if (el.up(".x-tab")) {
+        	 setTimeout(initWin, 1);
+         } else {
+        	 initWin();
+         }
     },
     
     setCode: function(el, newval) {

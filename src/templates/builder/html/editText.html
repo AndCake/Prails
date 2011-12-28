@@ -69,7 +69,7 @@
     </c:if>
     <div id="texts_tabs_<?=$arr_param['texts'][0]['identifier']?>">
     	<div class="x-tab" title="Contents">    
-		    <div id="texts_<?=$arr_param["texts"][0]['identifier']?>">
+		    <div id="texts_<?=$arr_param["texts"][0]['identifier']?>" style="padding-left: 10px;">
 			    <c:foreach var="texts" name="texta">
 			    <div class="formfield" style="<? if ($arr_param['text']['type'] > 0) { ?>float:none;width:auto;<? } else { ?>width:auto<? } ?>;margin-right: <?=($arr_param["text"]["type"] == 2 ? 0 : 20)?>px;margin-bottom: 20px;">
 			    	<label for="contentl#texta.texts_id">in <span id="">#texta.name</span>:</label><br/> <!-- make language be editable and removable! -->
@@ -91,20 +91,73 @@
     	</div>
     	<div class="x-tab" title="Custom Attributes">
 		    <div id="texts_attr_<?=$arr_param['texts'][0]['identifier']?>" style="padding: 10px;">
-		    	<c:foreach var="custom_struct.data" name="value" key="key">
-		    		<div class="formfield">
-		    			<div class="label">#value.displayName <a href="javascript:" title="#local.key"> ? </a></div>
+		    	<c:foreach var="custom_struct.data.id" name="value" key="key">
+		    		<div class="formfield" style="float:none;margin-top: 10px;">
+		    			<div class="label"><%=$arr_param['custom_struct']['data']['name'][$key]%> <a href="javascript:" title="ID: #local.value"> ? </a></div>
 		    			<div class="value">
-		    				<c:if cond="$value['type'] == 'longtext'">
-		    					<textarea rows="5" name="texts[custom][#local.key]"><%=$arr_param['text']['custom'][$key]%></textarea>
+		    				<c:if cond="$arr_param['custom_struct']['data']['type'][$key] == 'text' || $arr_param['custom_struct']['data']['type'][$key] == 'html'">
+		    					<textarea id="l_<?=microtime(true)?><%=$key%>" class="<%=$arr_param['custom_struct']['data']['type'][$key] == 'html'?'wysiwyg':''%>" style="border: 1px solid #ccc;" rows="5" name="texts[custom][#local.value]"><%=$arr_param['text']['custom'][$value]%></textarea>
 		    				<c:else/>
-		    					<input name="texts[custom][#local.key]" value="<%=$arr_param['text']['custom'][$key]%>" type="#value.type"/>
+		    					<input name="texts[custom][#local.value]" value="<%=$arr_param['text']['custom'][$value]%>" type="<%=$arr_param['custom_struct']['data']['type'][$key]%>"/>
 		    				</c:if>
 		    			</div>
 		    		</div>
 		    	</c:foreach>
 		    	<button type="button" id="cadefbtn">Edit Custom Attribute definitions</button>
 		    </div>
+    	</div>
+    </div>
+    <div id="ca-def#texts.0.identifier" style="display: none;">
+    	<table border="0" style="width: 100%;">
+    		<thead>
+	    		<tr>
+	    			<th>ID</th>
+	    			<th>Display Name</th>
+	    			<th>Type</th>
+	    			<th></th>
+	    		</tr>
+    		</thead>
+    		<tfoot>
+    			<tr>
+    				<th colspan="4" align="right"><button type="button" onclick="this.up('table').down('tbody').insert($('cadef-tpl-#texts.0.identifier').innerHTML);">add attribute</button></th>
+    			</tr>
+    		</tfoot>
+    		<tbody id="ca-def-items-#texts.0.identifier">
+    		<c:foreach var="custom_struct.data.id" key="key" name="obj">
+    			<tr>
+    				<td><input name="custom[data][id][]" value="#local.obj"/></td>
+    				<td><input name="custom[data][name][]" value="<%=$arr_param['custom_struct']['data']['name'][$key]%>"/></td>
+    				<td><select name="custom[data][type][]">
+	    					<option value="" disabled="disabled">Select...</option>
+	    					<option value="string" <%=($arr_param['custom_struct']['data']['type'][$key] == 'string' ? 'selected="selected"' : '')%>>String</option> 
+	    					<option value="text" <%=($arr_param['custom_struct']['data']['type'][$key] == 'text' ? 'selected="selected"' : '')%>>Text</option> 
+	    					<option value="html" <%=($arr_param['custom_struct']['data']['type'][$key] == 'html' ? 'selected="selected"' : '')%>>HTML Text</option>
+	    					<option value="number" <%=($arr_param['custom_struct']['data']['type'][$key] == 'number' ? 'selected="selected"' : '')%>>Number</option> 
+	    				</select>
+					</td>
+					<td>
+						<a href="javascript:" onclick="this.up('tr').remove();"><img src="templates/builder/images/delete.gif" alt="" border='0'/></a>
+					</td>
+    			</tr>
+    		</c:foreach>
+    		</tbody>
+    	</table>
+    	<div style="display:none;">
+   			<table><tbody id="cadef-tpl-#texts.0.identifier"><tr>
+				<td><input name="custom[data][id][]" value=""/></td>
+				<td><input name="custom[data][name][]" value=""/></td>
+				<td><select name="custom[data][type][]">
+    					<option value="" disabled="disabled">Select...</option>
+    					<option value="string">String</option> 
+    					<option value="text">Text</option> 
+    					<option value="html">HTML Text</option>
+    					<option value="number">Number</option> 
+    				</select>
+				</td>
+				<td>
+					<a href="javascript:" onclick="this.up('tr').remove();"><img src="templates/builder/images/delete.gif" alt="" border='0'/></a>
+				</td>
+			</tr>  </tbody></table>  	         
     	</div>
     </div>
 	<div style="clear:both;"></div>
@@ -118,6 +171,7 @@
 			    width: "auto",
 			    defaults: {
 			    	width: "auto",
+				    autoScroll: true,
 			    	closable: false,
 				    listeners: {
 				    	activate: function(p) {}
@@ -125,11 +179,45 @@
 			    },
 			    deferredRender: false,
 			    height: (parseInt($("hformx<?=$arr_param['texts'][0]['identifier']?>").parentNode.parentNode.style.height) - 170),
+			    autoScroll: true,
 			    autoTabs: true
 			});
 			$("cadefbtn").observe('click', function(event){
 				// open window and list the existing attributes
-				// ...
+				window.cadefWin = new Ext.Window({
+					layout: "fit",
+					title: "Edit Custom Attribute Definitions",
+					width: 400,
+					height: 300,
+					plain: true,
+					items: new Ext.Panel({
+						deferredRender: false,
+						autoScroll: true,
+						border: false,
+						id: "form-content-cadef",
+						html: $("ca-def#texts.0.identifier").innerHTML
+					}),
+					buttons: [{
+						text: "Save",
+						handler: function() {
+							// send ajax call to store it
+							var items = "";
+							$("form-content-cadef").down("tbody").select("input, select").each(function(item){
+								items += "&" + item.serialize();
+							});
+							invoke(null, "builder:editText&check=cadef", items, true, function(req){
+								Builder.reloadTab("x_#texts.0.identifier");
+								window.cadefWin.close();
+							});
+						}						
+					}, {
+						text: "Cancel",
+						handler: function() {
+							window.cadefWin.hide();
+						}						
+					}]
+				});
+				cadefWin.show();
 			});
 			
 			window.wysiwygFileBrowser = function(field_name, url, type, win) {
@@ -158,7 +246,7 @@
 			    return false;
 			};
             window.setNewTextType = function(type, id) {
-                if ($("hformx"+id).select(".id-value")[0].value.length > 0) {
+                if ($("hformx"+id).select(".id-value")[0].value > 0) {
                     new Ajax.Request("?event=builder:editText&texts_id="+$("hformx"+id).select(".id-value")[0].value+"&check=2", {
                         parameters: {
                             id: $("hformx"+id).select(".id-value")[0].value,

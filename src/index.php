@@ -79,7 +79,6 @@ if (IS_SETUP) {
 }
 $obj_main = new MainHandler();
 $obj_generator = Generator::getInstance();
-$obj_generator->setModule($obj_main);
 if ($_GET["event"]) {
 	$obj_generator->generateOutput(invoke($_GET["event"], null, true));
 } else if (($result = $obj_main->home()) !== false) {

@@ -514,6 +514,8 @@ function jumpTo ($url = "?", $clientSide = false) {
 	} else {
 	    Generator::getInstance()->setIsAjax(true);
     	echo "<meta http-equiv='refresh' content='0;url=".$url."'/><script type='text/javascript'>location.href='".$url."';</script>";
+	    session_write_close();
+    	die();
 	}
 }
 
