@@ -177,7 +177,19 @@ if ($_GET["version"]) {
 
     preg_match_all('@/\*<KEEP-([0-9]+)>\*/(([^/]|/[^*]|/\*[^<]|/\*<[^/]|/\*</[^K]|/\*</K[^E]|/\*</KE[^E]|/\*</KEE[^P])*)/\*</KEEP-\1>\*/@', $newConf, $matches);       
     foreach ($matches[0] as $key => $match) {
-        $newConf = str_replace($matches[2][$key], $conf[$matches[1][$key]], $newConf);
+        $value = $conf[$matches[1][$key]];
+        // make sure that the DB is re-deployed the first time after upgrade
+        if (strpos($value, "FIRST_RUN") !== false) {
+	        $lines = explode("\n", $value);
+	        foreach ($lines as &$line) {
+				if (preg_match('/\s*"FIRST_RUN"\s*=>\s*[a-zA-Z]+\s*,/', $line)) {
+					$line = '"FIRST_RUN" => true,';
+				}
+	        }
+	        $value = implode("\n", $lines);
+        }
+
+       	$newConf = str_replace($matches[2][$key], $value, $newConf);
     }
     
     file_put_contents("../conf/configuration.php", $newConf);
@@ -223,8 +235,8 @@ if ($_GET["version"]) {
     		}
     	}    	
     }
-       
-    die("success\n--\n".$warnings);
+
+	die("success\n?event=builder:updateSystem&empty=cache&warnings=".urlencode($warnings)."\nRe-deploying database and cleaning caches...");
 }
 
 ?>

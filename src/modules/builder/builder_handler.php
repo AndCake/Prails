@@ -2051,16 +2051,23 @@ class BuilderHandler
     
     function updateSystem() {
         // run the system update
-        // first download the installer...
-        // clean cache first
-        exec("cd cache && rm -f * && cd ..");
-        $version = trim(file_get_contents(PRAILS_HOME_PATH."version"));
-        
-        file_put_contents("cache/installer.php", file_get_contents(PRAILS_HOME_PATH."installer.php"));
-        if (filesize("cache/installer.php") > 0 && md5(file_get_contents("cache/installer.php")) == md5(file_get_contents(PRAILS_HOME_PATH."installer.php"))) {
-            die("success\ncache/installer.php?version=".$version."\nDownloading package...");
+        if ($_GET["empty"] == "cache") {
+			$this->obj_data->obj_mysql->flush();        	
+			$this->flushWebCache(true);
+			$this->flushCustomModules(true);
+			die("success\n--\n".$_GET['warnings']);        	
         } else {
-            die("Error saving installer. Please check permissions and internet connection.");
+	        // first download the installer...
+	        // clean cache first
+	        exec("cd cache && rm -f * && cd ..");
+	        $version = trim(file_get_contents(PRAILS_HOME_PATH."version"));
+	        
+	        file_put_contents("cache/installer.php", file_get_contents(PRAILS_HOME_PATH."installer.php"));
+	        if (filesize("cache/installer.php") > 0 && md5(file_get_contents("cache/installer.php")) == md5(file_get_contents(PRAILS_HOME_PATH."installer.php"))) {
+	            die("success\ncache/installer.php?version=".$version."\nDownloading package...");
+	        } else {
+	            die("Error saving installer. Please check permissions and internet connection.");
+	        }
         }
     }
 	
@@ -2178,7 +2185,7 @@ class BuilderHandler
 	function flushWebCache($return = false) {
 		$dp = opendir("cache/");
 		while (($file = readdir($dp)) !== false) {
-			if ($file[0] != "." && !is_dir("cache/".$file)) {
+			if ($file[0] != "." && !is_dir("cache/".$file) && strpos($file, "backup.") !== 0) {
 				@unlink("cache/".$file);
 			}
 		}
@@ -2198,7 +2205,7 @@ class BuilderHandler
 		if (!$return || is_array($return)) die("success");
 		return "success";
 	}
-	
+		
 	function flushLogs() {
 		$dp = opendir("log/");
 		while (($file = readdir($dp)) !== false) {
