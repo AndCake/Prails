@@ -477,7 +477,7 @@ class BuilderData extends Database
 		$arr_result = Array();
 		// loop over all found rules
 		foreach ($matches[0] as $key => $match) {
-			$arr_result[$matches[1][$key]] = $matches[2][$key];
+			$arr_result[$matches[1][$key]] = str_replace("&%1", "", $matches[2][$key]);
 		}
 		
 		return $arr_result;
@@ -541,8 +541,8 @@ class BuilderData extends Database
 
 		$newArea = Array();
 		foreach ($arr_data as $target) {
-			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\nRewriteCond %{REQUEST_FILENAME} !-f\n".
-						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]." [L]";
+			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\nRewriteCond %{REQUEST_FILENAME} !-f\nRewriteCond %{QUERY_STRING} ^(.*)\$\n".
+						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]."&%1 [L]";
 		}
 		$file = substr($file, 0, $start)."\n".implode("\n\n", $newArea)."\n".substr($file, $start+$len);
 		@file_put_contents(".htaccess", $file);

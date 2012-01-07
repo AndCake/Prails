@@ -145,7 +145,7 @@
 			iconCls: "save",
 			handler: function(e) {
 				var params = {"rule[nice]": $("nice#handler.handler_id").value, "rule[original]": $("original#handler.handler_id").value};
-				new Ajax.Request("?event=builder:niceUrl&check=1", {
+				new Ajax.Request("?event=builder:niceUrl&handler_id=#handler.handler_id&check=1", {
 					parameters: params,
 					onSuccess: function(req) {
 						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");

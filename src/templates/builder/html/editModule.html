@@ -1,6 +1,6 @@
 <div style="padding:20px;" id="container_m_#module.module_id">
 <? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
-<form method="post" action="?event=builder:listModules" onsubmit="invoke(null, 'builder:editModule&module_id=<?=(int)$arr_param["module"]["module_id"]?>&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
+<form method="post" action="?event=builder:listModules" onsubmit="try{$('container_m_#module.module_id').save();}catch(e){};return false;" id="hform<?=(int)$arr_param['module']['module_id']?>">
 	<label for="name">Name of Module</label><br/>
 	<input type="text" id="m_name_#module.module_id" name="module[name]" value="#module.name" />
 	<input type="hidden" id="m_nameh_#module.module_id" value="#module.name" /><br/>
@@ -43,7 +43,9 @@
 				    	  if (this.saving) return;
 				    	  this.saving = true;
 				    	  document.title = "Saving module "+$("m_name_#module.module_id").value+"...";
-						
+						if (["empty", "main", "builder"].indexOf($('m_name_#module.module_id').getValue()) >= 0) {
+							$('m_name_#module.module_id').value = "_" + $('m_name_#module.module_id').getValue();
+						}
 						$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
 						$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
 					    var me = this;

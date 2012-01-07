@@ -1,6 +1,6 @@
 <div style="padding:20px;" id="container_h_#handler.handler_id">
 <? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "autoindent": true}, "stealFocus": true'; ?>
-<form id="hformh<?=(int)$arr_param["handler"]["handler_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hHtmlCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=editor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();$('hCode<?=(int)$arr_param["handler"]["handler_id"]?>').value=phpEditor<?=str_replace('-', '_', "".((int)$arr_param["handler"]["handler_id"]))?>.getCode();invoke(null, 'builder:editHandler&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
+<form id="hformh<?=(int)$arr_param["handler"]["handler_id"]?>" method="post" action="?" onsubmit="try{$('container_h_#handler.handler_id').save();}catch(e){};return false;">
 	<div style="float:left;width:49%;margin-right:1%;">
 		<label for="name">Name of event handler</label><br/>
 		<input id="h_event_#handler.handler_id" type="text" name="handler[event]" value="#handler.event" /><br/><br/>

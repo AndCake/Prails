@@ -109,7 +109,7 @@ class MySQL extends Cacheable {
 	}
 
 	function escape($str) {
-		return mysql_escape_string($str);
+		return str_replace(Array("'", "\\"), Array("''", "\\\\"), $str);
 	}
 
 	function query($str_query, $cacheTime = 0) {
