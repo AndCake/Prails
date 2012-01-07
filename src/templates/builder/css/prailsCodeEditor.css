@@ -54,6 +54,9 @@ textarea {
 	position: relative;
 	z-index: 10;
 }
+.code.no-highlight textarea { opacity: 1; }
+.code.no-highlight #cwrapper { left: 0px; }
+.code.no-highlight #highlight { visiblity: hidden; }
 div#cwrapper {
 	position: absolute; 
 	top: 0px; 

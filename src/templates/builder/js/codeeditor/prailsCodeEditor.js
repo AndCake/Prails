@@ -148,13 +148,15 @@ requestAnimFrame(cursorHint = function() {
 		el.lastPos[0] = el.selectionStart;
 		el.lastPos[1] = el.selectionEnd;
 		
-		drawCursor(el);
+		if (!window.isSlowlyRefreshing) {
+			drawCursor(el);
+		}
 	}
 	requestAnimFrame(cursorHint);
 });
 
 requestAnimFrame(globalRefresh = function() {
-	if (txt.refreshWanted && typeof(txt.currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes[txt.currentLine]) {
+	if (!window.isSlowlyRefreshing && txt.refreshWanted && typeof(txt.currentLine) !== "undefined" && document.getElementsByClassName("container")[0].childNodes[txt.currentLine]) {
 		txt.refreshWanted = false;
 		document.getElementsByClassName("container")[0].childNodes[txt.currentLine].innerHTML = txt.currentHighlighter.parseCode(txt.lines, txt.currentLine + 1);
 	}
@@ -162,6 +164,12 @@ requestAnimFrame(globalRefresh = function() {
 });
 
 function refresh(code, currentLine, replaceit) {
+	if (window.isSlowlyRefreshing) {
+		document.getElementById("cwrapper").parentNode.className = "code no-highlight";
+		return;
+	} else {
+		document.getElementById("cwrapper").parentNode.className = "code";
+	}
 	var fullrefresh = replaceit === false; 
 	if (!replaceit) {
 		code = code.replace(/&([#a-zA-Z][a-zA-Z0-9]+);/gi, "&amp;$1;").replace(/</gi, "&lt;").replace(/>/gi, "&gt;");
@@ -183,10 +191,20 @@ function refresh(code, currentLine, replaceit) {
 
 		if (fullrefresh) {
 			Timer && Timer.fns && Timer.fns["global-refresh"] && Timer.fns["global-refresh"].timer && Timer.fns["global-refresh"].timer.cancel();
+			var stime = new Date();
 			document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
+			var etime = new Date();
+			if ((etime.getTime() - stime.getTime()) / 1000 > 3) {
+				window.isSlowlyRefreshing = true;
+			}
 		} else {
 			new Timer("global-refresh", function() {
+				var stime = new Date();
 				document.getElementsByClassName("container")[0].innerHTML = currentHighlighter.parseCode(code);
+				var etime = new Date();
+				if ((etime.getTime() - stime.getTime()) / 1000 > 3) {
+					window.isSlowlyRefreshing = true;
+				}
 			}, 1000);
 		}
 		new Timer("gutter-update", function() {
@@ -539,8 +557,9 @@ window.onload = function() {
 			window.toffset = 0;
 		break;
 	}
-	window.cel = document.getElementsByClassName("code")[1];
+	
 	setTimeout(window.updateSize = function() {
+		window.cel = document.getElementsByClassName("code")[1];
 		txt.parentNode.style.width = (cel.clientWidth - window.coffset)+"px";
 		txt.parentNode.parentNode.style.width = document.getElementsByTagName("table")[0].clientWidth+"px";
 		txt.style.width = (cel.clientWidth + window.toffset)+"px";
