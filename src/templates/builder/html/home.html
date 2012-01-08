@@ -699,7 +699,9 @@
 				});
 				root.appendChild(node);
 				if (children) {
-					addLibTree(node, entries[all]);
+					if (typeof(entries[all]) != "function") {
+						addLibTree(node, entries[all]);
+					}
 				}
 			}
 		};
