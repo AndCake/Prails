@@ -462,7 +462,7 @@ txt.onkeydown = txt.onkeyup = function(e) {
 			fullrefresh = false;
 		}
 	}
-	if (e.keyCode == 8 || e.keyCode == 46) {
+	if (e.keyCode == 8/* || e.keyCode == 46*/) {
 		fullrefresh = false;
 	}
 

@@ -903,6 +903,14 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectLibrary($_GET["library_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
+        } else if ($_GET["select"]) {
+        	$arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
+        	if (file_exists("lib/custom/".$arr_param['library']['name']."/".$_GET['select'])) {
+        		highlight_file("lib/custom/".$arr_param['library']['name']."/".$_GET['select']);
+        	} else if (file_exists("lib/custom/".$arr_param['library']['name'].$arr_param['library']['library_id']."/".$_GET['select'])) {
+        		highlight_file("lib/custom/".$arr_param['library']['name'].$arr_param['library']['library_id']."/".$_GET['select']);
+        	}
+        	die();
         } else if ($_GET["import"] == "1") {
         	$libName = preg_replace('/[^a-zA-Z0-9_]/mi', '', substr($_GET["name"], 0, strpos($_GET["name"], ".")));
         	if (strlen($libName) <= 0 || file_exists("lib/custom/".$libName."/")) {

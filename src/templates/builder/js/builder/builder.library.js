@@ -12,6 +12,31 @@ Builder = Object.extend(Builder || {}, {
 		var id = parseInt(a_id[1]);
 		if (id > 0) {
 			Builder.addTab("?event=builder:editLibrary&library_id="+id, n.text, "l_"+id, "library");
+		} else {
+			var p = n.parentNode;
+			var path = n.text;
+			var top = null;
+			while (p != Builder.libRoot) {
+				path = p.text + "/" + path;
+				top = p;
+				p = p.parentNode;
+			}
+			invoke(null, "?event=builder:editLibrary&library_id="+top.id.split(/_/gm)[1]+"&select="+path.replace(top.text+'/', ''), null, false, function(req){
+				if (req.responseText.length > 0) {
+					new Ext.Window({
+						layout: "fit",
+						title: n.text,
+						iconCls: "library",
+						modal: true,
+						shadow: true,
+						autoScroll: true,
+						width: 640,
+						height: 480,
+						plain: true,
+						html: "<pre style='background-color: white;padding: 5px 10px;'>"+req.responseText+"</pre>"
+					}).show();
+				}
+			});
 		}
 	},
 	delLibrary: function(n) {

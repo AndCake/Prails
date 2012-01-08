@@ -13,8 +13,8 @@
 	//<![CDATA[
 		setTimeout(function() {
 			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function() {
-		    	  if (this.saving) return;
-		    	  this.saving = true;
+		    	if (this.saving) return;
+		    	this.saving = true;
 		    	document.title = "Saving Library "+$("lib_name_#library.library_id").getValue()+"...";
 				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
 				var me = this;
