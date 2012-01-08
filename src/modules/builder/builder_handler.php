@@ -1897,9 +1897,9 @@ class BuilderHandler
 					    $id = $mod["module_id"];
 					    unset($mod["module_id"]);
                         $m = $this->obj_data->selectModuleByUserAndName($mod["fk_user_id"], $mod["name"]);
-					    $this->obj_data->deleteModule($m["module_id"]);
 						$this->resetModule(false, $m["module_id"]);
-					    $modId = $this->obj_data->insertModule($mod);
+					    $this->obj_data->deleteModule($m["module_id"]);
+						$modId = $this->obj_data->insertModule($mod);
 						$moduleMapping[$id] = $modId;
 						foreach ($mod["handlers"] as $handler) {
 							$handler = $handler->getArrayCopy();
@@ -2486,7 +2486,10 @@ class BuilderHandler
 					"content" => http_build_query($_POST)."&file=replication-data.prails"
 				)
 			)); 
-			$this->import(file_get_contents(trim($credentials["source"],'/')."/?event=builder:export", false, $ctx));
+			$file = "cache/replication-data.prails";
+			file_put_contents($file, file_get_contents(trim($credentials["source"],'/')."/?event=builder:export", false, $ctx));			
+			$this->import($file);
+			@unlink($file);
 			die("success");
 		}
 	}

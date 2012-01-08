@@ -48,17 +48,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 		if (showIndicator !== false) {
 			// show loading indicator...
 			var div = document.createElement("DIV");
-			var img = document.createElement("IMG");
-			img.src = "templates/main/images/loading.gif";
-			img.alt = "loading data...";
-			img.border = "0";
-			img.align = "absmiddle";
-			div.style.position = "absolute";
-			div.style.backgroundColor = "#fff";
-			div.style.color = "#000";
-			div.style.border = "1px solid #ccc";
-			div.style.zIndex = "1000";
-			div.appendChild(img);
+			div.className = "loading-indicator";
 			div.appendChild(document.createTextNode(" please wait..."));
 			$(element).insertBefore(div, $(element).firstChild);
 		}

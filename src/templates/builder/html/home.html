@@ -853,7 +853,7 @@
 		Builder.init('<?=$_GET["open_nav"]?>');
 		<c:if cond="strlen($_GET['open_tree']) > 0">
 			var l = Ext.getCmp("qwbuilder_langsPanel").getNodeById("text_.<?=$_GET['open_tree']?>");
-			Builder.editText({ident: '<?=$_GET["open_tree"]?>', text: (l && l.text) || "New Text"});
+			Builder.editText({ident: '<?=strtolower($_GET["open_tree"])?>', text: (l && l.text) || "New Text"});
 		</c:if>
 		window.document.body.observe("keydown", function(event) {
 			var input = event.target.nodeName.toUpperCase() == "INPUT" || event.target.nodeName.toUpperCase() == "TEXTAREA";

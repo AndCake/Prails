@@ -37,6 +37,18 @@ fieldset {
 
 clear, .clear { display: block; height: 0px; clear: both; }
 
+.loading-indicator {
+	background: white url(../images/loading.gif) center left no-repeat;
+	padding-left: 230px;
+	padding-right: 10px;
+	position: absolute;
+	border: 1px solid #ccc;
+	color: black;
+	z-index: 1000;	
+	line-height: 2em;
+	height: 2em;
+}
+
 /**
  * Mini CSS Grid Framework
  * use it like so:

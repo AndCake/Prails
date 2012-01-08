@@ -1175,7 +1175,7 @@ window.Replication = {
 		$A(selects).each(function(item){
 			data += "&"+item.serialize();
 		});
-		invoke(null, "builder:replication", Replication.credentials + data + "&start", true, function(req) {
+		invoke(null, "builder:replication", Replication.credentials + data + "&start=1", true, function(req) {
 			// replication completed...
 			if (req.responseText == "success") {
 				Ext.Msg.alert("Replication Status", "The replication completed successfully.");

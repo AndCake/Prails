@@ -282,7 +282,7 @@
     	    };
     
             initWysiwyg();
-			Ext.getCmp("portlet_content_x_<?=$arr_param["texts"][0]['identifier']?>").getTopToolbar().add([{
+			(Ext.getCmp("portlet_content_x_<?=strtolower($arr_param["texts"][0]['identifier'])?>") || Ext.getCmp("portlet_content_x_<?=$arr_param["texts"][0]['identifier']?>")).getTopToolbar().add([{
 				xtype: "button",
 				text: "Save",
 				iconCls: "save",
@@ -429,7 +429,7 @@
                     ]
                 }
 		    }]);
-			Ext.getCmp("portlet_content_x_<?=$arr_param["texts"][0]['identifier']?>").getTopToolbar().doLayout();
+			(Ext.getCmp("portlet_content_x_<?=strtolower($arr_param["texts"][0]['identifier'])?>") || Ext.getCmp("portlet_content_x_<?=$arr_param["texts"][0]['identifier']?>")).getTopToolbar().doLayout();
 			<? if (count($arr_param["texts"]) <= 0) { ?>
 			editLanguage({});
 			<? } ?>
