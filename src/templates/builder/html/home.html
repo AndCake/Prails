@@ -151,7 +151,7 @@
 		<p style="margin: 1em 0px;"><i>Please note:</i> you can only upload package files to a maximum size of <b><?=ini_get("post_max_size")?>B</b> each.</p>	
 	</fieldset>
 	<c:if cond="ENV_PRODUCTION === true">
-	<form method="post" action="?event=builder:restore" id="restoreForm" onsubmit="if($('restoreForm').down('select').value.empty()){Ext.Msg.alert('Problem', 'Please select a backup file to restore.');return false;}if($('dtRestore').checked) {try{Ext.Msg.confirm('Warning!', 'Do you really want to remove all database content and re-import it from the backup?', function(btn) {if (btn == 'yes') {$('restoreForm').submit();}});}catch(e){console.log(e);};return false;}">
+	<form method="post" action="?event=builder:restore" id="restoreForm" onsubmit="return restoreDB();">
 	<fieldset style="width:382px;">
 		<legend>Restore Backup</legend>
 		<p>Please select the backup file you want to restore.</p>
@@ -321,6 +321,7 @@
 				</div>
 			</div>
 			<div class="panel-bottom">
+				<button type="button" onclick="backupNow();" style="float:left;">Backup now</button>
 				<button type="submit" name="save">Save</button>
 			</div>
 			</form>
@@ -398,6 +399,69 @@
 			return "templates/builder/images/default/s.gif";
 		}			
 	})();
+	
+	var backupNow = function() {
+		window._backupProgress = Ext.MessageBox.show({
+			title: 'Please wait',
+			msg: 'Running backup',
+			progressText: 'Backing up system',
+			width: 300,
+			progress: true,
+			closable: false
+		});
+		window._backupProgress.pe = new PeriodicalExecuter(function(pe) {
+			if (!pe.frames) pe.frames = 0;
+			window._backupProgress.updateProgress((pe.frames % 100) / 100.0, window._backupProgress.currentStatus);
+			pe.frames++;
+		}, 0.1);
+		invoke(null, 'builder:backup', null, false, function(req){
+			window._backupProgress.hide();
+			Ext.Msg.alert('Info', 'Backup complete', function(){
+				location.reload();
+			});
+		});	
+	}
+	
+	var restoreDB = function() {
+		if($('restoreForm').down('select').value.empty()) {
+			Ext.Msg.alert('Problem', 'Please select a backup file to restore.');
+			return false;
+		}
+		if($('dtRestore').checked) {
+			try{
+				Ext.Msg.confirm('Warning!', 'Do you really want to remove all database content and re-import it from the backup?', function(btn) {
+					if (btn == 'yes') {
+						window._restoreProgress = Ext.MessageBox.show({
+							title: 'Please wait',
+							msg: 'Running restoration',
+							progressText: 'Restoring system',
+							width: 300,
+							progress: true,
+							closable: false
+						});
+						window._restoreProgress.pe = new PeriodicalExecuter(function(pe) {
+							if (!pe.frames) pe.frames = 0;
+							window._restoreProgress.updateProgress((pe.frames % 100) / 100.0, window._restoreProgress.currentStatus);
+							pe.frames++;
+						}, 0.1);
+						new Ajax.Request($('restoreForm').action, {
+				            method: "POST",
+				            parameters: $("restoreForm").serialize(), 
+							onSuccess: function(req){
+								window._restoreProgress.hide();
+								Ext.Msg.alert('Info', 'Restoration complete', function(){
+									location.reload();
+								});
+							}
+						});	
+					}
+				});
+			} catch(e) {
+				console.log(e);
+			};
+			return false;
+		}		
+	}
 	
 	var convertScheduleDataToJSON = function(form) {
 		var repeat = $$(".scheduler .repeat input")[0].value;

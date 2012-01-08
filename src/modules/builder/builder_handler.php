@@ -2408,6 +2408,7 @@ class BuilderHandler
        	}
        	foreach ($arr_param["tables"] as $mod) {
        		array_push($toPost["tables"], $mod["table_id"]);
+       		array_push($toPost["db"], $mod["name"]);
        	}
        	foreach ($arr_param["translations"] as $root => $mod) {
        		array_push($toPost["translations"], $root);
