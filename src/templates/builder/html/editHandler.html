@@ -340,11 +340,15 @@
         	  Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
         	  document.title = "Prails Home";
 
-			  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
-        	  $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
+        	  try {
+			  	$("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").crc.content = Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
+    	   	    $("html_codeh<?=(int)$arr_param['handler']['handler_id']?>").dirty = false;
+        	  } catch(e){console.log(e, e.message);};
         	  $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
-        		  item.crc.content = Builder.getCode(item);
-        		  item.dirty = false;
+        		  try {
+        			  item.crc.content = Builder.getCode(item);
+	        		  item.dirty = false;
+        		  } catch(e) { console.log(e, e.message); };
         	  });
         	  
             if (<?=(int)$arr_param["handler"]["handler_id"]?> == 0) {

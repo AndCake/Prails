@@ -16,6 +16,7 @@
        	<meta name="publisher" content="Prails Web Framework" />
         <base href="<?=str_replace('http:', ($_SERVER['HTTPS'] ? 'https:' : 'http:'), $SERVER)?>" /> 
     	<meta name="revisit-after" content="1 day" />
+    	<?=$this->getHeaders()?>
         <style type="text/css">
             @encoding 'UTF-8';
         </style>
