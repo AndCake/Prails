@@ -1,3 +1,48 @@
+V1.3.0 (January 14th, 2012)
+
+ * added ''backup now'' feature
+ * added a way to turn off db cache
+ * added custom attributes for content assets
+ * added purging of modules to cache invalidation menu
+ * added 'empty', 'main' and 'builder' to list of not-allowed module names
+ * added new attribute to input tag: addclass, which adds a custom class to the container div
+ * added a way to detect very slow highlighting. In case it's very slow, it's turned off for the sake of performance
+ * added functionality to render complex library file contents when double-clicking it - therefore it needs to exist
+ * added $SERVER, $SECURE_SERVER and $currentLang to available scope without the need to fetch them via global within handler code
+ * introduced output code templates - now featuring the template attribute at the include tag and the third parameter at the out function
+ * enabled direct var access through #local.varname in foreach loops
+ * made the loading indicator be customizable
+ * made the window's title give hints when saving is complete
+ * made sure that when saving a CMS page, the web cache is cleaned
+ * made sure that overlabels are hidden correctly on page load if data auto-filled
+ * made the validator scroll to the first invalid field when trying to submit the form
+ * made sure that form validation is triggered automatically after dialogify & ajaxify
+ * optimized editor performance
+ * changed user-agent for doGet
+ * removed stripslashes for DB methods, so backslashed text can now be safely retrieved from the DB
+ * updated formatters: now date only shows the date itself datetime renders date and time, time only shows the time
+ * fixed a few editor bugs
+ * fixed code history display
+ * fixed a bug with scaffolded edit handlers
+ * fixed a minor bug with restoring a backup
+ * fixed several further bugs with the editor
+ * fixed a problem with MySQL and escaping of strings
+ * fixed a problem where database contents where not backuped
+ * fixed a few problems with replication not working correctly
+ * fixed a problem with backup scheduling not saved on production
+ * fixed a bug where the module did not correctly get resetted when importing
+ * fixed problem with installer overwriting favicon file during Prails upgrade
+ * fixed a problem with URL rewriting rules not being replaced properly on save
+ * fixed a bug with complex libraries leading to Prails dying while trying to load
+ * fixed a bug with jumpTo not storing session data before jumps in certain environments
+ * fixed a bug in input tag not rendering the value of a field correctly for some settings
+ * fixed a problem with CMS where the save button was not shown under certain circumstances
+ * fixed the problem that after upgrading to a newer prails version, the caches are not purged
+ * fixed a problem with URL rewriting not taking additional query parameters on rewritten URLs into account
+ * fixed the problem that after upgrading to a newer prails version, the database is not automatically re-deployed
+ * fixed a problem with variables in template code not being evaluated correctly in case it consisted of a number only
+
+
 V1.2.2 (October 26th, 2011)
 
 * fixed a problem with exporting
