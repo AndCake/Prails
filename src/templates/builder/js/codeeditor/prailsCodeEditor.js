@@ -560,10 +560,12 @@ window.onload = function() {
 	
 	setTimeout(window.updateSize = function() {
 		window.cel = document.getElementsByClassName("code")[1];
-		txt.parentNode.style.width = (cel.clientWidth - window.coffset)+"px";
-		txt.parentNode.parentNode.style.width = document.getElementsByTagName("table")[0].clientWidth+"px";
-		txt.style.width = (cel.clientWidth + window.toffset)+"px";
-		txt.style.height = (txt.scrollHeight) + "px";
+		if (cel) {
+			txt.parentNode.style.width = (cel.clientWidth - window.coffset)+"px";
+			txt.parentNode.parentNode.style.width = document.getElementsByTagName("table")[0].clientWidth+"px";
+			txt.style.width = (cel.clientWidth + window.toffset)+"px";
+			txt.style.height = (txt.scrollHeight) + "px";
+		}
 		setTimeout(window.updateSize, 1500);
 	}, 150);
 //	txt.value = txt.value.replace(/^\s+/g, '');

@@ -560,6 +560,22 @@ class BuilderHandler
         $_SESSION["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
         $arr_param["history"] = $this->obj_data->listModuleHistory($_SESSION["module_id"]);
 
+		// need to merge it...
+        foreach ($arr_param['history'] as $key => &$history) {
+        	$i = $key;
+        	while (strlen($history["js_code"]) <= 0 && $i > 0) {
+        		$history["js_code"] = $arr_param['history'][--$i]["js_code"];
+        	}
+        	$i = $key;
+        	while (strlen($history["style_code"]) <= 0 && $i > 0) {
+        		$history["style_code"] = $arr_param['history'][--$i]["style_code"];
+        	}
+        	$i = $key;
+        	while (strlen($history["name"]) <= 0 && $i > 0) {
+        		$history["name"] = $arr_param['history'][--$i]["name"];
+        	}
+        }
+        
         die ($this->_callPrinter("moduleHistory", $arr_param));
     }
 
@@ -683,12 +699,12 @@ class BuilderHandler
         preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
         $lastPos = 0;
         $codes = Array();
-        array_push($codes, Array("title" => "Default", "id" => md5("h".$arr_param["handler"]["handler_id"])));
+        array_push($codes, Array("title" => "Default", "id" => "html_".$arr_param["handler"]["handler_id"]));
         if (is_array($matches) && is_array($matches[1])) {         
 	        foreach ($matches[1] as $match) {
 	        	$cd = Array(
 	        		"title" => $match[0],
-	        		"id" => md5($match[0].$arr_param["handler"]["handler_id"]) 
+	        		"id" => "html_".$match[0].$arr_param["handler"]["handler_id"] 
 	        	);
 	        	$start = $match[1] + strlen("".$match[0].">\n");
 	        	$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
@@ -704,12 +720,12 @@ class BuilderHandler
         preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
         $lastPos = 0;
         $codes = Array();
-        array_push($codes, Array("title" => "Default", "id" => md5("h".$arr_param["handler"]["handler_id"])));
+        array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
         if (is_array($matches) && is_array($matches[1])) {         
 	        foreach ($matches[1] as $match) {
 	        	$cd = Array(
 	        		"title" => $match[0],
-	        		"id" => md5($match[0].$arr_param["handler"]["handler_id"]) 
+	        		"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
 	        	);
 	        	$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
 	        	$end = strpos($code, "/*[END ACTUAL]*/", $start);
@@ -732,7 +748,23 @@ class BuilderHandler
     {
         $_SESSION["handler_id"] = if_set($_GET["handler_id"], $_SESSION["handler_id"]);
         $arr_param["history"] = $this->obj_data->listHandlerHistory($_SESSION["handler_id"]);
-
+        
+        // need to merge it...
+        foreach ($arr_param['history'] as $key => &$history) {
+        	$i = $key;
+        	while (strlen($history["code"]) <= 0 && $i > 0) {
+        		$history["code"] = $arr_param['history'][--$i]["code"];
+        	}
+        	$i = $key;
+        	while (strlen($history["html_code"]) <= 0 && $i > 0) {
+        		$history["html_code"] = $arr_param['history'][--$i]["html_code"];
+        	}
+        	$i = $key;
+        	while (strlen($history["event"]) <= 0 && $i > 0) {
+        		$history["event"] = $arr_param['history'][--$i]["event"];
+        	}
+        }
+        
         die ($this->_callPrinter("handlerHistory", $arr_param));
     }
 

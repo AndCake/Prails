@@ -32,7 +32,7 @@
 		</div>
 		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as PHP code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
-		<div id="hcodehcontainer#handler.handler_id" class="tab-list">
+		<div rel="call:hcodehSet(#handler.handler_id)" id="hcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
 			<div class="x-tab" title="<?=$code['title']?>">
 				<!--[noeval]-->
@@ -49,7 +49,7 @@
 		</div>
 		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code <a title="In this area you can put the HTML code to be presented to the user" class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
-		<div id="hhtmlcodehcontainer#handler.handler_id" class="tab-list">
+		<div rel="call:hhtmlcodehSet(#handler.handler_id)" id="hhtmlcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['html_codes'])) foreach ($arr_param['html_codes'] as $code) { ?>
 			<div class="x-tab" title="<?=$code['title']?>">
 				<!--[noeval]-->
@@ -159,6 +159,51 @@
 				$("jobdetails_#handler.handler_id").innerHTML = " ("+dateInfo+" <a href='javascript:$(\"container_h_#handler.handler_id\").schedule(null);'>change</a>)";				
 			}
 
+			window.hcodehSet = function(handlerId, code) {
+		        var lastPos = 0;
+		        var codes = [];
+		        codes.push({title: "Default", id: "hcode_"+handlerId});
+		        var re = /\/\*\[BEGIN POST-([^\]]+)\]\*\//gi;
+				while(matches = re.exec(code)) {
+			        if (matches[1]) {
+			        	var match = matches[1];
+			        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
+			        	var start = code.indexOf("/"+"*[ACTUAL]*"+"/", matches.index) + ("/"+"*[ACTUAL]*"+"/").length + 1;
+			        	var end = code.indexOf("/"+"*[END ACTUAL]*"+"/", start);
+			        	cd["content"] = code.substr(start, end - start);
+			        	lastPos = code.indexOf("/"+"*[END POST-"+match+"]*"+"/\n", matches.index) + ("/"+"*[END POST-"+match+"]*"+"/\n").length;
+			        	codes.push(cd);
+			        }
+		        }
+		        codes[0]["content"] = code.substr(lastPos);
+
+		        $A(codes).each(function(item) {
+		        	Builder.setCode("codeh"+handlerId+item.id, item.content);
+		        });
+			};
+			window.hhtmlcodehSet = function(handlerId, code) {
+		        var lastPos = 0;
+		        var codes = [];
+		        var re = /<part-([^>]+)>/gi;
+		        codes.push({title: "Default", id: "html_"+handlerId});
+		        while (matches = re.exec(code)) {
+			        if (matches[1]) {
+			        	var match = matches[1];
+			        	var cd = {title: matches[0], id: "html_"+match+handlerId}; 
+			        	var start = matches.index + ("<part-"+match+">\n").length;
+			        	var end = code.indexOf("</part-"+match+">\n", start);
+			        	cd["content"] = code.substr(start, end - start);
+			        	lastPos = code.indexOf("</part-"+match+">\n", start) + ("</part-"+match+">\n").length;
+			        	codes.push(cd);
+			        }
+		        }
+		        codes[0]["content"] = code.substr(lastPos);
+
+		        $A(codes).each(function(item) {
+		        	Builder.setCode("html_codeh"+handlerId+item.id, item.content);
+		        });		        
+			};
+
 			$("container_h_#handler.handler_id").schedule = function(el) {
 				$("container_h_#handler.handler_id").scheduleWindow = new Ext.Window({
 					title: "Schedule Job",
@@ -235,24 +280,28 @@
 				$$(".scheduler .date input")[0].value = data["date"] || "<?=date('Y-m-d')?>";
 			};
 			
-      $("container_h_#handler.handler_id").save = function() {
+      $("container_h_#handler.handler_id").save = function(onlyMerge) {
     	  if (this.saving) return;
     	  this.saving = true;
-    	  document.title = "Saving handler "+$("h_event_#handler.handler_id").getValue()+"...";
+    	  if (onlyMerge !== true) {
+    	  	document.title = "Saving handler "+$("h_event_#handler.handler_id").getValue()+"...";
+    	  }
     	  $("h_event_#handler.handler_id").value = $("h_event_#handler.handler_id").getValue().replace(/[^a-zA-Z0-9_]/gi, ''); 
           if (window.keywords.indexOf($("h_event_#handler.handler_id").getValue()) >= 0) {
             $("h_event_#handler.handler_id").value = "_"+$("h_event_#handler.handler_id").getValue();
           }
-          if ($("h_event_#handler.handler_id").getValue().length <= 0 || $("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
-        	  if ($("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
-        		Ext.Msg.alert("Problem", "The handler's name is invalid. Please check.");  
-        	  } else {
-        	  	Ext.Msg.alert("Problem", "Please specify the handler's name.");
-        	  }
-        	  document.title = "Prails Home";
-        	  this.saving = false;
-        	  return;
-          }
+    	  if (onlyMerge !== true) {
+	          if ($("h_event_#handler.handler_id").getValue().length <= 0 || $("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
+	        	  if ($("h_event_#handler.handler_id").getValue().match(/^[^a-zA-Z_]/gi)) {
+	        		Ext.Msg.alert("Problem", "The handler's name is invalid. Please check.");  
+	        	  } else {
+	        	  	Ext.Msg.alert("Problem", "Please specify the handler's name.");
+	        	  }
+	        	  document.title = "Prails Home";
+	        	  this.saving = false;
+	        	  return;
+	          }
+    	  }
           
        	  //$('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value=Builder.getCode("html_codeh<?=(int)$arr_param['handler']['handler_id']?>");
           $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
@@ -282,6 +331,10 @@
               $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = it + $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value;
           });
           var me = this;
+    	  if (onlyMerge === true) {
+        	  this.saving = false;
+    		  return;
+    	  }
           invoke(null, 'builder:editHandler&check=1&module_id=<?=if_set($arr_param['handler']['fk_module_id'], $_SESSION["module_id"])?>&handler_id=<?=(int)$arr_param['handler']['handler_id']?>', $('hformh<?=(int)$arr_param["handler"]["handler_id"]?>').serialize(), true, function(req) {
         	  me.saving = false;
         	  Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
@@ -317,7 +370,12 @@
       (function() {
  	     var initBespin = function(list) {
  	     	var item = list.pop();
- 	      	if (!item || !$(item)) return;
+ 	      	if (!item || !$(item)) {
+      			setTimeout(function() {
+         	    	$("container_h_#handler.handler_id").save(true);
+      			}, 100);
+ 	      		return;
+ 	      	}
  		    Builder.applyBespin(item, function(fr) {
  			    	$("container_h_#handler.handler_id").addKeywords = function(txt) {
  		        		txt.addKeywords(null, function(txt) {
@@ -362,7 +420,12 @@
 //*
 		var initHtml = function(list) {
       		var item = list.pop();
-      		if (!item || !$(item)) return;
+      		if (!item || !$(item)) {
+      			setTimeout(function() {
+         	    	$("container_h_#handler.handler_id").save(true);
+      			}, 100);
+      			return;
+      		}
 	        Builder.applyBespin(item, function(fr) {
 	            item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
 	            
@@ -396,7 +459,7 @@
       	 }, 1000);
       })();
 
-			Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().add({
+      Ext.getCmp("portlet_content_h_<?=(int)$arr_param['handler']['handler_id']?>").getTopToolbar().add({
 				xtype: "button",
 				text: "Save",
 				iconCls: "save",

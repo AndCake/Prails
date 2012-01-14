@@ -304,6 +304,9 @@ Builder = Object.extend(Builder || {}, {
      */
     getCode: function(el) {
         el = $(el);
+        if (!document.getElementsByName(el.id)[0] || !document.getElementsByName(el.id)[0].contentWindow || !document.getElementsByName(el.id)[0].contentWindow.txt) {
+        	return "";
+        }
         return document.getElementsByName(el.id)[0].contentWindow.txt.getCode();
     },
     

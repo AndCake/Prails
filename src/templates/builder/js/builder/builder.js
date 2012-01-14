@@ -1116,10 +1116,29 @@ window.Builder = Object.extend(window.Builder || {}, {
 					while (source != null && source.up().up().previous() && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
 				}
 				if (source != null) {
-					if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
-						target.value = source.innerHTML || source.value;
-					} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
-						Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
+					var target = $(target);
+					var rel = $(target).getAttribute('rel');
+					if (rel && rel.length > 0) {
+						if ((matches=/call:([^\(]+)\(([^\)]+)\)/g.exec(rel))) {
+							var func = eval(matches[1]);
+							try {
+								func.apply(window, matches[2].split(/,/).concat([(source.innerText || source.innerHTML || source.value || "")]));
+							} catch(e) {
+								console.log("error calling history function "+matches[1]+"\nReason: ", e);
+							}
+						} else {
+							if ($(rel)) {
+								Builder.setCode(rel, source.innerText || source.innerHTML || source.value || "");
+							} else {
+								Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
+							}
+						}
+					} else {
+						if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
+							target.value = source.innerHTML || source.value;
+						} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
+							Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
+						}
 					}
 				}
 			}

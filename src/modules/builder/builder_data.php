@@ -318,7 +318,7 @@ class BuilderData extends Database
     }
     function listHandlerHistory($handler_id)
     {
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+    	$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
 		if (count($arr_days) > 0) {
 			$last = $arr_days[count($arr_days) - 1];
 			$arr_last = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".$last["change_time"]." ORDER BY change_time DESC LIMIT 0,20) AS x ORDER BY x.change_time ASC");
