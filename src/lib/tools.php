@@ -1106,6 +1106,7 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 			Generator::getInstance()->arr_styles = $data["styles"];
 	    	Generator::getInstance()->arr_noCacheStyles = $data["ncstyles"];
 	    	Generator::getInstance()->arr_js = $data["js"];
+	    	Generator::getInstance()->arr_header = $data["headers"];
 	    	Generator::getInstance()->arr_noCacheJS = $data["ncjs"];
        		Generator::getInstance()->bol_isCachable = $data["cache"];	    	
        		
@@ -1142,6 +1143,7 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
         			"styles" => Generator::getInstance()->arr_styles,
         			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
         			"js" => Generator::getInstance()->arr_js,
+       				"headers" => Generator::getInstance()->arr_header,
         			"ncjs" => Generator::getInstance()->arr_noCacheJS,
        				"cache" => Generator::getInstance()->bol_isCachable,
         			"description" => Generator::getInstance()->str_description,
@@ -1179,6 +1181,7 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
        			"styles" => Generator::getInstance()->arr_styles,
        			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
        			"js" => Generator::getInstance()->arr_js,
+       			"headers" => Generator::getInstance()->arr_header,
        			"ncjs" => Generator::getInstance()->arr_noCacheJS,
        			"cache" => Generator::getInstance()->bol_isCachable,
    				"description" => Generator::getInstance()->str_description,
