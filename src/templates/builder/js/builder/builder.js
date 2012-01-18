@@ -35,6 +35,7 @@ window.Builder = Object.extend(window.Builder || {}, {
 			layout: "border",
 			height: 35,
 			xtype: "panel",
+			cls: window.Builder.productionEnvironment ? "production" : "development",
 			border: false,
 			items: [{
 				xtype: "panel",

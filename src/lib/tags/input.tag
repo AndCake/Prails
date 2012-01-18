@@ -21,7 +21,7 @@
     if (strlen($tag["attributes"]["label"]) > 0) { ?>
     
     <div class="label">
-        <?=$tag["attributes"]["label"]?>
+        <?=$tag["attributes"]["label"]?><? if (strpos($tag['attributes']['class'], "required") !== false) { ?><span class="required-indicator">*</span><? } ?>
     </div>
 <? } ?>
 <div class="value">

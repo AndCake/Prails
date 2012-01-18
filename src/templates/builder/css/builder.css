@@ -9,7 +9,9 @@ div#qwbuilder_headerPanel {
 	font-weight: bold;
 	padding:5px;
 	font-size: 140%;
-//	border-bottom: 1px solid #A29587;
+	&.production {
+		#gradient>.vertical(#fff; #faa);
+	}
 }
 
 div#qwbuilder_headerPanel .x-panel-body {

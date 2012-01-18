@@ -1,6 +1,6 @@
 <div style="padding:20px;">
 <? $defaultBespinOptions = ', "settings": {"fontsize": 10, "tabstop": 4, "theme": "white", "codecomplete": true, "autoindent": true}, "stealFocus": true'; ?>
-<form id="hforml<?=(int)$arr_param["library"]["library_id"]?>" method="post" action="?event=builder:listModules" onsubmit="$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=phpEditorl<?=(int)$arr_param["library"]["library_id"]?>.getCode();invoke(null, 'builder:editLibrary&check=1', this.serialize(), true, function(req) {loadURL('?event=builder:listModules');});return false;">
+<form id="hforml<?=(int)$arr_param["library"]["library_id"]?>" method="post" action="?event=builder:home" onsubmit="return false;">
 	<label for="name">Name of Library</label><br/>
 	<input type="text" id="lib_name_#library.library_id" name="library[name]" value="#library.name" /><br/><br/>
 	
