@@ -540,7 +540,9 @@ window.onload = function() {
 	var cursor = document.createElement("div");
 	cursor.id = "cursor";
 	document.getElementById('cwrapper').appendChild(cursor);
-	typeof(window.init) == "function" && window.init();
+	typeof(window.init) == "function" && window.init() || setTimeout(function() {
+		typeof(window.init) == "function" && window.init();
+	}, 500);
 
 	window.coffset = 0;
 	switch (document.getElementsByTagName("html")[0].className.replace(/^\s+|\s+$/gi, '')) {
