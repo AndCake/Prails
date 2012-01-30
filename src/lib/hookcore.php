@@ -38,7 +38,7 @@ class HookCore {
 		// fetch all hooks and put them into the hookList
 		$data = new Database("tbl_prailsbase_");
 		$hooks = $data->SqlQuery("SELECT * FROM tbl_prailsbase_module AS a, tbl_prailsbase_handler AS b WHERE hook<>'' AND b.fk_module_id=a.module_id");
-		foreach ($hooks as $hook) {
+		if (is_array($hooks)) foreach ($hooks as $hook) {
 			HookCore::hook($hook["hook"], $hook["name"].":".$hook["event"]);
 		}
 	}

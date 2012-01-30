@@ -110,7 +110,7 @@ class MainHandler
 					'define ("DB_TYPE", SQLITE);',
    	  				'"name"=>"test",			// database name - change this',
 					'"user"=>"root",			// database user - change this',
-					'"pass"=>"",			// database password - change this'
+					'"pass"=>"",				// database password - change this'
 				), Array(
 					'define ("DB_TYPE", '.$arr_db["type"].');',
 					'"name"=>"'.$arr_db["name"].'",			// database name - change this',

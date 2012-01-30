@@ -80,18 +80,21 @@
 					};
 					Builder.applyBespin("code<?=(int)$arr_param['module']['module_id']?>", function(fr) {
 						$("code<?=(int)$arr_param['module']['module_id']?>").down("iframe").style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-						Builder.applyBespin("js_code<?=(int)$arr_param["module"]["module_id"]?>", function(fr) {
-							$("js_code<?=(int)$arr_param['module']['module_id']?>").down('iframe').style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-					      	setTimeout(function() {
-								$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
-								$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
-					      	}, 1000);
-							
-						}, Object.extend(Builder.prailsNamespace, {
-			              save: function() {
-			                  parent.$("container_m_#module.module_id").save();
-			                }
-			            }));
+						if (!$("js_code<?=(int)$arr_param["module"]["module_id"]?>").applied) {
+							$("js_code<?=(int)$arr_param["module"]["module_id"]?>").applied = true;
+							Builder.applyBespin("js_code<?=(int)$arr_param["module"]["module_id"]?>", function(fr) {
+								$("js_code<?=(int)$arr_param['module']['module_id']?>").down('iframe').style.height = (parseInt($("hform<?=(int)$arr_param['module']['module_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+						      	setTimeout(function() {
+									$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
+									$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
+						      	}, 1000);
+								
+							}, Object.extend(Builder.prailsNamespace, {
+				              save: function() {
+				                  parent.$("container_m_#module.module_id").save();
+				                }
+				            }));
+						}
 					}, Object.extend(Builder.prailsNamespace, {
 						save: function() {
 							parent.$("container_m_#module.module_id").save();

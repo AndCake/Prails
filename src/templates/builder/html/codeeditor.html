@@ -1,23 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html style="height: 100%;">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<script type="text/javascript" src="../js/codeeditor/shCore.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/shBrushCss.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/shBrushJscript.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/shBrushPhp.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/shBrushSql.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/shBrushXml.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/prailsCodeEditor.js"></script>
-	<link type="text/css" rel="stylesheet" href="../css/shCoreDefault.css"/>
-	<link type="text/css" rel="stylesheet" href="../css/prailsCodeEditor.css"/>
+	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/codemirror.css"/>
+	<script type="text/javascript" src="../js/codeeditor/lib/codemirror.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/foldcode.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/simple-hint.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/searchcursor.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/less/less.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/xml/xml.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/php/php.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/mysql/mysql.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/css/css.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/clike/clike.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/mode/javascript/javascript.js"></script>
+	<style type="text/css">
+		html, body { margin: 0px; padding: 0px; font-size: 90.1%; }
+		html, body, .CodeMirror, .CodeMirror-scroll {
+			height: 100%; 
+		}
+		.CodeMirror pre.activeline {
+			background-color: #ffffef;
+		}
+		.CodeMirror-completions { position: absolute; margin-top: -1em; }
+		.CodeMirror-completions select { outline: none; }
+	</style>
 </head>
 
-<body style="background: white; font-family: Helvetica">
+<body style="background: white; font-family: Helvetica; height: 100%;">
 <script type="text/javascript">
 //<![CDATA[
-	document.body.innerHTML = '<div class="owrapper"><div class="code"><div id="highlight"></div><div id="cwrapper"></div></div></div>';
+	document.body.innerHTML = '<textarea id="code"></textarea>';
 
+	var loadBrush = function(brush) {
+		if (!document.getElementById("brush-"+brush)) {
+			var scriptNode = document.createElement("script");
+			scriptNode.type = "text/javascript";
+			scriptNode.id = "brush-"+brush;
+			scriptNode.src = "../js/codeeditor/mode/"+brush+"/"+brush+".js";
+			document.getElementsByTagName("head")[0].appendChild(scriptNode);
+		}
+	};
+	
+	window.txt = document.getElementById("code");
+	setTimeout(function() {
+		window.init();
+	}, 100);
 	// auto-complete keywords
 	if (!window.keywords) window.keywords = [];	
 	/** examples:
@@ -50,42 +78,135 @@
 	
 	// don't override these:
 	txt.getCode = function() {
-		return window.txt.value;
+		return txt.editor && txt.editor.getValue() || txt.value;
 	};
 	txt.setCode = function(code) {
 		code = code.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&");
-		if (!this.undoStack) {
-			this.undoStack = [];
-		}
-		var me = window.txt;
-		var p = [];
-		try {
-			p = [me.selectionStart, me.selectionEnd];
-		} catch(e){};
-		me.innerHTML = code.replace(/\t/g, '    ');
-		me.value = code.replace(/\t/g, '    ');
-		try {
-		me.selectionStart = p[0];
-		me.selectionEnd = p[1];
-		} catch(e){};
-		me.undoStack.push([me.value, me.selectionStart, me.selectionEnd]);
-		refresh(me.value);
+		txt.editor.setValue(code);
 		return true;
 	};
 	txt.enable = function(enable) {
 		if (enable || typeof(enable) == "undefined") {
-			txt.style.display = "block";
+			txt.editor.setOption("readonly", true);
 		} else {
-			txt.style.display = "none";
+			txt.editor.setOption("readonly", false);
 		}
 	};
 	txt.setBrush = function(brush) {
+		var mode = "";
+		switch(brush) {
+			case "css": 
+				loadBrush("less");
+				mode = "text/less";
+				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);				
+				break;
+			case "php":
+				loadBrush("php");
+				mode = "text/x-php";
+				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);				
+				break;
+			case "html-php":
+				loadBrush("php");
+				loadBrush("xml");
+				loadBrush("clike");
+				loadBrush("javascript");
+				loadBrush("css");
+				mode = "application/x-httpd-php";
+				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);				
+				break;
+			case "js":
+				loadBrush("javascript");
+				mode = "text/javascript";
+				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.braceRangeFinder);				
+				break;
+			case "sql":
+				loadBrush("mysql");
+				mode = "text/x-mysql";
+				break;
+		}
+
+		if (txt.editor) {
+			txt.editor.getWrapperElement().parentNode.removeChild(txt.editor.getWrapperElement());
+		}
+		txt.editor = CodeMirror.fromTextArea(txt, {
+			lineNumbers: true,
+			matchBrackets: true,
+			mode: mode,
+			indentUnit: 4,
+			tabSize: 4,
+			onGutterClick: txt.foldFunc,
+			onCursorActivity: function() {
+				if (window.hlLine) {
+					txt.editor.setLineClass(window.hlLine, null);
+				}
+			    window.hlLine = txt.editor.setLineClass(txt.editor.getCursor().line, "activeline");
+			},
+			extraKeys: {
+				"Ctrl-Space": function(cm) {
+					CodeMirror.simpleHint(cm, function(editor) {
+						var cur = editor.getCursor(),
+							token = editor.getTokenAt(cur),
+							before = token.string,
+							activeList = [];
+						before = editor.getLine(cur.line).substr(0, cur.ch);
+						for (var i = 0; i < window.keywords.length; i++) {
+							var itemList = (typeof(window.keywords[i].items) === "function" && window.keywords[i].items(txt)) || window.keywords[i].items;
+							itemList.sort();
+							if (window.keywords[i].prefix) {
+								if (before.search(new RegExp(window.keywords[i].prefix+"$", "gi")) >= 0) {
+									for (var j = 0; j < itemList.length; j++) {
+										var item = itemList[j]; 
+										activeList.push(item);
+									}
+								} else {
+									for (var j = 0; j < window.keywords[i].items.length; j++) {
+										var item = itemList[j]; 
+										for (var k = item.length; k > 1; k--) {
+											if (before.search(new RegExp(window.keywords[i].prefix+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
+												activeList.push(item.substr(k - 1));
+												break;
+											}
+										}
+									}
+								}
+							} else {
+								for (var j = 0; j < itemList.length; j++) {
+									var item = itemList[j]; 
+									for (var k = item.length; k > 1; k--) {
+										if (before.search(new RegExp("([^a-zA-Z0-9$]+|^)"+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
+											activeList.push(item.substr(k - 1));
+											break;
+										}
+									}
+								}							
+							}
+						}
+						return {list: activeList, from: {line: cur.line, ch: cur.ch}, to: {line: cur.line, ch: cur.ch}};
+					});
+				},
+				"Ctrl-S": function(editor) {
+					window.txt.save();
+				},
+				"Ctrl-Alt-Right": function(editor) {
+        			parent.Builder.blurBespin(window.el);
+        			parent.Builder.nextTab();					
+				}, 
+				"Ctrl-Alt-Left": function(editor) {
+					parent.Builder.blurBespin(window.el);
+					parent.Builder.previousTab();
+				}
+			}			
+		});
+		window.hlLine = txt.editor.setLineClass(0, "activeline");		
+		
 		options = options.replace(/brush:[^;]+;/gi, '') + "brush: "+brush.toLowerCase()+";";
 	};
 	txt.enableHtmlScript = function(enable) {
 		if (typeof(enable) == 'undefined' || enable) {
+			txt.setBrush("html-php");
 			options = options.replace(/html-script:[^;]+;/gi, '') + "html-script: true;";
 		} else {
+			txt.setBrush("php");
 			options = options.replace(/html-script:[^;]+;/gi, '');
 		}
 	};
@@ -93,51 +214,45 @@
 		keywords.push({prefix: prefix, items: items});
 	};
 	txt.setSearchText = function(tosearch, regexp) {
+		txt.searchQuery = txt.editor.getSearchCursor((regexp ? new RegExp(tosearch, "g") : tosearch), txt.editor.getCursor(), true); 
 		txt.searchTerm = tosearch;
+		
 		if (regexp) {
 			txt.searchTerm = new RegExp(tosearch, "gi");
 		}
-		txt.searchPos = [txt.selectionStart, txt.selectionEnd];
+		txt.searchPos = [txt.editor.getCursor(true), txt.editor.getCursor(false)];
 	};
 	txt.findNext = function(pos, wrap) {
-		var f = txt.searchTerm;
-		var found = txt.value.substr(pos).search(f);
-		if (found >= 0) {
-			return [pos + found, pos + found + txt.value.substr(pos).match(f)[0].length]; 
-		} else if (wrap) {
-			var found = txt.value.substr(0, pos).search(f);
-			if (found >= 0) {
-				return [found, found + txt.value.substr(0, pos).match(f)[0].length]; 
-			}			
+		if (txt.searchQuery) {
+			if (txt.searchQuery.findNext()) {
+				return [txt.searchQuery.from(), txt.searchQuery.to()];
+			} else if (wrap) {
+				txt.searchQuery = txt.editor.getSearchCursor(txt.searchTerm);
+				if (txt.searchQuery.findNext()) {
+					return [txt.searchQuery.from(), txt.searchQuery.to()];
+				}
+			}
 		}
 		return null;
 	};
 	txt.findPrevious = function(pos, wrap) {
-		var f = txt.searchTerm;
-		var found = txt.value.substr(0, pos).match(f);
-		if (found) {
-			var start = txt.value.lastIndexOf(found[found.length - 1]);
-			return [start, start + found[found.length - 1].length];
-		} else if (wrap) {
-			var found = txt.value.substr(pos).match(f);
-			if (found) {
-				var start = txt.value.lastIndexOf(found[found.length - 1]);
-				return [start, start + found[found.length - 1].length];
+		if (txt.searchQuery) {
+			if (txt.searchQuery.findPrevious()) {
+				return [txt.searchQuery.from(), txt.searchQuery.to()];
+			} else if (wrap) {
+				txt.searchQuery = txt.editor.getSearchCursor(txt.searchTerm, {line: txt.editor.lineCount() - 1, ch: txt.editor.getLine(txt.editor.lineCount()-1).length - 1});
+				if (txt.searchQuery.findPrevious()) {
+					return [txt.searchQuery.from(), txt.searchQuery.to()];
+				}
 			}
 		}
 		return null;
 	};
 	txt.setSelection = function(sel) {
-		txt.selectionStart = sel[0];
-		txt.selectionEnd = sel[1];
-		this.sel = sel;
-		txt.hasFocus = true;
-		drawCursor(txt);
+		txt.editor.setSelection(sel[0], sel[1]);
 	};
 	txt.replace = function(sel, text) {
-		txt.value = txt.value.substr(0, sel[0]) + text + txt.value.substr(sel[1]);
-		window.keypressed = true;
-		refresh(txt.value);
+		txt.searchQuery.replace(text);
 	};
 
 	var options = "toolbar: false;";

@@ -225,6 +225,7 @@ Builder = Object.extend(Builder || {}, {
             cwin.init = function() {
                 cwin.prails = Object.clone(obj);
                 cwin.id = document.getElementsByName(el.id)[0].contentWindow.name;
+                cwin.el = el;
                 var data = JSON.parse(el.getAttribute("data-bespinoptions"));
                 cwin.txt.setBrush(data.syntax);
                 if (data.html == true) {
@@ -322,15 +323,12 @@ Builder = Object.extend(Builder || {}, {
     		el.setStyle("box-shadow:0px 0px 0px #db0");
     	}, 1000);
     	document.getElementsByName(oel.id)[0].contentWindow.focus();
-    	document.getElementsByName(oel.id)[0].contentWindow.txt.focus();
-    	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionStart = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[0];
-    	document.getElementsByName(oel.id)[0].contentWindow.txt.selectionEnd = document.getElementsByName(oel.id)[0].contentWindow.txt.sel[1];
-    	document.getElementsByName(oel.id)[0].contentWindow.txt.onfocus.apply(document.getElementsByName(oel.id)[0].contentWindow.txt);
+		document.getElementsByName(oel.id)[0].contentWindow.txt.editor.focus();
+		document.getElementsByName(oel.id)[0].contentWindow.txt.focus();
     },
     
     blurBespin: function(el) {
     	el = $(el);
-    	document.getElementsByName(el.id)[0].contentWindow.txt.onblur.apply(document.getElementsByName(el.id)[0].contentWindow.txt);
     	document.getElementsByName(el.id)[0].contentWindow.txt.blur();
     	document.getElementsByName(el.id)[0].contentWindow.blur();
     },
