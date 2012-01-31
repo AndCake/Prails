@@ -404,10 +404,10 @@
  			          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
  			          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
  			          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+ 			          	txt.addKeywords(null, <?=json_encode($arr_param['configurations'])?>);
  		        	};
  		        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
  		          	
- 		        	item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";
  					initBespin(list);
  			    }, Object.extend(Builder.prailsNamespace, {
  					id: "container_h_#handler.handler_id",
@@ -431,8 +431,6 @@
       			return;
       		}
 	        Builder.applyBespin(item, function(fr) {
-	            item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 150) + "px";
-	            
 	            var arr = [];
 	          	$A(Builder.tagRoot.childNodes).each(function(item) {
 	          		arr.push(item.text);
@@ -689,7 +687,7 @@
 			    autoTabs: true
 			});
 			setTimeout(function() {
-				$$("#hcodehcontainer#handler.handler_id .x-panel-body, #hcodehcontainer#handler.handler_id .x-panel").invoke("setStyle", "width: auto;");
+				$$("#hcodehcontainer#handler.handler_id .x-panel-body, #hcodehcontainer#handler.handler_id .x-panel, #hhtmlcodehcontainer#handler.handler_id .x-panel-body, #hhtmlcodehcontainer#handler.handler_id .x-panel").invoke("setStyle", "width: auto;");
 			}, 100);
 			Ext.QuickTips.init();			
 		}, 10);

@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html style="height: 100%;">
+<html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/codemirror.css"/>
+	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/util/enhanced-hint.css"/>
 	<script type="text/javascript" src="../js/codeeditor/lib/codemirror.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/foldcode.js"></script>
-	<script type="text/javascript" src="../js/codeeditor/lib/util/simple-hint.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/enhanced-hint.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/searchcursor.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/mode/less/less.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/mode/xml/xml.js"></script>
@@ -24,10 +25,14 @@
 		}
 		.CodeMirror-completions { position: absolute; margin-top: -1em; }
 		.CodeMirror-completions select { outline: none; }
+		.CodeMirror, .CodeMirror-scroll {
+			display: block;
+			width: 100% !important;
+		}
 	</style>
 </head>
 
-<body style="background: white; font-family: Helvetica; height: 100%;">
+<body style="background: white; font-family: Helvetica;">
 <script type="text/javascript">
 //<![CDATA[
 	document.body.innerHTML = '<textarea id="code"></textarea>';
@@ -143,7 +148,7 @@
 			},
 			extraKeys: {
 				"Ctrl-Space": function(cm) {
-					CodeMirror.simpleHint(cm, function(editor) {
+					CodeMirror.enhancedHint(cm, function(editor) {
 						var cur = editor.getCursor(),
 							token = editor.getTokenAt(cur),
 							before = token.string,
@@ -163,7 +168,7 @@
 										var item = itemList[j]; 
 										for (var k = item.length; k > 1; k--) {
 											if (before.search(new RegExp(window.keywords[i].prefix+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
-												activeList.push(item.substr(k - 1));
+												activeList.push({value: item.substr(k - 1), displayValue: item});
 												break;
 											}
 										}
@@ -174,7 +179,7 @@
 									var item = itemList[j]; 
 									for (var k = item.length; k > 1; k--) {
 										if (before.search(new RegExp("([^a-zA-Z0-9$]+|^)"+item.substr(0, k - 1).replace('$', '\\$').replace('(', "\\(").replace(')', "\\)")+"$", "gi")) >= 0) {
-											activeList.push(item.substr(k - 1));
+											activeList.push({value: item.substr(k - 1), displayValue: item});
 											break;
 										}
 									}

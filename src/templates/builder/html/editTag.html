@@ -8,7 +8,7 @@
 	<input type="hidden" id="hCodet<?=(int)$arr_param["tag"]["tag_id"]?>" name="tag[html_code]" value="" />
 	<textarea id="codett<?=(int)$arr_param['tag']['tag_id']?>" style="display: none;"><?=$arr_param["tag"]["html_code"]?></textarea>
 	<!--[noeval]-->
-	<div style="border:1px solid #ccc;" onload="(function(e){Builder.setCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>', $('codett<?=(int)$arr_param['tag']['tag_id']?>').value);})" rel="builder:editTag&refresh=html_code&tag_id=<?=(int)$arr_param["tag"]["tag_id"]?>" id="codet<?=(int)$arr_param["tag"]["tag_id"]?>" data-bespinoptions='{"syntax": "html"<?=$defaultBespinOptions?>}'><?=$arr_param['tag']['html_code']?></div>
+	<div style="border:1px solid #ccc;" onload="(function(e){Builder.setCode('codet<?=(int)$arr_param["tag"]["tag_id"]?>', $('codett<?=(int)$arr_param['tag']['tag_id']?>').value);})" rel="builder:editTag&refresh=html_code&tag_id=<?=(int)$arr_param["tag"]["tag_id"]?>" id="codet<?=(int)$arr_param["tag"]["tag_id"]?>" data-bespinoptions='{"syntax": "html-php"<?=$defaultBespinOptions?>}'><?=$arr_param['tag']['html_code']?></div>
 	<!--[/noeval]-->
 	<div style="clear:both;"></div>
 	<br/>
@@ -43,7 +43,26 @@
 			};
 	    	
 			Builder.applyBespin('codet<?=(int)$arr_param["tag"]["tag_id"]?>', function(fr) {
-				$("codet<?=(int)$arr_param['tag']['tag_id']?>").down("iframe").style.height = (parseInt($("hformt<?=(int)$arr_param['tag']['tag_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+				$("codet<?=(int)$arr_param['tag']['tag_id']?>").down("iframe").up().style.height = (parseInt($("hformt<?=(int)$arr_param['tag']['tag_id']?>").parentNode.parentNode.style.height) - 150) + "px";
+				fr.txt.addKeywords(null, function(txt) {
+        			var res = [];
+        			var matches = txt.getCode().match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+        			if (matches) {
+	        			for (var a = 0; a < matches.length; a++) {
+	        				if ((",$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+	        					res.push(matches[a]);
+	        				}
+	        			}
+        			}
+        			return res;
+        		});
+				fr.txt.addKeywords("\\$this->", ["makeVar($var)"]);
+				fr.txt.addKeywords("\\$tag\\[\"", ["attributes", "body"]);
+				fr.txt.addKeywords("\\$tag\\['", ["attributes", "body"]);
+	          	fr.txt.addKeywords("Generator::", ["getInstance()"]);
+	          	fr.txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
+	          	fr.txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+	          	fr.txt.addKeywords(null, ["$tag", "$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
 			}, Object.extend(Builder.prailsNamespace, {
 	          save: function() {
 	            parent.$('hformt<?=(int)$arr_param["tag"]["tag_id"]?>').save();

@@ -671,6 +671,7 @@ class BuilderHandler
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
         }
 
+        $arr_param["configurations"] = Array();
         if ($_GET["handler_id"] < 0 && $_GET["module_id"] < 0)
         {
             $arr_param["module"]["module_id"] = -1;
@@ -687,7 +688,14 @@ class BuilderHandler
         {
             $arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+        	$arr_configs = $this->obj_data->listConfigurationFromModule($_GET["module_id"], "1");            
             $arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
+            $arr_param["configurations"] = Array();
+            foreach ($arr_configs as $config) {
+            	if (!in_array($config["name"], $arr_param['configurations'])) {
+            		array_push($arr_param['configurations'], $config["name"]);
+            	}
+            }            
         }
         
         if ($_GET["handler_id"] <= 0 && $_GET["module_id"] > 0) {
