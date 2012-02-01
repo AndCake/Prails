@@ -254,11 +254,17 @@ Builder = Object.extend(Builder || {}, {
     	        	} else if (event.ctrlKey && event.altKey) {
     	    			window.focus();
     	        		if (event.keyCode == 39) {
+    	        			if (window.switching) return;
+    	        			window.switching = true;
     	        			Builder.blurBespin(el);
     	        			Builder.nextTab(event);
+    	        			setTimeout(function() { window.switching = false; }, 200);
     	        		} else if (event.keyCode == 37) {
+    	        			if (window.switching) return;
+    	        			window.switching = true;
     	        			Builder.blurBespin(el);
     	        			Builder.previousTab(event);
+    	        			setTimeout(function() { window.switching = false; }, 200);
     	        		}
     	        		return false;
     	        	} else if (event.ctrlKey && event.shiftKey) {
@@ -324,7 +330,6 @@ Builder = Object.extend(Builder || {}, {
     	}, 1000);
     	document.getElementsByName(oel.id)[0].contentWindow.focus();
 		document.getElementsByName(oel.id)[0].contentWindow.txt.editor.focus();
-		document.getElementsByName(oel.id)[0].contentWindow.txt.focus();
     },
     
     blurBespin: function(el) {

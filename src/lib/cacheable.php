@@ -51,7 +51,25 @@ class Cacheable {
 		if (DBCACHE_ENABLED === false) {
 			return;
 		}
-        file_put_contents($name, serialize($val), LOCK_EX);
+		$val = serialize($val);
+		
+		// atomically write data to disc
+		$temp = tempnam("cache", "temp");
+		if (!($fp = @fopen($temp, "wb"))) {
+			$temp = "cache/" . uniqid("temp");
+ 			if (!($fp = @fopen($temp, 'wb'))) { 
+            	trigger_error("Cacheable::_set() : error writing temporary file '".$temp."'", E_USER_WARNING); 
+            	return false; 
+         	}
+		}
+		fwrite($fp, $val);
+		fclose($fp);
+		
+		if (!@rename($temp, $name)) {
+			@unlink($name);
+			@rename($temp, $name);
+		}
+		@chmod($name, 0644); 
 	}
 	
 	function _get($pos, $var) {

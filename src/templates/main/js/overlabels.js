@@ -26,7 +26,7 @@ addLoadEvent(Overlabel.init = function() {
 		}
 	};
 	
-	$$("label.overlabel, input[type='text'].overlabel, textarea.overlabel").each(function(item) {
+	$$("label.overlabel, input[type='text'].overlabel, input[type='password'].overlabel, textarea.overlabel").each(function(item) {
 		if (item.nodeName.toUpperCase() == "LABEL") {
 			convertToOverlabel(item.getAttribute("for"), item.innerHTML);
 			$(item).remove();

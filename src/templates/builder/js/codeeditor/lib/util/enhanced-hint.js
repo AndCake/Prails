@@ -8,15 +8,16 @@
     function insert(str) {
       editor.replaceRange(str, result.from, result.to);
     }
+    // Build the select widget
+    if (oldComplete = document.getElementById("CodeMirror-completions-id")) {
+    	oldComplete.parentNode.removeChild(oldComplete);
+    }
     // When there is only one completion, use it directly.
     if (completions.length == 1) {insert(typeof(completions[0]) == "string" ? completions[0] : completions[0].value); return true;}
 
-    // Build the select widget
-    if (oldComplete = document.querySelector("div.CodeMirror-completions")) {
-    	oldComplete.parentNode.removeChild(oldComplete);
-    }
     var complete = document.createElement("div");
     complete.className = "CodeMirror-completions";
+    complete.id = "CodeMirror-completions-id";
     var inp = complete.appendChild(document.createElement("input"));
     inp.style.opacity = "0";
     inp.style.position = "absolute";
@@ -46,11 +47,10 @@
     function close() {
       if (done) return;
       done = true;
-      var c = document.querySelector("div.CodeMirror-completions");
+      var c = document.getElementById("CodeMirror-completions-id");
       if (c) {
     	  c.parentNode.removeChild(c);
       }
-      //complete.parentNode.removeChild(complete);
     }
     function pick() {
     	var value = sel.querySelector("li.selected").getAttribute("value") || sel.querySelector("li.selected").innerHTML.replace(/&gt;/g, '>').replace(/&lt;/g, "<").replace(/&amp;/g, "&");

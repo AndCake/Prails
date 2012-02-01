@@ -16,7 +16,19 @@
 	<script type="text/javascript" src="../js/codeeditor/mode/clike/clike.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/mode/javascript/javascript.js"></script>
 	<style type="text/css">
-		html, body { margin: 0px; padding: 0px; font-size: 90.1%; }
+		@font-face {
+		    font-family: 'MesloLGMDZRegular';
+		    src: url('../css/meslolgm-dz-regular-webfont.eot');
+		    src: url('../css/meslolgm-dz-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		         url('../css/meslolgm-dz-regular-webfont.woff') format('woff'),
+		         url('../css/meslolgm-dz-regular-webfont.ttf') format('truetype'),
+		         url('../css/meslolgm-dz-regular-webfont.svg#MesloLGMDZRegular') format('svg');
+		    font-weight: normal;
+		    font-style: normal;
+		
+		}
+
+		html, body { margin: 0px; padding: 0px; font-size: 11px; }
 		html, body, .CodeMirror, .CodeMirror-scroll {
 			height: 100%; 
 		}
@@ -28,6 +40,10 @@
 		.CodeMirror, .CodeMirror-scroll {
 			display: block;
 			width: 100% !important;
+		}
+		.CodeMirror {
+			font-family: MesloLGMDZRegular, monospace;
+			line-height: 1.5em; 
 		}
 	</style>
 </head>
@@ -140,6 +156,9 @@
 			indentUnit: 4,
 			tabSize: 4,
 			onGutterClick: txt.foldFunc,
+			onFocus: function() {
+				parent.Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = self.id;				
+			},
 			onCursorActivity: function() {
 				if (window.hlLine) {
 					txt.editor.setLineClass(window.hlLine, null);
@@ -193,12 +212,18 @@
 					window.txt.save();
 				},
 				"Ctrl-Alt-Right": function(editor) {
+					if (parent.switching) return;
+					parent.switching = true;
         			parent.Builder.blurBespin(window.el);
-        			parent.Builder.nextTab();					
+        			parent.Builder.nextTab();
+        			setTimeout(function() { parent.switching = false; }, 200);
 				}, 
 				"Ctrl-Alt-Left": function(editor) {
+					if (parent.switching) return;
+					parent.switching = true;
 					parent.Builder.blurBespin(window.el);
 					parent.Builder.previousTab();
+        			setTimeout(function() { parent.switching = false; }, 200);
 				}
 			}			
 		});
