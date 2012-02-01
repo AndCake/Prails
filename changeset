@@ -1,3 +1,21 @@
+V1.3.1 (February 1st, 2012)
+
+ * added overlabels capability to password fields
+ * added auto-complete to tags and libraries
+ * added module's configuration definitions to handler's auto-complete
+ * added a visual distinction between production and development environments
+ * added new codemirror2 editor for all fields - now featuring code folding, improved auto-completion, full LESS syntax highlighting, improved template highlighting
+ * added asterisk for required input fields
+ * updated styling for new font in code editor: Meslo LG (see https://github.com/andreberg/Meslo-Font)
+ * replaced simple auto-complete by a more elaborate one
+ * made sure that cache entries are updated atomically
+ * some code cleanup
+ * Fixed problem with resizing the code editor
+ * fixed a warning with HookCore in case there are no hooks defined
+ * fixed a bug with setup routine not correctly saving MySQL password to configuration
+ * fixed a problem with HTML header tags being lost if the page is cached
+
+
 V1.3.0 (January 14th, 2012)
 
  * added ''backup now'' feature
