@@ -34,9 +34,9 @@
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
 		<div rel="call:hcodehSet(#handler.handler_id)" id="hcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
-			<div class="x-tab" title="<?=$code['title']?>">
+			<div class="x-tab" style="height:100%;" title="<?=$code['title']?>">
 				<!--[noeval]-->
-				<div style="border:0px solid #ccc;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
+				<div style="border:0px solid #ccc;height:100%;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
 				<!--[/noeval]-->
 			</div>
 		<? } ?>
@@ -51,9 +51,9 @@
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
 		<div rel="call:hhtmlcodehSet(#handler.handler_id)" id="hhtmlcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['html_codes'])) foreach ($arr_param['html_codes'] as $code) { ?>
-			<div class="x-tab" title="<?=$code['title']?>">
+			<div class="x-tab" style="height:100%;" title="<?=$code['title']?>">
 				<!--[noeval]-->
-				<div title="<?=$code['title']?>" style="border:0px solid #ccc;" class="hhtmlcodeh" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id'].$code['id']?>" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
+				<div title="<?=$code['title']?>" style="border:0px solid #ccc;height:100%;" class="hhtmlcodeh" rel="builder:editHandler&refresh=html_code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id'].$code['id']?>" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
     			<!--[/noeval]-->		
 			</div>
 		<? } ?>
