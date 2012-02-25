@@ -1,17 +1,19 @@
-<? $title = strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1); 
+<? global $title, $name, $mod; 
+   $title = strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1); 
    $name = $arr_table['name'];
    $arr_fields = explode(":", $arr_table['field_names']);
    $arr_types = explode(":", $arr_table['field_types']);
-   
+   $mod = $arr_module['name'];
+ 
 	foreach ($arr_types as $key => $type) {
    		if (in_array($type, Array("VARCHAR(1024)", "VARCHAR(255)", "FLOAT", "INT(11)", "DOUBLE", "INTEGER"))) {
    			$arr_types[$key] = "<input type='text' id='{id}' name='{name}' value='{value}' />\n";
    		} else if (in_array($type, Array("TEXT", "LONGTEXT"))) {
    			$arr_types[$key] = "<textarea id='{id}' name='{name}' cols='40' rows='8'>{value}</textarea>\n";
-   		} else if (in_array($type, Array("INT(1) NOT NULL", "TINYINT"))) {
+   		} else if (in_array($type, Array("INT(1) NOT NULL", "TINYINT", "TINYINT NOT NULL"))) {
    			$arr_types[$key] = "<input type='radio' id='{id}_on' name='{name}' value='1' <"."?=((int){phpvalue} == '1' ? \" checked='checked'\":\"\")?"."> /><label for='{id}_on'> on</label>&nbsp;&nbsp;".
 							   "<input type='radio' id='{id}_off' name='{name}' value='0' <"."?=((int){phpvalue} == '0' ? \" checked='checked'\":\"\")?".">  /><label for='{id}_off'> off</label>\n";			
-   		} else if ($type == "INT(20)") {
+   		} else if ($type == "INT(20)" || $type == "BIGINT") {
    			$arr_types[$key] = "<input type='date' id='{id}' name='{name}' value='<"."?=((int){phpvalue} <= 0 ? time() : {phpvalue})?".">' />\n";
    		} else if (in_array($type, Array("INT(11) NOT NULL", "INTEGER NOT NULL")) && substr($arr_fields[$key], 0, 3) == "fk_") {
    			$table = preg_replace("/fk_([a-zA-Z0-9]+)_id/", "\\1", $arr_fields[$key]);
@@ -38,7 +40,7 @@
    <p class="error">There was an error saving your changes. Please check if you filled in all necessary fields.</p>
 <?="<? } ?>"?>
 
-<form method="post" action="<?=$arr_module['name']?>/edit<?=$title?>/#<?=$name?>.<?=$name?>_id">
+<form method="post" action="<?=getUrl($mod.'/edit'.$title)?>#<?=$name?>.<?=$name?>_id">
    <fieldset>
       <? foreach ($arr_fields as $key => $field) { ?>
       <div class="form-entry">
@@ -51,8 +53,8 @@
 </form>
 <br/>
 <? if ($_POST["h_scaffold"]["view"] && $_POST["d_scaffold"]["select"]) { ?>
-	<a href="<?=$arr_module['name']?>/view<?=$title?>/#<?=$name?>.<?=$name?>_id">show</a> | 
+	<a href="<?=getUrl($mod.'/view'.$title)?>#<?=$name?>.<?=$name?>_id">show</a> | 
 <? } ?>
-<? if ($_POST["h_scaffold"]["list"] && $_POST["d_scaffold"]["list"]) { ?>
-<a href="<?=$arr_module['name']?>/list<?=$title?>">back</a>
+<? if ($_POST["h_scaffold"]["list"]) { ?>
+<a href="<?=getUrl($mod.'/list'.$title)?>">back</a>
 <? } ?>
