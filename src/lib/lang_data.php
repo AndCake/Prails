@@ -96,7 +96,7 @@ class LangData
           		$this->arr_item_cache[$str_item] = $arr_result["content"];
           	}
           	
-          	$arr_result["custom"] = json_decode($arr_result["custom"], true);
+          	$arr_result["custom"] = $this->_decodeCustom($arr_result["custom"]);
           	return $arr_result;
 	}
 
@@ -125,7 +125,7 @@ class LangData
 	function listAllTextsFromRoot($rootNode) {
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND identifier LIKE '".$rootNode.".%'");
 		foreach($arr_result as &$item) {
-			$item["custom"] = json_decode($item["custom"], true);
+			$item["custom"] = $this->_decodeCustom($item["custom"]);
 		}
 		return $arr_result;
 	}
@@ -134,7 +134,7 @@ class LangData
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND content LIKE '%".$word."%'");
 		$arr_return = Array();
 		foreach ($arr_result as $res) {
-			array_push($arr_return, Array("id" => "text_.".$res['identifier'], "name" => $res["identifier"], "type" => "text", "custom" => json_decode($res["custom"], true)));
+			array_push($arr_return, Array("id" => "text_.".$res['identifier'], "name" => $res["identifier"], "type" => "text", "custom" => $this->_decodeCustom($res["custom"])));
 		}
 		return $arr_return;
 	}
@@ -143,7 +143,7 @@ class LangData
 		$texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1=1");
 		foreach ($texts as &$text) {
 			$text["default"] = $text["isDefault"];
-			$text["custom"] = json_decode($text["custom"], true);
+			$text["custom"] = $this->_decodeCustom($text["custom"]);
 		}
 
 		return $texts;
@@ -165,7 +165,7 @@ class LangData
 			$entry["decorator"] = $arr_data["decorator"];
 			$entry["type"] = $arr_data["type"];
 			$entry["content"] = $text;
-			$entry["custom"] = json_encode($arr_data["custom"]);
+			$entry["custom"] = $this->_encodeCustom($arr_data["custom"]);
 			if (strlen($arr_data["old_identifier"]) > 0) {
 				$exists = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id=".(int)$lang." AND identifier='".$arr_data["old_identifier"]."'"));
 			} else {
@@ -195,7 +195,7 @@ class LangData
 	}
 	 
 	function insertText($arr_data) {
-		$arr_data["custom"] = json_encode($arr_data["custom"]);
+		$arr_data["custom"] = $this->_encodeCustom($arr_data["custom"]);
 		$this->obj_sql->InsertQuery(tbl_prailsbase_texts, $arr_data);
 	}
 	 
@@ -246,6 +246,14 @@ class LangData
 
    function deleteLanguageOnly($id) {
       $this->obj_sql->DeleteQuery(tbl_prailsbase_language, "language_id=".(int)$id."");
+   }
+   
+   function _encodeCustom($data) {
+   		return base64_encode(json_encode($data));
+   }
+   
+   function _decodeCustom($field) {
+   		return json_decode(base64_decode($field), true);
    }
    
 }

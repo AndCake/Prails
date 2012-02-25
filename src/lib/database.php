@@ -62,7 +62,14 @@ class Database extends TblClass {
 		}
 		return $this->SqlQuery("SELECT * FROM ".$table." WHERE ".if_set($filter, "1").$sort." LIMIT ".$start.", ".$limit);
 	}
-	function select($table, $filter = "", $sort = "") { return $this->get($table, $filter, $sort); }
+	function select($table, $filter = "", $sort = "", $start = 0, $limit = 999999) { return $this->get($table, $filter, $sort, $start, $limit); }
+	function getItem($table, $id) {
+		if (strpos($table, $this->str_prefix) === false) {
+			$table = $this->str_prefix . $table;
+		}
+		$pkfield = str_replace($this->str_prefix, "", $table)."_id";
+		return @array_pop($this->SqlQuery("SELECT * FROM ".$table." WHERE ".$pkfield."=".if_set($id, "0")));
+	}
 	
 	/**
 	 * Adds data to a table
