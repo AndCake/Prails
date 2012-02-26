@@ -1,0 +1,11 @@
+h1. Prails
+
+The PHP framework that makes you happy.
+
+"http://prails.googlecode.com/":http://prails.googlecode.com [1]
+
+fn1. the project will soon get it's own home.
+
+h2. About
+
+The is the new official version of Prails. For more information, please visit the project's home page at "GoogleCode":http://prails.googlecode.com/ .
