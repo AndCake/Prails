@@ -28,6 +28,7 @@ p {
     label { display: block; }
     .value { position: relative; }
     input[type="text"], input[type="password"] { width: 200px; }
+    .radio label { display: inline; }
 }
 
 fieldset {
