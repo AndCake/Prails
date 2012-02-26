@@ -8,6 +8,9 @@
       } else {
       	array_push($fks, Array("field" => $field_names[$key], "table" => preg_replace("/fk_([a-zA-Z0-9]+)_id/", "\\1", $field_names[$key]), "id" => str_replace("fk_", "", $field_names[$key])));
       }
+      if (in_array($type, Array("INT(1) NOT NULL", "TINYINT", "TINYINT NOT NULL"))) {
+          $needsRadio = true;
+      }
    }
    $field_names = implode('", "', $names);
 ?>
@@ -31,6 +34,9 @@ if (checkFields($arr_data, Array("<?=$field_names?>"))) {
 $_SESSION["<?=$arr_table['name']?>_id"] = if_set($_GET["<?=$arr_table['name']?>_id"], $_SESSION["<?=$arr_table['name']?>_id"]);
 $arr_param["<?=$arr_table['name']?>"] = $data->select<?=strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1)?>($_SESSION["<?=$arr_table['name']?>_id"]);
 <? foreach ($fks as $fk) { ?>$arr_param["<?=$fk['table']?>s"] = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();<? } ?>
+<? if ($needsRadio) { ?>
+$arr_param['onoff'] = Array("1" => "On", "0" => "Off");
+<? } ?>
 	   
 return out($arr_param);
 /*[END ACTUAL]*/
@@ -41,6 +47,14 @@ return out($arr_param);
 $_SESSION["<?=$arr_table['name']?>_id"] = if_set($_GET["<?=$arr_table['name']?>_id"], $_SESSION["<?=$arr_table['name']?>_id"]);
 	
 $arr_param["<?=$arr_table['name']?>"] = $data->select<?=strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1)?>($_SESSION["<?=$arr_table['name']?>_id"]);
-<? foreach ($fks as $fk) { ?>$arr_param["<?=$fk['table']?>s"] = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();<? } ?>
+<? foreach ($fks as $fk) { ?>$arr_<?=$fk['table']?>s = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();
+$arr_param["<?=$fk['table']?>"][""] = "Choose...";
+foreach ($arr_<?=$fk['table']?>s as $arr_<?=$fk['table']?>) { 
+	$arr_param["<?=$fk['table']?>"][$arr_<?=$fk['table']?>["<?=$fk['table']?>_id"]] = $arr_<?=$fk['table']?>["<?=$fk['table']?>_id"];
+}
+<? } ?>
+<? if ($needsRadio) { ?>
+$arr_param['onoff'] = Array("1" => "On", "0" => "Off");
+<? } ?>
    
 return out($arr_param);
