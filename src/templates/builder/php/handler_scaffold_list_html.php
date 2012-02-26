@@ -1,5 +1,7 @@
-<? $title = strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1); 
+<? global $title, $name, $mod;
+   $title = strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1); 
    $name = $arr_table['name'];
+   $mod = $arr_module['name'];
 ?>
 <h2>Listing <?=$name?>s</h2>
 
@@ -18,13 +20,13 @@
         <? } ?> 
         <td>
             <? if ($_POST["h_scaffold"]["view"] && $_POST["d_scaffold"]["select"]) { ?>
-            <a href="<?=$arr_module['name']?>/view<?=$title?>/#<?=$name?>.<?=$name?>_id">view</a> |
+            <a href="<?=getUrl($mod.'/view'.$title)?>#<?=$name?>.<?=$name?>_id">view</a> |
             <? } ?>
             <? if ($_POST["h_scaffold"]["edit"] && $_POST["d_scaffold"]["insert"] && $_POST["d_scaffold"]["update"]) { ?> 
-            <a href="<?=$arr_module['name']?>/edit<?=$title?>/#<?=$name?>.<?=$name?>_id">edit</a> |
+            <a href="<?=getUrl($mod.'/edit'.$title)?>#<?=$name?>.<?=$name?>_id">edit</a> |
             <? } ?>
             <? if ($_POST["h_scaffold"]["delete"] && $_POST["d_scaffold"]["delete"]) { ?>
-            <a href="<?=$arr_module['name']?>/delete<?=$title?>/#<?=$name?>.<?=$name?>_id">delete</a>
+            <a href="<?=getUrl($mod.'/delete'.$title)?>#<?=$name?>.<?=$name?>_id">delete</a>
             <? } ?>
         </td>
     </tr>
@@ -34,5 +36,4 @@
     </tr>
     </c:foreach>
 </table>
-
-<a href="<?=$arr_module['name']?>/edit<?=$title?>/0">New <?=$name?></a>
+<a href="<?=getUrl($mod.'/edit'.$title)?>0">New <?=$name?></a>
