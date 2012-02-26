@@ -33,7 +33,12 @@ if (checkFields($arr_data, Array("<?=$field_names?>"))) {
 
 $_SESSION["<?=$arr_table['name']?>_id"] = if_set($_GET["<?=$arr_table['name']?>_id"], $_SESSION["<?=$arr_table['name']?>_id"]);
 $arr_param["<?=$arr_table['name']?>"] = $data->select<?=strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1)?>($_SESSION["<?=$arr_table['name']?>_id"]);
-<? foreach ($fks as $fk) { ?>$arr_param["<?=$fk['table']?>s"] = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();<? } ?>
+<? foreach ($fks as $fk) { ?>$arr_<?=$fk['table']?>s = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();
+$arr_param["<?=$fk['table']?>s"][""] = "Choose...";
+foreach ($arr_<?=$fk['table']?>s as $arr_<?=$fk['table']?>) { 
+	$arr_param["<?=$fk['table']?>s"][$arr_<?=$fk['table']?>["<?=$fk['table']?>_id"]] = $arr_<?=$fk['table']?>["<?=$fk['table']?>_id"];
+}
+<? } ?>
 <? if ($needsRadio) { ?>
 $arr_param['onoff'] = Array("1" => "On", "0" => "Off");
 <? } ?>
@@ -48,9 +53,9 @@ $_SESSION["<?=$arr_table['name']?>_id"] = if_set($_GET["<?=$arr_table['name']?>_
 	
 $arr_param["<?=$arr_table['name']?>"] = $data->select<?=strtoupper($arr_table['name'][0]).substr($arr_table['name'], 1)?>($_SESSION["<?=$arr_table['name']?>_id"]);
 <? foreach ($fks as $fk) { ?>$arr_<?=$fk['table']?>s = $data->list<?=strtoupper($fk['table'][0]).substr($fk['table'],1)?>();
-$arr_param["<?=$fk['table']?>"][""] = "Choose...";
+$arr_param["<?=$fk['table']?>s"][""] = "Choose...";
 foreach ($arr_<?=$fk['table']?>s as $arr_<?=$fk['table']?>) { 
-	$arr_param["<?=$fk['table']?>"][$arr_<?=$fk['table']?>["<?=$fk['table']?>_id"]] = $arr_<?=$fk['table']?>["<?=$fk['table']?>_id"];
+	$arr_param["<?=$fk['table']?>s"][$arr_<?=$fk['table']?>["<?=$fk['table']?>_id"]] = $arr_<?=$fk['table']?>["<?=$fk['table']?>_id"];
 }
 <? } ?>
 <? if ($needsRadio) { ?>
