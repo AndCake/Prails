@@ -1414,7 +1414,18 @@ class BuilderHandler
             if ($_GET["module_id"] < 0)
             {
                 // store the changed data in our configuration.php
+		$arr_settings = getConfiguration();
                 updateConfiguration($arr_configuration);
+		if ($arr_settings["ENV_PRODUCTION"] === true) {
+			foreach ($arr_configuration as $conf) {
+				if ($conf["name"] === "ENV_PRODUCTION") {
+					if ($conf["value"] === "false") {
+						$this->flushCustomModules(true);
+					}
+					break;
+				}
+			}
+		}
             } else
             {
                 $this->obj_data->clearConfiguration($_GET["module_id"], (int)$_GET["type"]);
@@ -1751,17 +1762,17 @@ class BuilderHandler
 			$path = "static/images/";
 			$dp = opendir($path);
 			$fileMagic = "---".md5(time())."\n";
-			while (($file = readdir($dp)) !== false) {
-				if ($file[0] != '.' && is_file($path.$file) && filesize($path.$file) > 0) {
-					fwrite($fp, $fileMagic . $file."\n");
+			while (($imgFile = readdir($dp)) !== false) {
+				if ($imgFile[0] != '.' && is_file($path.$imgFile) && filesize($path.$imgFile) > 0) {
+					fwrite($fp, $fileMagic . $imgFile."\n");
 					if (!is_array($file) && strlen($file) > 0) {
-						$sp = fopen($path.$file, "r");
+						$sp = fopen($path.$imgFile, "r");
 						while (!feof($sp)) {
 							fwrite($fp, fread($sp, 4096));
 						}
 						fclose($sp);
 					} else {
-						readfile($path.$file);
+						readfile($path.$imgFile);
 					}
 				}
 			}
@@ -1769,12 +1780,12 @@ class BuilderHandler
 		}
 		if (is_array($file) || strlen($file) <= 0) {
 			fseek($fp, 0);
-  			while (!feof($fp)) { 
-    			$buffer = fread($fp, 2048); 
-    			echo $buffer; 
-    			ob_flush(); 
-    			flush(); 
-  			}
+			while (!feof($fp)) { 
+				$buffer = fread($fp, 2048); 
+				echo $buffer; 
+				ob_flush(); 
+				flush(); 
+			}
  		}
 		fclose($fp);
 		die();

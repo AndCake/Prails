@@ -441,8 +441,93 @@ Builder = Object.extend(Builder || {}, {
 		}, 100);
     },
     
+    /**
+     * function to add a new section to Prails IDE
+     * Syntax:
+     *     addSection(<panel-object>);
+     * or  addSection(<title>, <default-click-callback>);
+     *
+     * @param panel-object Object an object describing the panel's details. Can contain additional parameters as explained in http://docs.sencha.com/ext-js/3-4/#!/api/Ext.tree.TreePanel
+     * @param title String the section's title
+     * @param default-click-callback Function a callback function that is called whenever a node is double-clicked (first parameter is the node object)
+     * @returns Ext.tree.TreeNode the tree node that double-clickable items can be attached to
+     */
     addSection: function(panel) {
-    	Builder.hookedPanels.push(panel);
+	console.log("test");
+	var tree = new Ext.tree.TreeNode();
+	if (typeof(panel) === "string") {
+		panel = {title: panel};
+		if (arguments.length > 1) {
+			panel["listeners"] = { dblclick: arguments[1] };
+		}
+	}
+	console.log(panel);
+	var defaultPanel = {
+		id: "qwbuilder_custom-"+(new Date().getTime()),
+		title: "Custom Panel",
+		xtype: "treepanel",
+		region: "south",
+		border: false,
+		width: 150,
+		minSize: 120,
+		maxSize: 540,
+		split: true,
+		autoScroll: true,
+		root: tree,
+		rootVisible: false,
+		listeners: { 
+			dblclick: function(n) {
+				Builder.addTab(n.id, n.text, "tab-"+n.id);
+			}
+		}
+        };
+    	Builder.hookedPanels.push(Object.extend(defaultPanel, panel || {}));
+	tree = panel["root"] || tree;
+	console.log(tree);
+	var nodeAdding = {
+		addNodes: function(nodeList, customTree) {
+			for (var i = 0; i < nodeList.length; i++) {
+				(customTree || tree).addNode(nodeList[i], customTree || tree);
+			}
+			return (customTree || tree);
+		},
+		addNode: function(node, customTree) {
+			console.log("addNode", node);
+			var extNode;
+			if (typeof(node) === "string") {
+				node = {title: node};
+				node.link = customTree;
+				customTree = null;
+				if (arguments.length > 2) {
+					node.nodes = arguments[2];
+				}
+			}
+			if (node.nodes) {
+				extNode = new Ext.tree.TreeNode({
+					text: node.title,
+					id: node.link,
+					leaf: false,
+					allowChildren: true
+				});
+			} else {
+				extNode = new Ext.tree.TreeNode({
+					text: node.title,
+					leaf: true,
+					id: node.link,
+					allowChildren: false
+				});
+			}
+			extNode = Object.extend(extNode, nodeAdding);
+			(customTree || tree).appendChild(extNode);
+			if (node.nodes) {
+				(customTree || tree).addNodes(node.nodes, extNode);
+			}
+			return (customTree || tree);
+		}
+	};
+	tree = Object.extend(tree, nodeAdding);
+	console.log(tree);
+	return tree;
     }
     
 });
