@@ -14,7 +14,7 @@
 			$arr_types[$key] = "<c:input type=\"radio\" name=\"{name}\" value=\"{value}\" values=\"onoff\" label=\"{title}\"/>\n";
    		} else if ($type == "INT(20)" || $type == "BIGINT") {
    			$arr_types[$key] = "<c:input type=\"date\" name=\"{name}\" value=\"{value}\" label=\"{title}\" />\n";
-   		} else if (in_array($type, Array("INT(11) NOT NULL", "INTEGER NOT NULL")) && substr($arr_fields[$key], 0, 3) == "fk_") {
+   		} else if (in_array(preg_replace('/\\s+REFERENCES\\s+\\w+/mi', '', $type), Array("INT(11) NOT NULL", "INTEGER NOT NULL")) && substr($arr_fields[$key], 0, 3) == "fk_") {
    			$table = preg_replace("/fk_([a-zA-Z0-9]+)_id/", "\\1", $arr_fields[$key]);
    			$arr_types[$key] = "<c:input type=\"select\" name=\"{name}\" values=\"".$table."s\" value=\"{value}\" label=\"{title}\"/>";
 		}
