@@ -21,6 +21,11 @@ function loadURL(url) {
 
 function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 	var params = "";
+	if (typeof(parameters) === "function") {
+		onSuccess = parameters;
+		parameters = "";
+		post = false;
+	}
 	if (!post || post == null) {
 		params = "&" + $H(parameters).toQueryString();
 	}
@@ -39,7 +44,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 		event = element;
 		element = null;
 	}
-	if (event.indexOf("/") < 0) {
+	if (event.indexOf("/") < 0 && event.indexOf("event=") < 0) {
 		event = baseHref+"?event="+event;
 	}  else if (event.indexOf("http://") < 0 && event.indexOf("https://") < 0) {
 		event = baseHref + event;
@@ -91,8 +96,8 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 }
 
 function initAjaxLinks() {
-	$$("a[rel], a.modal").each(function(item) {
-		if (item.hasClassName("modal") && !item._ajaxified) {
+	$$("a[rel], a.ajax, a.modal, a.dialog").each(function(item) {
+		if ((item.hasClassName("modal") || item.hasClassName("dialog")) && !item._ajaxified) {
 			var params = {buttons: false};
 			item._ajaxified = true;
 			if (item.rel) {
@@ -136,11 +141,33 @@ function initAjaxLinks() {
 				invoke(this.rel, this.href, null, false, function(req) {
 					setTimeout(function() {
 						document.fire("dom:loaded");	
-						try { eval(item.onload); } catch(e){};
+						try { eval(item.onload); } catch(e){window.console && console.log(e.message);};
 					}, 10);
 				});
 				event.stop();
 			});
+		} else if (!item._ajaxified) {
+			item._ajaxified = true;
+			var callback = function(req) {
+				if (item.onload) {
+					try { eval(item.onload); } catch(e){window.console && console.log(e.message);};
+				}
+			};
+			if (item.href.indexOf("#") >= 0) {
+				var el = $(item.href.replace(/^([^#]*#)/gi, ''));
+				if (el) {
+					item.observe("click", function(event) {
+						invoke(el, this.href, callback);
+						event.stop();
+					});
+				}
+
+			}
+			item.observe("click", function(event) {
+				invoke(this.href, callback);
+				event.stop();
+			});
+			
 		}
 	});
 }
@@ -149,6 +176,7 @@ function initWysiwyg() {
 	$$(".wysiwyg").each(function(item) {
 		if (item._wysiwygtified) return true;
 		item._wysiwygtified = true;
+		if (!item.id) item.id = "wysiwyg_"+(new Date().getTime());
 		var params = {
 			theme : "advanced",
 			mode : "exact",
