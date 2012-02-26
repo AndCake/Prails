@@ -453,7 +453,6 @@ Builder = Object.extend(Builder || {}, {
      * @returns Ext.tree.TreeNode the tree node that double-clickable items can be attached to
      */
     addSection: function(panel) {
-	console.log("test");
 	var tree = new Ext.tree.TreeNode();
 	if (typeof(panel) === "string") {
 		panel = {title: panel};
@@ -461,7 +460,6 @@ Builder = Object.extend(Builder || {}, {
 			panel["listeners"] = { dblclick: arguments[1] };
 		}
 	}
-	console.log(panel);
 	var defaultPanel = {
 		id: "qwbuilder_custom-"+(new Date().getTime()),
 		title: "Custom Panel",
@@ -483,7 +481,6 @@ Builder = Object.extend(Builder || {}, {
         };
     	Builder.hookedPanels.push(Object.extend(defaultPanel, panel || {}));
 	tree = panel["root"] || tree;
-	console.log(tree);
 	var nodeAdding = {
 		addNodes: function(nodeList, customTree) {
 			for (var i = 0; i < nodeList.length; i++) {
@@ -492,7 +489,6 @@ Builder = Object.extend(Builder || {}, {
 			return (customTree || tree);
 		},
 		addNode: function(node, customTree) {
-			console.log("addNode", node);
 			var extNode;
 			if (typeof(node) === "string") {
 				node = {title: node};
@@ -526,7 +522,6 @@ Builder = Object.extend(Builder || {}, {
 		}
 	};
 	tree = Object.extend(tree, nodeAdding);
-	console.log(tree);
 	return tree;
     }
     
