@@ -140,7 +140,9 @@ class MainHandler
 			$arr_param = $_POST; 			
 			$arr_param["message"] = $success ? "success" : "error";
 		}
-		
+		@mkdir("cache");
+		@mkdir("static");
+		@mkdir("log");
 		$arr_param["test"] = touch("cache/test");
 		list($main_version, $sub_version) = explode(".", phpversion("sqlite"));
 		$arr_param["permissions"] = touch("conf/configuration.php") && touch(".groups") && touch(".users");
