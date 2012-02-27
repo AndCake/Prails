@@ -141,7 +141,7 @@ class MainHandler
 			$arr_param["message"] = $success ? "success" : "error";
 		}
 		@mkdir("cache");
-		@mkdir("static");
+		@mkdir("static/images", 0644, true);
 		@mkdir("log");
 		$arr_param["test"] = touch("cache/test");
 		list($main_version, $sub_version) = explode(".", phpversion("sqlite"));

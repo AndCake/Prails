@@ -1765,15 +1765,11 @@ class BuilderHandler
 			while (($imgFile = readdir($dp)) !== false) {
 				if ($imgFile[0] != '.' && is_file($path.$imgFile) && filesize($path.$imgFile) > 0) {
 					fwrite($fp, $fileMagic . $imgFile."\n");
-					if (!is_array($file) && strlen($file) > 0) {
-						$sp = fopen($path.$imgFile, "r");
-						while (!feof($sp)) {
-							fwrite($fp, fread($sp, 4096));
-						}
-						fclose($sp);
-					} else {
-						readfile($path.$imgFile);
+					$sp = fopen($path.$imgFile, "r");
+					while (!feof($sp)) {
+						fwrite($fp, fread($sp, 4096));
 					}
+					fclose($sp);
 				}
 			}
 			closedir($path);
