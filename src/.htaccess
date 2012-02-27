@@ -8,6 +8,7 @@ AddType text/css css cssgz
 AddEncoding gzip cssgz
 AddType text/javascript js jsgz
 AddEncoding gzip jsgz
+ErrorDocument 404 /rewrite.php
 
 <IfModule rewrite_module>
 	RewriteEngine on
