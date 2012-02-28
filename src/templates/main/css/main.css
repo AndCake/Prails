@@ -31,13 +31,13 @@ div.langtooltip {
 }
 
 .global-home-left-nav-button {
-	@button;
+	@button(,,16px);
 }
 
 .global-home-left-nav {
 	.dp20;
 	text-shadow: -1px -1px 1px #efefef;
-	#gradient>.vertical(#fff;#dddddd);
+	#gradient>.vertical(#fff,#dddddd);
 	.box-shadow(2px 2px 10px #ccc);
 	border: 1px solid #369;
 	.border-radius(10px);

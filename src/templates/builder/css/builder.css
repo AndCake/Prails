@@ -3,14 +3,14 @@ div#qwbuilder_handlerPanel {
 }
 
 div#qwbuilder_headerPanel {
-	#gradient>.vertical(#fff; #EFEBE7);
+	#gradient>.vertical(#fff, #EFEBE7);
 	color: #414141;
 	text-shadow: -1px -1px 1px white;
 	font-weight: bold;
 	padding:5px;
 	font-size: 140%;
 	&.production {
-		#gradient>.vertical(#fff; #faa);
+		#gradient>.vertical(#fff, #faa);
 	}
 }
 
