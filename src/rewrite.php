@@ -13,7 +13,7 @@ $recond = 0;
 foreach ($lines as $line) {
 	if (preg_match('/RewriteCond\\b(.*)$/mi', $line, $match)) {
 		$recond++;
-		$parts = split(" ", trim($match[1]));
+		$parts = explode(" ", trim($match[1]));
 		if (preg_match('/%\\{([^\\}]+)\}/m', $parts[0], $varName)) {
 			if (strpos($varName[1], ":") !== false) {
 				$varParts = explode(":", $varName[1]);

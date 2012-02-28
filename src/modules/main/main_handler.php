@@ -141,6 +141,31 @@ class MainHandler
 			$success = $success && @file_put_contents(".groups", $str_grp);
 			$arr_param = $_POST; 			
 			$arr_param["message"] = $success ? "success" : "error";
+		} else if (isset($_GET["test"])) {
+			$db = $_GET['db'];
+			global $arr_dbs;
+			$arr_dbs["test"] = $db;
+			if ($db['type'] == 'MYSQL') {
+				include_once("lib/mysql.php");
+				$sql = new MySQL();
+			} else if ($db['type'] == 'POSTGRESQL') { 
+				include_once("lib/postgresql.php");
+				$sql = new PostgreSQL();
+			}
+			try {
+				$res = $sql->connect("test");
+				if (!$res) throw new Exception("error connecting to DB server");
+			} catch(Exception $e) {
+				var_dump($e);
+				header("HTTP/1.0 404 Not Found");
+				header("Status: 404 Not Found");
+				die("-");
+			}
+			header("HTTP/1.0 200 OK");
+			header("Status: 200 OK");
+			header("Content-Type: image/gif");
+			echo base64_decode("R0lGODlhMwAxAIAAAAAAAP/// yH5BAAAAAAALAAAAAAzADEAAAK8jI+pBr0PowytzotTtbm/DTqQ6C3hGX ElcraA9jIr66ozVpM3nseUvYP1UEHF0FUUHkNJxhLZfEJNvol06tzwrgd LbXsFZYmSMPnHLB+zNJFbq15+SOf50+6rG7lKOjwV1ibGdhHYRVYVJ9Wn k2HWtLdIWMSH9lfyODZoZTb4xdnpxQSEF9oyOWIqp6gaI9pI1Qo7BijbF ZkoaAtEeiiLeKn72xM7vMZofJy8zJys2UxsCT3kO229LH1tXAAAOw==");
+			die();
 		}
 		@mkdir("cache");
 		@mkdir("static/images", 0644, true);

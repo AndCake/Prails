@@ -12,7 +12,7 @@ fieldset legend { font-weight: bold; }
 			method: "get",
 			on404: function(req) {
 				$("error-container").insert(
-					new Element("p", {'class': "error"}).update("No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, mod_rewrite support will be deactivated.")
+					new Element("p", {'class': "error"}).update("No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, the system's performance might not be optimal.")
 				);
 			},
 			onSuccess: function(req) {
@@ -40,7 +40,7 @@ fieldset legend { font-weight: bold; }
 	<p class="error">Your data could not be saved. Please check user permissions.</p>
 <? } ?>
 </div>
-<form method="post" action="?event=main:setup&check">
+<form method="post" id="setup-form" action="?event=main:setup&check">
 	<input type="hidden" id="mod_rewrite" name="rewrite" value="false"/>
 	<fieldset>
 		<legend>Project Data</legend>
@@ -122,17 +122,43 @@ fieldset legend { font-weight: bold; }
 	</fieldset>
 	
 	<div class="actions">
-		<button type="submit">Save</button>
+		<button id="submit-button" type="submit" onclick="return checkConnection();">Save</button>
 	</div>
 	
 	<script type="text/javascript">
 	//<![CDATA[
+	    var checkConnection = function() {
+		if ($('dbtype').value != "SQLITE") {
+			try {
+			$("submit-button").disabled = true;
+			var list = $$(".mysql input");
+			var vars = "&db[type]="+encodeURIComponent($('dbtype').value);
+			for (var i = 0; i < list.length; i++) {
+				if (list[i].value.length > 0) {
+					vars += "&"+encodeURIComponent(list[i].name) + "=" + encodeURIComponent(list[i].value);
+				}
+			}
+			var toSend = new Image();
+			toSend.onload = function() {
+				$("setup-form").submit();
+			};
+			toSend.onerror = function() {
+				alert("Unable to connect to the given database. Please check the credentials.");
+				$("submit-button").disabled = false;
+			};
+			toSend.src = "?event=main:setup&test"+vars+"&id="+(new Date().getTime());
+			} catch(e) {window.console && console.log(e.message);};
+			return false;
+		}
+		return true;
+	    };
 	    if (!window.$) {
 	    	var e = document.createElement("p");
 	    	e.className = "error";
-	    	e.innerHTML = "No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, mod_rewrite support will be deactivated."; 
+	    	e.innerHTML = "No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, the system's performance might not be optimal."; 
 	    	document.getElementById("error-container").appendChild(e);
 		window.$$ = function(a) { return document.querySelectorAll(a); };
+		window.$ = function(a) { return document.getElementById(a); }
 	    }
 		window.userClone = $$('.users .user')[0].cloneNode(true);
 	//]]>
