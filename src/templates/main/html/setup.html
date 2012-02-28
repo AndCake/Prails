@@ -61,13 +61,17 @@ fieldset legend { font-weight: bold; }
 		<legend>Database</legend>
 		<div class="form-field">
 			<label for="dbtype">* Type:</label>
-			<select name="db[type]" id="dbtype" size="1" onchange="this.value == 'MYSQL' && $$('.mysql')[0].show() || $$('.mysql')[0].hide();">
+			<select name="db[type]" id="dbtype" size="1" onchange="this.value == 'MYSQL' && ($$('.mysql')[0].style.display='block') || ($$('.mysql')[0].style.display='none');">
 				<option value="SQLITE" <?=($arr_param['db']['type'] == 'SQLITE' ? 'selected="selected"' : '')?>>SQLite</option>
 				<option value="MYSQL" <?=($arr_param['db']['type'] == 'MYSQL' ? 'selected="selected"' : '')?>>MySQL</option>
 				<option value="POSTGRESQL" <?=($arr_param['db']['type'] == 'POSTGRESQL' ? 'selected="selected"' : '')?>>PostgreSQL</option>
 			</select>
 		</div>
 		<div class="mysql" <?=($arr_param['db']['type'] == 'SQLITE' ? 'style="display:none;"' : '')?>>
+			<div class="form-field">
+				<label for="dbhost">* Host name:</label>
+				<input id="dbhost" type="text" name="db[host]" value="#db.host" class="required" />
+			</div>
 			<div class="form-field">
 				<label for="dbname">* Name:</label>
 				<input id="dbname" type="text" name="db[name]" value="#db.name" class="required" />
@@ -90,7 +94,7 @@ fieldset legend { font-weight: bold; }
 				<label>* Admin Password:</label>
 				<input type="hidden" name="user[name][]" value="admin"/>
 				<input type="hidden" name="user[group][]" value="devel" />
-				<input type="password" name="user[pass][]" value="" class="required"/>
+				<input type="password" name="user[pass][]" value="" class="required" required/>
 			</div>
 		</div>
 		<div class="users">
@@ -112,7 +116,7 @@ fieldset legend { font-weight: bold; }
 				</div>
 			</div>
 		</div>
-		<a href="javascript:" onclick="$$('.users')[0].insert(window.userClone);window.userClone=window.userClone.clone(true);">add another user</a>
+		<a href="javascript:" onclick="$$('.users')[0].appendChild(window.userClone);window.userClone=window.userClone.cloneNode(true);">add another user</a>
 		<!-- let the user enter multiple users here -->
 		<!-- each one with user name, password and the user group be belongs to -->
 	</fieldset>
@@ -128,8 +132,9 @@ fieldset legend { font-weight: bold; }
 	    	e.className = "error";
 	    	e.innerHTML = "No mod_rewrite could be detected. Please make sure that you have it installed and activated. If you proceed without, mod_rewrite support will be deactivated."; 
 	    	document.getElementById("error-container").appendChild(e);
+		window.$$ = function(a) { return document.querySelectorAll(a); };
 	    }
-		window.userClone = $$('.users .user')[0].clone(true);
+		window.userClone = $$('.users .user')[0].cloneNode(true);
 	//]]>
 	</script>
 </form>

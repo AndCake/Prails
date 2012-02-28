@@ -81,11 +81,10 @@ define ("DB_CACHE_SIZE", 4 * 1024 * 1024);
 define ("USE_AUTO_DEPLOY", false || FIRST_RUN);
 
 /*<KEEP-3>*/
-switch ($_SERVER["SERVER_ADDR"])
-{
+switch ($_SERVER["SERVER_ADDR"]) {
    default:
    	  $arr_dbs = Array(
-   	  	"offline"=>Array(
+   	  	"offline" => Array(
    	  		"host"=>"localhost",
    	  		"name"=>"test",			// database name - change this
    	  		"user"=>"root",			// database user - change this

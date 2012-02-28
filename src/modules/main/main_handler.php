@@ -108,11 +108,13 @@ class MainHandler
 				$conf = file_get_contents("conf/configuration.php");
 				$conf = str_replace(Array(
 					'define ("DB_TYPE", SQLITE);',
+					'"host"=>"localhost",',
    	  				'"name"=>"test",			// database name - change this',
 					'"user"=>"root",			// database user - change this',
 					'"pass"=>"",				// database password - change this'
 				), Array(
 					'define ("DB_TYPE", '.$arr_db["type"].');',
+					'"host"=>"'.$arr_db['host'].'",',
 					'"name"=>"'.$arr_db["name"].'",			// database name - change this',
 					'"user"=>"'.$arr_db["user"].'",			// database user - change this',
 					'"pass"=>"'.$arr_db["pass"].'",			// database password - change this'
@@ -147,6 +149,7 @@ class MainHandler
 		list($main_version, $sub_version) = explode(".", phpversion("sqlite"));
 		$arr_param["permissions"] = touch("conf/configuration.php") && touch(".groups") && touch(".users");
 		$arr_param["db"]["type"] = (version_compare(PHP_VERSION, "5.3.0") >= 0 && $main_version >= 2 ? "SQLITE" : "MYSQL");
+		$arr_param['db']['host'] = "localhost";
 		
 		return $this->_callPrinter("setup", $arr_param);
     }
