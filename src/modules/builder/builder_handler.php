@@ -1025,6 +1025,14 @@ class BuilderHandler
         die ($this->_callPrinter("editLibrary", $arr_param));
     }
 
+    function libraryHistory()
+    {
+        $_SESSION["library_id"] = if_set($_GET["library_id"], $_SESSION["library_id"]);
+        $arr_param["history"] = $this->obj_data->listLibraryHistory($_SESSION["library_id"]);
+
+        die ($this->_callPrinter("libraryHistory", $arr_param));
+    }
+
     function deleteTag()
     {
         $this->obj_data->deleteTag($_GET["tag_id"]);

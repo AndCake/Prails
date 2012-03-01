@@ -3,6 +3,7 @@
 <form id="hforml<?=(int)$arr_param["library"]["library_id"]?>" method="post" action="?event=builder:home" onsubmit="return false;">
 	<label for="name">Name of Library</label><br/>
 	<input type="text" id="lib_name_#library.library_id" name="library[name]" value="#library.name" /><br/><br/>
+	<input type="hidden" id="lib_nameh_#library.library_id" value="#library.name" />
 	
 	<label for="codel<?=(int)$arr_param["library"]["library_id"]?>">Library Code:</label><br/>
 	<input type="hidden" id="hCodel<?=(int)$arr_param["library"]["library_id"]?>" name="library[code]" value="" />
@@ -12,11 +13,18 @@
 	<script type="text/javascript">
 	//<![CDATA[
 		setTimeout(function() {
-			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function() {
-		    	if (this.saving) return;
-		    	this.saving = true;
-		    	document.title = "Saving Library "+$("lib_name_#library.library_id").getValue()+"...";
+			$("hforml<?=(int)$arr_param['library']['library_id']?>").save = function(mergeOnly) {
+			    	if (this.saving) return;
+			    	this.saving = true;
+				if (!mergeOnly) {
+				    	document.title = "Saving Library "+$("lib_name_#library.library_id").getValue()+"...";
+				}
+				$("lib_nameh_#library.library_id").value = $("lib_name_#library.library_id").value;
 				$('hCodel<?=(int)$arr_param["library"]["library_id"]?>').value=Builder.getCode("codel<?=(int)$arr_param['library']['library_id']?>");
+				if (mergeOnly) {
+					this.saving = false;
+					return;
+				}
 				var me = this;
 				invoke(null, 'builder:editLibrary&check=1&module_id=<?=$arr_param['library']['fk_module_id']?>&library_id=<?=(int)$arr_param['library']['library_id']?>', $('hforml<?=(int)$arr_param["library"]["library_id"]?>').serialize(), true, function(req) {
 					me.saving = false;
@@ -72,7 +80,50 @@
 				handler: function(e) {
 					$("hforml<?=(int)$arr_param['library']['library_id']?>").save();
 				}
-			},"-"]);
+			},"-", {
+				xtype: "button",
+				id: "library.#library.library_id_viewHistory.button",
+				text: "View History",
+				iconCls: "history",
+				disabled: (<?=(int)$arr_param["library"]["library_id"]?> == 0 ? true : false),
+				menu: {
+					items: [],
+					listeners: {
+						beforeshow: function(menu) {
+							if (!$("library.#library.library_id_viewHistory.button").historySet) {
+								$("hforml<?=(int)$arr_param['library']['library_id']?>").save(true);
+							}
+							new Ajax.Request("?event=builder:libraryHistory&library_id=<?=(int)$arr_param["library"]["library_id"]?>", {
+								method: "get", 
+								onSuccess: function(req) {
+									menu.removeAll();
+									try {
+										var data = eval('('+req.responseText.replace(/<!--([^-]|-[^-]|--[^>])+-->/gi, '')+')');
+									} catch(e) { console.log(e.message); }
+									$A(data).each(function(item) {
+										menu.add({
+											text: item.date,
+											handler: function() {
+												// do whatever is necessary
+												if (item.name == null && item.data == null) {
+													showHistory($('lib_name_#library.library_id'), $("lib_nameh_#library.library_id"));
+													showHistory('codel<?=(int)$arr_param['library']['library_id']?>', $('hCodel<?=(int)$arr_param["library"]["library_id"]?>'));
+													$("library.#library.library_id_viewHistory.button").historySet = false;
+												} else {
+													showHistory($('lib_name_#library.library_id'), item.name);
+													showHistory('codel<?=(int)$arr_param['library']['library_id']?>', item.data);
+													$("library.#library.library_id_viewHistory.button").historySet = true;
+												}
+											}
+										});
+									});
+									menu.doLayout();
+								}
+							}); 
+						}
+					}	
+				}
+			}]);
 			Ext.getCmp("portlet_content_l_<?=(int)$arr_param['library']['library_id']?>").getTopToolbar().doLayout();
 		}, 100);
 	//]]>

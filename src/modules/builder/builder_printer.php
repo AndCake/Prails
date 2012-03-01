@@ -111,6 +111,10 @@ class BuilderPrinter
     {
         return Generator::getInstance()->includeTemplate("templates/builder/html/editLibrary.html", $arr_param, false);
     }
+    function libraryHistory($arr_param) {
+        $arr_param['session'] = &$_SESSION;
+        return Generator::getInstance()->includeTemplate("templates/builder/html/libraryHistory.html", $arr_param, false);
+    }
     function editTag($arr_param)
     {
         return Generator::getInstance()->includeTemplate("templates/builder/html/editTag.html", $arr_param, false);
