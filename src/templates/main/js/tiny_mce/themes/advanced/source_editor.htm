@@ -3,6 +3,45 @@
 	<title>{#advanced_dlg.code_title}</title>
 	<script type="text/javascript" src="../../tiny_mce_popup.js"></script>
 	<script type="text/javascript" src="js/source_editor.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="../../../../../builder/js/codeeditor/lib/codemirror.css"/> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/lib/codemirror.js"></script> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/lib/util/foldcode.js"></script> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/mode/xml/xml.js"></script> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/mode/css/css.js"></script> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/mode/clike/clike.js"></script> 
+	<script type="text/javascript" src="../../../../../builder/js/codeeditor/mode/javascript/javascript.js"></script> 
+	<style type="text/css">
+		@font-face {
+		    font-family: 'MesloLGMDZRegular';
+		    src: url('../../../../../builder/css/meslolgm-dz-regular-webfont.eot');
+		    src: url('../../../../../builder/css/meslolgm-dz-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		         url('../../../../../builder/css/meslolgm-dz-regular-webfont.woff') format('woff'),
+		         url('../../../../../builder/css/meslolgm-dz-regular-webfont.ttf') format('truetype'),
+		         url('../../../../../builder/css/meslolgm-dz-regular-webfont.svg#MesloLGMDZRegular') format('svg');
+		    font-weight: normal;
+		    font-style: normal;
+		
+		}
+
+		html, body { margin: 0px; padding: 0px; font-size: 11px; }
+		.CodeMirror pre.activeline {
+			background-color: #ffffef;
+		}
+		.CodeMirror-scroll { height: 100%; }
+		.CodeMirror-completions { position: absolute; margin-top: -1em; }
+		.CodeMirror-completions select { outline: none; }
+		.CodeMirror, .CodeMirror-scroll {
+			display: block;
+			width: 100% !important;
+		}
+		.CodeMirror {
+			font-family: MesloLGMDZRegular, monospace;
+			line-height: 1.5em; 
+			background: white;
+			height: 90%;
+		}
+	</style>
 </head>
 <body onresize="resizeInputs();" style="display:none; overflow:hidden;">
 	<form name="source" onsubmit="saveContent();return false;" action="#">
@@ -21,5 +60,28 @@
 			<input type="button" role="button" name="cancel" value="{#cancel}" onclick="tinyMCEPopup.close();" id="cancel" />
 		</div>
 	</form>
+	<script type="text/javascript">
+		window.onload = function() {
+		if (parent.Builder) {
+			document.getElementById("htmlSource").editor = CodeMirror.fromTextArea(document.getElementById("htmlSource"), {
+					lineNumbers: true,
+					matchBrackets: true,
+					mode: "text/html",
+					indentUnit: 4,
+					tabSize: 4,
+					onGutterClick: CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder),
+					onChange: function() {
+						document.getElementById("htmlSource").value = document.getElementById("htmlSource").editor.getValue();
+					},
+					onCursorActivity: function() {
+						if (window.hlLine) {
+							document.getElementById("htmlSource").editor.setLineClass(window.hlLine, null);
+						}
+						window.hlLine = document.getElementById("htmlSource").editor.setLineClass(document.getElementById("htmlSource").editor.getCursor().line, "activeline");
+					}
+			});
+			window.hlLine = document.getElementById("htmlSource").editor.setLineClass(0, "activeline");
+		}};
+	</script>
 </body>
 </html>
