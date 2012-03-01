@@ -1322,22 +1322,10 @@ function receiveFile($fileName, $targetPath) {
 }
 
 function getUrl($event) {
-	if (MOD_REWRITE === true) {
-		if ($event[strlen($event) - 1] != '/') {
-			$event .= "/";
-		}
-		return $event;
-	} else {
-		$parts = explode("/", $event);
-		if (preg_match('/^(list|edit|delete|view)\\w+$/mi', $parts[1]) > 0) {
-			$name = str_replace(Array("list", "edit", "delete", "view"), "", $parts[1]);
-			$name = strtolower($name[0]).substr($name, 1)."_id=";
-		} else {
-			$name = "";
-		}
-		$url = "?event=".$parts[0].":".$parts[1]."&".$name;
-		return $url;
+	if ($event[strlen($event) - 1] != '/') {
+		$event .= "/";
 	}
+	return $event;
 }
 
 ?>

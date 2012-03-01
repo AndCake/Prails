@@ -148,6 +148,7 @@ clear, .clear { display: block; height: 0px; clear: both; }
   #gradient > .vertical(@color,darken(saturate(@color,10),10));
   padding: @padding;
   text-shadow: @textShadow;
+  border: 1px solid darken(saturate(@color, 20));
   color: @textColor;
   font-size: @fontSize;
   line-height: @fontSize * 1.5;
