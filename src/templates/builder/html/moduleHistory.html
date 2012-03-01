@@ -1,27 +1,19 @@
-<ul class="historyList" id="h_#session.module_id" style="display:none;">
-	<? if (is_array($arr_param["history"])) foreach ($arr_param["history"] as $history) { ?>
-	<? $name = unserialize(base64_decode($history['name'])); ?>
-	<? $js = unserialize(base64_decode($history['js_code'])); ?>
-	<? $css = unserialize(base64_decode($history['style_code'])); ?>
-	<li><a href="" onclick="try{showHistory($('m_name_#session.module_id'), this.down('code'));showHistory('js_code#session.module_id', this.down('code', 1));showHistory('code#session.module_id', this.down('code', 2));}catch(e){console.log(e.message);};return false;">
-		<?=date("H:i:s - d.m.Y", $history["change_time"])?>
-		<code style="display:none;"><? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?></code>
-		<code style="display:none;"><? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { /*if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=($entry["d"])?></del><br/><?}*/ if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line."\n")?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"]."\n")?><?}} else { echo ($entry)."\n"; }} ?></code>
-		<code style="display:none;"><? if (is_array($css)) foreach ($css as $entry) { if (is_array($entry)) { /*if(is_array($entry["d"])) foreach ($entry["d"] as $line) { ?><del><?=($line)?></del><br/><? } else if (strlen($entry["d"])>0){?><del><?=($entry["d"])?></del><br/><?}*/ if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line."\n")?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"]."\n")?><?}} else { echo ($entry)."\n"; }} ?></code>
-	</a></li>
-	<? } ?>
-	<li><a href="" onclick="showHistory($('m_name_#session.module_id'), $('m_nameh_#session.module_id'));showHistory('js_code#session.module_id', $('hJsCodem#session.module_id'));showHistory('code#session.module_id', $('hCode#session.module_id'));return false;">now</a></li>
-</ul>
-<script type="text/javascript">
-//<![CDATA[
-	(function(){	
-		$("container_m_#session.module_id").observe("history:loaded", function(event){
-			$("h_#session.module_id").fisheye = new FishEye($("h_#session.module_id").select("li a"), {
-				container: $("h_#session.module_id"),
-				big: {width: 210, height:20}, 
-				small: {width:40, height: 5}
-			});
-		});
-	})();
-//]]>
-</script>
+[
+<? if (is_array($arr_param["history"])) foreach ($arr_param["history"] as $history) { $name = unserialize(base64_decode($history['name'])); $js = unserialize(base64_decode($history['js_code'])); $less = unserialize(base64_decode($history['style_code'])); ?>
+{
+
+	"date": "<?=date("H:i:s - d.m.Y", $history["change_time"])?>",
+
+	"name": "<? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?>",
+
+	"js": "<? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line))?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"]))?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry)); }} ?>",
+	
+	"less": "<? if (is_array($less)) foreach ($less as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line))?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"]))?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry)); }} ?>"
+},
+<? } ?>
+{
+	"date": "now",
+	"name": null,
+	"js": null,
+	"less": null
+}]

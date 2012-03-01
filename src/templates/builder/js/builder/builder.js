@@ -1104,11 +1104,37 @@ window.Builder = Object.extend(window.Builder || {}, {
 
 (function() {
 		window.showHistory = function(target, source) {
-			if (source.tagName.toLowerCase() == "textarea") {
+			if (typeof(source) == "string") {
+				var target = $(target);
+				var rel = $(target).getAttribute('rel');
+				if (rel && rel.length > 0) {
+					if ((matches=/call:([^\(]+)\(([^\)]+)\)/g.exec(rel))) {
+						var func = eval(matches[1]);
+						try {
+							func.apply(window, matches[2].split(/,/).concat([(source || "")]));
+						} catch(e) {
+							console.log("error calling history function "+matches[1]+"\nReason: ", e);
+						}
+					} else {
+						if ($(rel)) {
+							Builder.setCode(rel, source || "");
+						} else {
+							Builder.setCode(target, source || "");
+						}
+					}
+				} else {
+					if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
+						target.value = source || "";
+					} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
+						Builder.setCode(target, source || "");
+					}
+				}	
+			} else if (source.tagName.toLowerCase() == "textarea") {
 				target.setCode(source.value);
 			} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
 				target.value = source.value;
 			} else {
+				
 				var pos = 0;
 				source.up().childElements().each(function(item, key){
 					if (item == source) pos = key;
@@ -1191,6 +1217,7 @@ window.Replication = {
 	},
 	
 	start: function(selects) {
+		$("replication_details").down("button").disabled = true;
 		var data = "";
 		$A(selects).each(function(item){
 			data += "&"+item.serialize();
@@ -1199,9 +1226,11 @@ window.Replication = {
 			// replication completed...
 			if (req.responseText == "success") {
 				Ext.Msg.alert("Replication Status", "The replication completed successfully.");
+				$("replication_details").down("button").disabled = false;
 				packageWindow.close();
 			} else {
 				Ext.Msg.alert("Replication Status", "There was a problem during replication: "+req.responseText);
+				$("replication_details").down("button").disabled = false;
 			}
 		});
 	}

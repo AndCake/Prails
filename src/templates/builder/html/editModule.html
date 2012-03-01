@@ -39,16 +39,23 @@
         <script type="text/javascript">
         	//<![CDATA[
 				setTimeout(function() {
-					$("container_m_#module.module_id").save = function() {
-				    	  if (this.saving) return;
-				    	  this.saving = true;
-				    	  document.title = "Saving module "+$("m_name_#module.module_id").value+"...";
-						if (["empty", "main", "builder"].indexOf($('m_name_#module.module_id').getValue()) >= 0) {
+					$("container_m_#module.module_id").save = function(mergeOnly) {
+				    		if (this.saving) return;
+				    	  	this.saving = true;
+					  	if (!mergeOnly) {
+					    	  document.title = "Saving module "+$("m_name_#module.module_id").value+"...";
+					  	}
+					  	if (["empty", "main", "builder"].indexOf($('m_name_#module.module_id').getValue()) >= 0) {
 							$('m_name_#module.module_id').value = "_" + $('m_name_#module.module_id').getValue();
 						}
+						$("m_nameh_#module.module_id").value = $('m_name_#module.module_id').getValue();
 						$('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>').value=Builder.getCode("js_code<?=(int)$arr_param["module"]["module_id"]?>");
 						$("hCode<?=(int)$arr_param['module']['module_id']?>").value=Builder.getCode("code<?=(int)$arr_param['module']['module_id']?>");
-					    var me = this;
+						if (mergeOnly) {
+							this.saving = false;
+							return;
+						}
+					        var me = this;
 						invoke(null, 'builder:editModule&check=1&module_id=<?=(int)$arr_param['module']['module_id']?>', $('hform<?=(int)$arr_param["module"]["module_id"]?>').serialize(), true, function(req) {
 							me.saving = false;
 							document.title = "Prails Home";
@@ -130,16 +137,45 @@
 						id: "module.#module.module_id_viewHistory.button",
 						text: "View History",
 						iconCls: "history",
-						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),
-						handler: function(e) {
-							if ($("h_#module.module_id") != null) {
-								$("h_#module.module_id").fisheye.dispose();
-								$("h_#module.module_id").remove();
-								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("View History");
-							} else {
-								Builder.browseModuleHistory(#module.module_id);
-								Ext.getCmp("module.#module.module_id_viewHistory.button").setText("Leave History");
-							}
+						disabled: (<?=(int)$arr_param["module"]["module_id"]?> <= 0 ? true : false),				
+						menu: {
+							items: [],
+							listeners: {
+								beforeshow: function(menu) {
+									if (!$("module.#module.module_id_viewHistory.button").historySet) {
+										$("container_m_#module.module_id").save(true);
+									}
+									new Ajax.Request("?event=builder:moduleHistory&module_id=<?=(int)$arr_param["module"]["module_id"]?>", {
+										method: "get", 
+										onSuccess: function(req) {
+											menu.removeAll();
+											try {
+												var data = eval('('+req.responseText.replace(/<!--([^-]|-[^-]|--[^>])+-->/gi, '')+')');
+											} catch(e) { console.log(e.message); }
+											$A(data).each(function(item) {
+												menu.add({
+													text: item.date,
+													handler: function() {
+														// do whatever is necessary
+														if (item.name == null && item.js == null && item.less == null) {
+															showHistory($('m_name_#module.module_id'), $("m_nameh_#module.module_id"));
+															showHistory('js_code<?=(int)$arr_param["module"]["module_id"]?>', $('hJsCodem<?=(int)$arr_param["module"]["module_id"]?>'));
+															showHistory('code<?=(int)$arr_param['module']['module_id']?>', $("hCode<?=(int)$arr_param['module']['module_id']?>"));
+															$("module.#module.module_id_viewHistory.button").historySet = false;
+														} else {
+															showHistory($('m_name_#module.module_id'), item.name);
+															showHistory('js_code<?=(int)$arr_param["module"]["module_id"]?>', item.js);
+															showHistory('code<?=(int)$arr_param['module']['module_id']?>', item.less);
+															$("module.#module.module_id_viewHistory.button").historySet = true;
+														}
+													}
+												});
+											});
+											menu.doLayout();
+										}
+									}); 
+								}
+							}	
 						}
 					}, "-", {
 						xtype: "button",

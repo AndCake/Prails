@@ -162,6 +162,8 @@
 			text: "Save",
 			iconCls: "save",
 			handler: function(e) {
+				if (window.savingTable) return;
+				window.savingTable = true;
 				var fields = "";
 				var types = "";
 				var list = grid.getStore().data.items;
@@ -187,6 +189,7 @@
 				});
 				if (parseInt("0"+params["scaffold[fk_module_id]"], 10) <= 0 && $('sel_module#table.table_id') && !$("sel_module#table.table_id").disabled) {
 					Ext.Msg.alert("Status", "Please provide the module you want to generate the data queries / event handlers in.").setIcon(Ext.Msg.ERROR);
+					window.savingTable = false;
 					return;
 				}
 				new Ajax.Request("?event=builder:editTable&check=1&table_id=<?=(int)$arr_param['table']['table_id']?>",{
@@ -212,6 +215,7 @@
 							Builder.dbRoot.appendChild(n);
 							Builder.editTable(n);
 						}
+						window.savingTable = false;
 					}
 				});
 			}

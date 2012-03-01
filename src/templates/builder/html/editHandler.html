@@ -495,15 +495,44 @@
 				text: "View History",
 				iconCls: "history",
 				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 ? true : false),
-				handler: function(e) {
-					if ($("ha_#handler.handler_id") != null) {
-						$("ha_#handler.handler_id").fisheye.dispose();
-						$("ha_#handler.handler_id").remove();
-						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("View History");
-					} else {
-						Builder.browseHandlerHistory(#handler.handler_id);
-						Ext.getCmp("handler.#handler.handler_id_viewHistory.button").setText("Leave History");
-					}
+				menu: {
+					items: [],
+					listeners: {
+						beforeshow: function(menu) {
+							if (!$("handler.#handler.handler_id_viewHistory.button").historySet) {
+								$("container_h_#handler.handler_id").save(true);
+							}
+							new Ajax.Request("?event=builder:handlerHistory&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>", {
+								method: "get", 
+								onSuccess: function(req) {
+									menu.removeAll();
+									try {
+										var data = eval('('+req.responseText.replace(/<!--([^-]|-[^-]|--[^>])+-->/gi, '')+')');
+									} catch(e) { console.log(e.message); }
+									$A(data).each(function(item) {
+										menu.add({
+											text: item.date,
+											handler: function() {
+												// do whatever is necessary
+												if (item.name == null && item.code == null && item.html == null) {
+													showHistory($('h_event_<?=(int)$arr_param["handler"]["handler_id"]?>'), $('h_eventh_<?=(int)$arr_param["handler"]["handler_id"]?>'));
+													showHistory('hcodehcontainer<?=(int)$arr_param["handler"]["handler_id"]?>', $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>'));
+													showHistory('hhtmlcodehcontainer<?=(int)$arr_param["handler"]["handler_id"]?>', $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>'));
+													$("handler.#handler.handler_id_viewHistory.button").historySet = false;
+												} else {
+													showHistory($('h_event_<?=(int)$arr_param["handler"]["handler_id"]?>'), item.name);
+													showHistory('hcodehcontainer<?=(int)$arr_param["handler"]["handler_id"]?>', item.code);
+													showHistory('hhtmlcodehcontainer<?=(int)$arr_param["handler"]["handler_id"]?>', item.html);
+													$("handler.#handler.handler_id_viewHistory.button").historySet = true;
+												}
+											}
+										});
+									});
+									menu.doLayout();
+								}
+							}); 
+						}
+					}	
 				}
 			}, "-", {
 				xtype: "button",
