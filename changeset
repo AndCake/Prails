@@ -63,318 +63,318 @@ V1.3.0 (January 14th, 2012)
 
 V1.2.2 (October 26th, 2011)
 
-* fixed a problem with exporting
-* fixed a bug with saving content assets, which led to creation of new versions of it
+ * fixed a problem with exporting
+ * fixed a bug with saving content assets, which led to creation of new versions of it
 
 
 V1.2.1 (October 24th, 2011)
 
-* added variable highlighting for handler code 
-* updated several scaffolded handler codes to make sure that $arr_param is not overridden
-* fixed backups not being found after creation
-* fixed a problem with importing _very_ large exports/backups
-* fixed a bug where cache entries may be written concurrently
-* fixed a bug with code editor in conjunction with search&replace (did not immediately update the code field and did not correctly show the found items
+ * added variable highlighting for handler code 
+ * updated several scaffolded handler codes to make sure that $arr_param is not overridden
+ * fixed backups not being found after creation
+ * fixed a problem with importing _very_ large exports/backups
+ * fixed a bug where cache entries may be written concurrently
+ * fixed a bug with code editor in conjunction with search&replace (did not immediately update the code field and did not correctly show the found items
 
 
 V1.2.0 (October 20th, 2011)
 
-* added explicit use of foreign key constraints for all supported database systems (won't break existing db structures)
-* added an automated backup and restore functionality
-* added a hook for overriding the global home page rather than directly changing the handler code of it (fully backwards compatible)
-* added a simple profiling tool (therefore also added a button for all system-collected profiling data)
-* added functionality to replicate code and database structure securely to production systems
-* added PostgreSQL support
-* added library uploading (so if you have some PHP library you want to use in your project, simply upload and use it) 
-* added new code editor for all code fields:
+ * added explicit use of foreign key constraints for all supported database systems (won't break existing db structures)
+ * added an automated backup and restore functionality
+ * added a hook for overriding the global home page rather than directly changing the handler code of it (fully backwards compatible)
+ * added a simple profiling tool (therefore also added a button for all system-collected profiling data)
+ * added functionality to replicate code and database structure securely to production systems
+ * added PostgreSQL support
+ * added library uploading (so if you have some PHP library you want to use in your project, simply upload and use it) 
+ * added new code editor for all code fields:
 	* it now _really_ works with iPads & co. 
 	* includes a much better support of auto completion (try CTRL+Space) - even in output code!
 	* now also features current line hint
 	* more precise syntax highlighting
-* added Hooks documentation to built-in API documentation
-* made sure that database contents cannot be imported on production
-* made setting the default language more resistant to (DB) errors
-* Fixed a problem with parameters not intuitively transmitted when using handler names beginning with edit/delete/view (now behaves exactly as with all other handlers, is also fully  backwards compatible)
-* fixed a bug with scaffolding feature when editing multiple tables at the same time
-* fixed a bug where all CTRL+Backspace / CTRL+Left (same for CMD on Mac systems) were surpressed rather than only in non-textareas and non-input fields
-* fixed a bug in built-in API documentation: cross-references were not loaded correctly
-* fixed a bug with page caching in overload situations: the overload lock was released too early
-* fixed a bug where on slow servers, the overload page was shown prematurely in some rare cases
-* fixed a bug where the page's title and description were not correctly re-used when page was cached 
-* removed old code mirror code editor
+ * added Hooks documentation to built-in API documentation
+ * made sure that database contents cannot be imported on production
+ * made setting the default language more resistant to (DB) errors
+ * Fixed a problem with parameters not intuitively transmitted when using handler names beginning with edit/delete/view (now behaves exactly as with all other handlers, is also fully  backwards compatible)
+ * fixed a bug with scaffolding feature when editing multiple tables at the same time
+ * fixed a bug where all CTRL+Backspace / CTRL+Left (same for CMD on Mac systems) were surpressed rather than only in non-textareas and non-input fields
+ * fixed a bug in built-in API documentation: cross-references were not loaded correctly
+ * fixed a bug with page caching in overload situations: the overload lock was released too early
+ * fixed a bug where on slow servers, the overload page was shown prematurely in some rare cases
+ * fixed a bug where the page's title and description were not correctly re-used when page was cached 
+ * removed old code mirror code editor
 
 
 V1.1.2 (September 8th, 2011)
 
-* added a way to upload resources to the global module (warning: as with all global objects, it cannot be exported nor imported through package import)
-* added feature to cache static content assets if their decorator supports it (in case it has no decorator, it will always be cached)
-* added handler-specific caching (so now for example decorators can be cached independant from the actual page they are used in)
-* added endpoint infrastructure (POSTed data can now be executed through extra sub handlers - leads to cleaner code base)
-* added #server.secureUrl (which generates the HTTPS url for the current page)
-* added endpoint detection for precise error reporting in log files
-* added database contents export and import functionality
-* added server overload handling (detection + reaction)
-* added functionality to empty web cache and log files
-* added default language setting to be stored in conf
-* added 404 page for not-found modules / handlers
-* added bulk uploading of resources
-* added functionality to log out
-* arr_param is now always pre-defined within a handler function. It contains any value given to it via server-side invoke
-* improved CMS bookmarklet to enable directly jumping to the content asset in prails when clicking the square
-* updated to newest modernizr version
-* updated to newest jquery version
-* made sure that requested resources are always directed to the correct generation handler
-* simplified doctype to be HTML5 rather than XHTML
-* fixed a problem with not all log files being shown (or ones that don't exist anymore) in help tab
-* fixed a problem with the installer not having the passwords kept correctly
-* fixed a problem with module not being reset after changing configuration
-* fixed a problem with base href not being accepted with relative protocol in IE
-* fixed a bug with control.date computing the resulting timestamp incorrectly
-* fixed a bug with adding CSS & JS files as resources (and then accessing it) 
-* fixed a bug with checking for table existence with MySQL
-* fixed a security bug that enabled any user to edit CMS data on production systems
-* fixed a bug with logging out of the Prails IDE
-* fixed a problem with page caching
-* fixed a bug with session data not stored correctly under some circumstances
-* fixed a bug with handler code being duplicated when saved multiple times
-* fixed a problem with empty / invalid event handler names when creating or renaming a handler
-* fixed a problem where backspace or ALT-left or CMD-left could lead to leaving prails accidentally
+ * added a way to upload resources to the global module (warning: as with all global objects, it cannot be exported nor imported through package import)
+ * added feature to cache static content assets if their decorator supports it (in case it has no decorator, it will always be cached)
+ * added handler-specific caching (so now for example decorators can be cached independant from the actual page they are used in)
+ * added endpoint infrastructure (POSTed data can now be executed through extra sub handlers - leads to cleaner code base)
+ * added #server.secureUrl (which generates the HTTPS url for the current page)
+ * added endpoint detection for precise error reporting in log files
+ * added database contents export and import functionality
+ * added server overload handling (detection + reaction)
+ * added functionality to empty web cache and log files
+ * added default language setting to be stored in conf
+ * added 404 page for not-found modules / handlers
+ * added bulk uploading of resources
+ * added functionality to log out
+ * arr_param is now always pre-defined within a handler function. It contains any value given to it via server-side invoke
+ * improved CMS bookmarklet to enable directly jumping to the content asset in prails when clicking the square
+ * updated to newest modernizr version
+ * updated to newest jquery version
+ * made sure that requested resources are always directed to the correct generation handler
+ * simplified doctype to be HTML5 rather than XHTML
+ * fixed a problem with not all log files being shown (or ones that don't exist anymore) in help tab
+ * fixed a problem with the installer not having the passwords kept correctly
+ * fixed a problem with module not being reset after changing configuration
+ * fixed a problem with base href not being accepted with relative protocol in IE
+ * fixed a bug with control.date computing the resulting timestamp incorrectly
+ * fixed a bug with adding CSS & JS files as resources (and then accessing it) 
+ * fixed a bug with checking for table existence with MySQL
+ * fixed a security bug that enabled any user to edit CMS data on production systems
+ * fixed a bug with logging out of the Prails IDE
+ * fixed a problem with page caching
+ * fixed a bug with session data not stored correctly under some circumstances
+ * fixed a bug with handler code being duplicated when saved multiple times
+ * fixed a problem with empty / invalid event handler names when creating or renaming a handler
+ * fixed a problem where backspace or ALT-left or CMD-left could lead to leaving prails accidentally
 
 
 V1.1.1 (August 4th, 2011)
 
-* added a button at database structure editing for easier creation of foreign keys
-* fixed a problem where strange characters were added in some browsers in code when using CTRL+ALT+LEFT/CTRL+ALT+RIGHT to switch between code tabs
-* fixed a problem with dialog elements producing errors when being removed on close
-* fixed a problem with local variables not being transmitted correctly to output code
-* fixed a problem with saving users (were not shown correctly after save and re-opening of that window)
-* fixed a problem with smtp class not using sender's name for from field
-* fixed a problem with key tables not being editable via queryTest.html
-* made sure that in CMS javascript and style tags are not executed when rendering the wysiwyg field
+ * added a button at database structure editing for easier creation of foreign keys
+ * fixed a problem where strange characters were added in some browsers in code when using CTRL+ALT+LEFT/CTRL+ALT+RIGHT to switch between code tabs
+ * fixed a problem with dialog elements producing errors when being removed on close
+ * fixed a problem with local variables not being transmitted correctly to output code
+ * fixed a problem with saving users (were not shown correctly after save and re-opening of that window)
+ * fixed a problem with smtp class not using sender's name for from field
+ * fixed a problem with key tables not being editable via queryTest.html
+ * made sure that in CMS javascript and style tags are not executed when rendering the wysiwyg field
 
 
 V1.1.0 (July 24th, 2011)
 
-* added user management feature
-* added a media browser for the CMS
-* added bootstrap.less to global css
-* added a micro CSS grid framework to global css
-* added document title progress indicator for upload tag
-* added a new parameter for hyperlink() in order to decide whether or not the URL shown should be stemmed
-* added new variable formatter: date
-* added some skeleton code to handlers before their creation (so that they're not empty)
-* added some more quick tips for editHandler
-* added all shortcuts also within the bespin context
-* added focus indicator for code fields after changing the currently active tab
-* changed wysiwyg editor to tinymce
-* updated to ExtJS 3.4
-* updated to new design
-* improved show log files to include multiple logs
-* improved debugger code generation (now supports switch statements)
-* user credentials are now securely saved
-* optimized debugger and logging functionality (now one log for each log level)
-* made the variable formatters more flexible (are now external files)
-* some file clean-up
-* removed shm caching (too unstable)
-* fixed a few bugs with session not being saved correctly when redirecting or using cached pages
-* fixed a bug in mysql class to avoid unnecessary warnings
-* fixed a bug with runtime warnings and error not showing the class name correctly
-* fixed styles for lang helper (was hardly visible if body text was set to white)
-* fixed a bug with embedding images into minified css
+ * added user management feature
+ * added a media browser for the CMS
+ * added bootstrap.less to global css
+ * added a micro CSS grid framework to global css
+ * added document title progress indicator for upload tag
+ * added a new parameter for hyperlink() in order to decide whether or not the URL shown should be stemmed
+ * added new variable formatter: date
+ * added some skeleton code to handlers before their creation (so that they're not empty)
+ * added some more quick tips for editHandler
+ * added all shortcuts also within the bespin context
+ * added focus indicator for code fields after changing the currently active tab
+ * changed wysiwyg editor to tinymce
+ * updated to ExtJS 3.4
+ * updated to new design
+ * improved show log files to include multiple logs
+ * improved debugger code generation (now supports switch statements)
+ * user credentials are now securely saved
+ * optimized debugger and logging functionality (now one log for each log level)
+ * made the variable formatters more flexible (are now external files)
+ * some file clean-up
+ * removed shm caching (too unstable)
+ * fixed a few bugs with session not being saved correctly when redirecting or using cached pages
+ * fixed a bug in mysql class to avoid unnecessary warnings
+ * fixed a bug with runtime warnings and error not showing the class name correctly
+ * fixed styles for lang helper (was hardly visible if body text was set to white)
+ * fixed a bug with embedding images into minified css
 
 
 V1.0.9 (June 26th, 2011)
 
-* added a fatal message in case templates cannot be cached
-* added separable configuration for development instances, production instances and both
-* added jQuery (can be used with "_" or jQuery instead of "$")
-* added CMS export and import of static images
-* added field name as class to form-entry in input.tag 
-* added [count] postfix for hash data access (p.e. #user.post_list[count] retrieves the number of entries that are returned by #user.post_list)
-* added smtp mail sending
-* performance optimizations
-* some code clean up
-* updated less compiler to latest version
-* made sure that on production no password is needed in order to generate missing images and modules
-* made setup and total system more fail-safe in case there is no mod_rewrite
-* made sure that the session is always written when using jumpTo
-* made warnings not occur in rendered pages but instead be written to log
-* fixed some bugs with setup routine
-* fixed a bug with queryTester
-* fixed a problem with memory consumption of newly optimized less compilation
-* fixed a bug with REPLACE in sqlite
-* fixed query tester problems with new caching and session handling
-* fixed a problem with importing of cms contents
-* fixed a problem with $ at the end of content asset definitions
-* fixed a bug with templates not being rendered incorrectly due to error message thrown while evaluating it
-* fixed a problem with modal windows kept in memory after closing
-* fixed some bugs with caching, CMS export and import
-* fixed a problem with cache not being flushed correctly
-* fixed a problem with full caches in shm version
-* fixed a problem with validation of radio buttons (lead to submit although invalid)
-* fixed a typo in configuration.php
-* fixed a problem with updating configuration
-* fixed a problem with destroying session in case none was active
-* fixed error messages for libraries
-* fixed a bug with saving multiple tables concurrently
-* fixed another bug with retrieval of collections
-* fixed a problem with production instances and camel-cased module names
-* fixed a warning that appeared when running updates, inserts or deletes in a MySQL DB
-* some bug fixing on importing of database tables
-* another small cache fix (speed problem solved)
+ * added a fatal message in case templates cannot be cached
+ * added separable configuration for development instances, production instances and both
+ * added jQuery (can be used with "_" or jQuery instead of "$")
+ * added CMS export and import of static images
+ * added field name as class to form-entry in input.tag 
+ * added [count] postfix for hash data access (p.e. #user.post_list[count] retrieves the number of entries that are returned by #user.post_list)
+ * added smtp mail sending
+ * performance optimizations
+ * some code clean up
+ * updated less compiler to latest version
+ * made sure that on production no password is needed in order to generate missing images and modules
+ * made setup and total system more fail-safe in case there is no mod_rewrite
+ * made sure that the session is always written when using jumpTo
+ * made warnings not occur in rendered pages but instead be written to log
+ * fixed some bugs with setup routine
+ * fixed a bug with queryTester
+ * fixed a problem with memory consumption of newly optimized less compilation
+ * fixed a bug with REPLACE in sqlite
+ * fixed query tester problems with new caching and session handling
+ * fixed a problem with importing of cms contents
+ * fixed a problem with $ at the end of content asset definitions
+ * fixed a bug with templates not being rendered incorrectly due to error message thrown while evaluating it
+ * fixed a problem with modal windows kept in memory after closing
+ * fixed some bugs with caching, CMS export and import
+ * fixed a problem with cache not being flushed correctly
+ * fixed a problem with full caches in shm version
+ * fixed a problem with validation of radio buttons (lead to submit although invalid)
+ * fixed a typo in configuration.php
+ * fixed a problem with updating configuration
+ * fixed a problem with destroying session in case none was active
+ * fixed error messages for libraries
+ * fixed a bug with saving multiple tables concurrently
+ * fixed another bug with retrieval of collections
+ * fixed a problem with production instances and camel-cased module names
+ * fixed a warning that appeared when running updates, inserts or deletes in a MySQL DB
+ * some bug fixing on importing of database tables
+ * another small cache fix (speed problem solved)
 
 
 V1.0.8 (May 8th, 2011)
 
-* added hooks
-* added a simple debugger for data queries and event handlers (not yet for libraries)
-* added new input tag
-* added a tools lib function to receive files uploaded via fileselector.js
-* added CMS helper tooltips and bookmarklet
-* added support for unified <%..%>
-* added RAND method for sqlite
-* added basic set up tool
-* added basic styles for overlabels
-* added input tag documentation
-* added a way to extend the IDE itself via (currently) one hook
-* added short hand for DB queries: get(index,filter,name)
-* added search+replace functionalty (can be triggered via CTRL+F in a code field)
-* added shared memory caching for DB (includes a fallback to file system, if no shared memory can be acquired)
-* added new session manager (stores sessions now in DB)
-* added mapped filtering for DBEntry::get()
-* added explicit db flush functionality at help tab
-* added side nav link in main home template
-* added functionality to not cache external CSS files and JS files
-* added first code completion implementation for PHP code (completion of data query names in handler code)
-* changed validator to use attribute 'error' instead of 'title'
-* changed overlabel to use attribute 'label' instead of 'title'
-* clean up of global css (LESS style)
-* improved SQL query page
-* improved caching of CMS contents so that contents > 1024 bytes are not stored in session anymore
-* improved database access through class Database (easier querying)
-* improved logger to show the error if it was unable to write into error log
-* decorators now get the current context as parameter
-* made LESS more robust (now shows compiler errors and increased embed max filesize)
-* made error reporting less talkative (up to now it also reported NOTICES on some servers)
-* made CMS texts type 1 have a bigger wysiwyg editor
-* re-introduced SQLite alter table support for adding columns
-* updated to newest LESSPHP code
-* updated to newest modernizr version
-* validation enhancements (now required only fields can have own global text override too) 
-* made sure the cache files are removed again
-* made sure that package import assigns contents to correct modules
-* fixed a bug with IE7 and embedded images (which did not display)
-* fixed several issues with css and image handling
-* fixed a problem with saving of SEO information and decorator detection
-* Fixed a problem with certain tag codes that were rendered incorrectly by bespin
-* fixed a bug with handlers not being re-opened after creation
-* fixed a bug in tag lib that did not allow deeper nesting of foreach intermixed with if conditions
-* fixed some issues with images not rendered correctly when pulled via HTML
-* fixed problems with language tag detection
-* fixed a bug in sqlite with ISNULL()
-* fixed a bug in CMS (missing SEO title and description)
-* fixed a bug with configuration not saved correctly if concurrently modified in same session with another module
-* fixed a bug with importing (configurations were imported incorrectly besides other side effects [wrong modules / handlers / data queries aso removed if they had the same ID])
-* fixed a bug with resetting modules after save
-
+ * added hooks
+ * added a simple debugger for data queries and event handlers (not yet for libraries)
+ * added new input tag
+ * added a tools lib function to receive files uploaded via fileselector.js
+ * added CMS helper tooltips and bookmarklet
+ * added support for unified <%..%>
+ * added RAND method for sqlite
+ * added basic set up tool
+ * added basic styles for overlabels
+ * added input tag documentation
+ * added a way to extend the IDE itself via (currently) one hook
+ * added short hand for DB queries: get(index,filter,name)
+ * added search+replace functionalty (can be triggered via CTRL+F in a code field)
+ * added shared memory caching for DB (includes a fallback to file system, if no shared memory can be acquired)
+ * added new session manager (stores sessions now in DB)
+ * added mapped filtering for DBEntry::get()
+ * added explicit db flush functionality at help tab
+ * added side nav link in main home template
+ * added functionality to not cache external CSS files and JS files
+ * added first code completion implementation for PHP code (completion of data query names in handler code)
+ * changed validator to use attribute 'error' instead of 'title'
+ * changed overlabel to use attribute 'label' instead of 'title'
+ * clean up of global css (LESS style)
+ * improved SQL query page
+ * improved caching of CMS contents so that contents > 1024 bytes are not stored in session anymore
+ * improved database access through class Database (easier querying)
+ * improved logger to show the error if it was unable to write into error log
+ * decorators now get the current context as parameter
+ * made LESS more robust (now shows compiler errors and increased embed max filesize)
+ * made error reporting less talkative (up to now it also reported NOTICES on some servers)
+ * made CMS texts type 1 have a bigger wysiwyg editor
+ * re-introduced SQLite alter table support for adding columns
+ * updated to newest LESSPHP code
+ * updated to newest modernizr version
+ * validation enhancements (now required only fields can have own global text override too) 
+ * made sure the cache files are removed again
+ * made sure that package import assigns contents to correct modules
+ * fixed a bug with IE7 and embedded images (which did not display)
+ * fixed several issues with css and image handling
+ * fixed a problem with saving of SEO information and decorator detection
+ * Fixed a problem with certain tag codes that were rendered incorrectly by bespin
+ * fixed a bug with handlers not being re-opened after creation
+ * fixed a bug in tag lib that did not allow deeper nesting of foreach intermixed with if conditions
+ * fixed some issues with images not rendered correctly when pulled via HTML
+ * fixed problems with language tag detection
+ * fixed a bug in sqlite with ISNULL()
+ * fixed a bug in CMS (missing SEO title and description)
+ * fixed a bug with configuration not saved correctly if concurrently modified in same session with another module
+ * fixed a bug with importing (configurations were imported incorrectly besides other side effects [wrong modules / handlers / data queries aso removed if they had the same ID])
+ * fixed a bug with resetting modules after save
+ 
 
 V1.0.7 (February 12, 2011)
 
-* set Bespin as the new Code editor
-* added search for content assets
-* added caching flag for events
-* added the PHP LESS compiler as new LESS compiler (which is much more complete than the previous implementation)
-* added some new tags ("<c:body/>" and "<c:print/>")
-* added SEO data to CMS pages
-* added for development environments a HTML comment wrapping to all translated texts, to avoid this for single texts, add a $ at the end of it's identifier while declaring, like: {user.login.email$}
-* the search / quick open now also includes translations & CMS pages
-* added a way to see the automated testing process while running
-* added a new form validator type that is able to evaluate JS code instead of RegExps only (prepend "javascript:" in rel attribute)
-* added Scripty2 including newest PrototypeJS (1.7), removed old Control.Modal, Control.Tabs and Scriptaculous instead
-* added "floor" and "ceil" to defined sqlite functions
-* added functionality for concurrent modification: editors being edited by someone else are disabled and a notification is shown, content is automatically reloaded as soon as editing by the other one is saved / undoed.
-* improved API display and added some missing documentation
-* added the newest tags to API documentation (body and print) and updated existing documentation
-* removed apply history button (makes no more any sense)
-* fixed the history to correctly work with Bespin
-* fixed a bug in search/quick open
-* fixed a bug with importing of modules via packages
-* fixed a problem with bullet points and lists not correctly shown in CMS
-* fixed a few problems with invoking server-side events in development environments
-* fixed a bug with sendMail which produces artifacts in the eMails sent
-* some code clean up and minor tweaks
-
+ * set Bespin as the new Code editor
+ * added search for content assets
+ * added caching flag for events
+ * added the PHP LESS compiler as new LESS compiler (which is much more complete than the previous implementation)
+ * added some new tags ("<c:body/>" and "<c:print/>")
+ * added SEO data to CMS pages
+ * added for development environments a HTML comment wrapping to all translated texts, to avoid this for single texts, add a $ at the end of it's identifier while declaring, like: {user.login.email$}
+ * the search / quick open now also includes translations & CMS pages
+ * added a way to see the automated testing process while running
+ * added a new form validator type that is able to evaluate JS code instead of RegExps only (prepend "javascript:" in rel attribute)
+ * added Scripty2 including newest PrototypeJS (1.7), removed old Control.Modal, Control.Tabs and Scriptaculous instead
+ * added "floor" and "ceil" to defined sqlite functions
+ * added functionality for concurrent modification: editors being edited by someone else are disabled and a notification is shown, content is automatically reloaded as soon as editing by the other one is saved / undoed.
+ * improved API display and added some missing documentation
+ * added the newest tags to API documentation (body and print) and updated existing documentation
+ * removed apply history button (makes no more any sense)
+ * fixed the history to correctly work with Bespin
+ * fixed a bug in search/quick open
+ * fixed a bug with importing of modules via packages
+ * fixed a problem with bullet points and lists not correctly shown in CMS
+ * fixed a few problems with invoking server-side events in development environments
+ * fixed a bug with sendMail which produces artifacts in the eMails sent
+ * some code clean up and minor tweaks
+ 
 
 V1.0.6 (September 12, 2010)
 
-* added support for LESS-style CSS code
-* added self-updating mechanisms (Prails now checks for newer versions available and gives the developer a hint and what has changed since; when the developer decides to update, Prails updates itself)
-* added export of testcases and translations for packaging (and also it's import)
-* added testing facilities (selenium-like web-app testing framework, integration into Prails IDE (new button next to "Package" to launch a testsuite and view the logs, a new area for module option editing that enables you to manage testcases module-wise)
-* added Browser detection for use in CSS (HTML element gets the browser's type as CSS class appended); for IEs a second CSS class is appended with the used IE version number (like "msie7")
-* changed database table prefix for prails' internal tables so that it does not interfere with tables created by developer
-* when saving a new translation, the correct tree path is re-opened after page reload
-* fixed a problem with favicon.ico causing unnecessary warnings in the log file
-* fixed a bug where some project group names led to crc32 codes that were too big to for normal integers, which led to the phenomenon that a wrong value was stored in the database
-* fixed a bug where AJAX links did not correctly detect absolute URLs which led to the phenomenon that in Chrome Browsers these AJAX requests were fired with wrong URLs.
-* fixed a small bug for IE6 (alerts appearing for each detected PNG)
-* when editing a translation, the page type is now correctly used to choose the kind of editing field
-* fixed a bug in lang_data which caused a nasty system failure message if no texts table exists
-* fixed a bug for the display of resources (resources used in CSS files - like background images - were previously not correctly deployed)
-* BASE tag problem in IE fixed by using absolute URLs for items in head
-* fixed a bug in the CMS page creation: when creating a new page, the input area was of an incorrect type (just one single line instead of the big wysiwyg editor)
-
+ * added support for LESS-style CSS code
+ * added self-updating mechanisms (Prails now checks for newer versions available and gives the developer a hint and what has changed since; when the developer decides to update, Prails updates itself)
+ * added export of testcases and translations for packaging (and also it's import)
+ * added testing facilities (selenium-like web-app testing framework, integration into Prails IDE (new button next to "Package" to launch a testsuite and view the logs, a new area for module option editing that enables you to manage testcases module-wise)
+ * added Browser detection for use in CSS (HTML element gets the browser's type as CSS class appended); for IEs a second CSS class is appended with the used IE version number (like "msie7")
+ * changed database table prefix for prails' internal tables so that it does not interfere with tables created by developer
+ * when saving a new translation, the correct tree path is re-opened after page reload
+ * fixed a problem with favicon.ico causing unnecessary warnings in the log file
+ * fixed a bug where some project group names led to crc32 codes that were too big to for normal integers, which led to the phenomenon that a wrong value was stored in the database
+ * fixed a bug where AJAX links did not correctly detect absolute URLs which led to the phenomenon that in Chrome Browsers these AJAX requests were fired with wrong URLs.
+ * fixed a small bug for IE6 (alerts appearing for each detected PNG)
+ * when editing a translation, the page type is now correctly used to choose the kind of editing field
+ * fixed a bug in lang_data which caused a nasty system failure message if no texts table exists
+ * fixed a bug for the display of resources (resources used in CSS files - like background images - were previously not correctly deployed)
+ * BASE tag problem in IE fixed by using absolute URLs for items in head
+ * fixed a bug in the CMS page creation: when creating a new page, the input area was of an incorrect type (just one single line instead of the big wysiwyg editor)
+ 
 
 V1.0.5 (August 15, 2010)
 
-* added form field validation
-* some debugging for deploying on PHP version < 5.3
-* improved tag lib to support formatters (no custom formatters supported yet)
-* added render optimiziation for internet explorer versions < 9 (all old versions of IE will try to mimic the IE9 rendering)
-* added automatic browser-feature detection
-* all POSTs to the server will now be received in a clean-upped way (no more uncertainty of magic quotes).
-* added IDE integration for localization: new navigation section Translations
-* updated upload target for wysiwyg fields
-* added very basic CMS functionality (can be used by creating texts in a cms top section under Translations
-* removed caching of localization data for development environments (ENV_PRODUCTION set to false)
-
-
+ * added form field validation
+ * some debugging for deploying on PHP version < 5.3
+ * improved tag lib to support formatters (no custom formatters supported yet)
+ * added render optimiziation for internet explorer versions < 9 (all old versions of IE will try to mimic the IE9 rendering)
+ * added automatic browser-feature detection
+ * all POSTs to the server will now be received in a clean-upped way (no more uncertainty of magic quotes).
+ * added IDE integration for localization: new navigation section Translations
+ * updated upload target for wysiwyg fields
+ * added very basic CMS functionality (can be used by creating texts in a cms top section under Translations
+ * removed caching of localization data for development environments (ENV_PRODUCTION set to false)
+ 
+ 
 V1.0.4 (July 15, 2010)
 
-* added easier AJAX support for links (using the rel attribute you can now define what HTML element's content should be replaced with the content loaded via the HREF attribute of the link).
-* speed up of re-deployment while in development (ENV_PRODUCTION uses then the optimized/minified JS version)
-* added the feature, that everything loaded via the <a href="..." rel="element-id">...</a> does then again fire the dom:loaded event (causing to initialize everything again)
-* added new wysiwyg editor. It can be accessed by simply giving any element a CSS class "wysiwyg". On page load it will be automatically transformed into a wysiwyg
-* modified include tag, to make more sense for including other templates (warning: syntax has changed - to include a template you now simply write <c:include file="<module>/<event>" /> so it looks like: <c:include file="blog/viewPost" />
-* improved taglib parsing to support nested tag evaluation
-* improved DBEntry to support on-demand reverse foreign key resolution (for example: having two tables "post" and "comment", while "comment" has a fk_post_id, then if you have a certain post, you could do: #post.comment_list which would then get you all comments of that post)
-* added new browsing feature for database tables
-* made global configuration saveable
-* fixed  Bug #1 
-* improved compatibility of syntax highlighting with the mobile safari for ipad
-* fixed bug with CSS and JS lib filesize retrieval
-* improved caching mechanism for runlets
-* added url rewriting feature for handlers
-* improved user-guiding if no Database can be accessed and on the default Prails home page.
-* Improved logging to notify project manager (ERROR_EMAIL) if an error occured and notification (ERROR_NOTIFICATION) is turned on
-* some code clean up
-
-
+ * added easier AJAX support for links (using the rel attribute you can now define what HTML element's content should be replaced with the content loaded via the HREF attribute of the link).
+ * speed up of re-deployment while in development (ENV_PRODUCTION uses then the optimized/minified JS version)
+ * added the feature, that everything loaded via the <a href="..." rel="element-id">...</a> does then again fire the dom:loaded event (causing to initialize everything again)
+ * added new wysiwyg editor. It can be accessed by simply giving any element a CSS class "wysiwyg". On page load it will be automatically transformed into a wysiwyg
+ * modified include tag, to make more sense for including other templates (warning: syntax has changed - to include a template you now simply write <c:include file="<module>/<event>" /> so it looks like: <c:include file="blog/viewPost" />
+ * improved taglib parsing to support nested tag evaluation
+ * improved DBEntry to support on-demand reverse foreign key resolution (for example: having two tables "post" and "comment", while "comment" has a fk_post_id, then if you have a certain post, you could do: #post.comment_list which would then get you all comments of that post)
+ * added new browsing feature for database tables
+ * made global configuration saveable
+ * fixed  Bug #1 
+ * improved compatibility of syntax highlighting with the mobile safari for ipad
+ * fixed bug with CSS and JS lib filesize retrieval
+ * improved caching mechanism for runlets
+ * added url rewriting feature for handlers
+ * improved user-guiding if no Database can be accessed and on the default Prails home page.
+ * Improved logging to notify project manager (ERROR_EMAIL) if an error occured and notification (ERROR_NOTIFICATION) is turned on
+ * some code clean up
+ 
+ 
 V1.0.3 (June 27, 2010)
 
-* Added support for SQLite3 databases (you can now use the DB_TYPE setting in the configuration.php to switch between MySQL and SQLite)
-* Added support for importing and exporting whole packages (modules, libraries, tables and tags)
-* When scaffolding to a module which has already been in use, it is now purged from the file system to immediately reflect the changes done by the scaffolding
-* Added log file link to home builder's home screen
-* On the first run, the database is now automatically deployed
-* Some code clean up
-
+ * Added support for SQLite3 databases (you can now use the DB_TYPE setting in the configuration.php to switch between MySQL and SQLite)
+ * Added support for importing and exporting whole packages (modules, libraries, tables and tags)
+ * When scaffolding to a module which has already been in use, it is now purged from the file system to immediately reflect the changes done by the scaffolding
+ * Added log file link to home builder's home screen
+ * On the first run, the database is now automatically deployed
+ * Some code clean up
+ 
 
 V1.0.2 (June 17, 2010)
 
-* Introduced scaffolding
-* Added further help section to builder's home screen
-* When creating a new module, a home event is now generated with it
-* Introduced global module editing and viewing functionality
-* Added DBEntry to enable extended field access functionality (like automatic resolution of foreign keys on demand)
-* Much code clean up
+ * Introduced scaffolding
+ * Added further help section to builder's home screen
+ * When creating a new module, a home event is now generated with it
+ * Introduced global module editing and viewing functionality
+ * Added DBEntry to enable extended field access functionality (like automatic resolution of foreign keys on demand)
+ * Much code clean up

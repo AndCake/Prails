@@ -1,7 +1,7 @@
 <?php
 /**
-    PRails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Prails Web Framework
+    Copyright (C) 2012  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,13 +17,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-class TblClass { ///////////////////////////////////////////////////////////////
+class TblClass { 
 
-   // Member variables ////////////////////////////////////////////////////////
-   ////////////////////////////////////////////////////////////////////////////
-
-
-   // public //////////////////////////////////////////////
+   // public member variables 
    var $int_affectedId;
    var $int_affectedRows;
    var $bol_dumpSqlQuery = DEBUG_MYSQL;
@@ -31,20 +27,32 @@ class TblClass { ///////////////////////////////////////////////////////////////
    var $bol_cache = true;
    var $str_prefix = null;
 
-   // constructor /////////////////////////////////////////////////////////////
-   ////////////////////////////////////////////////////////////////////////////
+   /** 
+    * constructor 
+    *
+    * @param STRING $prefix the prefix to be used for the following queries (defaults to "tbl_")
+    */
+   function TblClass ($prefix = "tbl_") { 
+   	// fetch instance of actual database connector
+	$this->str_prefix = $prefix;
+	$this->obj_mysql = call_user_func(Array(DB_TYPE, "getInstance"), $prefix);
+   } 
 
-   function TblClass ($prefix = "tbl_") { ////////////////////////////////////////////////
-   		// connect to mysql database
-		$this->str_prefix = $prefix;
-		$this->obj_mysql = call_user_func(Array(DB_TYPE, "getInstance"), $prefix);
-   	
-   } // end TblClass ////////////////////////////////////////////////////
-
-    function setCache($bol_cache) {
+    /** 
+     * sets the caching policy (use a cache or don't use a cache)
+     *
+     * @param BOOLEAN $bol_cache use a cache or don't use it (defaults to true)
+     */
+    function setCache($bol_cache = true) {
         $this->bol_cache = $bol_cache;
     }
-    
+   
+    /**
+     * escapes a string before sending it to the DB
+     * 
+     * @param STRING $str the string to be escaped
+     * @returns STRING the properly escaped string
+     */ 
     function escape($str) {
     	return $this->obj_mysql->escape($str);
     }
@@ -200,7 +208,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
     *
     * @return ARRAY result of the SQL query
     */
-	function SqlQuery ($str_sqlString, $bol_cache=true) { //////////////////////////////
+	function SqlQuery ($str_sqlString, $bol_cache=true) { 
 
       	// dump query if needed
     	if ($this->bol_dumpSqlQuery!=0) print ($str_sqlString."<br/>");
@@ -214,7 +222,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
     	if ($profiler) $profiler->logEvent("queryEnd");
     	
     	return $arr_result;
-	} // end SqlQuery //////////////////////////////////////////////////////////
+	} 
 
     function remoteSqlQuery($str_query) {
         global $arr_dbs;
@@ -243,7 +251,7 @@ class TblClass { ///////////////////////////////////////////////////////////////
           	}
         }
     }
-} // end class TblClass //////////////////////////////////////////////////
+} 
 
 
 ?>

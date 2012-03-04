@@ -145,10 +145,10 @@ clear, .clear { display: block; height: 0px; clear: both; }
 // Buttons
 @button(@color: #c97200, @textColor: #fff, @fontSize: 30px, @textShadow: 0 1px 1px rgba(255,255,255,.75), @padding: 4px 13px 2px 13px, @borderRadius: 6px) {
   display: inline-block;
-  #gradient > .vertical(@color,darken(saturate(@color,10),10));
   padding: @padding;
   text-shadow: @textShadow;
-  border: 1px solid darken(saturate(@color, 20));
+  #gradient > .vertical-three-colors(lighten(@color, 20),@color,0.5,lighten(saturate(@color, 10), 10));
+  border: 1px solid darken(@color, 20);
   color: @textColor;
   font-size: @fontSize;
   line-height: @fontSize * 1.5;
