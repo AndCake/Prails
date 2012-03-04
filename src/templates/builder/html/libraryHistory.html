@@ -1,0 +1,16 @@
+[
+<? if (is_array($arr_param["history"])) foreach ($arr_param["history"] as $history) { $name = unserialize(base64_decode($history['name'])); $code = unserialize(base64_decode($history['code'])); ?>
+{
+
+	"date": "<?=date("H:i:s - d.m.Y", $history["change_time"])?>",
+
+	"name": "<? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?>",
+
+	"data": "<? if (is_array($code)) foreach ($code as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line))?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"]))?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry)); }} ?>",
+},
+<? } ?>
+{
+	"date": "now",
+	"name": null,
+	"data": null,
+}]

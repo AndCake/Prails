@@ -121,8 +121,9 @@ function initAjaxLinks() {
 						});
 					}
 				} else {
-					invoke(null, this.getAttribute("href"), null, false, function(req) {
-						params["content"] = req.responseText;
+					var suffix = this.getAttribute("href").split(".").pop();
+					if (["png", "jpg", "jpeg", "tiff"].indexOf(suffix.toLowerCase()) >= 0) {
+						params["content"] = "<img src='"+this.getAttribute("href")+"' alt='' border='0'/>";
 						window.currentDialog = new S2.UI.Dialog(params).open();
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();
@@ -131,7 +132,19 @@ function initAjaxLinks() {
 							document.fire("dom:loaded");	
 							try { eval(item.onload); } catch(e){};
 						}, 10);
-					});
+					} else {
+						invoke(null, this.getAttribute("href"), null, false, function(req) {
+							params["content"] = req.responseText;
+							window.currentDialog = new S2.UI.Dialog(params).open();
+							window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
+								window.currentDialog.element.remove();
+							});
+							setTimeout(function() {
+								document.fire("dom:loaded");	
+								try { eval(item.onload); } catch(e){};
+							}, 10);
+						});
+					}
 				}
 				event.stop();
 			});

@@ -1,7 +1,7 @@
 <?php
 /**
- PRails Web Framework
- Copyright (C) 2010  Robert Kunze
+ Prails Web Framework
+ Copyright (C) 2012  Robert Kunze
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ class SQLite extends Cacheable {
 			$this->arr_links[$id]["link"]->createFunction("RAND", "mt_rand");
 		} catch (Exception $ex) {
 			global $log;
-			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory.\n\n");
+			$log->fatal("Unable to connect to SQLite Database. Please check if your web server and PHP have write access for the Prails directory. Caused by exception: ".$ex->getMessage()."\n\n");
 		}
 	}
 

@@ -291,7 +291,7 @@ class BuilderHandler
                     {
                         $printer .= "  Generator::getInstance()->setIsAjax();\n";
                     }
-		    		if ($arr_handler["flag_cacheable"] == "1") {
+		    		if ($arr_handler["flag_cacheable"] == "1" && ENV_PRODUCTION === true) {
 						$printer .= "  Generator::getInstance()->setIsCachable();\n";
 		    		}
                     $printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator, \$arr_param) : \"<!--[content]-->\");\n";

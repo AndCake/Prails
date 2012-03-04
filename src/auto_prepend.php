@@ -1,7 +1,7 @@
 <?php
 /**
     Prails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Copyright (C) 2012  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 	
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	register_shutdown_function("error_alert");
