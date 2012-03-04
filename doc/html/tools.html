@@ -1,0 +1,292 @@
+<html>
+	<head>
+		<title>Tools</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Tools</h1><br/><br/>
+This section describes a number of utility methods that are globally available.
+<br/><br/>
+ <br/><br/>
+<div class='method-type'>Method</div><a name='pushError' class='method-title'>pushError</a><div class='method'><span class='name'>pushError</span>(<span class='parameters'>$str_error</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$str_error</code> (<span class='type'>String</span>)<span class='divider'> - </span>the error message to be shown.</li>
+</ul>
+
+Pushes an error onto the error stack (which is shown after the page is rendered)
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='checkFields' class='method-title'>checkFields</a><div class='method'><span class='name'>checkFields</span>(<span class='parameters'>$arr_toCheck, $arr_keys</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$arr_toCheck</code> (<span class='type'>Array</span>)<span class='divider'> - </span>the array that contains the data to be checked</li>
+<li class='param'><code>$arr_keys</code> (<span class='type'>Array</span>)<span class='divider'> - </span>the keys in the array whose values should be checked</li>
+</ul>
+
+Checkes whether all named items of an array have a value (especially useful to check for
+valid user input after form submission)
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+ $bol_valid = checkFields( Array(
+                 "first_name"=>"",
+                 "last_name"=>"Name",
+                 "email"=>"test@test.com"
+              ), Array(
+                 "last_name", "email"
+              ));
+</pre>
+In this example the <code>last_name</code> and the <code>email</code> fields of the array are checked whether they are
+populated. So in this case the return value of <code>checkFields</code> would be <code>true</code>. If we would include
+<code>first_name</code> in the second parameter, <code>checkFields</code> would return <code>false</code>, because the <code>first_name</code> has
+no data in it.
+<br/><br/>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='scaleEmbed' class='method-title'>scaleEmbed</a><div class='method'><span class='name'>scaleEmbed</span>(<span class='parameters'>$embed, $width, $height</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$embed</code> (<span class='type'>String</span>)<span class='divider'> - </span>the complete embed code</li>
+<li class='param'><code>$width</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>the maximum width</li>
+<li class='param'><code>$height</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>the maximum height</li>
+</ul>
+
+Scales a flash embed to a specified maximum size and returns it.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='isEmbed' class='method-title'>isEmbed</a><div class='method'><span class='name'>isEmbed</span>(<span class='parameters'>$embed</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$embed</code> (<span class='type'>String</span>)<span class='divider'> - </span>the content to be checked</li>
+</ul>
+
+checks whether a string contains HTML code
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='isExternalURL' class='method-title'>isExternalURL</a><div class='method'><span class='name'>isExternalURL</span>(<span class='parameters'>$string</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$string</code> (<span class='type'>String</span>)<span class='divider'> - </span>url to check</li>
+</ul>
+
+checks whether a supplied URL is an external URL or not
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='if_set' class='method-title'>if_set</a><div class='method'><span class='name'>if_set</span>(<span class='parameters'>$a, $b</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$a</code> (<span class='type'>String</span>)<span class='divider'> - </span>first value to use</li>
+<li class='param'><code>$b</code> (<span class='type'>String</span>)<span class='divider'> - </span>second option to use</li>
+</ul>
+
+A kind of COALESCE function for PHP. But it checks not for NULL/not NULL but for real content. It will return the first of the two variables that has a non-empty value.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+	$_SESSION["user"] = if_set($_GET["user"], $_SESSION["user"]);
+</pre>
+In this example it is checked whether the <code>user</code> parameter has been set via <code>GET</code>. If so, it is saved
+in the session. If not, the session stays untouched.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='set_var' class='method-title'>set_var</a><div class='method'><span class='name'>set_var</span>(<span class='parameters'>$mix_a, $mix_b</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$mix_a</code> (<span class='type'>Mixed</span>)<span class='divider'> - </span>the variable that will probably be set</li>
+<li class='param'><code>$mix_b</code> (<span class='type'>Mixed</span>)<span class='divider'> - </span>the new content for $mix_a</li>
+</ul>
+
+Set the first parameter only if the second one is defined.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+	set_var($_SESSION["user"], $_GET["user"]);
+</pre>
+In this example it is checked whether the <code>user</code> parameter has been set via <code>GET</code>. If so, it is saved
+in the session. If not, the session stays untouched.
+<br/><br/>
+ <u>Note:</u> this does (unlike <code>if_set</code>) also work with arrays and objects.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='getUserLanguage' class='method-title'>getUserLanguage</a><div class='method'><span class='name'>getUserLanguage</span>(<span class='parameters'>$arr_allowedLanguages, $defaultLanguage</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$allowedLanguages</code> (<span class='type'>Array</span>)<span class='divider'> - </span>list of RFC4646 compliant language identifiers (like <code>en-us</code> or <code>de-de</code>)</li>
+<li class='param'><code>$defaultLanguage</code> (<span class='type'>String</span>)<span class='divider'> - </span>default language entry, also RFC4646 compliant</li>
+</ul>
+
+returns the language settings preferred by the user. The returned value will be a RFC4646 compliant language identifier.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='wordCut' class='method-title'>wordCut</a><div class='method'><span class='name'>wordCut</span>(<span class='parameters'>$text, $limit[, $msg]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$text</code> (<span class='type'>String</span>)<span class='divider'> - </span>text to cut</li>
+<li class='param'><code>$limit</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>maximum characters in text</li>
+<li class='param'><code>$msg</code> (<span class='type'>String</span>)<span class='divider'> - </span>text to append after text has been shortened, defaults to "..."</li>
+</ul>
+
+function to cut text after <code>$limit</code> characters and return the shortened version.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+	wordCut($my_text, 200, '... read more');
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='removeDir' class='method-title'>removeDir</a><div class='method'><span class='name'>removeDir</span>(<span class='parameters'>$dir, $deleteSelf</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$dir</code> (<span class='type'>String</span>)<span class='divider'> - </span>path to the directory to be removed</li>
+<li class='param'><code>$deleteSelf</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>set to <code>true</code>, if the directory specified should be removed as well (else it's only emptied).</li>
+</ul>
+
+removes a directory recursively
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='hyperlink' class='method-title'>hyperlink</a><div class='method'><span class='name'>hyperlink</span>(<span class='parameters'>$text[, $complete]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$text</code> (<span class='type'>String</span>)<span class='divider'> - </span>text to scan</li>
+<li class='param'><code>$complete</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if <code>true</code>, it will show the complete URL as link text. If <code>false</code>, it will only show the host fragment. Defaults to <code>false</code>.</li>
+</ul>
+
+Replaces in-text URLs by real hyperlinks.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='text2Image' class='method-title'>text2Image</a><div class='method'><span class='name'>text2Image</span>(<span class='parameters'>$text[, $font[, $w[, $h[, $x[, $y[, $fsize[, $color[, $bgcolor]]]]]]]]</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$text</code> (<span class='type'>String</span>)<span class='divider'> - </span>text to convert</li>
+<li class='param'><code>$font</code> (<span class='type'>String</span>)<span class='divider'> - </span>font's file name, defaults to <code>"Alix2.ttf"</code></li>
+<li class='param'><code>$W</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>width of the resulting image, defaults to 200</li>
+<li class='param'><code>$H</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>height of the resulting image, defaults to 20</li>
+<li class='param'><code>$X</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>x position of the string to be printed on the image, defaults to 0</li>
+<li class='param'><code>$Y</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>y position of the string to be printed on the image, defaults to 0</li>
+<li class='param'><code>$fsize</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>font size to be used, defaults to 18</li>
+<li class='param'><code>$color</code> (<span class='type'>Array</span>)<span class='divider'> - </span>Array consisting of the entries for R, G and B values for the text color as hex values, defaults to <code>Array(0x0, 0x0, 0x0)</code> (which is black).</li>
+<li class='param'><code>$bgcolor</code> (<span class='type'>Array</span>)<span class='divider'> - </span>Array consisting of the entries for R, G and B values for the image's background color, defaults to <code>Array(0xFF, 0xFF, 0xFF)</code> (which is white).</li>
+</ul>
+
+convert text to an image (and directly output it to the browser)
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='timeDiff' class='method-title'>timeDiff</a><div class='method'><span class='name'>timeDiff</span>(<span class='parameters'>$time[, $opt]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$time</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>time in seconds from 1/1/1970</li>
+<li class='param'><code>$opt</code> (<span class='type'>Array</span>)<span class='divider'> - </span>Options array, see below for details.</li>
+</ul>
+
+function to display age instead of a time. This will print a text like <code>8 minutes ago</code>.
+<br/><br/>
+Options include
+<pre>
+  to = time(); date to compute the range to
+  parts = 1; number of parts to display max
+  precision = 7; lowest part to compute to (7 = second)
+  distance = TRUE; include the 'ago' or 'away' bit
+  separator = ', '; separates the parts
+  period_names = Array(0=>Array("decade", "decades"), 1=>Array("year", "years"), 2=>Array("month","months"), 3=>Array("week", "weeks"), 4=>Array("day", "days"), 5=>Array("hour", "hours"), 6=>Array("minute", "minutes"), 7=>Array("second", "seconds"))
+  less_than_1 = 'less than 1'
+  distance_names = Array("ago", "away")
+  distance_post = FALSE 	should the distance added after or before all parts
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='tostring' class='method-title'>tostring</a><div class='method'><span class='name'>tostring</span>(<span class='parameters'>$mix</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$mix</code> (<span class='type'>Mixed</span>)<span class='divider'> - </span>variable to be converted to a string</li>
+</ul>
+
+convert a MIXED variable to a string (formatted for output)
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='printTagCloud' class='method-title'>printTagCloud</a><div class='method'><span class='name'>printTagCloud</span>(<span class='parameters'>$tags[, $maxTags[, $setSize]]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$tags</code> (<span class='type'>Array</span>)<span class='divider'> - </span>array of tags containing the number of how often it is used and the link to be used when clicked at this tag</li>
+<li class='param'><code>$maxTags</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>defines how many tags should be shown at maximum</li>
+<li class='param'><code>$setSize</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>change the font size for the tags depending on usage number</li>
+</ul>
+
+Generate a tag cloud
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+$tags = array('weddings' => array("num"=>32, "link"=>"index.php?action=...&tag_id=..."),
+              'birthdays' => array("num"=>41, "link"=>"index.php?action=...&tag_id=..."),
+              'landscapes' => array("num"=>76, "link"=>"index.php?action=...&tag_id=...")
+        );
+$result = printTagCloud($tags);
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='jumpTo' class='method-title'>jumpTo</a><div class='method'><span class='name'>jumpTo</span>(<span class='parameters'>$url[, $clientSize]</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>the URL to redirect the user to.</li>
+<li class='param'><code>$clientSide</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>the redirect should be made on the client-side, rather than server-side, defaults to <code>false</code>.</li>
+</ul>
+
+Redirect the user to another site/page.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='createThumbnail' class='method-title'>createThumbnail</a><div class='method'><span class='name'>createThumbnail</span>(<span class='parameters'>$src, $desc[, $maxWidth[, $maxHeight[, $quality]]]</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$src</code> (<span class='type'>String</span>)<span class='divider'> - </span>source image to be scaled down as thumbnail</li>
+<li class='param'><code>$dst</code> (<span class='type'>String</span>)<span class='divider'> - </span>destination image file name</li>
+<li class='param'><code>$maxWidth</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>maximum width for the resulting thumbnail, defaults to 500</li>
+<li class='param'><code>$maxHeight</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>maximum height for the resulting thumbnail, defaults to 500</li>
+<li class='param'><code>$quality</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>compression quality to be used, defaults to 60</li>
+</ul>
+
+generates a thumbnail out of a image file and returns <code>true</code>, if the generation of the thumbnail was successful.
+<br/><br/>
+ <br/><br/>
+<div class='method-type'>Method</div><a name='sendMail' class='method-title'>sendMail</a><div class='method'><span class='name'>sendMail</span>(<span class='parameters'>$to, $subject, $content, $fromname, $fromaddress[, $attachments]</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$to</code> (<span class='type'>String</span>)<span class='divider'> - </span>email address to send the email to</li>
+<li class='param'><code>$subject</code> (<span class='type'>String</span>)<span class='divider'> - </span>the subject to be used for the email</li>
+<li class='param'><code>$content</code> (<span class='type'>String</span>)<span class='divider'> - </span>the email's body</li>
+<li class='param'><code>$fromname</code> (<span class='type'>String</span>)<span class='divider'> - </span>the sender's name</li>
+<li class='param'><code>$fromaddress</code> (<span class='type'>String</span>)<span class='divider'> - </span>the sender's email address</li>
+<li class='param'><code>$attachments</code> (<span class='type'>Boolean</span> | <span class='type'>Array</span>)<span class='divider'> - </span>if this is an array, with two keys: <code>file</code>, containing the array of files to be attached and <code>name</code>, containing an array of names of the files attached as how they should appear in the mail. In case this parameter is set to <code>false</code>, there won't be any attachments (which is the default). </li>
+</ul>
+
+This method sends out an email to the specified receiver. The email body will be a multi-part email
+containing the original HTML body and a text-only version of it. Additionally one or more attachments 
+may be added.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+sendMail( $customerEmail, 
+          "Your Invoice", 
+          $message, 
+          "Invoice Service", 
+          "no-reply@example.org", 
+          Array(
+             "file" => Array( "static/invoices/somestrangename.pdf" ),
+             "name" => Array( "2003-02-02.pdf" )
+          )
+        );
+</pre>
+This example sends an email with one attachment.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $includeHeaders]</span>) &rarr; <span class='type'>String</span> | <span class='type'>Array</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to fetch data from</li>
+<li class='param'><code>$includeHeaders</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if set to <code>true</code>, it will cause the return value to be an array consisting two entries: the headers returned by the server and the content.</li>
+</ul>
+
+do a server-side get request to another server/site. HTTPS is supported and returns the data fetched from the (other) server.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='doPost' class='method-title'>doPost</a><div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $user, $pass]]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to POST to</li>
+<li class='param'><code>$postData</code> (<span class='type'>Array</span>)<span class='divider'> - </span>data to be posted as key-value pairs</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span> | <span class='type'>Boolean</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>false</code>, no authorization header will be sent (default).</li>
+<li class='param'><code>$pass</code> (<span class='type'>String</span> | <span class='type'>Boolean</span>)<span class='divider'> - </span>password to connect with (for basic HTTP authentication). If <code>false</code>, then no authorization header will be sent (default).</li>
+</ul>
+
+do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a <code>String</code>.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+$reply = doPost("http://www.example.org/cgi-bin/process.cgi", Array(
+            "first_name"=>"Test",
+            "last_name"=>"User",
+            "age"=>"27",
+         ));
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='invoke' class='method-title'>invoke</a><div class='method'><span class='name'>invoke</span>(<span class='parameters'>$event[, $params]</span>) &rarr; <span class='type'>Mixed</span></div>
+<ul><li class='param'><code>$event</code> (<span class='type'>String</span>)<span class='divider'> - </span>name of the event to be invoked (written in colon notation as <code>module:handler</code>)</li>
+<li class='param'><code>$params</code> (<span class='type'>Array</span>)<span class='divider'> - </span>additional parameters (context) that should be transmitted, defaults to <code>null</code></li>
+</ul>
+
+invokes an event and returns it's result. In case an error occurred (like the event was not found), it will return <code>false</code>.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='one_of' class='method-title'>one_of</a><div class='method'><span class='name'>one_of</span>(<span class='parameters'>...</span>) &rarr; <span class='type'>Mixed</span></div>
+<br/><br/>
+this function takes an arbitrary number of arguments and returns the value of the first parameter which is non-empty.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='receiveFile' class='method-title'>receiveFile</a><div class='method'><span class='name'>receiveFile</span>(<span class='parameters'>$fileName, $targetPath</span>) &rarr; <span class='type'>String</span> | <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$fileName</code> (<span class='type'>String</span>)<span class='divider'> - </span>name of the file (as transmitted as GET parameter for qw:upload fields)</li>
+<li class='param'><code>$targetPath</code> (<span class='type'>String</span>)<span class='divider'> - </span>directory to put the file into</li>
+</ul>
+
+this function copies the received file to the specified directory. It returns <code>false</code> if no file was received, else the name (including path) of the file after copy is completed.
+If the file already exists in the target path, the resulting file name will be unique (so it won't override existing files).
+<br/><br/>

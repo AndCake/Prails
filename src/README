@@ -3,11 +3,11 @@ $Id$
 Prails - Readme
 ===============
 
-    A PHP framework for developing web applications over the web.
+    The PHP framework that makes you happy.
     
-    Version 1.3.1
+    Version 1.3.2
     -------------
-    http://prails.googlecode.com/
+    http://prails.org/
     
         Copyright (C) 2003 - 2012 Robert Kunze <robert.kunze_at_quixotic-worx.de>
         
@@ -34,13 +34,13 @@ Prails - Readme
         For a summary of features, please see the documentation.
 
       Download:
-        You can get the newest version at http://prails.googlecode.com/.
+        You can get the newest version at http://prails.org/.
 
       Installation:
         Please see the documentation.
 
       Documentation:
-        Basic documentation available at http://prails.googlecode.com/.
+        Basic documentation available at http://prails.org/static/documentation.html.
 
 
     Enjoy!

@@ -17,6 +17,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** Class Generator
+ * 
+ * This class is used to manage all output-related meta information, like what caching policy applies to the current page, 
+ * the HTML header information being sent to the client, the stylesheets to be used for rendering the page, javascripts, 
+ * and the ouput policy.
+ **/
 class Generator {
     static $obj_instance;
 
@@ -51,6 +57,11 @@ class Generator {
         $this->arr_noCacheJS = Array();
     }
 
+    /** 
+     * getInstance() -> Generator
+     * 
+     * This is a static method that will create a generator and return it. In case an existing generator is found, that one will be returned.
+     **/
     static function getInstance() {
         if (Generator :: $obj_instance) {
             return Generator :: $obj_instance;
@@ -60,10 +71,24 @@ class Generator {
         }
     }
 
+    /**
+     * setIsCachable([$cachable]) -> void
+     * - $cachable (Boolean) - if `true`, the current page will be cached on production. Defaults to `true`.
+     *
+     * sets the cache to enabled or disabled. By default no page is cached, except for static content pages. By calling this method, you can activate caching for the current page.
+     * This can also be achieved by the respective checkbox at the handler. 
+     **/
     function setIsCachable($bol_cachable = true) {
         $this->bol_isCachable = $bol_cachable;
     }
 
+    /**
+     * setIsAjax([$ajax]) -> void
+     * - $ajax (Boolean) - if `true`, the current page won't be decorated with the basic HTML structure. Defaults to `true`.
+     * 
+     * This method defines whether or not the current event handler will be requested via AJAX and thus should not be decorated with the HTML structure as it will be included
+     * into another page (which already has one). By default, no page is an AJAX page. It can also be achieved via the respective checkbox at the handler.
+     **/
     function setIsAjax($bol_ajax = true) {
         $this->bol_isAjax = $bol_ajax;
     }
@@ -74,10 +99,14 @@ class Generator {
         $currentLang = $this->obj_lang;
     }
 
+    /**
+     * getLanguage() -> Language
+     *
+     * returns the language object that can be used to access translation data and content assets. This basically returns the same as `$currentLang` within an event handler.
+     **/
     function getLanguage() {
         return $this->obj_lang;
     }
-
 
     function setCacheId($id) {
         $this->str_cacheId = $id;
@@ -215,24 +244,52 @@ class Generator {
         return $str_content;
     }
 
+    /**
+     * setTitle($title) -> void
+     * - $title (String) - the new page's title
+     *
+     * This method sets the current page's HTML title.
+     **/
     function setTitle($str_title, $bol_override = true) {
     	if ($bol_override || strlen($this->str_title) == 0)
         	$this->str_title = $str_title;
     }
 
+    /**
+     * getTitle() -> String
+     *
+     * This method returns the currently set HTML title.
+     **/
     function getTitle() {
         return $this->str_title;
     }
 
+    /**
+     * setDescription($desc) -> void
+     * - $desc (String) - the page's meta description
+     *
+     * This method sets the current page's HTML meta description.
+     **/
     function setDescription($str_desc, $bol_override = true) {
     	if ($bol_override || strlen($this->str_description) == 0)
         	$this->str_description = $str_desc;
     }
 
+    /**
+     * getDescription() -> String
+     *
+     * This method returns the currently set HTML meta description.
+     **/
     function getDescription() {
         return $this->str_description;
     }
 
+    /**
+     * setKeywords($keywords) -> void
+     * - $keywords (Array|String) - the list of keywords to be set, can either be a comma-separated string of keywords or an array of keywords.
+     *
+     * This method sets the current page's HTML meta keywords.
+     **/
     function setKeywords($mixed) {
         $this->arr_keywords = Array();
         if (is_array($mixed))
@@ -243,6 +300,11 @@ class Generator {
         }
     }
 
+    /**
+     * getKeywords() -> String
+     * 
+     * This method returns the currently set HTML meta keywords as a comma-separated list.
+     **/
     function getKeywords() {
         $str_k = "";
         foreach ($this->arr_keywords as $str_keyword) {
@@ -298,6 +360,12 @@ class Generator {
         return $str_styles;
     }
 
+    /**
+     * addStyleSheet($path) -> void
+     * - $path (String) - the path to the stylesheet to be included.
+     *
+     * This method includes a style sheet into the current page. It can contain LESS CSS code. It can be located on the same or on a different server.
+     **/
     function addStyleSheet($path, $media = "screen", $browser = "all") {
         // check if stylesheet has already been loaded
         if ($media === false || in_array(substr($path, 0, 6), Array("http:/", "https:", "ftp://"))) {
@@ -383,6 +451,12 @@ class Generator {
         return $str_js;
     }
 
+    /**
+     * addJavaScript($path) -> void
+     * - $path (String) - the path to the JS file.
+     * 
+     * This method includes the given javascript file into the current page. Can only be used for non-AJAX event handlers.
+     **/
     function addJavaScript($path, $toCache = true) {
         // check if stylesheet has already been loaded
         if ($toCache) {
@@ -405,6 +479,12 @@ class Generator {
         return $str_headers;
     }
 
+    /**
+     * addHeader($header) -> void
+     * - $header (String) - the header content as pure HTML code
+     *
+     * Adds a new HTML code to the `head` section of the resulting HTML page. Can be used, for example, to add Google's Site verification tags or additional meta tags.
+     **/
     function addHeader($str_header) {
         if (!in_array($str_header, $this->arr_header)) {
             array_push($this->arr_header, $str_header);

@@ -1,0 +1,38 @@
+body {
+	font-family: Helvetica, sans-serif;
+	font-size: 13px;
+	line-height: 1.25em;
+}
+
+.type, code { display: inline-block; background: #efefef; border: 1px solid #ccc; border-radius: 3px; font-family: monospace; padding-left: 2px; padding-right: 2px; margin-left: 2px; margin-right: 2px; }
+.param > code:first-child { background: #cfc; border: 1px solid #0c0; }
+.param { margin-top: 4px; margin-bottom: 4px; }
+.param .divider { display: inline-block; padding-left: 10px; padding-right: 10px; }
+
+pre {
+	border: 1px solid #ccc;
+	background: #efefef;
+	padding: 5px 10px;
+}
+.page {
+	width: 800px;
+}
+
+a.method-title {
+	font-size: 16px;
+	font-weight: bold;
+	display: block;
+}
+.method {
+	background: #EFEFFF;
+	padding: 5px 10px;
+	border: 1px solid #CCF;
+	font-family: monospace;
+}
+.method-type {
+	text-transform: uppercase;
+	color: #999;
+	font-weight: bold;
+	font-size: 11px;
+	margin-top: 20px;
+}

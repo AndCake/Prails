@@ -1,0 +1,79 @@
+<html>
+	<head>
+		<title>Handler</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Handler</h1><br/><br/>
+Event handlers are a specific type of functionality that is part of a module.
+To describe it with the MVC pattern, the event handlers are the controller part
+that uses the data queries, resembling the model and uses the output code templates,
+resembling the view in order to generate a whole page. 
+<br/><br/>
+So in an event handler one usually fetches data from the database using the data queries,
+prepares it, and generates additional information that is needed for the output, 
+and finally calls the output code in order to render the page. Therefore, this context
+has certain special functions and variables.
+<br/><br/>
+An event handler usually consists of normal PHP code. It can have multiple so-called
+"endpoints", which are actually targets that are being used for receiving HTTP POST
+requests. A target will be used as soon as there is a variable POSTed to the event handler
+whose name is exactly the same as the target's name. Usually one would use a button name
+to decide which target to trigger. 
+<br/><br/>
+Event handlers can also have multiple templates. This is especially useful for rendering 
+alternative page contents depending on the state of the event handler or certain parameters
+given to it. One such template could, for example, be used to render the contents of an email
+that is being sent out, while the other one provides the form that is used to trigger the 
+sending of that email.
+<br/><br/>
+<strong>Example:</strong>
+<br/><br/>
+Event handler code - default endpoint
+<pre>
+$arr_param["topics"] = $data->listTopics();
+return out($arr_param);
+</pre>
+<br/><br/>
+Output code - default template
+<pre>
+&lt;h2&gt;Contact Us&lt;/h2&gt;
+&lt;form method="post" action="Base/contact"&gt;
+   &lt;c:input name="topic" values="topics" type="select" label="Please select a topic:"/&gt;
+   &lt;c:input type="text" multiple="5" name="message" label="Enter your message:" /&gt;
+   &lt;button type="submit" name="send"&gt;Send Inquiry&lt;/button&gt;
+&lt;/form&gt;
+</pre>
+<br/><br/>
+Event handler code - "send" endpoint
+<pre>
+$arr_param["message"] = $_POST['message'];
+$arr_param['topic'] = $_POST['topic'];
+$content = out($arr_param, "", "mail");
+sendMail("service@example.org", "Inquiry", $content, "Example Service", "no-reply@example.org");
+</pre>
+<br/><br/>
+Output code - "mail" template
+<pre>
+A new inquiry was received for topic #local.topic. The customer's message was:
+#local.message
+Cheers,
+Your Example Service
+</pre>
+<br/><br/>
+The following variables are always defined in a handler:
+<ul><li class='param'><code>$arr_param</code> (<span class='type'>Array</span>)<span class='divider'> - </span>an array containing the context that was given to the current event handler. Normally, this is an empty array. In case you use the <code><a href="tools.html#invoke">invoke</a></code> method, however, you can pass a custom context as the second parameter.</li>
+<li class='param'><code>$data</code> (<span class='type'>Object</span>)<span class='divider'> - </span>the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.</li>
+<li class='param'><code>$currentLang</code> (<span class='type'><a href='language.html'>Language</a></span>)<span class='divider'> - </span>a reference to the language library, that let's you get access to content assets.</li>
+<li class='param'><code>$SERVER</code> (<span class='type'>String</span>)<span class='divider'> - </span>the absolute URL to the page (without paths relative to the Prails directory)</li>
+<li class='param'><code>$SECURE_SERVER</code> (<span class='type'>String</span>)<span class='divider'> - </span>the absolute HTTPS URL to the page (without paths relative to the Prails directory)</li>
+</ul>
+
+In order to trigger generating the view, the following method exists:
+<div class='method-type'>Method</div><a name='out' class='method-title'>out</a><div class='method'><span class='name'>out</span>(<span class='parameters'>$arr_param[, $decorator[, $template]]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$arr_param</code> (<span class='type'>Array</span>)<span class='divider'> - </span>the context that should be available to the template being run</li>
+<li class='param'><code>$decorator</code> (<span class='type'>String</span>)<span class='divider'> - </span>the event handler name of the decorator with which the output code should be decorated. This is supposed to be in the colon notation (<code>module:event</code>). Within that decorator the same context will be available as the one given to the output code.</li>
+<li class='param'><code>$template</code> (<span class='type'>String</span>)<span class='divider'> - </span>an identifier referencing the output code's template name that should be used. You can add new templates by using the "Add Template" button in the Prails IDE.</li>
+</ul>
+
+<br/><br/>

@@ -1,0 +1,34 @@
+<html>
+	<head>
+		<title>Configuration</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Configuration</h1><br/><br/>
+The configuration of Prails happens in two ways: first via the global configuration,
+which can be accessed through the Global module by editing it's configuration, second
+via the different modules installed. Each module can have it's own configuration.
+All of those module-specific configurations are by default available on both: development
+instances and production instances. However, by switching the current view mode for 
+the configuration, you can enter separate configuration data for development and production
+instances.
+<br/><br/>
+<br/><br/>
+Global configuration options include:
+<ul><li class='param'><code>PROJECT_NAME</code> (<span class='type'>String</span>)<span class='divider'> - </span>contains the project's name. This can be used for the text next to the logo image, or for referencing emails.</li>
+<li class='param'><code>ENV_PRODUCTION</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>when set to <code>true</code>, Prails will be in production mode. When set to <code>false</code> it will be in development mode (defaults to <code>false</code>). The production mode activates minification of CSS and JS resources, page caching and the corresponding configuration options for that mode (as defined in the modules).</li>
+<li class='param'><code>DEVELOPER_CHAT_ENABLED</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>when set to <code>true</code>, the chat area at the right edge of the Prails IDE screen will be continuously updated with the other developer's chat messages (including your own), which enables project-wide chats, defaults to <code>false</code></li>
+<li class='param'><code>DEBUG_LEVEL</code> (<span class='type'>Number</span>)<span class='divider'> - </span>Debug level 0 only writes fatal problems to the log, 1 writes warnings, errors and fatal, 2 includes debug messages, warnings, errors and fatal problems, 3 adds info to that list and 4 includes traces, info, debug messages, warnings, errors and fatal problems. Defaults to 2.</li>
+<li class='param'><code>DBCACHE_ENABLED</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>will enable/disable the database cache. Disabling it will cause all database queries being directly sent to the database, regardless of changed data. If enabled, only queries that were previously not fetched from the database or in case the underlying data changed meanwhile will be sent to the database. Defaults to <code>true</code> (enabled)</li>
+<li class='param'><code>PROFILING_ENABLED</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if set to <code>true</code> the system will be profilled. This activates the profiler button on the help tab and provides information about the database and page cache usage, memory usage and other data that can be used to optimize the system. It is recommended to not turn this on at a production environment - or if necessary, only for a short period of time as it will increase churn put on the server. Defaults to <code>false</code>.</li>
+<li class='param'><code>CSS_EMBED_RESOURCES</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>setting this to <code>true</code> will embed small images (up to 1kb) to be embedded as data URLs into the generated CSS. Defaults to true</li>
+<li class='param'><code>ERROR_NOTIFICATION</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if set to <code>true</code>, an email will be sent in case an error occurs to the email address specified in <code>ERROR_EMAIL</code>. Defaults to <code>false</code></li>
+<li class='param'><code>ERROR_EMAIL</code> (<span class='type'>String</span>)<span class='divider'> - </span>the email address error messages should be sent to, if <code>ERROR_NOTIFICATION</code> is set to <code>true</code>. Defaults to <code>notify@example.org</code></li>
+<li class='param'><code>IS_SETUP</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>specifies whether or not this Prails instance was setup already.</li>
+<li class='param'><code>USE_SMTP</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if set to <code>true</code>, this will cause all emails that are sent through <code><a href="Tools.html#sendMail">sendMail</a></code> to be sent via direct SMTP connection rather than through the <code>sendmail</code>/<code>postfix</code>. Defaults to <code>false</code>.</li>
+<li class='param'><code>SMTP_HOST</code> (<span class='type'>String</span>)<span class='divider'> - </span>specifies the SMTP server to connect to, if <code>USE_SMTP</code> is set to <code>true</code>.</li>
+<li class='param'><code>SMTP_POST</code> (<span class='type'>Number</span>)<span class='divider'> - </span>specifies the SMTP port to be used for the SMTP connection, if <code>USE_SMTP</code> is set to <code>true</code>.</li>
+<li class='param'><code>SMTP_USERNAME</code> (<span class='type'>String</span>)<span class='divider'> - </span>defines the SMTP user name with which to connect to the SMTP server if <code>USE_SMTP</code> is set to <code>true</code>.</li>
+<li class='param'><code>SMTP_PASSWORD</code> (<span class='type'>String</span>)<span class='divider'> - </span>defines the SMTP password with which to connect to the SMTP server if <code>USE_SMTP</code> is set to <code>true</code>.</li>
+</ul>
+

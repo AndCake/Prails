@@ -17,6 +17,10 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/** Class Language
+ * 
+ * This class allows for access to localization data and content assets.
+ **/
 class LangData
 {
 	var $obj_sql;

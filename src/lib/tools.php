@@ -17,10 +17,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
+/** Section Tools
+ *
+ * This section describes a number of utility methods that are globally available.
+ **/
+
+/** 
+ * pushError($str_error) -> void
+ * - $str_error (String) - the error message to be shown.
+ *
  * Pushes an error onto the error stack (which is shown after the page is rendered)
- * @param STRING $str_error  the error message to be shown.
- */
+ **/
 function pushError ($str_error) {
 	global $log;
 	$log->error($str_error, true);
@@ -43,29 +50,29 @@ function run($cmd, $arr_args = Array(), $bol_inBackground = false) {
 }
 
 /**
+ * checkFields($arr_toCheck, $arr_keys) -> Boolean
+ * - $arr_toCheck (Array) - the array that contains the data to be checked
+ * - $arr_keys (Array) - the keys in the array whose values should be checked
+ *
  * Checkes whether all named items of an array have a value (especially useful to check for
  * valid user input after form submission)
  *
- * Example:
- * <code>
+ * *Example:*
+ * {{{
  *  $bol_valid = checkFields( Array(
- * 		"first_name"=>"",
- * 		"last_name"=>"Name",
- * 		"email"=>"test@test.com"
- * 	), Array(
- * 		"last_name", "email"
- *  ));
- * </code>
- * In this example the "last_name" and the "email" fields of the array are checked whether they are
- * populated. So in this case the return value of checkFields would be TRUE. If we would include
- * "first_name" in the second parameter, checkFields would return FALSE, because the first_name has
+ *                  "first_name"=>"",
+ *                  "last_name"=>"Name",
+ *                  "email"=>"test@test.com"
+ *               ), Array(
+ *                  "last_name", "email"
+ *               ));
+ * }}}
+ * In this example the `last_name` and the `email` fields of the array are checked whether they are
+ * populated. So in this case the return value of `checkFields` would be `true`. If we would include
+ * `first_name` in the second parameter, `checkFields` would return `false`, because the `first_name` has
  * no data in it.
  *
- * @param ARRAY $arr_toCheck array that contains the data to be checked
- * @param ARRAY $arr_keys keys in the array whose values should be checked
- *
- * @return BOOLEAN true, if all specified fields have a value, else false
- */
+ **/
 function checkFields ($arr_toCheck, $arr_keys) {
     $bol_check = true;
 
@@ -77,14 +84,13 @@ function checkFields ($arr_toCheck, $arr_keys) {
 }
 
 /**
- * Scales a flash embed to a specified maximum size
+ * scaleEmbed($embed, $width, $height) -> String
+ * - $embed (String) - the complete embed code
+ * - $width (Integer) - the maximum width
+ * - $height (Integer) - the maximum height
  *
- * @param STRING $embed the complete embed code
- * @param INT $width the maximum width
- * @param INT $height the maximum height
- *
- * @return STRING the embed code with scaled down width/height
- */
+ * Scales a flash embed to a specified maximum size and returns it.
+ **/
 function scaleEmbed($embed, $width, $height) {
     if (preg_match('/\s+src=["\']http:\/\/www\.msnbc\.msn\.com\/id\/([0-9]+)\/vp\/([0-9]+)[^"\']*["\']\s+/i', $embed, $arr_matches)) {
         $videoId = $arr_matches[2];
@@ -109,73 +115,71 @@ function scaleEmbed($embed, $width, $height) {
 }
 
 /**
- * checkes whether a string contains HTML code
+ * isEmbed($embed) -> Boolean
+ * - $embed (String) - the content to be checked
  *
- * @param STRING embed content to check
- *
- * @return BOOLEAN true if it contains HTML code, else false
- */
+ * checks whether a string contains HTML code
+ **/
 function isEmbed($embed) {
     return (preg_match("/(<\/?)(\w+)([^>]*>)/e", $embed) > 0);
 }
 
 /**
+ * isExternalURL($string) -> Boolean
+ * - $string (String) - url to check
+ *
  * checks whether a supplied URL is an external URL or not
- * @param STRING string	url to check
- * @return BOOLEAN true, if it is an external URL, else false 
- */
+ **/
 function isExternalURL($string) {
     return (preg_match("/http:\\/\\/(.*)/e", $string) > 0);
 }
 
 /**
- * A kind of COALESCE function for PHP. But it checks not only for NULL/not NULL but for real content.
+ * if_set($a, $b) -> String
+ * - $a (String) - first value to use
+ * - $b (String) - second option to use
  *
- * Example:
- * <code>
+ * A kind of COALESCE function for PHP. But it checks not for NULL/not NULL but for real content. It will return the first of the two variables that has a non-empty value.
+ *
+ * *Example:*
+ * {{{
  * 	$_SESSION["user"] = if_set($_GET["user"], $_SESSION["user"]);
- * </code>
- * In this example it is checked whether the "user" parameter has been set via GET. If so, it is saved
+ * }}}
+ * In this example it is checked whether the `user` parameter has been set via `GET`. If so, it is saved
  * in the session. If not, the session stays untouched.
- *
- * @param STRING $a
- * @param STRING $b
- *
- * @return STRING $a if it contains anything else than nothing, else $b
- */
+ **/
 function if_set ($a,$b) {
     return (strlen($a) > 0 ? $a : $b);
 }
 
 /**
+ * set_var($mix_a, $mix_b) -> void
+ * - $mix_a (Mixed) - the variable that will probably be set
+ * - $mix_b (Mixed) - the new content for $mix_a
+ *
  * Set the first parameter only if the second one is defined.
  *
- * Example:
- * <code>
+ * *Example:*
+ * {{{
  * 	set_var($_SESSION["user"], $_GET["user"]);
- * </code>
- * In this example it is checked whether the "user" parameter has been set via GET. If so, it is saved
+ * }}}
+ * In this example it is checked whether the `user` parameter has been set via `GET`. If so, it is saved
  * in the session. If not, the session stays untouched.
  *
- * Note: this does (unlike if_set) also work with arrays and objects.
- *
- * @param MIXED $mix_a the variable that will probably be set
- * @param MIXED $mix_b the new content for $mix_a
- *
- */
+ * _Note:_ this does (unlike `if_set`) also work with arrays and objects.
+ **/
 function set_var (&$mix_a, &$mix_b) {
     if (isset($mix_b))
     $mix_a = $mix_b;
 }
 
 /**
- * returns the language settings preferred by the user
- * 
- * @param ARRAY allowedLanguages - list of RFC4646 compliant language identifiers (like "en-us" or "de-de")
- * @param STRING defaultLanguage - default language entry, also RFC4646 compliant
- * 
- * @return RFC4646 compliant language identifier
- */
+ * getUserLanguage($arr_allowedLanguages, $defaultLanguage) -> String
+ * - $allowedLanguages (Array) - list of RFC4646 compliant language identifiers (like `en-us` or `de-de`)
+ * - $defaultLanguage (String) - default language entry, also RFC4646 compliant
+ *
+ * returns the language settings preferred by the user. The returned value will be a RFC4646 compliant language identifier.
+ **/
 function getUserLanguage($arr_allowedLanguages, $defaultLanguage) {
     $lang = "";
     if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) {
@@ -212,20 +216,19 @@ function getUserLanguage($arr_allowedLanguages, $defaultLanguage) {
 }
 
 /**
- * function to cut text after $limit characters
+ * wordCut($text, $limit[, $msg]) -> String
+ * - $text (String) - text to cut
+ * - $limit (Integer) - maximum characters in text
+ * - $msg (String) - text to append after text has been shortened, defaults to "..."
  *
- * Example:
- * <code>
+ * function to cut text after `$limit` characters and return the shortened version.
+ *
+ * *Example:*
+ * {{{
  * 	wordCut($my_text, 200, '... read more');
- * </code>
- *
- * @param STRING $text text to cut
- * @param INT $limit maximum characters in text
- * @param STRING $msg text to append after text has been shortened
- *
- * @return STRING short version of text
- */
-function wordCut($text, $limit, $msg){
+ * }}}
+ **/
+function wordCut($text, $limit, $msg = "..."){
     if (strlen($text) > $limit){
         $txt1 = wordwrap($text, $limit, '[cut]');
         $txt2 = explode('[cut]', $txt1);
@@ -238,11 +241,12 @@ function wordCut($text, $limit, $msg){
 }
 
 /**
- * removes a directory recursively
+ * removeDir($dir, $deleteSelf) -> void
+ * - $dir (String) - path to the directory to be removed
+ * - $deleteSelf (Boolean) - set to `true`, if the directory specified should be removed as well (else it's only emptied).
  *
- * @param STRING $dir
- * @param BOOLEAN $DeleteMe
- */
+ * removes a directory recursively
+ **/
 function removeDir($dir, $DeleteMe) {
 	if (!is_dir($dir)) return;
     if(!$dh = @opendir($dir)) return;
@@ -258,12 +262,12 @@ function removeDir($dir, $DeleteMe) {
 }
 
 /**
+ * hyperlink($text[, $complete]) -> String
+ * - $text (String) - text to scan
+ * - $complete (Boolean) - if `true`, it will show the complete URL as link text. If `false`, it will only show the host fragment. Defaults to `false`.
+ *
  * Replaces in-text URLs by real hyperlinks.
- *
- * @param STRING $text text to scan
- *
- * @return STRING text with all URLs replaced by real links.
- */
+ **/
 function hyperlink($text, $bol_complete = false) {
     // match protocol://address/path/file.extension?some=variable&another=asf%
     $text = preg_replace("/(([a-zA-Z]+:\/\/)([a-z][a-z0-9_,\..-]*[a-z]{2,6})([a-zA-Z0-9\/*-?,_&%]*))/i", ($bol_complete ? "<a href=\"$1\">$1</a>" : "<a href=\"$1\">$3</a>"), $text);
@@ -275,18 +279,19 @@ function hyperlink($text, $bol_complete = false) {
 }
 
 /**
- * convert text to an image (and directly output it to the browser)
+ * text2Image($text[, $font[, $w[, $h[, $x[, $y[, $fsize[, $color[, $bgcolor]]]]]]]]) -> Boolean
+ * - $text (String) - text to convert
+ * - $font (String) - font's file name, defaults to `"Alix2.ttf"`
+ * - $W (Integer) - width of the resulting image, defaults to 200
+ * - $H (Integer) - height of the resulting image, defaults to 20
+ * - $X (Integer) - x position of the string to be printed on the image, defaults to 0
+ * - $Y (Integer) - y position of the string to be printed on the image, defaults to 0
+ * - $fsize (Integer) - font size to be used, defaults to 18
+ * - $color (Array) - Array consisting of the entries for R, G and B values for the text color as hex values, defaults to `Array(0x0, 0x0, 0x0)` (which is black).
+ * - $bgcolor (Array) - Array consisting of the entries for R, G and B values for the image's background color, defaults to `Array(0xFF, 0xFF, 0xFF)` (which is white).
  *
- * @param STRING $text text to convert
- * @param STRING $font font's file name (OPTIONAL)
- * @param INT $W width of the resulting image (OPTIONAL)
- * @param INT $H height of the resulting image (OPTIONAL)
- * @param INT $X x position of the string to be printed on the image (OPTIONAL)
- * @param INT $Y y position of the string to be printed on the image (OPTIONAL)
- * @param STRING $fsize font size to be used (OPTIONAL)
- * @param ARRAY $color Array consisting of the entries for R, G and B values for the text color
- * @param ARRAY $bgcolor Array consisting of the entries for R, G and B values for the image's background color
- */
+ * convert text to an image (and directly output it to the browser)
+ **/
 function text2Image($text, $font="Alix2.ttf", $W=200, $H=20, $X=0, $Y=0, $fsize=18, $color=array(0x0,0x0,0x0), $bgcolor=array(0xFF,0xFF,0xFF)) {
 
     $im = @imagecreate($W, $H) or die("Cannot Initialize new GD image stream");
@@ -301,26 +306,25 @@ function text2Image($text, $font="Alix2.ttf", $W=200, $H=20, $X=0, $Y=0, $fsize=
 }
 
 /**
- * function to display age instead of a time
+ * timeDiff($time[, $opt]) -> String
+ * - $time (Integer) - time in seconds from 1/1/1970
+ * - $opt (Array) - Options array, see below for details.
+ *
+ * function to display age instead of a time. This will print a text like `8 minutes ago`.
  *
  * Options include
- * <code>
+ * {{{
  *   to = time(); date to compute the range to
  *   parts = 1; number of parts to display max
- *	  precision = 7; lowest part to compute to (7 = second)
+ *   precision = 7; lowest part to compute to (7 = second)
  *   distance = TRUE; include the 'ago' or 'away' bit
  *   separator = ', '; separates the parts
  *   period_names = Array(0=>Array("decade", "decades"), 1=>Array("year", "years"), 2=>Array("month","months"), 3=>Array("week", "weeks"), 4=>Array("day", "days"), 5=>Array("hour", "hours"), 6=>Array("minute", "minutes"), 7=>Array("second", "seconds"))
  *   less_than_1 = 'less than 1'
  *   distance_names = Array("ago", "away")
- *   distance_post = FALSE; 	should the distance added after or before all parts
- * </code>
- *
- * @param INT $time time in seconds from 1/1/1970
- * @param ARRAY $opt Options array (OPTIONAL)
- *
- * @return STRING (e.g. "2 days, 4 hours ago")
- */
+ *   distance_post = FALSE 	should the distance added after or before all parts
+ * }}}
+ **/
 function timeDiff($time, $opt = array()) {
     // The default values
     $defOptions = array(
@@ -371,12 +375,11 @@ function timeDiff($time, $opt = array()) {
 }
 
 /**
+ * tostring($mix) -> String
+ * - $mix (Mixed) - variable to be converted to a string
+ *
  * convert a MIXED variable to a string (formatted for output)
- *
- * @param MIXED $mix variable to be converted to a string
- *
- * @return STRING formatted string representing the variable
- */
+ **/
 function tostring ($mix,$i=0) {
     if (is_array($mix)) {
         $str.="\n".str_repeat("  ",$i)."Array(";
@@ -418,23 +421,22 @@ function toUTF8 ($str) {
 }
 
 /**
+ * printTagCloud($tags[, $maxTags[, $setSize]]) -> String
+ * - $tags (Array) - array of tags containing the number of how often it is used and the link to be used when clicked at this tag
+ * - $maxTags (Integer) - defines how many tags should be shown at maximum
+ * - $setSize (Boolean) - change the font size for the tags depending on usage number
+ *
  * Generate a tag cloud
  *
- * Example:
- * <code>
+ * *Example:*
+ * {{{
  * $tags = array('weddings' => array("num"=>32, "link"=>"index.php?action=...&tag_id=..."),
- * 				  'birthdays' => array("num"=>41, "link"=>"index.php?action=...&tag_id=..."),
- * 				  'landscapes' => array("num"=>76, "link"=>"index.php?action=...&tag_id=...")
- * 				 );
+ *               'birthdays' => array("num"=>41, "link"=>"index.php?action=...&tag_id=..."),
+ *               'landscapes' => array("num"=>76, "link"=>"index.php?action=...&tag_id=...")
+ *         );
  * $result = printTagCloud($tags);
- * </code>
- *
- * @param ARRAY $tags array of tags containing the number of how often it is used and the link to be used when clicked at this tag
- * @param INT $maxTags defines how many tags should be shown at maximum (OPTIONAL)
- * @param BOOLEAN $bol_setSize change the font size for the tags depending on usage number
- *
- * @return STRING the HTML code for the tag cloud
- */
+ * }}}
+ **/
 function printTagCloud($tags, $maxTags=-1, $bol_setSize=true) {
     // $tags is the array
 
@@ -493,11 +495,12 @@ function alert ($mix, $always = false) {
 }
 
 /**
- * Redirect the user to another site.
+ * jumpTo($url[, $clientSize]) -> void
+ * - $url (String) - the URL to redirect the user to.
+ * - $clientSide (Boolean) - the redirect should be made on the client-side, rather than server-side, defaults to `false`.
  *
- * @param STRING $url the URL to redirect the user to.
- * @param BOOL $clientSide the redirect should be made on the client-side, rather than server-side
- */
+ * Redirect the user to another site/page.
+ **/
 function jumpTo ($url = "?", $clientSide = false) {
     global $SERVER;
 	global $log;
@@ -615,16 +618,15 @@ if (!function_exists("imagejpeg")) {
 }
 
 /**
- * generates a thumbnail out of a image file
+ * createThumbnail($src, $desc[, $maxWidth[, $maxHeight[, $quality]]]) -> Boolean
+ * - $src (String) - source image to be scaled down as thumbnail
+ * - $dst (String) - destination image file name
+ * - $maxWidth (Integer) - maximum width for the resulting thumbnail, defaults to 500
+ * - $maxHeight (Integer) - maximum height for the resulting thumbnail, defaults to 500
+ * - $quality (Integer) - compression quality to be used, defaults to 60
  *
- * @param STRING $src source image to be scaled down as thumbnail
- * @param STRING $dst destination image file name
- * @param INT $maxWidth maximum width for the resulting thumbnail (OPTIONAL)
- * @param INT $maxHeight maximum height for the resulting thumbnail (OPTIONAL)
- * @param INT $quality compression quality to be used
- *
- * @return BOOLEAN true, if generation of the thumbnail was successful, else false
- */
+ * generates a thumbnail out of a image file and returns `true`, if the generation of the thumbnail was successful.
+ **/
 function createThumbnail($src, $dest, $MaxWidth = 500, $MaxHeight = 500, $Quality = 60)
 {
     list($ImageWidth,$ImageHeight,$TypeCode)=getimagesize($src);
@@ -755,6 +757,34 @@ function send_mail($to, $body, $subject, $fromaddress, $fromname, $attachments=f
     return $mail_sent;
 }
 
+/** 
+ * sendMail($to, $subject, $content, $fromname, $fromaddress[, $attachments]) -> Boolean
+ * - $to (String) - email address to send the email to
+ * - $subject (String) - the subject to be used for the email
+ * - $content (String) - the email's body
+ * - $fromname (String) - the sender's name
+ * - $fromaddress (String) - the sender's email address
+ * - $attachments (Boolean|Array) - if this is an array, with two keys: `file`, containing the array of files to be attached and `name`, containing an array of names of the files attached as how they should appear in the mail. In case this parameter is set to `false`, there won't be any attachments (which is the default). 
+ * 
+ * This method sends out an email to the specified receiver. The email body will be a multi-part email
+ * containing the original HTML body and a text-only version of it. Additionally one or more attachments 
+ * may be added.
+ *
+ * *Example:*
+ * {{{
+ * sendMail( $customerEmail, 
+ *           "Your Invoice", 
+ *           $message, 
+ *           "Invoice Service", 
+ *           "no-reply@example.org", 
+ *           Array(
+ *              "file" => Array( "static/invoices/somestrangename.pdf" ),
+ *              "name" => Array( "2003-02-02.pdf" )
+ *           )
+ *         );
+ * }}}
+ * This example sends an email with one attachment.
+ **/
 function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments = false) {
     $eol = "\r\n";
     $random_hash = md5(date('r', time()));
@@ -807,12 +837,12 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
 }
 
 /**
- * do a server-side get request to another server/site. HTTPS is supported.
+ * doGet($url[, $includeHeaders]) -> String|Array
+ * - $url (String) - URL to fetch data from
+ * - $includeHeaders (Boolean) - if set to `true`, it will cause the return value to be an array consisting two entries: the headers returned by the server and the content.
  *
- * @param STRING $url URL to fetch data from
- *
- * @return STRING data fetched from the (other) server
- */
+ * do a server-side get request to another server/site. HTTPS is supported and returns the data fetched from the (other) server.
+ **/
 function doGet($url, $includeHeaders = false)
 {
     if (!$url_info = parse_url($url))
@@ -882,22 +912,23 @@ function doGet($url, $includeHeaders = false)
 }
 
 /**
- * do a server-side post request to another server/site. HTTPS is supported.
+ * doPost($url[, $postData[, $user, $pass]]) -> String
+ * - $url (String) - URL to POST to
+ * - $postData (Array) - data to be posted as key-value pairs
+ * - $user (String|Boolean) - user name to connect with (for basic HTTP authentication). If `false`, no authorization header will be sent (default).
+ * - $pass (String|Boolean) - password to connect with (for basic HTTP authentication). If `false`, then no authorization header will be sent (default).
  *
- * Example:
- * <code>
- * 	$reply = doPost("http://www.example.org/cgi-bin/process.cgi", Array(
- * 		"first_name"=>"Test",
- * 		"last_name"=>"User",
- * 		"age"=>"27",
- *  ));
- * </code>
+ * do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a `String`.
  *
- * @param STRING $url URL to POST to
- * @param ARRAY $arr_post data to be posted
- *
- * @return STRING content of the server's reply
- */
+ * *Example:*
+ * {{{
+ * $reply = doPost("http://www.example.org/cgi-bin/process.cgi", Array(
+ *             "first_name"=>"Test",
+ *             "last_name"=>"User",
+ *             "age"=>"27",
+ *          ));
+ * }}}
+ **/
 function doPost($url, $arr_post = Array(), $user = false, $pass = false)
 {
     if (!$url_info = parse_url($url))
@@ -1084,13 +1115,12 @@ function get_timestamp($date) {
 }
 
 /**
- * invokes an event and returns it's result
+ * invoke($event[, $params]) -> Mixed
+ * - $event (String) - name of the event to be invoked (written in colon notation as `module:handler`)
+ * - $params (Array) - additional parameters (context) that should be transmitted, defaults to `null`
  *
- * @param STRING $str_event name of the event to be invoked
- * @param ARRAY $arr_param additional parameters that should be transmitted (OPTIONAL)
- *
- * @return MIXED if successful it will return the event's result. If an error occured (like event not found) it will return false
- */
+ * invokes an event and returns it's result. In case an error occurred (like the event was not found), it will return `false`.
+ **/
 function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 {
 	global $log, $profiler;
@@ -1268,9 +1298,10 @@ function diff($old, $new)
 }
 
 /**
- * this function returns the value of the first parameter which is set
- * @return mixed
- */
+ * one_of(...) -> Mixed
+ * 
+ * this function takes an arbitrary number of arguments and returns the value of the first parameter which is non-empty.
+ **/
 function one_of() {
 	$num = count(func_get_args());
 	
@@ -1282,11 +1313,13 @@ function one_of() {
 }
 
 /**
- * this function copies the received file to the specified directory
- * @param String $fileName - name of the file (as transmitted as GET parameter for qw:upload fields)
- * @param String $targetPath - directory to put the file into
- * @return mixed FALSE if no file received, else the name (including path) of the file after copy is completed
- */
+ * receiveFile($fileName, $targetPath) -> String|Boolean
+ * - $fileName (String) - name of the file (as transmitted as GET parameter for qw:upload fields)
+ * - $targetPath (String) - directory to put the file into
+ *
+ * this function copies the received file to the specified directory. It returns `false` if no file was received, else the name (including path) of the file after copy is completed.
+ * If the file already exists in the target path, the resulting file name will be unique (so it won't override existing files).
+ **/
 function receiveFile($fileName, $targetPath) {
 	global $log;
 	// only allow file uploads via POST
