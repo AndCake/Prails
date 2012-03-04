@@ -76,7 +76,12 @@
 												id: id,
 												allowChildren: false
 											});
-								module.handlers = [];
+								module.handlers = [new Ext.tree.TreeNode({
+                                                                        text: "home",
+                                                                        leaf: true,
+                                                                        id: "h_"+req.responseText.split(/\n/g)[1],
+                                                                        allowChildren: false
+                                                                })];
 								module.datas = [];
 								Builder.root.appendChild(module);
 								Builder.editModuleOptions(module);

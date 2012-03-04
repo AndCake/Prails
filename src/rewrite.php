@@ -46,11 +46,21 @@ foreach ($lines as $line) {
 			}
 			if (strpos($parts[2], "L") !== false) {
 				$url = parse_url($parts[1]);
+				$url["query"] = str_replace("?", "&", $url["query"]);
 				$parameters = explode("&", $url["query"]);
 				foreach ($parameters as $param) {
 					list($name, $value) = explode("=", $param);
-					$_GET[$name] = urldecode($value);
+                                        $name = urldecode($name);
+                                        if ($name[0] == "?") $name = substr($name, 1);
+                                        $name = explode("[", str_replace("]", "", $name));
+                                        $nn = &$_GET;
+                                        foreach ($name as $n) {
+                                                $nn[$n] = Array();
+                                                $nn = &$nn[$n];
+                                        }
+                                        $nn = urldecode($value);
 				}
+				header("HTTP/1.1 200 OK");
 				require("index.php");
 				die();
 			}
