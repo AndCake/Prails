@@ -13,9 +13,10 @@ pre {
 	border: 1px solid #ccc;
 	background: #efefef;
 	padding: 5px 10px;
+	overflow: auto;
 }
 .page {
-	width: 800px;
+	width: 760px;
 }
 
 a.method-title {

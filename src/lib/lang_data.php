@@ -19,7 +19,78 @@
 
 /** Class Language
  * 
- * This class allows for access to localization data and content assets.
+ * This class allows for access to localization data and content assets. Content assets are
+ * static texts that can be entered via the Prails IDE. They are referenced through a so-called
+ * identifier. You can insert these identifiers as placeholders in templates at any position where
+ * localized content should be displayed, depending on the language chosen.
+ *
+ * In a template the identifiers should usually be placed inside curly braces, which are called 
+ * "language tags". Their syntax looks like so:
+ * {{{ 
+ * {&lt;identifier&gt;}
+ * }}}
+ * The identifier itself contains a hierarchical path information, which always has the following
+ * structure:
+ * {{{
+ * &lt;top section&gt;.[&lt;sub section&gt;.]&lt;text name&gt;
+ * }}}
+ * In many cases it turned out to be useful to reflect the module's structure in the hierarchical
+ * view of the translations section, as then it is much easier to create, find and change their 
+ * translations. For texts that are globally used, it is encouraged to structure and group them 
+ * according to their abstract intention under a "global" top level section.
+ *
+ * For development environments the translation that replaces it's language tag when executed
+ * will be surrounded by HTML comments so that it's easier to find the corresponding tag in the 
+ * "Static Contents" section of the IDE. If you, however don't want this to happen (maybe because you 
+ * are using this language tag in a Javascript string or some other critical position), you can tell 
+ * Prails to only output the actual translation without HTML comments by adding a $ sign at the end of the tag name.
+ * 
+ * _Note:_ All identifiers are case sensitive.
+ * 
+ * *Example:*
+ * {{{
+ * ...
+ * &lt;div class="context-box-head"&gt;
+ *    &lt;h1&gt;{customer.login.title}&lt;/h1&gt;
+ * &lt;/div&gt;
+ * &lt;div class="context-box-body"&gt;
+ *    &lt;div class="input-labelling"&gt;{customer.login.username}&lt;/div&gt;
+ *    &lt;div class="inputfield"&gt;&lt;input type="text" class="required" name="login[username]" /&gt;
+ * ...
+ *    &lt;div class="input-labelling"&gt;{customer.login.password}&lt;/div&gt;
+ *    &lt;div class="inputfield"&gt;
+ *       &lt;!-- the password hint should not be surrounded by HTML comments in development --&gt;
+ *       &lt;input class="required" title="{customer.login.passwordHint$}" name="login[password]" type="password" value="" /&gt;
+ *    &lt;/div&gt;
+ * &lt;/div&gt;
+ * &lt;div class="content-box-footer"&gt;
+ *    &lt;button class="submit" type="submit"&gt;{customer.login.login}&lt;/button&gt;
+ * &lt;/div&gt;
+ * ...
+ * }}}
+ * This example demonstrates how it is actually used within templates (like the event handler's output code).
+ * 
+ *
+ * *The CMS*
+ * 
+ * The CMS let's you create and manage static pages. These static pages can be edited using a WYSIWYG editor 
+ * and be decorated by any existent decorator that has been created in the project. See `Decorator` for more 
+ * information on creating decorators.
+ *
+ * In order to create a new page in the CMS, you just need to add a new top section called `cms` to the 
+ * translations area in the IDE. Within this top section any text created will have automatically a URL 
+ * it can be opened as a new html page.
+ *
+ *
+ * *The Bookmarklet Helper Utility*
+ *
+ * When visiting the Prails Home Tab a bookmarklet link can be found right at the bottom of the page. 
+ * After installing it via drag'n'drop into the bookmark bar, visit any event handler that produces output 
+ * and click the bookmarklet. All language tags that exist on that page will be shown with a simple red dot 
+ * at it's top left corner. When hovering over it, the tag's name will appear which easily let's you find 
+ * out what the path in Prails to that very language tag definition within the CMS is. By clicking it, you will
+ * be instantly transferred to that content asset in Prails. In case it did not exist, everything you need
+ * to create it, will be prefilled.
  **/
 class LangData
 {
@@ -34,7 +105,13 @@ class LangData
 		$this->setLanguage($str_lang);
 		$this->arr_item_cache = Array();
 	}
-	 
+	
+        /**
+         * setLanguage($lang) -> void
+         * - $lang (String) - the language identifier (abbreviation) of the language to set as active.
+         * 
+         * This method set's the currently active language.
+         **/
 	function setLanguage($str_lang) {
 		if (IS_SETUP) {
 			$arr_result = @array_pop($this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
@@ -58,6 +135,13 @@ class LangData
 		}
 	}
 
+	/**
+	 * getText($identifier) -> String
+	 * - $identifier (String) - the content asset identifier to be retrieved. This usually consists of different parts, separated by a dot.
+	 * 
+	 * returns the text in the currently active language that corresponds to the content asset identifier given. If no such text was found, 
+	 * the content asset identifier itself is returned.
+         **/
 	function getText($str_item)
 	{
 		if (!$this->arr_item_cache[$str_item] || !ENV_PRODUCTION)
@@ -83,7 +167,15 @@ class LangData
 		}
 		return $arr_result["content"];
 	}
-	 
+	
+	/**
+	 * selectTextByIdentifier($identifier) -> DBEntry
+	 * - $identifier (String) - the content asset identifier to be retrieved. This usually consists of different parts, separated by a dot.
+	 * 
+	 * This method will retrieve the content asset object associated to the content asset identifier in the current language. If no such content asset
+	 * exists, the `content` attribute of the `DBEntry` will be set to the content asset identifier. Any custom attributes that are attached to the 
+	 * content asset are located in an attribute called `custom`. 
+	 **/
 	function selectTextByIdentifier($str_item) {
 		$arr_result = @array_pop($this->obj_sql->SqlQuery(
           	"SELECT " .
@@ -104,10 +196,20 @@ class LangData
           	return $arr_result;
 	}
 
+	/** 
+	 * listLanguages() -> Array
+	 * 
+	 * this method will return a list of all currently existing languages, ordered by language name.
+	 **/
 	function listLanguages() {
 		return $this->obj_sql->SqlQuery("SELECT * FROM ".tbl_prailsbase_language." WHERE 1=1 ORDER BY name");
 	}
 	 
+	/**
+	 * listTexts() -> Array
+	 * 
+	 * get a list of all content assets across all languages
+	 **/
 	function listTexts() {
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 GROUP BY identifier, texts_id, fk_language_id, content");
 		$arr_return = Array();
@@ -125,7 +227,14 @@ class LangData
 
 		return $arr_return;
 	}
-	 
+	
+	/**
+	 * listAllTextsFromRoot($rootNode) -> Array
+	 * - $rootNode (String) - the root node starting from which all texts should be retrieved.
+	 * 
+	 * retrieves all content assets that reside in the context of the given root node. Usually helpful if you want texts of a certain
+	 * folder to be listed for a menu or create an order on those.
+	 **/
 	function listAllTextsFromRoot($rootNode) {
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND identifier LIKE '".$rootNode.".%'");
 		foreach($arr_result as &$item) {
@@ -134,6 +243,12 @@ class LangData
 		return $arr_result;
 	}
 	 
+	/**
+	 * findTextByContent($keyword) -> Array
+	 * - $keyword (String) - the keyword to search for
+	 *
+	 * Returns all content assets that contain the keyword in some way - regardless of active language.
+	 **/
 	function findTextByContent($word) {
 		$arr_result = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_texts WHERE fk_language_id > 0 AND content LIKE '%".$word."%'");
 		$arr_return = Array();
@@ -143,6 +258,12 @@ class LangData
 		return $arr_return;
 	}
 
+	/**
+	 * getAllTextsByIdentifier($identifier) -> Array
+	 * - $identifier (String) - the identifier for which all content assets should be returned.
+	 *
+	 * This method fetches all content assets across all languages it exists in that have the given identifier.
+	 **/
 	function getAllTextsByIdentifier($ident) {
 		$texts = $this->obj_sql->SqlQuery("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE 1=1");
 		foreach ($texts as &$text) {

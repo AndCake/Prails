@@ -17,11 +17,119 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/**
- * This class implements the framework's tag lib base engine
+/** Section Tags
+ *
+ * Control Tags are HTML/XML tags that allow for a standardized, secure and fast generation of dynamic pages. 
+ * They are part of the template engine at Prails' core and are translated into PHP code, which makes them 
+ * easy to use, create and understand. 
+ *
+ * A series of control tags are pre-defined in Prails and can be used in any template and output code.
  * 
- * @author RoQ
- */
+ * <c:if cond="<php-condition>">...</c:if>
+ * 
+ * An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
+ * body content. 
+ * _Note:_ you can use the `&lt;c:else/&gt;` tag to render something if the PHP condition returns `false`. 
+ * 
+ * *Example:*
+ * {{{
+ * &lt;c:if cond="$arr_param['test'] == '123'"&gt;
+ *    &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+ * &lt;/c:if&gt;
+ * // the above does exactly the same as the following:
+ * &lt;c:if cond="#local.test == '123'"&gt;
+ *    &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+ * &lt;/c:if&gt;
+ * }}}
+ *
+ *
+ * <c:foreach var="(inline-var)" name="(loop-var-name)"[ key="(key-name)"]></c:foreach>
+ *
+ * A foreach tag, which repeats rendering it's body content for every item in the `inline-var` array. 
+ * The single entries can be accessed by using the `loop-var-name` variable name. Optionally an 
+ * additional key can be provided to use the current position. 
+ * _Note:_ if the array given is empty, you can use the `&lt;c:else/&gt;` tag to render something in 
+ * that case. 
+ *
+ * *Example:*
+ * {{{
+ * &lt;ol class="user-list"&gt;
+ *    &lt;c:foreach var="users" name="user"&gt;
+ *       &lt;li&gt;#user.name&lt;/li&gt;
+ *    &lt;/c:foreach&gt;
+ * &lt;/ol&gt;
+ * }}}
+ *
+ *
+ * <c:else/>
+ *
+ * Used together with `&lt;c:if&gt;` or `&lt;c:foreach&gt;` to render something in an alternative branch of 
+ * execution. Needs to be written within the respective if/loop tag's body. 
+ * 
+ * *Example:*
+ * {{{
+ * &lt;c:if cond="true == false"&gt;
+ *    Should never happen!
+ * &lt;c:else/&gt;
+ *    Wonderful!
+ * &lt;/c:if&gt;
+ * }}}
+ *
+ * 
+ * <c:include (event="<event-name>" | file="<event-name>" | template="<template-name>")/>
+ *
+ * Includes a whole event handler's result or simply a template of another event handler. In case that 
+ * just a template should be included, the path to that template is `&lt;module-name&gt;/&lt;event-handler-name&gt;`. 
+ * It then has some similar characteristics to a decorator, except it does not embed something, but is 
+ * embedded into something. 
+ * 
+ * *Example:*
+ * {{{
+ * &lt;!-- calls the "user:list" event handler and renders it's result --&gt;
+ * &lt;c:include event="user:list"/&gt;
+ * &lt;!-- includes the default template from module "user" and event handler "detail", it is evaluated immediately --&gt;
+ * &lt;c:include file="user/detail"/&gt;
+ * &lt;!-- includes the template "mail" from the current event handler --&gt;
+ * &lt;c:include template="mail"/&gt;
+ * }}}
+ *
+ *
+ * <c:print value="<inline-var>"/>
+ *
+ * Safely prints a variable's value. Usually text entered by the user, that you want to display might be
+ * used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 
+ * all dangerous characters as HTML entites. 
+ *
+ * *Example:*
+ * {{{
+ * &lt;p class="content"&gt;
+ *    &lt;c:print value="user.description"/&gt;
+ * &lt;/p&gt;
+ * }}}
+ *
+ *
+ * <c:input [type="<type>"] [name="<name>"] [value="<value>"] [values="<values>"] [class="<css classes>"] [label="<label>"] [rel="<rel>"] [overlabel="<overlabel text>"] [error="<validation-error>"] [multiple="<size>"]/>
+ * - `type` (String) - type of input; can be: `text`, `password`, `file`, `checkbox`, `radio`, `select`, `date`, `email`
+ * - `name` (String) - name of the input to be used for submission
+ * - `value` (String) - single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")
+ * - `values` (Array) - all values (for radio, checkbox, select) : Array(value : label)
+ * - `class` (String) - CSS classes to add
+ * - `label` (String) - input field's label which will be placed in front of it
+ * - `rel` (String) - custom regular expression validating for required inputs (for text, password and date)
+ * - `overlabel` (String) - overlabel to use (for text, password, date). An overlabel is a placeholder text.
+ * - `error` (String) - validation error message
+ * - `multiple` (Integer) - size to show (for select), also enables selecting multiple entries at once; for text input's it will enable entering multiple lines of text
+ *
+ * Renders a form field with the specified properties. It is able to render text fields (also with multiple lines), password inputs, file inputs, checkboxes, radio buttons, select boxes and date fields.
+ *
+ * *Example:*
+ * {{{
+ * &lt;% $arr_param['countries'] = Array("US" => "United States", "GB" => "United Kingdom", "DE" => "Germany"); %&gt;
+ * &lt;% $arr_param['local']['country'] = "GB"; %&gt;
+ * &lt;!-- render a select box with a label and three countries, whereas the country "GB" is pre-selected --&gt;
+ * &lt;c:input type="select" values="countries" value="#local.country" label="Shipping Country:"/&gt;
+ * }}}
+ **/
 class TagLib {
 
 	private $tagLibDir = "lib/tags/";

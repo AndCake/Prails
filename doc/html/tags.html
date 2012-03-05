@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<title>Tags</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Tags</h1><br/><br/>
+Control Tags are HTML/XML tags that allow for a standardized, secure and fast generation of dynamic pages. 
+They are part of the template engine at Prails' core and are translated into PHP code, which makes them 
+easy to use, create and understand. 
+<br/><br/>
+A series of control tags are pre-defined in Prails and can be used in any template and output code.
+<br/><br/>
+<div class='method-type'>Tag</div><a name='if' class='method-title'>if</a><div class='method'>&lt;c:<span class='name'>if</span>  cond="&lt;php-condition&gt;"&gt;...&lt;/c:if&gt;</div>
+<br/><br/>
+An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
+body content. 
+ <u>Note:</u> you can use the <code>&lt;c:else/&gt;</code> tag to render something if the PHP condition returns <code>false</code>. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;c:if cond="$arr_param['test'] == '123'"&gt;
+   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+&lt;/c:if&gt;
+// the above does exactly the same as the following:
+&lt;c:if cond="#local.test == '123'"&gt;
+   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+&lt;/c:if&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='foreach' class='method-title'>foreach</a><div class='method'>&lt;c:<span class='name'>foreach</span>  var="(inline-var)" name="(loop-var-name)"[ key="(key-name)"]&gt;&lt;/c:foreach&gt;</div>
+<br/><br/>
+A foreach tag, which repeats rendering it's body content for every item in the <code>inline-var</code> array. 
+The single entries can be accessed by using the <code>loop-var-name</code> variable name. Optionally an 
+additional key can be provided to use the current position. 
+ <u>Note:</u> if the array given is empty, you can use the <code>&lt;c:else/&gt;</code> tag to render something in 
+that case. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;ol class="user-list"&gt;
+   &lt;c:foreach var="users" name="user"&gt;
+      &lt;li&gt;#user.name&lt;/li&gt;
+   &lt;/c:foreach&gt;
+&lt;/ol&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span> /&gt;</div>
+<br/><br/>
+Used together with <code>&lt;c:if&gt;</code> or <code>&lt;c:foreach&gt;</code> to render something in an alternative branch of 
+execution. Needs to be written within the respective if/loop tag's body. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;c:if cond="true == false"&gt;
+   Should never happen!
+&lt;c:else/&gt;
+   Wonderful!
+&lt;/c:if&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='include' class='method-title'>include</a><div class='method'>&lt;c:<span class='name'>include</span>  (event="&lt;event-name&gt;" | file="&lt;event-name&gt;" | template="&lt;template-name&gt;")/&gt;</div>
+<br/><br/>
+Includes a whole event handler's result or simply a template of another event handler. In case that 
+just a template should be included, the path to that template is <code>&lt;module-name&gt;/&lt;event-handler-name&gt;</code>. 
+It then has some similar characteristics to a decorator, except it does not embed something, but is 
+embedded into something. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;!-- calls the "user:list" event handler and renders it's result --&gt;
+&lt;c:include event="user:list"/&gt;
+&lt;!-- includes the default template from module "user" and event handler "detail", it is evaluated immediately --&gt;
+&lt;c:include file="user/detail"/&gt;
+&lt;!-- includes the template "mail" from the current event handler --&gt;
+&lt;c:include template="mail"/&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='print' class='method-title'>print</a><div class='method'>&lt;c:<span class='name'>print</span>  value="&lt;inline-var&gt;"/&gt;</div>
+<br/><br/>
+Safely prints a variable's value. Usually text entered by the user, that you want to display might be
+used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 
+all dangerous characters as HTML entites. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;p class="content"&gt;
+   &lt;c:print value="user.description"/&gt;
+&lt;/p&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='input' class='method-title'>input</a><div class='method'>&lt;c:<span class='name'>input</span>  [type="&lt;type&gt;"] [name="&lt;name&gt;"] [value="&lt;value&gt;"] [values="&lt;values&gt;"] [class="&lt;css classes&gt;"] [label="&lt;label&gt;"] [rel="&lt;rel&gt;"] [overlabel="&lt;overlabel text&gt;"] [error="&lt;validation-error&gt;"] [multiple="&lt;size&gt;"]/&gt;</div>
+<ul><li class='param'><code>type</code> (<span class='type'>String</span>)<span class='divider'> - </span>type of input; can be: <code>text</code>, <code>password</code>, <code>file</code>, <code>checkbox</code>, <code>radio</code>, <code>select</code>, <code>date</code>, <code>email</code></li>
+<li class='param'><code>name</code> (<span class='type'>String</span>)<span class='divider'> - </span>name of the input to be used for submission</li>
+<li class='param'><code>value</code> (<span class='type'>String</span>)<span class='divider'> - </span>single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")</li>
+<li class='param'><code>values</code> (<span class='type'>Array</span>)<span class='divider'> - </span>all values (for radio, checkbox, select) : Array(value : label)</li>
+<li class='param'><code>class</code> (<span class='type'>String</span>)<span class='divider'> - </span>CSS classes to add</li>
+<li class='param'><code>label</code> (<span class='type'>String</span>)<span class='divider'> - </span>input field's label which will be placed in front of it</li>
+<li class='param'><code>rel</code> (<span class='type'>String</span>)<span class='divider'> - </span>custom regular expression validating for required inputs (for text, password and date)</li>
+<li class='param'><code>overlabel</code> (<span class='type'>String</span>)<span class='divider'> - </span>overlabel to use (for text, password, date). An overlabel is a placeholder text.</li>
+<li class='param'><code>error</code> (<span class='type'>String</span>)<span class='divider'> - </span>validation error message</li>
+<li class='param'><code>multiple</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>size to show (for select), also enables selecting multiple entries at once; for text input's it will enable entering multiple lines of text</li>
+</ul>
+
+Renders a form field with the specified properties. It is able to render text fields (also with multiple lines), password inputs, file inputs, checkboxes, radio buttons, select boxes and date fields.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;% $arr_param['countries'] = Array("US" => "United States", "GB" => "United Kingdom", "DE" => "Germany"); %&gt;
+&lt;% $arr_param['local']['country'] = "GB"; %&gt;
+&lt;!-- render a select box with a label and three countries, whereas the country "GB" is pre-selected --&gt;
+&lt;c:input type="select" values="countries" value="#local.country" label="Shipping Country:"/&gt;
+</pre>
+<br/><br/>

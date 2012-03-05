@@ -55,12 +55,16 @@ function handleCommentBlock($items) {
 	$bulletCreated = false;
 	$class = '/^\\s*([Cc]lass|[sS]ection)\\s+(\\w+)/';
 	$method = '/(\\w+)\\s*\\(([^\\)]*)\\)\\s*->\\s*(\\w+(\\|\\w+)*)/';
+	$tag = '/<c:(\\w+)(.*)$/';
 	$param = '/\\s*-\\s*(\\$\\w+|`\\w+`)\\s*\\((\\w+(\\|\\w+)*)\\)\\s*-\\s*(.*)/';
 	foreach ($items as $item) {
 		if (preg_match($class, $item, $matches)) {
 			writeHeader($matches[1], $matches[2]);
 		} else if (preg_match($method, $item, $matches)) {
 			writeMethod($matches);
+			$currentMethod = $matches[1];
+		} else if (preg_match($tag, $item, $matches)) {
+			writeMethod($matches, "Tag");
 			$currentMethod = $matches[1];
 		} else if (preg_match($param, $item, $matches)) {
 			writeParam($matches, $currentMethod);
@@ -104,7 +108,7 @@ ENDL;
 	file_put_contents($path.$file, $content);
 }
 
-function writeMethod($details) {
+function writeMethod($details, $type = "Method") {
 	global $file, $path, $bulletCreated, $currentContext, $sections;
 	if (empty($file)) {
 		throw new Exception("Section or class not specified.");
@@ -124,8 +128,12 @@ function writeMethod($details) {
 	$details[3] = implode("|", $parts);
 	$types = str_replace('|', "</span> | <span class='type'>", $details[3]);
 	$name = preg_replace('/[^a-zA-Z0-9_]/', '_', $details[1]);
-	$content .= "<div class='method-type'>Method</div><a name='".$name."' class='method-title'>".$details[1]."</a>".
-		    "<div class='method'><span class='name'>{$details[1]}</span>(<span class='parameters'>{$details[2]}</span>) &rarr; <span class='type'>{$types}</span></div>\n";
+	$content .= "<div class='method-type'>".$type."</div><a name='".$name."' class='method-title'>".$details[1]."</a>";
+	if ($type == "Tag") {
+		$content .= "<div class='method'>&lt;c:<span class='name'>{$details[1]}</span> ".str_replace(Array('<', '>'), Array('&lt;', '&gt;'), $details[2])."</div>\n";
+	} else {
+		$content .= "<div class='method'><span class='name'>{$details[1]}</span>(<span class='parameters'>{$details[2]}</span>) &rarr; <span class='type'>{$types}</span></div>\n";
+	}
 	
 	file_put_contents($path.$file, $content);
 } 

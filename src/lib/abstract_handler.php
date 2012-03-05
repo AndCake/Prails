@@ -77,7 +77,7 @@
  *
  * The following variables are always defined in a handler:
  * - $arr_param (Array) - an array containing the context that was given to the current event handler. Normally, this is an empty array. In case you use the `[tools]invoke` method, however, you can pass a custom context as the second parameter.
- * - $data (Object) - the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.
+ * - $data (Database) - the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.
  * - $currentLang (Language) - a reference to the language library, that let's you get access to content assets.
  * - $SERVER (String) - the absolute URL to the page (without paths relative to the Prails directory)
  * - $SECURE_SERVER (String) - the absolute HTTPS URL to the page (without paths relative to the Prails directory)
