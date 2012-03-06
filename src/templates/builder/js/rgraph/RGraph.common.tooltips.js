@@ -365,9 +365,9 @@
 
         } else if (effect == 'snap') {
 
-            /*******************************************************
+            /**
             * Move the tooltip
-            *******************************************************/
+            */
             for (var i=1; i<=10; ++i) {
                 RGraph.Registry.Get('chart.tooltip.timers').push(setTimeout("if (RGraph.Registry.Get('chart.tooltip')) { RGraph.Registry.Get('chart.tooltip').style.left = '" + (x * 0.1 * i) + "px'; }", 15 * i));
                 RGraph.Registry.Get('chart.tooltip.timers').push(setTimeout("if (RGraph.Registry.Get('chart.tooltip')) { RGraph.Registry.Get('chart.tooltip').style.top = '" + (y * 0.1 * i) + "px'; }", 15 * i));

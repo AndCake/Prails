@@ -15,13 +15,14 @@ prepares it, and generates additional information that is needed for the output,
 and finally calls the output code in order to render the page. Therefore, this context
 has certain special functions and variables.
 <br/><br/>
-An event handler usually consists of normal PHP code. It can have multiple so-called
-"endpoints", which are actually targets that are being used for receiving HTTP POST
-requests. A target will be used as soon as there is a variable POSTed to the event handler
-whose name is exactly the same as the target's name. Usually one would use a button name
-to decide which target to trigger. 
+<a href="static/images/doc/multiple-endpoints.png" class="dialog image" title="event handler with multiple endpoints"><img src="static/images/doc/multiple-endpoints.png" alt="event handler with multiple endpoints" border="0"/><span class="caption">event handler with multiple endpoints</span></a> An event 
+handler usually consists of normal PHP code. It can have multiple so-called "endpoints", 
+which are actually targets that are being used for receiving HTTP POST requests. A target 
+will be used as soon as there is a variable POSTed to the event handler whose name is 
+exactly the same as the target's name. Usually one would use a button name to decide which 
+target to trigger. 
 <br/><br/>
-Event handlers can also have multiple templates. This is especially useful for rendering 
+<a href="static/images/doc/multiple-templates.png" class="dialog image" title="event handler with multiple templates"><img src="static/images/doc/multiple-templates.png" alt="event handler with multiple templates" border="0"/><span class="caption">event handler with multiple templates</span></a> Event handlers can also have multiple templates. This is especially useful for rendering 
 alternative page contents depending on the state of the event handler or certain parameters
 given to it. One such template could, for example, be used to render the contents of an email
 that is being sent out, while the other one provides the form that is used to trigger the 

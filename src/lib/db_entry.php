@@ -1,7 +1,7 @@
 <?php
 /**
     Prails Web Framework
-    Copyright (C) 2010  Robert Kunze
+    Copyright (C) 2012  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,6 +17,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** Class DBEntry
+ * This class provides direct means to access data returned from the database
+ * in a more convenient way. It supports normal array access as with other associative 
+ * arrays and enhances the functionality by implicit and explicit data retrieval 
+ * functionality.
+ **/
 class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Countable {
     private $arr_data;
     private $iterator_class;
@@ -45,6 +51,13 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
         return $arr_result;
     }
     
+    /**
+     * getArrayCopy() -> Array
+     * 
+     * this method will return an associative array that corresponds to the structure
+     * of the DBEntry object, thus reflecting exactly the same data, but leaving out
+     * the dynamic functionality of retrieving additional information.
+     **/
     public function getArrayCopy() {
         $arr_result = Array();
         

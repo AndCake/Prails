@@ -11,20 +11,17 @@ easy to use, create and understand.
 <br/><br/>
 A series of control tags are pre-defined in Prails and can be used in any template and output code.
 <br/><br/>
-<div class='method-type'>Tag</div><a name='if' class='method-title'>if</a><div class='method'>&lt;c:<span class='name'>if</span>  cond="&lt;php-condition&gt;"&gt;...&lt;/c:if&gt;</div>
+<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span> /&gt;</div>
 <br/><br/>
-An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
-body content. 
- <u>Note:</u> you can use the <code>&lt;c:else/&gt;</code> tag to render something if the PHP condition returns <code>false</code>. 
+Used together with <code><a href="Tags.html#if">if</a></code> or <code><a href="Tags.html#foreach">foreach</a></code> to render something in an alternative branch of 
+execution. Needs to be written within the respective if/loop tag's body. 
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-&lt;c:if cond="$arr_param['test'] == '123'"&gt;
-   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
-&lt;/c:if&gt;
-// the above does exactly the same as the following:
-&lt;c:if cond="#local.test == '123'"&gt;
-   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+&lt;c:if cond="true == false"&gt;
+   Should never happen!
+&lt;c:else/&gt;
+   Wonderful!
 &lt;/c:if&gt;
 </pre>
 <br/><br/>
@@ -47,17 +44,27 @@ that case.
 </pre>
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span> /&gt;</div>
+<div class='method-type'>Tag</div><a name='hook' class='method-title'>hook</a><div class='method'>&lt;c:<span class='name'>hook</span>  name="&lt;name&gt;"/&gt;</div>
+<ul><li class='param'><code>name</code> (<span class='type'>String</span>)<span class='divider'> - </span>the hook sink name to be notified</li>
+</ul>
+
+Notifies all hooks that have attached to the given hook sink. 
+They will automatically inherit the current context and can change it accordingly.
 <br/><br/>
-Used together with <code>&lt;c:if&gt;</code> or <code>&lt;c:foreach&gt;</code> to render something in an alternative branch of 
-execution. Needs to be written within the respective if/loop tag's body. 
+<div class='method-type'>Tag</div><a name='if' class='method-title'>if</a><div class='method'>&lt;c:<span class='name'>if</span>  cond="&lt;php-condition&gt;"&gt;...&lt;/c:if&gt;</div>
+<br/><br/>
+An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
+body content. 
+ <u>Note:</u> you can use the <code>&lt;c:else/&gt;</code> tag to render something if the PHP condition returns <code>false</code>. 
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-&lt;c:if cond="true == false"&gt;
-   Should never happen!
-&lt;c:else/&gt;
-   Wonderful!
+&lt;c:if cond="$arr_param['test'] == '123'"&gt;
+   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
+&lt;/c:if&gt;
+// the above does exactly the same as the following:
+&lt;c:if cond="#local.test == '123'"&gt;
+   &lt;span class="really-a-test"&gt;This is nice!&lt;/span&gt;
 &lt;/c:if&gt;
 </pre>
 <br/><br/>
@@ -77,20 +84,6 @@ embedded into something.
 &lt;c:include file="user/detail"/&gt;
 &lt;!-- includes the template "mail" from the current event handler --&gt;
 &lt;c:include template="mail"/&gt;
-</pre>
-<br/><br/>
-<br/><br/>
-<div class='method-type'>Tag</div><a name='print' class='method-title'>print</a><div class='method'>&lt;c:<span class='name'>print</span>  value="&lt;inline-var&gt;"/&gt;</div>
-<br/><br/>
-Safely prints a variable's value. Usually text entered by the user, that you want to display might be
-used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 
-all dangerous characters as HTML entites. 
-<br/><br/>
-<strong>Example:</strong>
-<pre>
-&lt;p class="content"&gt;
-   &lt;c:print value="user.description"/&gt;
-&lt;/p&gt;
 </pre>
 <br/><br/>
 <br/><br/>
@@ -116,4 +109,62 @@ Renders a form field with the specified properties. It is able to render text fi
 &lt;!-- render a select box with a label and three countries, whereas the country "GB" is pre-selected --&gt;
 &lt;c:input type="select" values="countries" value="#local.country" label="Shipping Country:"/&gt;
 </pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='print' class='method-title'>print</a><div class='method'>&lt;c:<span class='name'>print</span>  value="&lt;inline-var&gt;"/&gt;</div>
+<br/><br/>
+Safely prints a variable's value. Usually text entered by the user, that you want to display might be
+used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 
+all dangerous characters as HTML entites. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;p class="content"&gt;
+   &lt;c:print value="user.description"/&gt;
+&lt;/p&gt;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='file' class='method-title'>file</a><div class='method'>&lt;c:<span class='name'>file</span>  [target="&lt;target&gt;"] [multiple="&lt;multiple&gt;"] [progress="&lt;progress&gt;"] [onstart="&lt;onstart&gt;"] [ondone="&lt;ondone&gt;"]&gt;[clickelement]&lt;/c:file&gt;</div>
+<ul><li class='param'><code>target</code> (<span class='type'>String</span>)<span class='divider'> - </span>the server-side script, the file should be submitted to (hint: the current file's name might be appended to the URL)</li>
+<li class='param'><code>multiple</code> (<span class='type'>String</span> | <span class='type'>Boolean</span>)<span class='divider'> - </span>enable the user to select multiple files for upload (Optional); possible values: <code>multiple</code> or <code>true</code></li>
+<li class='param'><code>progress</code> (<span class='type'>String</span>)<span class='divider'> - </span>the ID of the progress element (it's width is changed during upload) (Optional)</li>
+<li class='param'><code>onstart</code> (<span class='type'>String</span>)<span class='divider'> - </span>event, will be called at the start of each file's upload process (the <code>this</code> context is the current file) (Optional)</li>
+<li class='param'><code>ondone</code> (<span class='type'>String</span>)<span class='divider'> - </span>called once all files are uploaded (Optional)</li>
+<li class='param'><code>clickelement</code> (<span class='type'>HTML</span>)<span class='divider'> - </span>represents the HTML code used as the visual element for the user to click on in order to select files to be uploaded.</li>
+</ul>
+
+This tag renders an upload field that can upload multiple files, show progress bars and run custom events. 
+<br/><br/>
+<strong>Minimal example:</strong>
+<pre>
+&lt;c:file target="http://www.example.org/upload_receiver.php?name="&gt;upload&lt;/c:file&gt;
+</pre> 
+<br/><br/>
+<strong>Complete Example:</strong>
+<pre>
+&lt;c:file multiple="multiple" 
+           target="http://192.168.1.20/workspace/test.php?name=" 
+           progress="progress" 
+           onstart="document.getElementById('currentFile').innerHTML='Uploading '+this.fileName+' ('+Math.round(this.fileSize / 1024)+'kB)...';"
+           ondone="alert('upload done!');" 
+&gt;
+    &lt;button&gt;Click to upload&lt;/button&gt;
+&lt;/c:file&gt;
+&lt;div id="currentFile"&gt;&lt;/div&gt;
+&lt;div style="position:relative;width:200px;height:10px;border:1px solid #ccc;background-color:#fff;display:none;"&gt;
+    &lt;div id="progress" style="position:absolute;left:0px;top:0px;height:100%;width:0px;background-color:#cf9;border-right:1px solid #ccc;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</pre>
+<br/><br/>
+ <u>Note:</u> In order to upload files to other hosts, the server-side script needs to set some 
+response headers. These are in detail:
+<pre>
+Origin: &lt;page's-base-url&gt;
+Access-Control-Allow-Origin: &lt;page's-base-url&gt;
+Access-Control-Max-Age: 3628800
+Access-Control-Allow-Methods: POST 
+</pre>
+Here the page's base url is the one of the page, this widget script runs in.
+<br/><br/>
 <br/><br/>

@@ -23,6 +23,25 @@
  * It manages the connection to the underlying database automatically, manages the database 
  * cache, which speeds up large queries, constantly synchronizes database contents with other 
  * (external) databases and provides access for easier usability.
+ *
+ * ![data queries section](static/images/doc/data-queries-section-large.png) Each "data query", which is the section in the Prails IDE below the event handlers,
+ * are actually an instance of the class `Database`. So accessing the methods below can be
+ * achieved by using the `$this` keyword. The data queries do not explicitly define parameters
+ * that can be used to call them. Instead you can use the functions `func_get_arg()` / `func_get_args()` and 
+ * `func_num_args()` to determine a specific parameter passed to it and find out the number of
+ * parameters that were given to it. 
+ * 
+ * *Example:*
+ * {{{
+ * $id = func_get_arg(0);	// first parameter is required
+ * if (func_num_args() &gt; 1) {
+ *     $sorting = func_get_arg(1);
+ * }
+ * return $this->get('user', 'fk_friend_id='.$id, if_set($sorting, "name ASC"));
+ * }}}
+ * This example of a data query fetches the first parameter and then checks whether or not 
+ * there is another parameter given to it. If so, it will use the second one for controlling 
+ * the sorting rule applied to the `[Database]get` method.
  **/
 class Database extends TblClass {
 	 

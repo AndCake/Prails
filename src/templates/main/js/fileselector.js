@@ -1,74 +1,65 @@
-/***********************************************************************************
- * Quixotic Worx File Upload Widget, version 1.0.1
- * (c) 2011 Robert Kunze, Quixotic Worx
- *
- * All rights reserved.
- *
+/**
+    Prails Web Framework
+    Copyright (C) 2012  Robert Kunze
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/** Section Tags
  * 
- ***********************************************************************************
+ * <c:file [target="<target>"] [multiple="<multiple>"] [progress="<progress>"] [onstart="<onstart>"] [ondone="<ondone>"]>[clickelement]</c:file>
+ * - `target` (String) - the server-side script, the file should be submitted to (hint: the current file's name might be appended to the URL)
+ * - `multiple` (String|Boolean) - enable the user to select multiple files for upload (Optional); possible values: `multiple` or `true`
+ * - `progress` (String) - the ID of the progress element (it's width is changed during upload) (Optional)
+ * - `onstart` (String) - event, will be called at the start of each file's upload process (the `this` context is the current file) (Optional)
+ * - `ondone` (String) - called once all files are uploaded (Optional)
+ * - `clickelement` (HTML) - represents the HTML code used as the visual element for the user to click on in order to select files to be uploaded.
  * 
- * USAGE:
- *    <qw:file [attributes]>[click element]</qw:file>
- * 
- * Supported [attributes]: 
- *		target			server-side script, the file should be submitted to 
- *						(hint: the current file's name might be appended to the URL)
- * 		multiple		enable the user to select multiple files for upload [OPTIONAL]
- *  	progress		ID the the progress element (it's width is changed during 
- *						upload) [OPTIONAL]
- * 		onstart			event, call at the start of each file's upload process ("this" 
- *						context is the current file) [OPTIONAL]
- *		ondone			called once all files are uploaded [OPTIONAL]
- * 
- * The [click element] represents the HTML code used as the visual element 
- * for the user to click on in order to select files to be uploaded.
+ * This tag renders an upload field that can upload multiple files, show progress bars and run custom events. 
  *
- * 
- ***********************************************************************************
+ * *Minimal example:*
+ * {{{
+ * &lt;c:file target="http://www.example.org/upload_receiver.php?name="&gt;upload&lt;/c:file&gt;
+ * }}} 
  *
- * EXAMPLES:
- * 
- * Complete example:
- *
- 	<qw:file multiple="multiple" 
- 		  target="http://192.168.1.20/workspace/test.php?name=" 
- 		  progress="progress" 
- 		  onstart="document.getElementById('currentFile').innerHTML='Uploading '+this.fileName+' ('+Math.round(this.fileSize / 1024)+'kB)...';"
- 		  ondone="alert('upload done!');" 
- 	>
- 		<button>Click to upload</button>
- 	</qw:file>
-	<div id="currentFile"></div>
-	<div style="position:relative;width:200px;height:10px;border:1px solid #ccc;background-color:#fff;display:none;">
-		<div id="progress" style="position:absolute;left:0px;top:0px;height:100%;width:0px;background-color:#cf9;border-right:1px solid #ccc;"></div>
-	</div>
- *
+ * *Complete Example:*
+ * {{{
+ * &lt;c:file multiple="multiple" 
+ *            target="http://192.168.1.20/workspace/test.php?name=" 
+ *            progress="progress" 
+ *            onstart="document.getElementById('currentFile').innerHTML='Uploading '+this.fileName+' ('+Math.round(this.fileSize / 1024)+'kB)...';"
+ *            ondone="alert('upload done!');" 
+ * &gt;
+ *     &lt;button&gt;Click to upload&lt;/button&gt;
+ * &lt;/c:file&gt;
+ * &lt;div id="currentFile"&gt;&lt;/div&gt;
+ * &lt;div style="position:relative;width:200px;height:10px;border:1px solid #ccc;background-color:#fff;display:none;"&gt;
+ *     &lt;div id="progress" style="position:absolute;left:0px;top:0px;height:100%;width:0px;background-color:#cf9;border-right:1px solid #ccc;"&gt;&lt;/div&gt;
+ * &lt;/div&gt;
+ * }}}
  *	
- * Minimal example:
- *
-	<qw:file target="http://www.example.org/upload_receiver.php?name=">upload</qw:file>
- * 
- *
- ***********************************************************************************
- * 
- * NOTE:
- * In order to upload files to other hosts, the server-side script needs to set some 
+ * _Note:_ In order to upload files to other hosts, the server-side script needs to set some 
  * response headers. These are in detail:
- * 
- * Origin: <page's-base-url>
- * Access-Control-Allow-Origin: <page's-base-url>
+ * {{{
+ * Origin: &lt;page's-base-url&gt;
+ * Access-Control-Allow-Origin: &lt;page's-base-url&gt;
  * Access-Control-Max-Age: 3628800
  * Access-Control-Allow-Methods: POST 
- *
+ * }}}
  * Here the page's base url is the one of the page, this widget script runs in.
  * 
- * Furthermore for best compatibility to all browsers, the page containing the 
- * widget should add the correct prefix as namespace like:
- *
- * <html xmlns:qw="http://www.quixotic-worx.de/2010/qwf">
- *
- *
- ***********************************************************************************/
+ **/
 
 var QuixoticWorxUpload = {
 	
@@ -79,7 +70,6 @@ var QuixoticWorxUpload = {
 		 */
 		upload: function(options) {
 			var file = options.fileList[0];
-
 			if (typeof(options.onStart) == "function") {
 				options.onStart(file);
 			}
@@ -123,7 +113,13 @@ var QuixoticWorxUpload = {
 			
 			// send the actual file content to the target address
 			xhr.open("POST", options.target+file.fileName, true);
-			if (typeof(xhr.sendAsBinary) == "function" && typeof(file.getAsBinary) == "function") {
+			if (typeof(FileReader) !== "undefined" && typeof(xhr.sendAsBinary) == "function") {
+				var reader = new FileReader();
+				reader.onload = function(event) {
+					xhr.sendAsBinary(event.target.result);
+				};
+				reader.readAsBinaryString(file);
+			} else if (typeof(xhr.sendAsBinary) == "function" && typeof(file.getAsBinary) == "function") {
 				xhr.sendAsBinary(file.getAsBinary());	
 			} else {
 				xhr.send(file);
@@ -278,13 +274,13 @@ var QuixoticWorxUpload = {
 		 * Initializes the file upload mechanism, therefore it first determines
 		 * whether the browser supports the File API or not
 		 */
-		init: function() {
+		init: function(prefix) {
 			var input = document.createElement("input");
 			input.type = "file";
 			// make sure, the current browser supports the File API
 			if (typeof(input.files) != "undefined" && typeof(File) != "undefined") {
 				var fileUploads = document.getElementsByTagName("file");
-				if (fileUploads.length <= 0) fileUploads = document.getElementsByTagName("qw:file");
+				if (fileUploads.length <= 0) fileUploads = document.getElementsByTagName((prefix || "qw")+":file");
 				var len = fileUploads.length;
 				for (var i = 0; i < len; i++) {
 					var file = fileUploads[i];
@@ -296,7 +292,7 @@ var QuixoticWorxUpload = {
 			} else {		
 				// else initialize it for old browsers...
 				var fileUploads = document.getElementsByTagName("file");
-				if (fileUploads.length <= 0) fileUploads = document.getElementsByTagName("qw:file");
+				if (fileUploads.length <= 0) fileUploads = document.getElementsByTagName((prefix || "qw")+":file");
 				var len = fileUploads.length;
 				for (var i = 0; i < len; i++) {
 					var file = fileUploads[i];
@@ -331,6 +327,9 @@ var QuixoticWorxUpload = {
 						onStart: file.getAttribute("onstart")
 					});
 				}
+			}
+			if (!prefix) {
+				QuixoticWorxUpload.init("c");
 			}
 		}
 };

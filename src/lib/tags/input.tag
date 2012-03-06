@@ -1,19 +1,28 @@
 <? 
-/**
- * INPUT GENERATOR
- * 
- * Parameters:
- * type     - type of input; can be: text, password, file, checkbox, radio, select, date
- * name	    - name of the input to be used for submission
- * value    - single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")
- * values   - all values (for radio, checkbox, select) : Array(value : label)
- * class    - classes to add
- * label    - input field's label
- * rel	    - custom expression for required inputs (for text, password and date)
- * overlabel - overlabel to use (for text, password, date)
- * error	- validation error message
- * multiple - size to show (for select), also enables selecting multiple entries at once; for text input's it will enable entering multiple lines of text
- */
+/** Section Tags
+ * <c:input [type="<type>"] [name="<name>"] [value="<value>"] [values="<values>"] [class="<css classes>"] [label="<label>"] [rel="<rel>"] [overlabel="<overlabel text>"] [error="<validation-error>"] [multiple="<size>"]/>
+ * - `type` (String) - type of input; can be: `text`, `password`, `file`, `checkbox`, `radio`, `select`, `date`, `email`
+ * - `name` (String) - name of the input to be used for submission
+ * - `value` (String) - single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")
+ * - `values` (Array) - all values (for radio, checkbox, select) : Array(value : label)
+ * - `class` (String) - CSS classes to add
+ * - `label` (String) - input field's label which will be placed in front of it
+ * - `rel` (String) - custom regular expression validating for required inputs (for text, password and date)
+ * - `overlabel` (String) - overlabel to use (for text, password, date). An overlabel is a placeholder text.
+ * - `error` (String) - validation error message
+ * - `multiple` (Integer) - size to show (for select), also enables selecting multiple entries at once; for text input's it will enable entering multiple lines of text
+ *
+ * Renders a form field with the specified properties. It is able to render text fields (also with multiple lines), password inputs, file inputs, checkboxes, radio buttons, select boxes and date fields.
+ *
+ * *Example:*
+ * {{{
+ * &lt;% $arr_param['countries'] = Array("US" => "United States", "GB" => "United Kingdom", "DE" => "Germany"); %&gt;
+ * &lt;% $arr_param['local']['country'] = "GB"; %&gt;
+ * &lt;!-- render a select box with a label and three countries, whereas the country "GB" is pre-selected --&gt;
+ * &lt;c:input type="select" values="countries" value="#local.country" label="Shipping Country:"/&gt;
+ * }}}
+ *
+ **/
 ?>
 <div class="form-entry <?=preg_replace('/[^a-zA-Z0-9]+/', '', $tag['attributes']['name'])?> <?=if_set($tag['attributes']['addclass'], '')?>">
 <? 

@@ -10,14 +10,15 @@ if (!file_exists($path)) {
 	mkdir($path, 0755, true);
 }
 
-function findFiles($path) {
+function findFiles($path, $allowedSuffixes) {
 	if (is_dir($path)) {
 		$dp = opendir($path);
 		while (($file = readdir($dp)) !== false) {
 			if ($file[0] != ".") {
+				$suffix = array_pop(explode(".", $file));
 				if (is_dir($path."/".$file)) {
-					findFiles($path.'/'.$file, $callback);
-				} else if (substr($file, strrpos($file, ".")) == ".php") {
+					findFiles($path.'/'.$file, $allowedSuffixes);
+				} else if (strpos($file, ".") !== false && in_array($suffix, $allowedSuffixes)) {
 					handleFile($path."/".$file);
 				}
 			}
@@ -81,7 +82,15 @@ function writeHeader($type, $title) {
 	$file = preg_replace('/[^a-zA-Z0-9\\-]/', '', strtolower($title)).".html";
 	$css = "styles.css";
 	$type = strtolower($type);
-	if ($wasEmpty) { @unlink($path.$file); }
+	$secFound = false;
+	foreach ($sections as $key => $sec) {
+		if ($sec["file"] == $file) {
+			$currentContext = $key;
+			$secFound = true;
+			break;
+		}
+	}
+	if (!$secFound) { @unlink($path.$file); }
 	switch ($type) {
 		case "class": $title = "Class ".$title; break;
 		case "section": break;
@@ -96,13 +105,12 @@ function writeHeader($type, $title) {
 	<body><div class="page">
 		<h1>{$title}</h1>
 ENDL;
-		array_push($sections, Array("file" => $file, "title" => $title, "methods" => Array()));
-		$currentContext = count($sections) - 1;
+		if (!$secFound) {
+			array_push($sections, Array("file" => $file, "title" => $title, "methods" => Array()));
+			$currentContext = count($sections) - 1;
+		}
 	} else {
 		$content = file_get_contents($path.$file);
-		$content .= <<<ENDL
-		<h1>{$title}</h1>
-ENDL;
 	}
 	echo $path.$file."\n";
 	file_put_contents($path.$file, $content);
@@ -184,15 +192,19 @@ function parseWikiCode($desc) {
 	$desc = preg_replace('/\\[([^\\]]+)\\](\\w+)/', '<a href="\\1.html#\\2">\\2</a>', preg_replace('/`([^`]+)`/', '<code>\\1</code>', $desc));
 	$desc = preg_replace('/\\*([^*]+)\\*/', '<strong>\\1</strong>', $desc);
 	$desc = preg_replace('/\\s*_([^_]+)_\\s/', ' <u>\\1</u> ', $desc);
+	$desc = preg_replace('/\\!\\[([^\\]]+)\\]\\(([^\\)]+)\\)/', '<a href="\\2" class="dialog image" title="\\1"><img src="\\2" alt="\\1" border="0"/><span class="caption">\\1</span></a>', $desc);
 	$desc = preg_replace('/\\{\\{\\{/', '<pre>', $desc);
 	$desc = preg_replace('/\\}\\}\\}/', '</pre>', $desc);
 
 	return $desc;
 }
 
-findFiles(".");
+findFiles(".", Array("php", "tag", "js"));
 $menu = "<ul class='navigation'>";
+$finishedList = Array();
 foreach ($sections as $sec) {
+	if (in_array($sec["file"], $finishedList)) continue;
+	array_push($finishedList, $sec["file"]);
 	$menu .= "<li><a href='".$sec["file"]."'>".$sec["title"]."</a>";
 	if (is_array($sec["methods"]) && count($sec["methods"]) > 0) {
 		$menu .= "<ul>";

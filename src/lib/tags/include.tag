@@ -1,4 +1,24 @@
-<? if (strlen($tag["attributes"]["file"])>0) { $event = explode("/", $tag["attributes"]["file"]); ?>
+<?
+/** Section Tags
+ * <c:include (event="<event-name>" | file="<event-name>" | template="<template-name>")/>
+ *
+ * Includes a whole event handler's result or simply a template of another event handler. In case that 
+ * just a template should be included, the path to that template is `&lt;module-name&gt;/&lt;event-handler-name&gt;`. 
+ * It then has some similar characteristics to a decorator, except it does not embed something, but is 
+ * embedded into something. 
+ * 
+ * *Example:*
+ * {{{
+ * &lt;!-- calls the "user:list" event handler and renders it's result --&gt;
+ * &lt;c:include event="user:list"/&gt;
+ * &lt;!-- includes the default template from module "user" and event handler "detail", it is evaluated immediately --&gt;
+ * &lt;c:include file="user/detail"/&gt;
+ * &lt;!-- includes the template "mail" from the current event handler --&gt;
+ * &lt;c:include template="mail"/&gt;
+ * }}}
+ *
+ **/
+?><? if (strlen($tag["attributes"]["file"])>0) { $event = explode("/", $tag["attributes"]["file"]); ?>
 	<? $path = "templates/<?=$event[0]?>/html/<?=$event[1]?>.html"; ?>
 	<? if (!file_exists($path)) { 
 		// we got a module's template file

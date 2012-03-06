@@ -1,5 +1,4 @@
 body {
-	font-family: Helvetica, sans-serif;
 	font-size: 13px;
 	line-height: 1.25em;
 }
@@ -15,9 +14,14 @@ pre {
 	padding: 5px 10px;
 	overflow: auto;
 }
-.page {
-	width: 760px;
+
+a.image {
+	display: inline-block;
+	float: left;
+	margin-right: 10px;
+	padding-bottom: 5px;
 }
+a.image span.caption { display: block; }
 
 a.method-title {
 	font-size: 16px;

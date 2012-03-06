@@ -29,13 +29,14 @@
  * and finally calls the output code in order to render the page. Therefore, this context
  * has certain special functions and variables.
  *
- * An event handler usually consists of normal PHP code. It can have multiple so-called
- * "endpoints", which are actually targets that are being used for receiving HTTP POST
- * requests. A target will be used as soon as there is a variable POSTed to the event handler
- * whose name is exactly the same as the target's name. Usually one would use a button name
- * to decide which target to trigger. 
+ * ![event handler with multiple endpoints](static/images/doc/multiple-endpoints.png) An event 
+ * handler usually consists of normal PHP code. It can have multiple so-called "endpoints", 
+ * which are actually targets that are being used for receiving HTTP POST requests. A target 
+ * will be used as soon as there is a variable POSTed to the event handler whose name is 
+ * exactly the same as the target's name. Usually one would use a button name to decide which 
+ * target to trigger. 
  *
- * Event handlers can also have multiple templates. This is especially useful for rendering 
+ * ![event handler with multiple templates](static/images/doc/multiple-templates.png) Event handlers can also have multiple templates. This is especially useful for rendering 
  * alternative page contents depending on the state of the event handler or certain parameters
  * given to it. One such template could, for example, be used to render the contents of an email
  * that is being sent out, while the other one provides the form that is used to trigger the 
