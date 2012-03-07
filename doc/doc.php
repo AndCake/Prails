@@ -5,6 +5,7 @@ $file = "";
 $path = "doc/html/";
 $bulletCreated = false;
 $sections = Array();
+$inCodeBlock = false;
 
 if (!file_exists($path)) {
 	mkdir($path, 0755, true);
@@ -51,23 +52,23 @@ function handleFile($afile) {
 }
 
 function handleCommentBlock($items) {
-	global $file, $bulletCreated;
+	global $file, $bulletCreated, $inCodeBlock;
 	$currentMethod = "";
 	$bulletCreated = false;
 	$class = '/^\\s*([Cc]lass|[sS]ection)\\s+(\\w+)/';
-	$method = '/(\\w+)\\s*\\(([^\\)]*)\\)\\s*->\\s*(\\w+(\\|\\w+)*)/';
+	$method = '/(\\w+)\\s*\\(([^\\)]*)\\)\\s*->\\s*([a-zA-Z0-9\\.]+(\\|[a-zA-Z0-9\\.]+)*)/';
 	$tag = '/<c:(\\w+)(.*)$/';
-	$param = '/\\s*-\\s*(\\$\\w+|`\\w+`)\\s*\\((\\w+(\\|\\w+)*)\\)\\s*-\\s*(.*)/';
+	$param = '/\\s*-\\s*(\\$\\w+|`[^`]+`)\\s*\\(([a-zA-Z0-9\\.]+(\\|[a-zA-Z0-9\\.]+)*)\\)\\s*-\\s*(.*)/';
 	foreach ($items as $item) {
-		if (preg_match($class, $item, $matches)) {
+		if (!$inCodeBlock && preg_match($class, $item, $matches)) {
 			writeHeader($matches[1], $matches[2]);
-		} else if (preg_match($method, $item, $matches)) {
+		} else if (!$inCodeBlock && preg_match($method, $item, $matches)) {
 			writeMethod($matches);
 			$currentMethod = $matches[1];
-		} else if (preg_match($tag, $item, $matches)) {
+		} else if (!$inCodeBlock && preg_match($tag, $item, $matches)) {
 			writeMethod($matches, "Tag");
 			$currentMethod = $matches[1];
-		} else if (preg_match($param, $item, $matches)) {
+		} else if (!$inCodeBlock && preg_match($param, $item, $matches)) {
 			writeParam($matches, $currentMethod);
 		} else {
 			writeDescription($item);
@@ -130,13 +131,19 @@ function writeMethod($details, $type = "Method") {
 			$part = "<a href='".strtolower($part).".html'>$part</a>";
 		}
 	}
+	$added = false;
 	if ($currentContext != null) {
-		$sections[$currentContext]["methods"][] = $details[1];
+		if (!in_array($details[1], $sections[$currentContext]["methods"])) {
+			$sections[$currentContext]["methods"][] = $details[1];
+			$added = true;
+		}
 	}
 	$details[3] = implode("|", $parts);
 	$types = str_replace('|', "</span> | <span class='type'>", $details[3]);
 	$name = preg_replace('/[^a-zA-Z0-9_]/', '_', $details[1]);
-	$content .= "<div class='method-type'>".$type."</div><a name='".$name."' class='method-title'>".$details[1]."</a>";
+	if ($added) {
+		$content .= "<div class='method-type'>".$type."</div><a name='".$name."' class='method-title'>".$details[1]."</a>";
+	}
 	if ($type == "Tag") {
 		$content .= "<div class='method'>&lt;c:<span class='name'>{$details[1]}</span> ".str_replace(Array('<', '>'), Array('&lt;', '&gt;'), $details[2])."</div>\n";
 	} else {
@@ -189,10 +196,20 @@ function writeDescription($desc) {
 }
 
 function parseWikiCode($desc) {
-	$desc = preg_replace('/\\[([^\\]]+)\\](\\w+)/', '<a href="\\1.html#\\2">\\2</a>', preg_replace('/`([^`]+)`/', '<code>\\1</code>', $desc));
+	global $inCodeBlock, $path;
+	if ($inCodeBlock) {
+		$desc = str_replace(Array('<', '>'), Array('&lt;', '&gt;'), $desc);
+	}
+	$desc = preg_replace('/\\[([^\\]]+)\\]((\\w+[\\-\\.]\\w+)|\\w+)/', '<a href="\\1.html#\\2">\\2</a>', preg_replace('/`([^`]+)`/', '<code>\\1</code>', $desc));
 	$desc = preg_replace('/\\*([^*]+)\\*/', '<strong>\\1</strong>', $desc);
 	$desc = preg_replace('/\\s*_([^_]+)_\\s/', ' <u>\\1</u> ', $desc);
 	$desc = preg_replace('/\\!\\[([^\\]]+)\\]\\(([^\\)]+)\\)/', '<a href="\\2" class="dialog image" title="\\1"><img src="\\2" alt="\\1" border="0"/><span class="caption">\\1</span></a>', $desc);
+	$desc = preg_replace('/\\!\\(([^\\)]+)\\)/', '<a href="\\1" target="_blank">\\1</a>', $desc);
+	if (preg_match('/\\{\\{\\{/', $desc)) {
+		$inCodeBlock = true;
+	} else if (preg_match('/\\}\\}\\}/', $desc)) {
+		$inCodeBlock = false;
+	}
 	$desc = preg_replace('/\\{\\{\\{/', '<pre>', $desc);
 	$desc = preg_replace('/\\}\\}\\}/', '</pre>', $desc);
 

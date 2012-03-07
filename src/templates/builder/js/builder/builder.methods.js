@@ -1,7 +1,19 @@
-/**
- * @author Robert Kunze
- */
+/** Section Builder
+ * The builder section allows for client-side (javascript) customization of the Prails IDE and thus to 
+ * extend it's functionality. In order to do so, you will need to define an event handler to hook into the 
+ * `[HookCore]builder-init` hook sink. Your output code will then require to be pure javascript code 
+ * - _no HTML tags allowed_ .
+ **/
 Builder = Object.extend(Builder || {}, {
+	/**
+         * addTab(url, title, id[, icon]) -> void
+         * - `url` (String) - the URL to load into the new tab (via AJAX)
+         * - `title` (String) - the tab's title
+         * - `id` (String) - a unique identifier for the page to be loaded within the tab
+         * - `icon` (String) - an icon CSS class that will be used for the small icon next to the tab title.
+         *
+         * This method will open a new tab in the Prails IDE and load the specified URL into it.
+         **/
 	addTab: function(url, title, id, icon) {
 		var spanel = Ext.getCmp("qwbuilder_startupPanel");
 		if (!icon) icon = "folder";
@@ -47,7 +59,13 @@ Builder = Object.extend(Builder || {}, {
 			spanel.setActiveTab(spanel.getItem("tab_"+id));
 		}
 	},
-	
+
+        /**
+         * reloadTab(id) -> void
+         * - `id` (String) - the tab's ID to reload
+         * 
+         * will refresh the whole tab (by first closing it and then re-opening it again).
+         **/	
 	reloadTab: function(id) {
 		var spanel = Ext.getCmp("qwbuilder_startupPanel");
 		var tab = spanel.getItem("tab_"+id);
@@ -58,6 +76,12 @@ Builder = Object.extend(Builder || {}, {
 		Builder.addTab(obj.url, obj.title, obj.id, obj.icon);
 	},
 	
+        /**
+         * closeTab(id) -> void
+         * - `id` (String) - the tab's ID to close
+         *
+         * closes the specified tab.
+         **/
 	closeTab: function(id) {
 		Ext.getCmp("qwbuilder_startupPanel").remove("tab_"+id, true);
 	},
@@ -66,6 +90,13 @@ Builder = Object.extend(Builder || {}, {
 		Builder.addTab("?event=builder:debug&module_id="+module+"&"+type+"="+item, "Debug View", "debugview", 'debug');
 	},
 	
+        /**
+         * resetTree(node, newNodes) -> void
+         * - `node` (Ext.tree.TreeNode) - the root node which should be resetted
+         * - `newNodes` (Array) - an array of `Ext.tree.TreeNode` objects, which should be the root node's children
+         *
+         * This method will remove all previous nodes from the root node and insert the ones specified instead.
+         **/
 	resetTree: function(node, newNodes) {
 		while (node.hasChildNodes()) {
 			node.item(0).remove();
@@ -442,16 +473,55 @@ Builder = Object.extend(Builder || {}, {
     },
     
     /**
-     * function to add a new section to Prails IDE
-     * Syntax:
-     *     addSection(<panel-object>);
-     * or  addSection(<title>, <default-click-callback>);
+     * addSection(panel) -> Ext.tree.TreeNode
+     * addSection(title, defaultClickCallback) -> Ext.tree.TreeNode
+     * - `panel` (Object) - an object describing the panel's details. Can contain additional parameters as explained in !(http://docs.sencha.com/ext-js/3-4/#!/api/Ext.tree.TreePanel)
+     * - `title` (String) - the section's title
+     * - `defaultClickCallback` (Function) - a callback function that is called whenever a node is double-clicked (first parameter is the node object)
      *
-     * @param panel-object Object an object describing the panel's details. Can contain additional parameters as explained in http://docs.sencha.com/ext-js/3-4/#!/api/Ext.tree.TreePanel
-     * @param title String the section's title
-     * @param default-click-callback Function a callback function that is called whenever a node is double-clicked (first parameter is the node object)
-     * @returns Ext.tree.TreeNode the tree node that double-clickable items can be attached to
-     */
+     * `Ext.tree.TreeNode` the tree node that double-clickable items can be attached to
+     * this function adds a new section to the Prails IDE; the `TreeNode` returned can be appended with double-clickable items (other tree nodes). For this purpose, there
+     * are the two methods `addNodes(nodeList)` and `addNode(node[, link[, subNodes]])`. The first of these methods takes an array of hash maps containing the three attributes: `title`, `link` and `nodes`
+     * whereas the latter one is optional. The other method can accept a hashmap of the same structure or up to three parameters. 
+     *
+     * *Example:*
+     * {{{
+     * var rootNode = Builder.addSection("Test Section");
+     * rootNode.addNodes([{
+     *     title: "First node", 
+     *     link: "Admin/firstPage"
+     * }, {
+     *     title: "Second Node", 
+     *     link: "Admin/secondPage", 
+     *     nodes: [{
+     *         title: "Sub Node", 
+     *         link: "Admin/subPage"
+     *     }]
+     * }]);
+     * }}}
+     * This example adds a new section called "Test Section" and attaches several nodes, one of which has a 
+     * child node. When a node is double-clicked it will open the node's link address in a new IDE tab (this is
+     * the default behavior).
+     *
+     * *Example 2:*
+     * {{{
+     * var rootNode = Builder.addSection({
+     *     title: "Test Section", 
+     *     listeners: {
+     *         dblclick: function(n) { 
+     *             alert('Node '+n.id+' was double-clicked!');
+     *         } 
+     *     }
+     * });
+     * rootNode.addNode("First Node", "Admin/firstPage");
+     * rootNode.addNode("Second Node", "Admin/secondPage", [{
+     *     title: "Sub Node", 
+     *     link: "Admin/subPage"
+     * }]);
+     * }}}
+     * This example adds a new section, called "Test Section" and defines the double-click handler to show
+     * an alert when a node is double-clicked. It adds the same node structure as the first example.
+     **/
     addSection: function(panel) {
 	var tree = new Ext.tree.TreeNode();
 	if (typeof(panel) === "string") {

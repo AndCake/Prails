@@ -21,7 +21,12 @@
  * This class provides direct means to access data returned from the database
  * in a more convenient way. It supports normal array access as with other associative 
  * arrays and enhances the functionality by implicit and explicit data retrieval 
- * functionality.
+ * functionality. A `DBEntry` resembles everything that belongs to a single row in 
+ * the underlying database.  
+ *
+ * The array access not only allows to access the different columns of a retrieved row,
+ * but also to get access to rows that reside in other tables, but are linked to the 
+ * current table by foreign keys. 
  **/
 class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Countable {
     private $arr_data;
@@ -55,7 +60,7 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
      * getArrayCopy() -> Array
      * 
      * this method will return an associative array that corresponds to the structure
-     * of the DBEntry object, thus reflecting exactly the same data, but leaving out
+     * of the `DBEntry` object, thus reflecting exactly the same data, but leaving out
      * the dynamic functionality of retrieving additional information.
      **/
     public function getArrayCopy() {
@@ -154,7 +159,39 @@ class DBEntry extends DBEntryObject {
 		$this->iterator_class = $data["iterator_class"];
 		$this->obj_tbl = new TblClass($this->prefix);
     }	
-	
+        /**
+         * get($index[, $filter[, $name]]) -> Array|DBEntry|String|Number
+         * - $index (String) - the column name to get value(s) for.
+         * - $filter (String|Array) - a where clause or an array whereas the key-value pairs are joined by an `AND`
+         * - $name (String) - the name as which it should be stored in the current `DBEntry` instance.
+         * 
+         * retrieves the value for a given column. If this column does not exist, it checks whether there exists a 
+         * foreign key for it and resolves it to the row in the linked table it references. For reverse foreign key
+         * lookups, the column name convention is `&lt;tablename&gt;_list`. This will look up all rows that have 
+         * referenced the current row as foreign key.
+         * 
+         * *Example:* 
+         * {{{
+         * <p>Comment for post #comment.post.title</p>
+         * <p>Comment for post <%=$arr_param['comment']['post']['title']%></p>
+         * <p>Comment for post <%=$arr_param['comment']->get('post')->get('title')%></p>
+         * }}} 
+         * ![Example's DB structure](static/images/doc/example-db.png)The above three statements all do exactly the same: access the `DBEntry` in `$arr_param['comment']` (which
+         * would have been retrieved in the handler code) and fetch the row referenced through `fk_post_id` in table 
+         * `post`, which will result in a `DBEntry` object, of which in turn the `title` attribute is printed out. 
+         * 
+         * *Example 2:*
+         * {{{
+         * <%=count($arr_param['post']->get("comment_list", "content<>''", "mycomments"))%>
+         * <c:foreach var="post.mycomments" name="comment">
+         *    <p>#comment.content</p>
+         * </c:foreach>
+         * }}}
+         * In this example the handler code would have fetched a `DBEntry` `post`, which is used here to retrieve
+         * all comments that have a non-empty content attribute. The result (which is an array of `DBEntry` objects)
+         * will be returned immediately but also stored to the `post` object to be accessible via the name `mycomments`, 
+         * which is afterwards used to loop over it and print out the comment's contents.
+         **/	
 	function get($index, $filter = "", $name = "") {
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
 			if (is_array($filter)) {

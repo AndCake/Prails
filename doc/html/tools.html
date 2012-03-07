@@ -26,9 +26,9 @@ valid user input after form submission)
 <strong>Example:</strong>
 <pre>
  $bol_valid = checkFields( Array(
-                 "first_name"=>"",
-                 "last_name"=>"Name",
-                 "email"=>"test@test.com"
+                 "first_name"=&gt;"",
+                 "last_name"=&gt;"Name",
+                 "email"=&gt;"test@test.com"
               ), Array(
                  "last_name", "email"
               ));
@@ -162,7 +162,7 @@ Options include
   precision = 7; lowest part to compute to (7 = second)
   distance = TRUE; include the 'ago' or 'away' bit
   separator = ', '; separates the parts
-  period_names = Array(0=>Array("decade", "decades"), 1=>Array("year", "years"), 2=>Array("month","months"), 3=>Array("week", "weeks"), 4=>Array("day", "days"), 5=>Array("hour", "hours"), 6=>Array("minute", "minutes"), 7=>Array("second", "seconds"))
+  period_names = Array(0=&gt;Array("decade", "decades"), 1=&gt;Array("year", "years"), 2=&gt;Array("month","months"), 3=&gt;Array("week", "weeks"), 4=&gt;Array("day", "days"), 5=&gt;Array("hour", "hours"), 6=&gt;Array("minute", "minutes"), 7=&gt;Array("second", "seconds"))
   less_than_1 = 'less than 1'
   distance_names = Array("ago", "away")
   distance_post = FALSE 	should the distance added after or before all parts
@@ -186,9 +186,9 @@ Generate a tag cloud
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-$tags = array('weddings' => array("num"=>32, "link"=>"index.php?action=...&tag_id=..."),
-              'birthdays' => array("num"=>41, "link"=>"index.php?action=...&tag_id=..."),
-              'landscapes' => array("num"=>76, "link"=>"index.php?action=...&tag_id=...")
+$tags = array('weddings' =&gt; array("num"=&gt;32, "link"=&gt;"index.php?action=...&tag_id=..."),
+              'birthdays' =&gt; array("num"=&gt;41, "link"=&gt;"index.php?action=...&tag_id=..."),
+              'landscapes' =&gt; array("num"=&gt;76, "link"=&gt;"index.php?action=...&tag_id=...")
         );
 $result = printTagCloud($tags);
 </pre>
@@ -234,8 +234,8 @@ sendMail( $customerEmail,
           "Invoice Service", 
           "no-reply@example.org", 
           Array(
-             "file" => Array( "static/invoices/somestrangename.pdf" ),
-             "name" => Array( "2003-02-02.pdf" )
+             "file" =&gt; Array( "static/invoices/somestrangename.pdf" ),
+             "name" =&gt; Array( "2003-02-02.pdf" )
           )
         );
 </pre>
@@ -262,9 +262,9 @@ do a server-side post request to another server/site. HTTPS is supported. This m
 <strong>Example:</strong>
 <pre>
 $reply = doPost("http://www.example.org/cgi-bin/process.cgi", Array(
-            "first_name"=>"Test",
-            "last_name"=>"User",
-            "age"=>"27",
+            "first_name"=&gt;"Test",
+            "last_name"=&gt;"User",
+            "age"=&gt;"27",
          ));
 </pre>
 <br/><br/>

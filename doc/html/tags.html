@@ -51,6 +51,7 @@ that case.
 Notifies all hooks that have attached to the given hook sink. 
 They will automatically inherit the current context and can change it accordingly.
 <br/><br/>
+<br/><br/>
 <div class='method-type'>Tag</div><a name='if' class='method-title'>if</a><div class='method'>&lt;c:<span class='name'>if</span>  cond="&lt;php-condition&gt;"&gt;...&lt;/c:if&gt;</div>
 <br/><br/>
 An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
@@ -104,7 +105,7 @@ Renders a form field with the specified properties. It is able to render text fi
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-&lt;% $arr_param['countries'] = Array("US" => "United States", "GB" => "United Kingdom", "DE" => "Germany"); %&gt;
+&lt;% $arr_param['countries'] = Array("US" =&gt; "United States", "GB" =&gt; "United Kingdom", "DE" =&gt; "Germany"); %&gt;
 &lt;% $arr_param['local']['country'] = "GB"; %&gt;
 &lt;!-- render a select box with a label and three countries, whereas the country "GB" is pre-selected --&gt;
 &lt;c:input type="select" values="countries" value="#local.country" label="Shipping Country:"/&gt;

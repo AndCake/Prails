@@ -23,7 +23,7 @@ $id = func_get_arg(0);	// first parameter is required
 if (func_num_args() &gt; 1) {
     $sorting = func_get_arg(1);
 }
-return $this->get('user', 'fk_friend_id='.$id, if_set($sorting, "name ASC"));
+return $this-&gt;get('user', 'fk_friend_id='.$id, if_set($sorting, "name ASC"));
 </pre>
 This example of a data query fetches the first parameter and then checks whether or not 
 there is another parameter given to it. If so, it will use the second one for controlling 
@@ -40,24 +40,24 @@ of <code>DBEntry</code> objects, or an empty Array in case the query has no resu
 <br/><br/>
 <strong>Example:</strong> 
 <pre>
-$arr_result = $this->query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+$arr_result = $this-&gt;query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
 </pre>
 The result in <code>$arr_result</code> will look like that:
 <pre>
 $arr_result = Array(
-     0 => Array(
-         "user_id" => "4",
-         "photo" => "test.jpg",
-         "story_id" => "",
-         "fk_user_id" => "",
-         "title" => ""
+     0 =&gt; Array(
+         "user_id" =&gt; "4",
+         "photo" =&gt; "test.jpg",
+         "story_id" =&gt; "",
+         "fk_user_id" =&gt; "",
+         "title" =&gt; ""
     ),
-    1 => Array(
-         "user_id" => "19",
-         "photo" => "mypicture.jpg",
-         "story_id" => "25",
-         "fk_user_id" => "19",
-         "title" => "My Test Story"    
+    1 =&gt; Array(
+         "user_id" =&gt; "19",
+         "photo" =&gt; "mypicture.jpg",
+         "story_id" =&gt; "25",
+         "fk_user_id" =&gt; "19",
+         "title" =&gt; "My Test Story"    
     ),
     ...
 );
@@ -78,7 +78,7 @@ Retrieve data from a table.
 <br/><br/>
 This example will select all entries from the table "user" which have a photo set and sorts them descending by the fields "last_name" and "first_name".
 <pre>
-$arr_result = $this->select("user", "NOT ISNULL(photo)", "last_name DESC, first_name DESC");
+$arr_result = $this-&gt;select("user", "NOT ISNULL(photo)", "last_name DESC, first_name DESC");
 </pre>
 <br/><br/>
  <br/><br/>
@@ -86,7 +86,7 @@ $arr_result = $this->select("user", "NOT ISNULL(photo)", "last_name DESC, first_
 This method is an alias for <code><a href="Database.html#get">get</a></code>.
 <br/><br/>
  <br/><br/>
-<div class='method-type'>Method</div><a name='getItem' class='method-title'>getItem</a><div class='method'><span class='name'>getItem</span>(<span class='parameters'>$table, $id</span>) &rarr; <span class='type'>DBEntry</span></div>
+<div class='method-type'>Method</div><a name='getItem' class='method-title'>getItem</a><div class='method'><span class='name'>getItem</span>(<span class='parameters'>$table, $id</span>) &rarr; <span class='type'><a href='dbentry.html'>DBEntry</a></span></div>
 <ul><li class='param'><code>$table</code> (<span class='type'>String</span>)<span class='divider'> - </span>table name (with or without prefix)</li>
 <li class='param'><code>$id</code> (<span class='type'>String</span> | <span class='type'>Integer</span>)<span class='divider'> - </span>the ID value of the primary key for which to retrieve the Database entry.</li>
 </ul>
@@ -103,10 +103,10 @@ inserts a tupel into the specified table and returns the ID of the new entry.
 <br/><br/>
 <strong>Example:</strong>
 <pre> 
- $user_id = $this->add("user", Array(
-     "first_name" => "Test",
-     "last_name" => "User",
-     "email" => "tester@example.org"
+ $user_id = $this-&gt;add("user", Array(
+     "first_name" =&gt; "Test",
+     "last_name" =&gt; "User",
+     "email" =&gt; "tester@example.org"
  ));
 </pre>
 This example inserts a user into the "user" table.
@@ -130,9 +130,9 @@ Deletes one or more tupel from a table.
 <strong>Example:</strong>
 <pre>
 $id = func_get_arg(0);
-$this->remove("story", "story_id='".$id."'");
+$this-&gt;remove("story", "story_id='".$id."'");
 // alternatively the following would do the same thing:
-// $this->del("story", Array("story_id" => $id));
+// $this-&gt;del("story", Array("story_id" =&gt; $id));
 </pre>
 This example - to be run within a data query of a module - removes the story with the ID passed to this function.
 <br/><br/>
@@ -158,7 +158,7 @@ Update one or more tupel of a specified table and returns the number of rows upd
  $id = func_get_arg(0);
  $arr_data["first_name"] = "Test";
  $arr_data["name"] = "User";
- $this->update("user", $arr_data, "user_id='".$id."'");
+ $this-&gt;update("user", $arr_data, "user_id='".$id."'");
 </pre>
 <br/><br/>
  <br/><br/>

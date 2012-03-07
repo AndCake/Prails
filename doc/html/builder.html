@@ -1,0 +1,94 @@
+<html>
+	<head>
+		<title>Builder</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Builder</h1>The builder section allows for client-side (javascript) customization of the Prails IDE and thus to 
+extend it's functionality. In order to do so, you will need to define an event handler to hook into the 
+<code><a href="HookCore.html#builder-init">builder-init</a></code> hook sink. Your output code will then require to be pure javascript code 
+- <u>no HTML tags allowed</u> .
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='addTab' class='method-title'>addTab</a><div class='method'><span class='name'>addTab</span>(<span class='parameters'>url, title, id[, icon]</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>url</code> (<span class='type'>String</span>)<span class='divider'> - </span>the URL to load into the new tab (via AJAX)</li>
+<li class='param'><code>title</code> (<span class='type'>String</span>)<span class='divider'> - </span>the tab's title</li>
+<li class='param'><code>id</code> (<span class='type'>String</span>)<span class='divider'> - </span>a unique identifier for the page to be loaded within the tab</li>
+<li class='param'><code>icon</code> (<span class='type'>String</span>)<span class='divider'> - </span>an icon CSS class that will be used for the small icon next to the tab title.</li>
+</ul>
+
+This method will open a new tab in the Prails IDE and load the specified URL into it.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='reloadTab' class='method-title'>reloadTab</a><div class='method'><span class='name'>reloadTab</span>(<span class='parameters'>id</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>id</code> (<span class='type'>String</span>)<span class='divider'> - </span>the tab's ID to reload</li>
+</ul>
+
+will refresh the whole tab (by first closing it and then re-opening it again).
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='closeTab' class='method-title'>closeTab</a><div class='method'><span class='name'>closeTab</span>(<span class='parameters'>id</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>id</code> (<span class='type'>String</span>)<span class='divider'> - </span>the tab's ID to close</li>
+</ul>
+
+closes the specified tab.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='resetTree' class='method-title'>resetTree</a><div class='method'><span class='name'>resetTree</span>(<span class='parameters'>node, newNodes</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>node</code> (<span class='type'>Ext.tree.TreeNode</span>)<span class='divider'> - </span>the root node which should be resetted</li>
+<li class='param'><code>newNodes</code> (<span class='type'>Array</span>)<span class='divider'> - </span>an array of <code>Ext.tree.TreeNode</code> objects, which should be the root node's children</li>
+</ul>
+
+This method will remove all previous nodes from the root node and insert the ones specified instead.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='addSection' class='method-title'>addSection</a><div class='method'><span class='name'>addSection</span>(<span class='parameters'>panel</span>) &rarr; <span class='type'>Ext.tree.TreeNode</span></div>
+<div class='method'><span class='name'>addSection</span>(<span class='parameters'>title, defaultClickCallback</span>) &rarr; <span class='type'>Ext.tree.TreeNode</span></div>
+<ul><li class='param'><code>panel</code> (<span class='type'>Object</span>)<span class='divider'> - </span>an object describing the panel's details. Can contain additional parameters as explained in <a href="http://docs.sencha.com/ext-js/3-4/#!/api/Ext.tree.TreePanel" target="_blank">http://docs.sencha.com/ext-js/3-4/#!/api/Ext.tree.TreePanel</a></li>
+<li class='param'><code>title</code> (<span class='type'>String</span>)<span class='divider'> - </span>the section's title</li>
+<li class='param'><code>defaultClickCallback</code> (<span class='type'>Function</span>)<span class='divider'> - </span>a callback function that is called whenever a node is double-clicked (first parameter is the node object)</li>
+</ul>
+
+<code>Ext.tree.TreeNode</code> the tree node that double-clickable items can be attached to
+this function adds a new section to the Prails IDE; the <code>TreeNode</code> returned can be appended with double-clickable items (other tree nodes). For this purpose, there
+are the two methods <code>addNodes(nodeList)</code> and <code>addNode(node[, link[, subNodes]])</code>. The first of these methods takes an array of hash maps containing the three attributes: <code>title</code>, <code>link</code> and <code>nodes</code>
+whereas the latter one is optional. The other method can accept a hashmap of the same structure or up to three parameters. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+var rootNode = Builder.addSection("Test Section");
+rootNode.addNodes([{
+    title: "First node", 
+    link: "Admin/firstPage"
+}, {
+    title: "Second Node", 
+    link: "Admin/secondPage", 
+    nodes: [{
+        title: "Sub Node", 
+        link: "Admin/subPage"
+    }]
+}]);
+</pre>
+This example adds a new section called "Test Section" and attaches several nodes, one of which has a 
+child node. When a node is double-clicked it will open the node's link address in a new IDE tab (this is
+the default behavior).
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+var rootNode = Builder.addSection({
+    title: "Test Section", 
+    listeners: {
+        dblclick: function(n) { 
+            alert('Node '+n.id+' was double-clicked!');
+        } 
+    }
+});
+rootNode.addNode("First Node", "Admin/firstPage");
+rootNode.addNode("Second Node", "Admin/secondPage", [{
+    title: "Sub Node", 
+    link: "Admin/subPage"
+}]);
+</pre>
+This example adds a new section, called "Test Section" and defines the double-click handler to show
+an alert when a node is double-clicked. It adds the same node structure as the first example.
+<br/><br/>

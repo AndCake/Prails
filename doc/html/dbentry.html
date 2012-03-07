@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<title>Class DBEntry</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Class DBEntry</h1>This class provides direct means to access data returned from the database
+in a more convenient way. It supports normal array access as with other associative 
+arrays and enhances the functionality by implicit and explicit data retrieval 
+functionality. A <code>DBEntry</code> resembles everything that belongs to a single row in 
+the underlying database.  
+<br/><br/>
+The array access not only allows to access the different columns of a retrieved row,
+but also to get access to rows that reside in other tables, but are linked to the 
+current table by foreign keys. 
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='getArrayCopy' class='method-title'>getArrayCopy</a><div class='method'><span class='name'>getArrayCopy</span>(<span class='parameters'></span>) &rarr; <span class='type'>Array</span></div>
+<br/><br/>
+this method will return an associative array that corresponds to the structure
+of the <code>DBEntry</code> object, thus reflecting exactly the same data, but leaving out
+the dynamic functionality of retrieving additional information.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='get' class='method-title'>get</a><div class='method'><span class='name'>get</span>(<span class='parameters'>$index[, $filter[, $name]]</span>) &rarr; <span class='type'>Array</span> | <span class='type'><a href='dbentry.html'>DBEntry</a></span> | <span class='type'>String</span> | <span class='type'>Number</span></div>
+<ul><li class='param'><code>$index</code> (<span class='type'>String</span>)<span class='divider'> - </span>the column name to get value(s) for.</li>
+<li class='param'><code>$filter</code> (<span class='type'>String</span> | <span class='type'>Array</span>)<span class='divider'> - </span>a where clause or an array whereas the key-value pairs are joined by an <code>AND</code></li>
+<li class='param'><code>$name</code> (<span class='type'>String</span>)<span class='divider'> - </span>the name as which it should be stored in the current <code>DBEntry</code> instance.</li>
+</ul>
+
+retrieves the value for a given column. If this column does not exist, it checks whether there exists a 
+foreign key for it and resolves it to the row in the linked table it references. For reverse foreign key
+lookups, the column name convention is <code>&lt;tablename&gt;_list</code>. This will look up all rows that have 
+referenced the current row as foreign key.
+<br/><br/>
+<strong>Example:</strong> 
+<pre>
+&lt;p&gt;Comment for post #comment.post.title&lt;/p&gt;
+&lt;p&gt;Comment for post &lt;%=$arr_param['comment']['post']['title']%&gt;&lt;/p&gt;
+&lt;p&gt;Comment for post &lt;%=$arr_param['comment']-&gt;get('post')-&gt;get('title')%&gt;&lt;/p&gt;
+</pre> 
+<a href="static/images/doc/example-db.png" class="dialog image" title="Example's DB structure"><img src="static/images/doc/example-db.png" alt="Example's DB structure" border="0"/><span class="caption">Example's DB structure</span></a>The above three statements all do exactly the same: access the <code>DBEntry</code> in <code>$arr_param['comment']</code> (which
+would have been retrieved in the handler code) and fetch the row referenced through <code>fk_post_id</code> in table 
+<code>post</code>, which will result in a <code>DBEntry</code> object, of which in turn the <code>title</code> attribute is printed out. 
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+&lt;%=count($arr_param['post']-&gt;get("comment_list", "content&lt;&gt;''", "mycomments"))%&gt;
+&lt;c:foreach var="post.mycomments" name="comment"&gt;
+   &lt;p&gt;#comment.content&lt;/p&gt;
+&lt;/c:foreach&gt;
+</pre>
+In this example the handler code would have fetched a <code>DBEntry</code> <code>post</code>, which is used here to retrieve
+all comments that have a non-empty content attribute. The result (which is an array of <code>DBEntry</code> objects)
+will be returned immediately but also stored to the <code>post</code> object to be accessible via the name <code>mycomments</code>, 
+which is afterwards used to loop over it and print out the comment's contents.
+<br/><br/>
