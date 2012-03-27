@@ -803,16 +803,23 @@
 			Builder.dbRoot.appendChild(table);
 		</c:foreach>		
 		Builder.langRoot.createSubNode = function(nodeName, subNodes, parentNode) {
+		    var tmpName = nodeName;
 		    if (parentNode == Builder.langRoot) {
 		      pid = "text_";
+		      if (nodeName == "cms") {
+		          tmpName = "pages";
+		      } else if (nodeName == "pages") {
+			  nodeName = "cms";
+		      }
 		    } else pid = parentNode.id;
 			var expanded = false;
 			if ("<?=$_GET['open_tree']?>".indexOf(nodeName+".") >= 0 || "<?=$_GET['open_tree']?>".indexOf("."+nodeName) >= 0) {
 				expanded = true;
 			}
-	        var node = new Ext.tree.TreeNode({
-	           text: nodeName,
+	        var node = new Ext.tree.TreeNode(x={
+	           text: tmpName,
 			   expanded: expanded,
+		   expandable: (typeof(subNodes) == "string" ? false : true),
 	           id: pid+"."+nodeName,
 	           allowChildren: (typeof(subNodes) != "string"),
 	           leaf: (typeof(subNodes) == "string"),
@@ -897,10 +904,14 @@
 			}
 		});
 					
-		
+		<% $found = false; %>
 		<c:foreach var="texts" name="text" key="section">
+		    <% if ($section == 'cms' || $section == 'pages') { $found = true; } %> 
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
+		<c:if cond="!$found">
+			Builder.langRoot.createSubNode("pages", {}, Builder.langRoot);
+		</c:if>
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] != "devel" ? "false" : "true"?>;
 		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;

@@ -5,19 +5,24 @@ Builder = Object.extend(Builder || {}, {
     createSubSection: function(parentNode) {
         Ext.Msg.prompt("Section Name", "Please enter a name for the new section:", function(btn, text) {
             if (btn == "ok") {
+		pid = parentNode.id;
+		if (parentNode == Builder.langRoot) pid = "text_";
                 parentNode.appendChild(new Ext.tree.TreeNode({
-                    text: text
+                    text: text,
+		    expandable: true,
+                    leaf: false,
+		    id: pid+"."+text
                 }));
             }
         });
 	},
 	
 	createText: function(parentNode) {
-		var loop = "";
-		do {
+		var loop = parentNode.id.replace("text_.", "")+".";
+/*		do {
 			loop = parentNode.text+"." + loop;
 			parentNode = parentNode.parentNode;
-		} while (parentNode != Builder.langRoot);
+		} while (parentNode != Builder.langRoot); */
 		Builder.addTab("?event=builder:editText&path="+loop+"&texts_id=0&extjs=1", "New Text", "x_", "locale");
 	},
 	
