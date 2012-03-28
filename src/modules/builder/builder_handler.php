@@ -204,7 +204,7 @@ class BuilderHandler
 	                if ($arr_lib["fk_resource_id"] > 0) {
 	                	$libPath .= $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . "/";
 	                	if (!file_exists($libPath)) {
-	                		mkdir($libPath, 0755);
+	                		@mkdir($libPath, 0755, true);
 	                	}
 	                	$libfile = $libPath.$arr_lib["resource"]["name"];
 	                	file_put_contents($libfile, base64_decode($arr_lib["resource"]["data"]));
@@ -227,6 +227,9 @@ class BuilderHandler
             	}
             }
             $tagPath = "lib/tags/custom/";
+	    if (!file_exists($tagPath)) {
+		@mkdir($tagPath, 0755, true);
+	    }
             foreach ($arr_tags as $arr_tag) {
                 file_put_contents($tagPath.$arr_tag["name"].(ENV_PRODUCTION===true ? "" : $arr_tag["fk_user_id"]).".tag", $arr_tag["html_code"]);
             }
