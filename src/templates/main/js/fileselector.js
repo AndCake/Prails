@@ -275,6 +275,7 @@ var QuixoticWorxUpload = {
 		 * whether the browser supports the File API or not
 		 */
 		init: function(prefix) {
+			if (typeof(prefix) !== "string") prefix = "";
 			var input = document.createElement("input");
 			input.type = "file";
 			// make sure, the current browser supports the File API

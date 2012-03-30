@@ -89,11 +89,13 @@ class BuilderHandler
        		@mkdir("static/backups", 0755, true);
        	}
         $dp = opendir("static/backups");
-	if ($dp) while (($file = readdir($dp)) !== false) {
-        	if ($file[0] != ".") {
-        		array_push($arr_param["backupList"], $file);
-        	}
-        	closedir($dp);
+	if ($dp) { 
+		while (($file = readdir($dp)) !== false) {
+        		if ($file[0] != ".") {
+        			array_push($arr_param["backupList"], $file);
+        		}
+		}
+	        closedir($dp);
         }
         $groups = file(".groups");
         $users = file(".users");
