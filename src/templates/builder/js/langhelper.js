@@ -20,6 +20,7 @@
 	getNodes[null]=true; 
 	getNodes[undefined]=true;
 	
+	var contents = 0;
 	var comments = getNodes("nodeType", 8);
 	$A(comments).each(function(item) {
 		if (item.data.indexOf("[LANG:") == 0) {
@@ -38,6 +39,11 @@
 			}).observe("click", function() {
 				window.open('?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree='+item.data.replace('[LANG:', '').replace(']', ''), 'prails');
 			}), item);
+			contents++;
 		}
 	});
+	if (contents == 0 && location.href.indexOf("static/") >= 0) { 
+		var path = "cms." + location.href.substr(location.href.indexOf("static/") + "static/".length).replace(/\.html(.*)?$/i, "").replace(/\//g, '.');
+		window.open("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+path, "prails");
+	}
 })();

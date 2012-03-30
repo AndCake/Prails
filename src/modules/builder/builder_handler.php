@@ -86,15 +86,17 @@ class BuilderHandler
         $arr_param["backup"] = Quartz::getJob("backupjob");
         $arr_param["backupList"] = Array();
        	if (!is_dir("static/backups")) {
-       		@mkdir("static/backups", 0755);
+       		@mkdir("static/backups", 0755, true);
        	}
         $dp = opendir("static/backups");
-        while (($file = readdir($dp)) !== false) {
-        	if ($file[0] != ".") {
-        		array_push($arr_param["backupList"], $file);
-        	}
+	if ($dp) { 
+		while (($file = readdir($dp)) !== false) {
+        		if ($file[0] != ".") {
+        			array_push($arr_param["backupList"], $file);
+        		}
+		}
+	        closedir($dp);
         }
-        closedir($dp);
         $groups = file(".groups");
         $users = file(".users");
         $userGroups = Array();
@@ -244,7 +246,7 @@ class BuilderHandler
                     return invoke($mod.":".$arr_event["event"], $arr_param);
                 }
                 @mkdir("templates/".$mod, 0755);
-                @mkdir("templates/".$mod."/html", 0755);
+                @mkdir("templates/".$mod."/html", 0755, true);
                 @mkdir("templates/".$mod."/js", 0755);
                 @mkdir("templates/".$mod."/css", 0755);
                 $path = "modules/".$mod."/";
@@ -2473,14 +2475,14 @@ class BuilderHandler
        	}
        	$_POST = $toPost;
        	if (!is_dir("static/backups")) {
-       		@mkdir("static/backups", 0755);
+       		@mkdir("static/backups", 0755, true);
        	}
        	return $this->export("static/backups/".PROJECT_NAME."-".date("Ymd-Hi").".prails");
 	}
 	
 	function restore() {
        	if (!is_dir("static/backups")) {
-       		@mkdir("static/backups", 0755);
+       		@mkdir("static/backups", 0755, true);
        	}
        	
        	if (strlen($_POST["file"]) > 0) {
