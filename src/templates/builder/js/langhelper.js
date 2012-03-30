@@ -43,7 +43,7 @@
 		}
 	});
 	if (contents == 0 && location.href.indexOf("static/") >= 0) { 
-		var path = location.href.substr(location.href.indexOf("static/") + "static/".length).replace(/\.html(.*)?$/i, "");
+		var path = "cms." + location.href.substr(location.href.indexOf("static/") + "static/".length).replace(/\.html(.*)?$/i, "").replace(/\//g, '.');
 		window.open("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+path, "prails");
 	}
 })();
