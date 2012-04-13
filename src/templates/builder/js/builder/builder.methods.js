@@ -434,6 +434,7 @@ Builder = Object.extend(Builder || {}, {
 			bbar: [{
 				text: "Find",
 				handler: startFind = function() {
+					Cookie.create("prails-last-search", $("tosearch").getValue());
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
@@ -449,6 +450,8 @@ Builder = Object.extend(Builder || {}, {
 			}, "-", {
 				text: "Replace",
 				handler: function() {
+					Cookie.create("prails-last-search", $("tosearch").getValue());
+					Cookie.create("prails-last-replace", $("toreplace").getValue());
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
@@ -465,6 +468,8 @@ Builder = Object.extend(Builder || {}, {
 			}, "-", {
 				text: "Replace All",
 				handler: function() {
+					Cookie.create("prails-last-search", $("tosearch").getValue());
+					Cookie.create("prails-last-replace", $("toreplace").getValue());
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var replaced = 0;
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
@@ -492,6 +497,8 @@ Builder = Object.extend(Builder || {}, {
 		});
 		window.sarwin.show();
 		setTimeout(function() {
+			$("tosearch").value = Cookie.read("prails-last-search") || "";
+			$("toreplace").value = Cookie.read("prails-last-replace") || "";
 			$("tosearch").focus();
 			$("tosearch").observe("keyup", function(event) {
 				if (event.keyCode == 13) {
@@ -510,7 +517,9 @@ Builder = Object.extend(Builder || {}, {
 	});
     },
     checkHtmlSyntax: function(code, callback) {
-	code = code.replace(/<[?%]([^%?]+|[?%][^>]+)*[?%]>/mg, '').replace(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg, '$6').replace(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm, '');
+	while (code.match(/<[?%@]([^@%?]+|[?@%][^>]+)*[?@%]>/mg) || code.match(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg) || code.match(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm)) {
+		code = code.replace(/<[@?%]([^@%?]+|[?@%][^>]+)*[@?%]>/mg, '').replace(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg, '$6').replace(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm, '');
+	}
 	var result = JSLINT(code, {
 		anon: true,
 		bitwise: true,

@@ -196,7 +196,7 @@ $result = printTagCloud($tags);
 <br/><br/>
 <div class='method-type'>Method</div><a name='jumpTo' class='method-title'>jumpTo</a><div class='method'><span class='name'>jumpTo</span>(<span class='parameters'>$url[, $clientSize]</span>) &rarr; <span class='type'>void</span></div>
 <ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>the URL to redirect the user to.</li>
-<li class='param'><code>$clientSide</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>the redirect should be made on the client-side, rather than server-side, defaults to <code>false</code>.</li>
+<li class='param'><code>$clientSide</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>the redirect should be made on the client-side, rather than server-side, defaults to <code>true</code>.</li>
 </ul>
 
 Redirect the user to another site/page.
@@ -207,7 +207,7 @@ Redirect the user to another site/page.
 <li class='param'><code>$dst</code> (<span class='type'>String</span>)<span class='divider'> - </span>destination image file name</li>
 <li class='param'><code>$maxWidth</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>maximum width for the resulting thumbnail, defaults to 500</li>
 <li class='param'><code>$maxHeight</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>maximum height for the resulting thumbnail, defaults to 500</li>
-<li class='param'><code>$quality</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>compression quality to be used, defaults to 60</li>
+<li class='param'><code>$quality</code> (<span class='type'>Integer</span>)<span class='divider'> - </span>compression quality to be used, defaults to 80</li>
 </ul>
 
 generates a thumbnail out of a image file and returns <code>true</code>, if the generation of the thumbnail was successful.
