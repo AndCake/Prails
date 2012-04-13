@@ -36,6 +36,7 @@ class BuilderPrinter
 
 			$obj_gen->addJavaScript("templates/builder/js/fisheye_menu.js");
             $obj_gen->addJavaScript("templates/builder/js/fileselector.js");
+	    $obj_gen->addJavaScript("templates/builder/js/jslint.js");
 
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.js");
             $obj_gen->addJavaScript("templates/builder/js/builder/builder.methods.js");

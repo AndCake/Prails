@@ -2560,9 +2560,97 @@ class BuilderHandler
 		echo "\n\n";
 		readfile("templates/main/css/global.css");
 		die();
-	}	
+	}
 
+	function checkPHPSyntax() {
+		$code = $_POST["code"];
+		$result = $this->_checkPHPSyntax($code);
+		if ($result === false) {
+			die("false\n");
+		} else {
+			die(json_encode(Array("message" => $result[0], "line" => $result[1]))."\n");
+		}
+	}	
+	
 /*</EVENT-HANDLERS>*/
+	function _checkPHPSyntax($code) {
+	    $braces = 0;
+	    $inString = 0;
+	
+	    // First of all, we need to know if braces are correctly balanced.
+	    // This is not trivial due to variable interpolation which
+	    // occurs in heredoc, backticked and double quoted strings
+	    foreach (token_get_all('<?php ' . $code) as $token) {
+	        if (is_array($token)) {
+	            switch ($token[0]) {
+		            case T_CURLY_OPEN:
+		            case T_DOLLAR_OPEN_CURLY_BRACES:
+		            case T_START_HEREDOC: ++$inString; break;
+		            case T_END_HEREDOC:   --$inString; break;
+	            }
+	        } else if ($inString & 1) {
+	            switch ($token) {
+		            case '`':
+		            case '"': --$inString; break;
+	            }
+	        } else {
+	            switch ($token) {
+		            case '`':
+		            case '"': ++$inString; break;
+		            case '{': ++$braces; break;
+		            case '}':
+		                if ($inString) --$inString;
+                		else {
+		                    --$braces;
+		                    if ($braces < 0) return Array("Missing '}'.", count(explode("\n", $code)));
+		                }
+		                break;
+            	    }
+	        }
+	    }
+
+	    if ($braces != 0) return Array("Missing '}'.", count(explode("\n", $code)));
+
+	    // Display parse error messages and use output buffering to catch them
+	    $inString = @ini_set('log_errors', false);
+	    $token = @ini_set('display_errors', true);
+	    ob_start();
+	
+	    // If $braces is not zero, then we are sure that $code is broken.
+	    // We run it anyway in order to catch the error message and line number.
+	
+	    // Else, if $braces are correctly balanced, then we can safely put
+	    // $code in a dead code sandbox to prevent its execution.
+	    // Note that without this sandbox, a function or class declaration inside
+	    // $code could throw a "Cannot redeclare" fatal error.
+	
+	    $code = "if(0){{$code}\n}";
+
+	    if (false === eval($code)) {
+	        // Get the maximum number of lines in $code to fix a border case
+	        false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
+	        $braces = substr_count($code, "\n");
+
+        	$code = ob_get_clean();
+	        $code = strip_tags($code);
+
+	        // Get the error message and line number
+	        if (preg_match("'parse error([,:]?)(.*) in .+ on line (\\d+)\$'is", $code, $code)) {
+	            $code[3] = (int) $code[3];
+	            $code = $code[3] <= $braces
+	                ? array(trim($code[2]), $code[3])
+	                : array('unexpected $end' . substr($code[2], 14), $braces);
+	        } else $code = array('syntax error', 0);
+	    } else {
+	        ob_end_clean();
+	        $code = false;
+	    }
+
+	    @ini_set('display_errors', $token);
+	    @ini_set('log_errors', $inString);
+	
+	    return $code;
+	}
 
 	/**
  	 * @desc calls the corresponding method in printer

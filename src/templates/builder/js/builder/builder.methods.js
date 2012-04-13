@@ -265,6 +265,28 @@ Builder = Object.extend(Builder || {}, {
                 if (obj && obj.save) {
                 	cwin.txt.save = obj.save;
                 }
+		cwin.txt.changed = function(mode, code) {
+			var functions = {"text/x-php": "checkPHPSyntax", "application/x-httpd-php": "checkHtmlSyntax", "text/javascript": "checkJSSyntax"};
+			if (functions[mode]) {
+				var result = Builder[functions[mode]](code, function(errors) {
+					if (cwin.txt.previousErrors) for (var i = 0; i < cwin.txt.previousErrors.length; i++) {
+						cwin.txt.editor.clearMarker(cwin.txt.previousErrors[i].line - 1);
+						cwin.el.style.border = "inherit";
+					}
+					if (errors) {
+						for (var i = 0; i < errors.length; i++) {
+							var info = cwin.txt.editor.lineInfo(errors[i].line - 1);
+							if (info && !info.markerText) {
+								cwin.txt.editor.setMarker(errors[i].line - 1, "<span class='error' title=\""+errors[i].message.replace(/"/g, "''")+"\"><span>&bull;</span></span>"+errors[i].line);
+							}
+						}
+						cwin.el.style.border = "1px solid red";
+
+						cwin.txt.previousErrors = errors;
+					}
+				});
+			}
+		};
                 cwin.txt.setCode(content);
                 if (el.getAttribute("onload")) {
                 	try {
@@ -470,6 +492,77 @@ Builder = Object.extend(Builder || {}, {
 				}
 			});
 		}, 100);
+    },
+
+    checkPHPSyntax: function(code, callback) {
+	var cb = callback;
+	invoke(null, 'builder:checkPHPSyntax', {code: code}, true, function(req) {
+		var data = null;
+		data = JSON.parse(req.responseText.split(/\n/g)[0]);
+		if (data) cb([data]); else cb(false);
+	});
+    },
+    checkHtmlSyntax: function(code, callback) {
+	code = code.replace(/<[?%]([^%?]+|[?%][^>]+)*[?%]>/mg, '').replace(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg, '$6').replace(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm, '');
+	var result = JSLINT(code, {
+		anon: true,
+		bitwise: true,
+		browser: true,
+		'continue': true,
+		css: true,
+		fragment: true,
+		debug: true,
+		devel: true,
+		eqeq: true,
+		evil: true,
+		nomen: true,
+		on: true,
+		plusplus: true,
+		regexp: true,
+		undef: true,
+		sloppy: true,
+		vars: true,
+		white: true
+
+	});
+	if (result) callback();
+	else {
+		var result = [];
+		for (var i = 0; i < JSLINT.errors.length; i++) {
+			if (JSLINT.errors[i]) 
+				result.push({message: JSLINT.errors[i].reason, line: JSLINT.errors[i].line});
+		}
+		callback(result);
+	}
+    },
+    checkJSSyntax: function(code, callback) {
+	var result = JSLINT(code, {
+		anon: true,
+		bitwise: true,
+		browser: true,
+		'continue': true,
+		debug: true,
+		devel: true,
+		eqeq: true,
+		evil: true,
+		nomen: true,
+		on: true,
+		plusplus: true,
+		regexp: true,
+		undef: true,
+		sloppy: true,
+		vars: true,
+		white: true
+	});
+	if (result) callback();
+	else {
+		var result = [];
+		for (var i = 0; i < JSLINT.errors.length; i++) {
+			if (JSLINT.errors[i]) 
+				result.push({message: JSLINT.errors[i].reason, line: JSLINT.errors[i].line});
+		}
+		callback(result);
+	}
     },
     
     /**

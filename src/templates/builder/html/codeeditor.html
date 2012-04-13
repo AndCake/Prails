@@ -5,6 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/codemirror.css"/>
 	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/util/enhanced-hint.css"/>
 	<script type="text/javascript" src="../js/codeeditor/lib/codemirror.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/closetag.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/foldcode.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/enhanced-hint.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/searchcursor.js"></script>
@@ -44,6 +45,16 @@
 		.CodeMirror {
 			font-family: MesloLGMDZRegular, monospace;
 			line-height: 1.5em; 
+		}
+		.CodeMirror .CodeMirror-gutter-text span.error {
+			font-size: 18px;
+			position: absolute;
+			left: 0px;
+			color: red;
+			cursor: pointer;
+		}
+		.CodeMirror .CodeMirror-gutter-text span.error:hover {
+			color: rgb(255, 64, 64);
 		}
 	</style>
 </head>
@@ -133,7 +144,8 @@
 				loadBrush("javascript");
 				loadBrush("css");
 				mode = "application/x-httpd-php";
-				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);				
+				txt.foldFunc = CodeMirror.newFoldFunction(CodeMirror.tagRangeFinder);
+
 				break;
 			case "js":
 				loadBrush("javascript");
@@ -146,6 +158,7 @@
 				break;
 		}
 
+		txt.mode = mode;
 		if (txt.editor) {
 			txt.editor.getWrapperElement().parentNode.removeChild(txt.editor.getWrapperElement());
 		}
@@ -164,6 +177,9 @@
 					txt.editor.setLineClass(window.hlLine, null);
 				}
 			    window.hlLine = txt.editor.setLineClass(txt.editor.getCursor().line, "activeline");
+			},
+			onChange: function(ed, obj) {
+				txt.changed(txt.mode, ed.getValue());
 			},
 			extraKeys: {
 				"Ctrl-Space": function(cm) {
@@ -214,17 +230,19 @@
 				"Ctrl-Alt-Right": function(editor) {
 					if (parent.switching) return;
 					parent.switching = true;
-        			parent.Builder.blurBespin(window.el);
-        			parent.Builder.nextTab();
-        			setTimeout(function() { parent.switching = false; }, 200);
+					parent.Builder.blurBespin(window.el);
+					parent.Builder.nextTab();
+					setTimeout(function() { parent.switching = false; }, 200);
 				}, 
 				"Ctrl-Alt-Left": function(editor) {
 					if (parent.switching) return;
 					parent.switching = true;
 					parent.Builder.blurBespin(window.el);
 					parent.Builder.previousTab();
-        			setTimeout(function() { parent.switching = false; }, 200);
-				}
+					setTimeout(function() { parent.switching = false; }, 200);
+				},
+		                "'>'": function(cm) { if (txt.mode == 'application/x-httpd-php') cm.closeTag(cm, '>'); },
+		                "'/'": function(cm) { if (txt.mode == 'application/x-httpd-php') cm.closeTag(cm, '/'); }
 			}			
 		});
 		window.hlLine = txt.editor.setLineClass(0, "activeline");		

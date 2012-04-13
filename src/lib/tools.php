@@ -497,12 +497,12 @@ function alert ($mix, $always = false) {
 /**
  * jumpTo($url[, $clientSize]) -> void
  * - $url (String) - the URL to redirect the user to.
- * - $clientSide (Boolean) - the redirect should be made on the client-side, rather than server-side, defaults to `false`.
+ * - $clientSide (Boolean) - the redirect should be made on the client-side, rather than server-side, defaults to `true`.
  *
  * Redirect the user to another site/page.
  **/
-function jumpTo ($url = "?", $clientSide = false) {
-    global $SERVER;
+function jumpTo ($url = "?", $clientSide = true) {
+	global $SERVER;
 	global $log;
 	$log->info("Redirecting user to ".$url);
 	if (!($arr_url=@parse_url($url)) || !$arr_url["host"]) {
@@ -511,30 +511,15 @@ function jumpTo ($url = "?", $clientSide = false) {
 	
 	if (!$clientSide) {
 		session_regenerate_id(true);
-	    session_write_close();
-        header ("Location: ".$url);
-    	die();
+		session_write_close();
+		header ("Location: ".$url);
+		die();
 	} else {
-	    Generator::getInstance()->setIsAjax(true);
-    	echo "<meta http-equiv='refresh' content='0;url=".$url."'/><script type='text/javascript'>location.href='".$url."';</script>";
-	    session_write_close();
-    	die();
+		Generator::getInstance()->setIsAjax(true);
+		echo "<meta http-equiv='refresh' content='0;url=".$url."'/><script type='text/javascript'>location.href='".$url."';</script>";
+		session_write_close();
+		die();
 	}
-}
-
-/**
- * prints some debugging information to check if a certain class is loaded
- * 
- * @param STRING $name class's name to check
- * @param STRING $desc class's normal-language description
- */
-function testClass ($name, $desc) {
-    if (DEBUG_LEVEL == 2) {
-        if (class_exists($name))
-        echo $desc." loaded.<br>";
-        else
-        echo "<i>".$desc." NOT loaded!</i><br>";
-    }
 }
 
 if (!function_exists("html_entity_decode")) {
@@ -623,11 +608,11 @@ if (!function_exists("imagejpeg")) {
  * - $dst (String) - destination image file name
  * - $maxWidth (Integer) - maximum width for the resulting thumbnail, defaults to 500
  * - $maxHeight (Integer) - maximum height for the resulting thumbnail, defaults to 500
- * - $quality (Integer) - compression quality to be used, defaults to 60
+ * - $quality (Integer) - compression quality to be used, defaults to 80
  *
  * generates a thumbnail out of a image file and returns `true`, if the generation of the thumbnail was successful.
  **/
-function createThumbnail($src, $dest, $MaxWidth = 500, $MaxHeight = 500, $Quality = 60)
+function createThumbnail($src, $dest, $MaxWidth = 500, $MaxHeight = 500, $Quality = 80)
 {
     list($ImageWidth,$ImageHeight,$TypeCode)=getimagesize($src);
     $ImageType=($TypeCode==1?"gif":($TypeCode==2?"jpeg":
@@ -678,37 +663,6 @@ function createThumbnail($src, $dest, $MaxWidth = 500, $MaxHeight = 500, $Qualit
         return true;
     } else
         return false;
-}
-
-/**
- * Tries to retrieve a thumbnail for a video embed.
- * @return MIXED - path to the thumbnail image, if nothing could be found: false 
- * @param object $embed embed code 
- */
-function getThumbnailFromEmbed($embed)
-{
-    $sources = Array("/http:\\/\\/video\.google\.com\\/googleplayer\\.swf\\?docid=([^\"][a-zA-Z0-9-_]+)[&\"]/siU",
-					 "/http:\\/\\/www\.youtube\.com\\/v\\/([^\"][a-zA-Z0-9-_]+)[&\"]/siU",
-                     "/http:\\/\\/www\.msnbc\.msn\.com\\/id\\/[0-9]+\\/vp\\/([0-9]+)[#]/siU");
-    $match = Array();
-    if (preg_match($sources[0], $embed, $match) > 0) {
-        // we have a google video
-        $xml = doGet("http://video.google.com/videofeed?docid=".$match[1]);
-        $match = Array();
-        if (preg_match("/media:thumbnail url=\"([^\"].*)\"/siU", $xml, $match) > 0) {
-            return html_entity_decode($match[1]);
-        } else {
-            return false;
-        }
-    } else if (preg_match($sources[1], $embed, $match) > 0) {
-        return "http://img.youtube.com/vi/".$match[1]."/0.jpg";
-    } else if (preg_match($sources[2], $embed, $match) > 0) {
-        $html = doGet("http://www.msnbc.msn.com/id/".$match[1]."/");
-        if (preg_match_all("/<img\s+src=[\"']([^\"']+)[\"'][^>]*>/i", $html, $match) > 0) {
-            return $match[1][count($match[0]) - 1];
-        }
-    }
-    return false;
 }
 
 function debugLog($message) {
@@ -994,124 +948,6 @@ function doPost($url, $arr_post = Array(), $user = false, $pass = false)
         $content = implode("", $aux);
     }
     return chop($content);
-}
-
-function html_entity_decode_utf8($string)
-{
-    static $trans_tbl;
-
-    // replace numeric entities
-    $string = preg_replace('~&#x([0-9a-f]+);~ei', 'code2utf(hexdec("\\1"))', $string);
-    $string = preg_replace('~&#([0-9]+);~e', 'code2utf(\\1)', $string);
-
-    // replace literal entities
-    if (!isset($trans_tbl))
-    {
-        $trans_tbl = array();
-
-        foreach (get_html_translation_table(HTML_ENTITIES) as $val=>$key)
-        $trans_tbl[$key] = utf8_encode($val);
-    }
-
-    return strtr($string, $trans_tbl);
-}
-
-/** Returns the utf string corresponding to the unicode value
- * 
- * @param object $num unicode code to be converted to utf8
- * @return STRING utf string 
- */
-function code2utf($num)
-{
-    if ($num < 128) return chr($num);
-    if ($num < 2048) return chr(($num >> 6) + 192) . chr(($num & 63) + 128);
-    if ($num < 65536) return chr(($num >> 12) + 224) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-    if ($num < 2097152) return chr(($num >> 18) + 240) . chr((($num >> 12) & 63) + 128) . chr((($num >> 6) & 63) + 128) . chr(($num & 63) + 128);
-    return '';
-}
-
-/**
- * rotates every single character of a string by a specified number of characters
- *
- * @param STRING $string string to be rotated
- * @param INT $n number of characters to rotate (positive: rotate up, negative: rotate down)
- *
- * @return STRING rotated string
- */
-function rotate_string($string, $n) {
-     
-    $length = strlen($string);
-    $result = '';
-
-    $u_lower =  65; $u_upper =  90;
-    $l_lower =  97; $l_upper = 122;
-     
-    $char_count = ($u_upper - $u_lower) +1;
-
-    $sign = 1;
-    if ($n < 0)
-    {
-        $sign = -1;
-        $n = abs($n);
-    }
-
-    while( $n > $char_count ){
-        $n -= $char_count;
-    }
-
-    $n = $n * $sign;
-     
-    for($i = 0; $i < $length; $i++) {
-        $ascii = ord($string{$i});
-         
-        $rotated = $ascii;
-         
-        if ($ascii > 64 && $ascii < 91) {
-            $rotated += $n;
-            $rotated > 90 && $rotated += -90 + 64;
-            $rotated < 65 && $rotated += -64 + 90;
-        } elseif ($ascii > 96 && $ascii < 123) {
-            $rotated += $n;
-            $rotated > 122 && $rotated += -122 + 96;
-            $rotated < 97 && $rotated += -96 + 122;
-        }
-         
-        $result .= chr($rotated);
-    }
-     
-    return $result;
-}
-
-/**
- * computes a 1-byte checksum for a string
- * @param $string
- * @return unknown_type
- */
-function simpleCheckSum($string) {
-    $int = 0;
-    for ($i = 0; $i < strlen($string); $i++) {
-        $int += ord($string[$i]);
-    }
-    return $int % 256;
-}
-
-/**
- * Removes HTML any variation of the <BR> tag in a given string
- * @param $string
- * @return $string
- */
-function removeHtmlBreak($strText){
-    return preg_replace("%<br\s*/{0,1}>%im", "", $strText);
-}
-
-/**
- * Returns the UNIX Timestamp for a Given Date
- * @param $string date which is in format yyyy-mm-dd
- * @return $int unix timestamp
- */
-function get_timestamp($date) {
-    list($y, $m, $d) = explode('-', $date);
-    return mktime(0, 0, 0, $m, $d, $y);
 }
 
 /**
