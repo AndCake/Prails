@@ -294,17 +294,24 @@ Builder = Object.extend(Builder || {}, {
                 	} catch(e){console.log(e);};
                 }            
                 
-                cwin.document.body.onkeyup = function(event) {
+                cwin.document.body.onkeydown = function(event) {
                 	if (!event) event = cwin.event;
     				Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = cwin.id;
-    	        	if (event.keyCode == 'F'.charCodeAt(0) && event.ctrlKey) {
+    	        	if (event.keyCode == 'F'.charCodeAt(0) && (event.ctrlKey || event.metaKey)) {
     	        		cwin.parent.Builder.searchInBespin(cwin);
     	        		try {
     	        			event.stopPropagation();
     	        			event.cancelBubble = true;
     	        		} catch(e){};
     	        		return false;
-    	        	} else if (event.ctrlKey && event.altKey) {
+    	        	} else if (event.keyCode == "S".charCodeAt(0) && (event.ctrlKey || event.metaKey)) {
+				cwin.txt.save();
+				try {
+    	        			event.stopPropagation();
+    	        			event.cancelBubble = true;
+				} catch(e){};
+				return false;
+			} else if (event.ctrlKey && event.altKey) {
     	    			window.focus();
     	        		if (event.keyCode == 39) {
     	        			if (window.switching) return;
@@ -336,7 +343,7 @@ Builder = Object.extend(Builder || {}, {
     	                		} catch(e){};
     	                		return false;
     	        			}
-    	        		}            		
+				}           		
     	        	}
                 };
                 if (typeof(fn) == "function") {

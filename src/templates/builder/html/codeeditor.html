@@ -179,7 +179,11 @@
 			    window.hlLine = txt.editor.setLineClass(txt.editor.getCursor().line, "activeline");
 			},
 			onChange: function(ed, obj) {
-				txt.changed(txt.mode, ed.getValue());
+				if (txt._changeTimeout) clearTimeout(txt._changeTimeout);
+				var d = ed;
+				txt._changeTimeout = setTimeout(function() {
+					txt.changed(txt.mode, d.getValue());
+				}, 2000);
 			},
 			extraKeys: {
 				"Ctrl-Space": function(cm) {

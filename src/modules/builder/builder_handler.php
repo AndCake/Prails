@@ -1302,8 +1302,8 @@ class BuilderHandler
         $_SESSION["builder"] = Array();
         if (session_id() != "") session_destroy();
         session_write_close();
-	    header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
-	    header('HTTP/1.0 401 Unauthorized');
+	header('WWW-Authenticate: Basic realm="Prails Web Framework Realm"');
+	header('HTTP/1.0 401 Unauthorized');
         if ($_GET["norelogin"] == "1") {
         	require("templates/builder/html/loggedout.html");
         	die();	
