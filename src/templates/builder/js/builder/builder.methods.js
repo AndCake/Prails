@@ -517,9 +517,10 @@ Builder = Object.extend(Builder || {}, {
 	});
     },
     checkHtmlSyntax: function(code, callback) {
-	while (code.match(/<[?%@]([^@%?]+|[?@%][^>]+)*[?@%]>/mg) || code.match(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg) || code.match(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm)) {
-		code = code.replace(/<[@?%]([^@%?]+|[?@%][^>]+)*[@?%]>/mg, '').replace(/<(qw|c):(\w+)(\s*\w+=("[^"]*")|('[^']*'))*\s*>([\w\W]*)<\/\1:\2>/mg, '$6').replace(/<c:\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/>/gm, '');
+	while (code.match(/<%([^%]|%[^>])*%>|<@([^@]|@[^>])*@>|<\?([^?]|\?[^>])*\?>/mg) || code.match(/<(qw|c):\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/?>|<\/(qw|c):\w+>/mg)) {
+		code = code.replace(/<%([^%]|%[^>])*%>|<@([^@]|@[^>])*@>|<\?([^?]|\?[^>])*\?>/mg, '').replace(/<(qw|c):\w+(\s*\w+=("[^"]*")|('[^']*'))*\s*\/?>|<\/(qw|c):\w+>/gm, '');
 	}
+	code = "<script type='text/javascript'>/*global $:false, $$:false, $H: false, Overlabel: false, $A: false, jQuery: false, _:false, addLoadEvent:false, invoke:false, S2:false, Cookie:false */</script>" + code;
 	var result = JSLINT(code, {
 		anon: true,
 		bitwise: true,
@@ -552,6 +553,7 @@ Builder = Object.extend(Builder || {}, {
 	}
     },
     checkJSSyntax: function(code, callback) {
+	code = "/*global $:false, $$:false, $H: false, Overlabel: false, $A: false, jQuery: false, _:false, addLoadEvent:false, invoke:false, S2:false, Cookie:false */" + code;
 	var result = JSLINT(code, {
 		anon: true,
 		bitwise: true,

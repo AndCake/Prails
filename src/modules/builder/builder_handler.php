@@ -203,6 +203,7 @@ class BuilderHandler
 	                } else {
 	                    $libPath = "lib/custom/";
 	                }
+			if (!file_exists($libPath)) @mkdir($libPath, 0755, true);
 	                if ($arr_lib["fk_resource_id"] > 0) {
 	                	$libPath .= $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . "/";
 	                	if (!file_exists($libPath)) {
@@ -886,10 +887,10 @@ class BuilderHandler
 				}
            	} else {
            		if (ENV_PRODUCTION) {
-           		    @unlink("lib/custom/".$lib["name"].".php");
-              	} else {
-                   	@unlink("lib/custom/".$lib["name"].$_GET["library_id"].".php");
-                }
+        			@unlink("lib/custom/".$lib["name"].".php");
+    	          	} else {
+       		           	@unlink("lib/custom/".$lib["name"].$_GET["library_id"].".php");
+	                }
            	}
         }
     	$this->obj_data->deleteLibrary($_GET["library_id"]);

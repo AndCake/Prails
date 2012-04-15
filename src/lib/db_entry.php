@@ -86,6 +86,10 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
         ksort($this->arr_data);
     }
 
+    public function keys() {
+	return array_keys($this->arr_data);
+    }
+
     public function natcasesort() {
         natcasesort($this->arr_data);
     }
@@ -227,7 +231,7 @@ class DBEntry extends DBEntryObject {
 				foreach ($cols as $col) {
 					array_push($lCols, $col["Field"]);
 				}
-				$list = array_keys(parent::getArrayCopy());
+				$list = parent::keys();
 				$pairs = Array();
 				foreach ($list as $entry) {
 					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
@@ -259,7 +263,7 @@ class DBEntry extends DBEntryObject {
 				foreach ($cols as $col) {
 					array_push($lCols, $col["Field"]);
 				}
-				$list = array_keys(parent::getArrayCopy());
+				$list = parent::keys();
 				$pairs = Array();
 				foreach ($list as $entry) {
 					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
@@ -273,6 +277,110 @@ class DBEntry extends DBEntryObject {
 			return parent::offsetGet($index);
 		}
 	} 
+
+	/**
+         * save() -> boolean
+	 * 
+	 * saves the current `DBEntry` back into it's original table. If the `DBEntry` contains the result
+	 * of a complex SQL query (one that was joined, unioned or similar), it will return `false` and 
+	 * write a warning into the warn log. If saving the record was successful, it will return `true`.
+	 * If the primary key is set to 0 (zero), it will create a new database record from the `DBEntry`.
+	 *
+	 * *Example:* 
+	 * {{{
+	 * $users = $this->select("user", "last_login > UNIX_TIMESTAMP() - 3600");
+	 * foreach ($users as $user) {
+	 * 	$user["name"] = "Carl";
+	 * 	$user->save();
+	 * }
+	 * }}}
+	 * This example fetches all users that logged in during the last hour and updates their names 
+	 * to be "Carl" and saves that back into the database.
+	 * 
+	 * *Example 2:*
+	 * {{{
+	 * $user = new DBEntry(Array(
+	 *      "user_id" => 0,
+	 *      "firstName" => "Test",
+	 *      "lastName" => "User"
+	 * ));
+	 * $user->save();
+	 * }}}
+	 * This example creates a new `DBEntry` from an array and then creates the corresponding database record
+	 * in table `tbl_user` by calling the `save` method.
+	 **/
+	function save() {
+		global $log;
+		// check if eligable
+		$keys = parent::keys();
+		$primaryKeys = 0;
+		$lastPK = "";
+		foreach ($keys as $key) {
+			if (preg_match('/^(?!fk_)([a-z_A-Z]+)_id$/', $key, $match)) {
+				$primaryKeys++;
+				$lastPK = $match[1];
+			}
+		}
+		if ($primaryKeys > 1) {
+			$log->warn("Unable to save DBEntry: it was a complex query result.");
+			return false;	// unable to save
+		}
+		$table = "tbl_".$lastPK;
+		$pk = $lastPK."_id";
+		if (parent::offsetGet($pk) < 0 || !is_numeric(parent::offsetGet($pk))) {
+			$log->warn("Unable to save DBEntry: invalid primary key value.");
+			return false;
+		} else if (parent::offsetGet($pk) === 0) {
+			$arr_data = parent::getArrayCopy();
+			unset($arr_data[$pk]);
+			$this->obj_tbl->InsertQuery($table, $arr_data);
+		} else {
+			$this->obj_tbl->UpdateQuery($table, parent::getArrayCopy(), $pk."=".parent::offsetGet($pk));
+		}
+		return true;
+	}
+
+	/**
+	 * delete() -> boolean
+	 * 
+	 * This method removes the underlying database record of the current `DBEntry`. If the `DBEntry` 
+	 * contains the result of a complex SQL query (one that was joined, unioned or similar), it 
+	 * will return `false` and write a warning into the warn log. If the deletion of this record was
+	 * successful, it will return `true`. Please note: in order to actually remove the record, it 
+	 * needs to exist.
+	 *
+	 * *Example:*
+	 * {{{
+	 * $comment = $this->getItem("comment", 3);
+	 * $comment->delete();
+	 * }}}
+	 * This example will remove the record `3` from the table `comment`. 
+	 **/
+	function delete() {
+		global $log;
+		// check if eligable
+		$keys = parent::keys();
+		$primaryKeys = 0;
+		$lastPK = "";
+		foreach ($keys as $key) {
+			if (preg_match('/^(?!fk_)([a-z_A-Z]+)_id$/', $key, $match)) {
+				$primaryKeys++;
+				$lastPK = $match[1];
+			}
+		}
+		if ($primaryKeys > 1) {
+			$log->warn("Unable to save DBEntry: it was a complex query result.");
+			return false;	// unable to save
+		}
+		$table = "tbl_".$lastPK;
+		$pk = $lastPK."_id";
+		if (parent::offsetGet($pk) <= 0 || !is_numeric(parent::offsetGet($pk))) {
+			$log->warn("Unable to delete DBEntry: invalid primary key value.");
+			return false;
+		}
+		$this->obj_tbl->DeleteQuery($table, $pk."=".parent::offsetGet($pk));
+		return true;
+	}
 }
 
 ?>

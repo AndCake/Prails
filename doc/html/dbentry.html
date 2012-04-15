@@ -55,3 +55,50 @@ all comments that have a non-empty content attribute. The result (which is an ar
 will be returned immediately but also stored to the <code>post</code> object to be accessible via the name <code>mycomments</code>, 
 which is afterwards used to loop over it and print out the comment's contents.
 <br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='save' class='method-title'>save</a><div class='method'><span class='name'>save</span>(<span class='parameters'></span>) &rarr; <span class='type'>boolean</span></div>
+<br/><br/>
+saves the current <code>DBEntry</code> back into it's original table. If the <code>DBEntry</code> contains the result
+of a complex SQL query (one that was joined, unioned or similar), it will return <code>false</code> and 
+write a warning into the warn log. If saving the record was successful, it will return <code>true</code>.
+If the primary key is set to 0 (zero), it will create a new database record from the <code>DBEntry</code>.
+<br/><br/>
+<strong>Example:</strong> 
+<pre>
+$users = $this-&gt;select("user", "last_login &gt; UNIX_TIMESTAMP() - 3600");
+foreach ($users as $user) {
+	$user["name"] = "Carl";
+	$user-&gt;save();
+}
+</pre>
+This example fetches all users that logged in during the last hour and updates their names 
+to be "Carl" and saves that back into the database.
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+$user = new DBEntry(Array(
+     "user_id" =&gt; 0,
+     "firstName" =&gt; "Test",
+     "lastName" =&gt; "User"
+));
+$user-&gt;save();
+</pre>
+This example creates a new DBEntry from an array and then creates the corresponding database record
+in table <code>tbl_user</code> by calling the <code>save</code> method.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='delete' class='method-title'>delete</a><div class='method'><span class='name'>delete</span>(<span class='parameters'></span>) &rarr; <span class='type'>boolean</span></div>
+<br/><br/>
+This method removes the underlying database record of the current <code>DBEntry</code>. If the <code>DBEntry</code> 
+contains the result of a complex SQL query (one that was joined, unioned or similar), it 
+will return <code>false</code> and write a warning into the warn log. If the deletion of this record was
+successful, it will return <code>true</code>. Please note: in order to actually remove the record, it 
+needs to exist.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+$comment = $this-&gt;getItem("comment", 3);
+$comment-&gt;delete();
+</pre>
+This example will remove the record <code>3</code> from the table <code>comment</code>. 
+<br/><br/>
