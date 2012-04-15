@@ -80,7 +80,7 @@ function writeHeader($type, $title) {
 	global $file, $path, $bulletCreated, $sections, $currentContext;
 	$wasEmpty = empty($file);
 	$bulletCreated = false;
-	$file = preg_replace('/[^a-zA-Z0-9\\-]/', '', strtolower($title)).".html";
+	$file = preg_replace('/[^a-zA-Z0-9\\-]/', '', $title).".html";
 	$css = "styles.css";
 	$type = strtolower($type);
 	$secFound = false;
@@ -127,8 +127,8 @@ function writeMethod($details, $type = "Method") {
 	$content = file_get_contents($path.$file);
 	$parts = explode("|", $details[3]);
 	foreach ($parts as &$part) {
-		if (file_exists($path.strtolower($part).".html")) {
-			$part = "<a href='".strtolower($part).".html'>$part</a>";
+		if (file_exists($path.$part.".html")) {
+			$part = "<a href='".$part.".html'>$part</a>";
 		}
 	}
 	$added = false;
@@ -162,8 +162,8 @@ function writeParam($details) {
 	$content = file_get_contents($path.$file);
 	$parts = explode("|", $details[2]);
 	foreach ($parts as &$part) {
-		if (file_exists($path.strtolower($part).".html")) {
-			$part = "<a href='".strtolower($part).".html'>$part</a>";
+		if (file_exists($path.$part.".html")) {
+			$part = "<a href='".$part.".html'>$part</a>";
 		}
 	}
 	$details[2] = implode("|", $parts);

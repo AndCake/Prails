@@ -22,7 +22,7 @@ of the <code>DBEntry</code> object, thus reflecting exactly the same data, but l
 the dynamic functionality of retrieving additional information.
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='get' class='method-title'>get</a><div class='method'><span class='name'>get</span>(<span class='parameters'>$index[, $filter[, $name]]</span>) &rarr; <span class='type'>Array</span> | <span class='type'><a href='dbentry.html'>DBEntry</a></span> | <span class='type'>String</span> | <span class='type'>Number</span></div>
+<div class='method-type'>Method</div><a name='get' class='method-title'>get</a><div class='method'><span class='name'>get</span>(<span class='parameters'>$index[, $filter[, $name]]</span>) &rarr; <span class='type'>Array</span> | <span class='type'><a href='DBEntry.html'>DBEntry</a></span> | <span class='type'>String</span> | <span class='type'>Number</span></div>
 <ul><li class='param'><code>$index</code> (<span class='type'>String</span>)<span class='divider'> - </span>the column name to get value(s) for.</li>
 <li class='param'><code>$filter</code> (<span class='type'>String</span> | <span class='type'>Array</span>)<span class='divider'> - </span>a where clause or an array whereas the key-value pairs are joined by an <code>AND</code></li>
 <li class='param'><code>$name</code> (<span class='type'>String</span>)<span class='divider'> - </span>the name as which it should be stored in the current <code>DBEntry</code> instance.</li>
@@ -83,7 +83,7 @@ $user = new DBEntry(Array(
 ));
 $user-&gt;save();
 </pre>
-This example creates a new DBEntry from an array and then creates the corresponding database record
+This example creates a new <code>DBEntry</code> from an array and then creates the corresponding database record
 in table <code>tbl_user</code> by calling the <code>save</code> method.
 <br/><br/>
 <br/><br/>
