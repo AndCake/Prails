@@ -14,11 +14,6 @@
 		<label>Change Resource</label><br/>
 		<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&module_id=#session.module_id&resource_id=#resource.resource_id&t=<?=time()?>" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){window.setImageSizes['rr#resource.resource_id[int]'](me);}, 100);" /><br/>
 		<qw:file target="?event=builder:editResource&module_id=#session.module_id&resource_id=<?=$arr_param['resource']['resource_id']?>&check=upload&name=" ondone="Builder.reloadTab('rm_#session.module_id');"><button type="button">Upload new file</button></qw:file>		
-<!-- 
-		<FileSelector name="resource[file]" value="#resource.name" class="upload" form="resForm#resource.resource_id[int]">
-			<img id="img#resource.resource_id[int]" src="?event=builder:previewResource&module_id=#session.module_id&resource_id=#resource.resource_id" width="64" alt="#resource.name" onload="var me=this;setTimeout(function(){setImageSizes#resource.resource_id[int](me);}, 100);" />
-		</FileSelector>
--->		
 		<? if ($arr_param["resource"]["resource_id"] > 0 || $_GET["module_id"] < 0) { ?>
 		<br/>
 		<label>Resource Path</label><br/>
@@ -44,31 +39,7 @@
 					$("height#resource.resource_id[int]").innerHTML = img.naturalHeight;					
 				};
 
-				//FileSelector.find();
 				QuixoticWorxUpload.init();
-/*				
-				var mybar = Ext.getCmp("rm_#session.module_id_container").getTopToolbar();
-				while (mybar && mybar.tr && mybar.tr.children && mybar.tr.children.length > 0) { 
-					mybar.tr.removeChild(mybar.tr.childNodes[0]);
-				}
-				Ext.getCmp("rm_#session.module_id_container").getTopToolbar().add({
-						xtype: "button",
-						text: "Save",
-						iconCls: "save",
-						handler: function(e) {
-							invoke(null, 'builder:editResource&module_id=#session.module_id&resource_id=#resource.resource_id[int]&check=1', $("resForm#resource.resource_id[int]").serialize(), true, function(req){
-								Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
-								if (#resource.resource_id[int] == 0) {
-									Builder.reloadTab("rm_#session.module_id");
-								} else {
-									$$("span pre span").each(function(item){
-										item.innerHTML = $$("#resForm#resource.resource_id[int] input[type='text']")[0].value;
-									});
-								}
-							});						
-						}
-				},"-");
-				mybar.doLayout();//*/
 			})();
 		//]]>
 		</script>		

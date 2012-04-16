@@ -1,3 +1,48 @@
+V1.4.0 (April 16th, 2012)
+
+ * fixed a bug with custom attributes on content assets not being correctly stored
+ * added the possibility to pass limit parameters to Database::select
+ * added Database::getItem, which selects a single entry by ID
+ * made the scaffolded code be more flexible in case no mod_rewrite is active
+ * made sure that the scaffolded links between edit, list, delete and view are always rendered if their counterparts are generated as well
+ * fixed a bug with running backups
+ * increase ease-of-use for creating admin modules (addSection is now MUCH easier to use)
+ * updated logo
+ * made modal dialog and ajaxified links easier to use
+ * updated styles for radio buttons (now the label appears next to the radio control)
+ * some code cleanup for scaffolded forms
+ * fixed a problem with foreign keys not being correctly rendered for scaffolded form code
+ * implemented mod_rewrite emulation in case there is no mod_rewrite
+ * added automatic creation of necessary directories, in case they are missing
+ * fixed a bug with images not being exported correctly
+ * updated to newest lessphp version => warning, your LESS CSS code might break if you are using parametrized mixins
+ * updated styles to be compatible with new LESSPHP
+ * added the possibility to set a different DB host during setup
+ * made the setup more robust in case of mod_rewrite is missing
+ * added connection testing for MySQL and PostgreSQL databases during setup
+ * revised wording for mod_rewrite problems (no data will be received through POSTs, if rewritten URLs are non-the-less used)
+ * turned history into a dropdown attached to view history button rather than the eye view
+ * made sure that the replication button cannot be hit while running a replication
+ * browse history is now also available for custom libraries
+ * updated html editor for TinyMCE to work with CodeMirror
+ * made sure that when rewrite.php is used, query parameters are correctly parsed
+ * made sure that when creating a new module, the home handler appears immediately
+ * added button border
+ * made sure that one can edit URLs despite of missing mod_rewrite (is now emulated using rewrite.php) 
+ * added new documentation & created pdoc-like documentation parser in PHP
+ * updated fileselector (file upload) functionality to reflect latest changes in File API.
+ * added 'pages' folder as default to static content section
+ * fixed a bug where the icon for a newly created sub-section in the static content area would not look like a folder
+ * Added possibility to create a page by using the CMS helper: in case all content assets of the 404 page are filled in and the current static content page does not exist, it will open the page for editing
+ * fixed a bug where a non-existing backup directory would lead to an endless loop during load-up of the IDE
+ * added live-syntax check
+ * made sure the save shortcut does not interfere with browser's save
+ * updated documentation of jumpTo (now defaults to client-side redirect)
+ * improved search UI to remember last search/replace data
+ * extended DBEntry so that it's now possible to modify and remove database records by it
+ * updated documentation to reflect new use of DBEntry constructor
+
+
 V1.3.1 (February 1st, 2012)
 
  * added overlabels capability to password fields
