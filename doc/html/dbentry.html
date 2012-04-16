@@ -15,6 +15,38 @@ but also to get access to rows that reside in other tables, but are linked to th
 current table by foreign keys. 
 <br/><br/>
 <br/><br/>
+<div class='method-type'>Constructor</div><a name='DBEntry' class='method-title'>DBEntry</a><div class='method'><span class='name'>new DBEntry</span>(<span class='parameters'>$data</span>)</div>
+<div class='method'><span class='name'>new DBEntry</span>(<span class='parameters'>$table, $data</span>)</div>
+<ul><li class='param'><code>$table</code> (<span class='type'>String</span>)<span class='divider'> - </span>the table's name to which this new data record should belong</li>
+<li class='param'><code>$data</code> (<span class='type'>Array</span>)<span class='divider'> - </span>an associative array containing the data that should be represented by the <code>DBEntry</code></li>
+</ul>
+
+Creates a new <code>DBEntry</code>. With the creation, it's not yet sent to the database. In order to persist the
+record, call it's <code><a href="DBEntry.html#save">save</a></code> method. When using the second call method of this constructor, it
+will set the record's primary key to be 0, thus when saving, it will create a new record in the database.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+$mynewuser = new DBEntry("user", Array(
+	"firstName" =&gt; "Test",
+	"lastName" =&gt; "User",
+	"email" =&gt; "test@example.org"
+));
+$mynewuser-&gt;save();
+<br/><br/>
+// the following snippet will do exactly the same as the above
+$mynewuser = new DBEntry(Array(
+	"user_id" =&gt; 0,
+	"firstName" =&gt; "Test",
+	"lastName" =&gt; "User",
+	"email" =&gt; "test@example.org"
+));
+$mynewuser-&gt;save();
+</pre>
+This example creates two DBEntry objects with the same user information. Both are persisted, which 
+results in two new database records.
+<br/><br/>
+<br/><br/>
 <div class='method-type'>Method</div><a name='getArrayCopy' class='method-title'>getArrayCopy</a><div class='method'><span class='name'>getArrayCopy</span>(<span class='parameters'></span>) &rarr; <span class='type'>Array</span></div>
 <br/><br/>
 this method will return an associative array that corresponds to the structure

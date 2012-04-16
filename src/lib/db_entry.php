@@ -56,13 +56,6 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
         return $arr_result;
     }
     
-    /**
-     * getArrayCopy() -> Array
-     * 
-     * this method will return an associative array that corresponds to the structure
-     * of the `DBEntry` object, thus reflecting exactly the same data, but leaving out
-     * the dynamic functionality of retrieving additional information.
-     **/
     public function getArrayCopy() {
         $arr_result = Array();
         
@@ -138,10 +131,48 @@ class DBEntryObject implements IteratorAggregate, ArrayAccess, Serializable, Cou
 class DBEntry extends DBEntryObject {
 	private $obj_tbl = null;
 	private $prefix = null;
-    private $flags = null;
-    private $iterator_class = null;	
+	private $flags = null;
+	private $iterator_class = null;	
 	
+	/**
+	 * new DBEntry($data)
+	 * new DBEntry($table, $data) 
+	 * - $table (String) - the table's name to which this new data record should belong
+	 * - $data (Array) - an associative array containing the data that should be represented by the `DBEntry`
+	 * 
+	 * Creates a new `DBEntry`. With the creation, it's not yet sent to the database. In order to persist the
+	 * record, call it's `[DBEntry]save` method. When using the second call method of this constructor, it
+	 * will set the record's primary key to be 0, thus when saving, it will create a new record in the database.
+	 *
+	 * *Example:*
+	 * {{{
+	 * $mynewuser = new DBEntry("user", Array(
+	 * 	"firstName" => "Test",
+	 * 	"lastName" => "User",
+	 * 	"email" => "test@example.org"
+	 * ));
+	 * $mynewuser->save();
+	 *
+	 * // the following snippet will do exactly the same as the above
+	 * $mynewuser = new DBEntry(Array(
+	 * 	"user_id" => 0,
+	 * 	"firstName" => "Test",
+	 * 	"lastName" => "User",
+	 * 	"email" => "test@example.org"
+	 * ));
+	 * $mynewuser->save();
+	 * }}}
+	 * This example creates two DBEntry objects with the same user information. Both are persisted, which 
+	 * results in two new database records.
+	 **/
 	function __construct($arr_data, $flags = 0, $iterator_class = "ArrayIterator", $prefix = "tbl_") {
+		if (is_string($arr_data)) {
+			$table = $arr_data;
+			if (strpos($table, $prefix) === 0) $table = str_replace($prefix, "", $table);
+			$arr_data = $flags;
+			$arr_data[$table."_id"] = 0;
+			$flags = 0;
+		}	
 		$this->obj_tbl = new Database($prefix);
 		$this->prefix = $prefix;		
 		$this->flags = $flags;
@@ -163,6 +194,15 @@ class DBEntry extends DBEntryObject {
 		$this->iterator_class = $data["iterator_class"];
 		$this->obj_tbl = new TblClass($this->prefix);
     }	
+
+    /**
+     * getArrayCopy() -> Array
+     * 
+     * this method will return an associative array that corresponds to the structure
+     * of the `DBEntry` object, thus reflecting exactly the same data, but leaving out
+     * the dynamic functionality of retrieving additional information.
+     **/
+
         /**
          * get($index[, $filter[, $name]]) -> Array|DBEntry|String|Number
          * - $index (String) - the column name to get value(s) for.

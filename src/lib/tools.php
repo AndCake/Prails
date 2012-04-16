@@ -1150,7 +1150,7 @@ function one_of() {
 
 /**
  * receiveFile($fileName, $targetPath) -> String|Boolean
- * - $fileName (String) - name of the file (as transmitted as GET parameter for qw:upload fields)
+ * - $fileName (String) - name of the file (as transmitted as GET parameter for c:file fields)
  * - $targetPath (String) - directory to put the file into
  *
  * this function copies the received file to the specified directory. It returns `false` if no file was received, else the name (including path) of the file after copy is completed.

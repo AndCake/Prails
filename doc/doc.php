@@ -57,6 +57,7 @@ function handleCommentBlock($items) {
 	$bulletCreated = false;
 	$class = '/^\\s*([Cc]lass|[sS]ection)\\s+(\\w+)/';
 	$method = '/(\\w+)\\s*\\(([^\\)]*)\\)\\s*->\\s*([a-zA-Z0-9\\.]+(\\|[a-zA-Z0-9\\.]+)*)/';
+	$constructor = '/new\s+(\\w+)\\s*\\(([^\\)]*)\\)/';
 	$tag = '/<c:(\\w+)(.*)$/';
 	$param = '/\\s*-\\s*(\\$\\w+|`[^`]+`)\\s*\\(([a-zA-Z0-9\\.]+(\\|[a-zA-Z0-9\\.]+)*)\\)\\s*-\\s*(.*)/';
 	foreach ($items as $item) {
@@ -64,6 +65,9 @@ function handleCommentBlock($items) {
 			writeHeader($matches[1], $matches[2]);
 		} else if (!$inCodeBlock && preg_match($method, $item, $matches)) {
 			writeMethod($matches);
+			$currentMethod = $matches[1];
+		} else if (!$inCodeBlock && preg_match($constructor, $item, $matches)) {
+			writeMethod($matches, "Constructor");
 			$currentMethod = $matches[1];
 		} else if (!$inCodeBlock && preg_match($tag, $item, $matches)) {
 			writeMethod($matches, "Tag");
@@ -133,8 +137,12 @@ function writeMethod($details, $type = "Method") {
 	}
 	$added = false;
 	if ($currentContext != null) {
-		if (!in_array($details[1], $sections[$currentContext]["methods"])) {
-			$sections[$currentContext]["methods"][] = $details[1];
+		$name = $details[1];	
+		if ($type == "Constructor") {
+			$name = "Constructor";
+		}
+		if (!in_array($name, $sections[$currentContext]["methods"])) {
+			$sections[$currentContext]["methods"][] = $name;
 			$added = true;
 		}
 	}
@@ -146,6 +154,8 @@ function writeMethod($details, $type = "Method") {
 	}
 	if ($type == "Tag") {
 		$content .= "<div class='method'>&lt;c:<span class='name'>{$details[1]}</span> ".str_replace(Array('<', '>'), Array('&lt;', '&gt;'), $details[2])."</div>\n";
+	} else if ($type == "Constructor") {
+		$content .= "<div class='method'><span class='name'>new {$details[1]}</span>(<span class='parameters'>{$details[2]}</span>)</div>\n";
 	} else {
 		$content .= "<div class='method'><span class='name'>{$details[1]}</span>(<span class='parameters'>{$details[2]}</span>) &rarr; <span class='type'>{$types}</span></div>\n";
 	}
