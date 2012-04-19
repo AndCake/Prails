@@ -11,20 +11,24 @@ easy to use, create and understand.
 <br/><br/>
 A series of control tags are pre-defined in Prails and can be used in any template and output code.
 <br/><br/>
-<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span> /&gt;</div>
+<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span>  [cond="&lt;php-condition&gt;"]/&gt;</div>
 <br/><br/>
 Used together with <code><a href="Tags.html#if">if</a></code> or <code><a href="Tags.html#foreach">foreach</a></code> to render something in an alternative branch of 
-execution. Needs to be written within the respective if/loop tag's body. 
+execution. Needs to be written within the respective if/loop tag's body. In case the condition 
+attribute is given, it will check if that is <code>true</code> and only if so, will render what comes after 
+the <code><a href="Tags.html#else">else</a></code> tag.
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-&lt;c:if cond="true == false"&gt;
-   Should never happen!
+&lt;c:if cond="#local.value &gt; 123"&gt;
+   It's larger than 123!
+&lt;c:else cond="#local.value &lt; 120"&gt;
+   It's smaller than 120!
 &lt;c:else/&gt;
-   Wonderful!
+   It's between 120 and 123!
 &lt;/c:if&gt;
 </pre>
-<br/><br/>
+Depending on the value in variable <code>value</code>, it will print out different messages.
 <br/><br/>
 <div class='method-type'>Tag</div><a name='foreach' class='method-title'>foreach</a><div class='method'>&lt;c:<span class='name'>foreach</span>  var="(inline-var)" name="(loop-var-name)"[ key="(key-name)"]&gt;&lt;/c:foreach&gt;</div>
 <br/><br/>
@@ -56,7 +60,7 @@ They will automatically inherit the current context and can change it accordingl
 <br/><br/>
 An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
 body content. 
- <u>Note:</u> you can use the <code>&lt;c:else/&gt;</code> tag to render something if the PHP condition returns <code>false</code>. 
+ <u>Note:</u> you can use the <code><a href="Tags.html#else">else</a></code> tag to render something if the PHP condition returns <code>false</code>. 
 <br/><br/>
 <strong>Example:</strong>
 <pre>
