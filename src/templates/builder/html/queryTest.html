@@ -80,7 +80,11 @@
 						remoteSort: true,
 						totalProperty: "total",
 						idProperty: "id",
-						fields: fields
+						fields: fields,
+						sortInfo: {
+							field: fields[1],
+							direction: "ASC"
+						}
 					});
 					
 					var grid = new (hide ? Ext.grid.GridPanel : Ext.grid.EditorGridPanel)({
