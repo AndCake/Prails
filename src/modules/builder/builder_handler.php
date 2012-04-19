@@ -1541,7 +1541,7 @@ class BuilderHandler
 			session_write_close();
 			die(json_encode(Array("result" => $result, "total" => (int)$arr_param["totals"][0]["total"], "query" => $query)));
 		} else if (isset($_POST["start"])) {
-			$query = if_set($_SESSION["builder"]["currentQuery"], $_GET["query"]);
+			$query = if_set($_SESSION["builder"]["currentQuery"], base64_decode($_GET["q"]));
 			if (isset($_POST["sort"])) {
 				$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 			}
