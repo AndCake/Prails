@@ -4,7 +4,7 @@
  * 
  * An if condition tag, that will take a complete PHP condition and if it returns true, renders the tag's 
  * body content. 
- * _Note:_ you can use the `&lt;c:else/&gt;` tag to render something if the PHP condition returns `false`. 
+ * _Note:_ you can use the `[Tags]else` tag to render something if the PHP condition returns `false`. 
  * 
  * *Example:*
  * {{{
@@ -18,6 +18,6 @@
  * }}}
  *
  **/
-?><@ if (<?=$this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '@\\1', $tag["attributes"]["cond"]))?>) { @>
+?><@ if (<?=$this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"]))?>) { @>
 	<?=$tag["body"]?>
 <@ } @>
