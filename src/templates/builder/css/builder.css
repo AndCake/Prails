@@ -237,3 +237,12 @@ a.builder-help {
 		color: white !important;
 	}
 }
+
+html, html body {
+	background: white;
+	.opacity(0);
+	.transition(1s opacity ease-in-out);
+	&.history, &.history body {
+		.opacity(100);
+	}
+}

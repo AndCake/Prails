@@ -113,7 +113,7 @@
 		return txt.editor && txt.editor.getValue() || txt.value;
 	};
 	txt.setCode = function(code) {
-		code = code.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&");
+		code = code.replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&").replace(/&quot;/gi, '"');
 		txt.editor.setValue(code);
 		return true;
 	};
