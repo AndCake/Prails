@@ -298,34 +298,56 @@ class BuilderData extends Database
         }
     }
 
+
+	function _getCompletion($items, $id, $table) {
+		$val = "";
+		foreach ($items as $item) {
+			$val .= " LEFT JOIN (SELECT ".$item." AS ".$item."_".$item.", change_time AS ".$item."_change_time FROM tbl_prailsbase_".$table."_history WHERE fk_original_id=".$id." AND NOT ISNULL(".$item.") ORDER BY change_time DESC) AS a".$item." ON a".$item.".".$item."_change_time < change_time ";
+		}
+		return $val;
+	}
+	function _getCol($items) {
+		$val = "";
+		foreach($items as $item) {
+			$val .= ", COALESCE(".$item.", ".$item."_".$item.") AS ".$item." ";
+		}
+		return $val;
+	}
+
     function insertModuleHistory($module_id, $arr_old, $arr_new)
     {
         $this->insertHistory("tbl_prailsbase_module_history", $module_id, $arr_old, $arr_new);
     }
     function listModuleHistory($module_id)
     {
-		$arr_months = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) GROUP BY FLOOR(change_time / 2592000) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+	$comp = $this->_getCompletion(Array("name", "style_code", "js_code"), (int)$module_id, "module");
+	$cols = $this->_getCol(Array("name", "style_code", "js_code"));
+		$arr_months = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_module_history$comp WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 2592000) LIMIT 0,30");
 		$lastMonth = $arr_months[0];
-		$arr_weeks = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." GROUP BY FLOOR(change_time / 604800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_weeks = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_module_history$comp WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 604800) LIMIT 0,30");
 		$lastWeek = $arr_weeks[0];
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastWeek['change_time'], "0")." GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_module_history$comp WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastWeek['change_time'], "0")." ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 86400) LIMIT 0,30");
 		$lastDay = $arr_days[0];
-		$arr_times = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_module_history WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastDay['change_time'], "0")." GROUP BY FLOOR(change_time / 1800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_times = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_module_history$comp WHERE fk_original_id=".(int)$module_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(style_code) OR NOT ISNULL(js_code)) AND change_time > ".if_set($lastDay['change_time'], "0")." ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 1800) LIMIT 0,30 ");
         return array_merge($arr_times, $arr_days, $arr_weeks, $arr_months);
     }
     function insertHandlerHistory($module_id, $arr_old, $arr_new)
     {
         $this->insertHistory("tbl_prailsbase_handler_history", $module_id, $arr_old, $arr_new);
     }
+
+
     function listHandlerHistory($handler_id)
     {
-    	$arr_months = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) GROUP BY FLOOR(change_time / 2592000) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
-	$lastMonth = $arr_months[0];
-    	$arr_weeks = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." GROUP BY FLOOR(change_time / 604800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
-	$lastWeek = $arr_weeks[0];
-    	$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastWeek['change_time'], "0")." GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
-	$lastDay = $arr_days[0];
-    	$arr_times = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_handler_history WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastDay['change_time'], "0")." GROUP BY FLOOR(change_time / 1800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+	$comp = $this->_getCompletion(Array("event", "code", "html_code"), (int)$handler_id, "handler");
+	$cols = $this->_getCol(Array("event", "code", "html_code"));
+    	$arr_months = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_handler_history{$comp} WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 2592000) LIMIT 0,30");
+	$lastMonth = array_shift($arr_months);
+    	$arr_weeks = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_handler_history{$comp} WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 604800) LIMIT 0,30");
+	$lastWeek = array_shift($arr_weeks);
+    	$arr_days = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_handler_history{$comp} WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastWeek['change_time'], "0")." ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 86400) LIMIT 0,30");
+	$lastDay = array_shift($arr_days);
+    	$arr_times = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_handler_history{$comp} WHERE fk_original_id=".(int)$handler_id." AND (fk_module_id>0 OR NOT ISNULL(event) OR NOT ISNULL(code) OR NOT ISNULL(html_code)) AND change_time > ".if_set($lastDay['change_time'], "0")." ORDER BY change_time DESC) AS x  GROUP BY FLOOR(change_time / 1800) LIMIT 0,30");
         return array_merge($arr_times, $arr_days, $arr_weeks, $arr_months);
     }
     function insertDataHistory($module_id, $arr_old, $arr_new)
@@ -334,13 +356,16 @@ class BuilderData extends Database
     }
     function listDataHistory($data_id)
     {
-		$arr_months = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) GROUP BY FLOOR(change_time / 2592000) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+	$comp = $this->_getCompletion(Array("name", "code"), (int)$data_id, "data");
+	$cols = $this->_getCol(Array("name", "code"));
+
+		$arr_months = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_data_history{$comp} WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 2592000) LIMIT 0,30");
 		$lastMonth = $arr_months[0];
-		$arr_weeks = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." GROUP BY FLOOR(change_time / 604800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_weeks = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_data_history{$comp} WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 604800) LIMIT 0,30");
 		$lastWeek = $arr_weeks[0];
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))  AND change_time > ".if_set($lastWeek['change_time'], "0")." GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_data_history{$comp} WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))  AND change_time > ".if_set($lastWeek['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 86400) LIMIT 0,30");
 		$lastDay = $arr_days[0];
-		$arr_times = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_data_history WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))  AND change_time > ".if_set($lastDay['change_time'], "0")." GROUP BY FLOOR(change_time / 1800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_times = $this->SqlQuery("SELECT *{$cols} FROM (SELECT * FROM tbl_prailsbase_data_history{$comp} WHERE fk_original_id=".(int)$data_id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))  AND change_time > ".if_set($lastDay['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 1800) LIMIT 0,30");
         return array_merge($arr_times, $arr_days, $arr_weeks, $arr_months);
     }
     function insertLibraryHistory($module_id, $arr_old, $arr_new)
@@ -349,13 +374,16 @@ class BuilderData extends Database
     }
     function listLibraryHistory($id)
     {
-		$arr_months = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_library_history WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) GROUP BY FLOOR(change_time / 2592000) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+	$comp = $this->_getCompletion(Array("name", "code"), (int)$id, "library");
+	$cols = $this->_getCol(Array("name", "code"));
+
+		$arr_months = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_library_history$comp WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 2592000) LIMIT 0,30");
 		$lastMonth = $arr_months[0];
-		$arr_weeks = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_library_history WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." GROUP BY FLOOR(change_time / 604800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_weeks = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_library_history$comp WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastMonth['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 604800) LIMIT 0,30");
 		$lastWeek = $arr_weeks[0];
-		$arr_days = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_library_history WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))AND change_time > ".if_set($lastWeek['change_time'], "0")." GROUP BY FLOOR(change_time / 86400) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_days = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_library_history$comp WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code))AND change_time > ".if_set($lastWeek['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 86400) LIMIT 0,30");
 		$lastDay = $arr_days[0];
-		$arr_times = $this->SqlQuery("SELECT * FROM (SELECT * FROM tbl_prailsbase_library_history WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastDay['change_time'], "0")." GROUP BY FLOOR(change_time / 1800) ORDER BY change_time DESC LIMIT 0,30) AS x ORDER BY x.change_time ASC");
+		$arr_times = $this->SqlQuery("SELECT *$cols FROM (SELECT * FROM tbl_prailsbase_library_history$comp WHERE fk_original_id=".(int)$id." AND (fk_module_id>0 OR NOT ISNULL(name) OR NOT ISNULL(code)) AND change_time > ".if_set($lastDay['change_time'], "0")." ORDER BY change_time DESC) AS x GROUP BY FLOOR(change_time / 1800) LIMIT 0,30");
         return array_merge($arr_times, $arr_days, $arr_weeks, $arr_months);
     }
     function insertConfigurationHistory($module_id, $arr_old, $arr_new)
@@ -610,3 +638,4 @@ class BuilderData extends Database
 }
 
 ?>
+

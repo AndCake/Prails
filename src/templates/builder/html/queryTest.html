@@ -73,7 +73,7 @@
 						}
 					}
 					var store = new Ext.data.JsonStore({
-						url: "?event=builder:queryTest&check=2&total="+data['total']+"&q="+Base64.encode(data["query"]),
+						url: "?event=builder:queryTest&check=2&total="+data['total']+"&q="+encodeURIComponent(Base64.encode(data["query"])),
 						autoDestroy: true,
 						storeId: "queryStore",
 						root: "result",
