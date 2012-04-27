@@ -127,11 +127,10 @@ class LangData
 				  } catch(Exception $ex) {};				  
 			}
 			$str_lang = $arr_result["abbreviation"];
-			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
 			$this->language_id = $arr_result["language_id"];
-			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
+//			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
+//			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
 			setcookie("defaultLang", $this->language_id);
-			if (!$_SESSION["LangData_LANGUAGE_SETTING"][$str_lang]) $_SESSION["LangData_LANGUAGE_SETTING"][$str_lang] = Array();
 		}
 	}
 
