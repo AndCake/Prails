@@ -70,9 +70,9 @@ if (file_exists($__cacheName)) {
 	}
 }
 
-if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
-	$_SESSION["REQUEST_TIME"] = time();
-}
+//if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
+//	$_SESSION["REQUEST_TIME"] = time();
+//}
 
 if (IS_SETUP) {
 	HookCore::init();
