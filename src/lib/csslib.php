@@ -148,8 +148,8 @@ class CSSLib {
 					preg_match('@templates/([^/0-9]+)([0-9]*).*/images/([^)]+)$@', $match, $pats);
 					if (strlen($pats[1]) > 0 && ($pats[1] != "builder" && $pats[1] != "main")) {
 						$file = @array_pop($this->obj_sql->SqlQuery("SELECT a.* FROM tbl_prailsbase_resource AS a, tbl_prailsbase_module AS b WHERE a.name='".$pats[3]."' AND LOWER(b.name)='".$pats[1]."' AND b.module_id=a.fk_module_id"));
-						// apply inline-images just for smaller images (each less than 128kB in Base64)
-						if ($file && strlen($file["data"]) <= 2048) {
+						// apply inline-images just for smaller images (each less than 32kB in Base64)
+						if ($file && strlen($file["data"]) <= 19660) {
 							$id = md5($pat[1].$pat[2].$file["resource_id"]);
 							$headerArea .= "--_ANY_SEPARATOR\r\n";
 							$headerArea .= "Content-Location:".$id."\r\n";
