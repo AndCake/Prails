@@ -5,7 +5,7 @@ if (strlen($_GET["cmd"]) > 0) {
 	file_put_contents("../../cache/debugger.do", $_GET["cmd"]);
 }
 
-$json = json_decode(file_get_contents("../../cache/debugger.state"), true);
+$json = json_decode(@file_get_contents("../../cache/debugger.state"), true);
 $do = file_get_contents("../../cache/debugger.do");
 if (!$json || strpos($json["file"], "/tools.php") !== false || ($do == "run" || $do == "")) {
 	?>
@@ -55,7 +55,24 @@ foreach ($lines as $i=>$line) {
 		} 
 	} else { $lookFor = false; }
 }
-echo "<div style='float: right; height:99%;max-height:99%;overflow: auto;width: 49%;'><b>Variables:</b><br/><table border='1' cellspacing='0' style='border-color: #ccc;' cellpadding='5'>";
+?>
+<style type="text/css">
+	.line-number { 
+		width: 30px;
+		display: inline-block;
+		text-align: right;
+		background-color: #EFEFEF;
+		padding-left: 2px;
+		padding-right: 5px;
+		color: #666;
+	}
+	#selected .line-number {
+		color: red;
+		background-color: #ffc;
+	}
+</style>
+<div style='float: right; height:99%;max-height:99%;overflow: auto;width: 49%;'><b>Variables:</b><br/><table border='1' cellspacing='0' style='border-color: #ccc;' cellpadding='5'>
+<?
 if (is_array($json["variables"])) {
 	foreach ($json["variables"] as $key => $val) {
 		echo "<tr><td valign='top'>".$key."</td><td valign='top'><pre>";
@@ -70,9 +87,9 @@ for ($i = $start; $i < $end; $i++) {
 	$lines[$i] = preg_replace('/(\s*)\$this->_callPrinter\s*\("[^"]+"\s*,\s*(.*)\)/i', '\1out(\2)', $lines[$i]);
 	$lines[$i] = preg_replace('/(\s*)\$this->obj_data->/i', '\1$data->', $lines[$i]);
 	if ($i == $json["line"]-1) {
-		echo "<span id='selected' style='color:red;background-color: #ffc;'>".sprintf("%03s", $i - $start + 1).": ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."</span>";
+		echo "<span id='selected' style='color:red;background-color: #ffc;'><span class='line-number'>".($i - $start + 1)."</span>".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."</span>";
 	} else {
-		echo sprintf("%03s", $i - $start + 1).": ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."";
+		echo "<span class='line-number'>".($i - $start + 1)."</span> ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."";
 	}
 }
 echo "</div></div>\n";

@@ -32,6 +32,10 @@
     }
 	
 	function error_alert() {
+		if (!ENV_PRODUCTION && file_exists(dirname(__FILE__)."/cache/debugger.do") && strpos($_SERVER["REQUEST_URI"], "event=builder:") === false) {
+			@unlink(dirname(__FILE__)."/cache/debugger.do");
+			@unlink(dirname(__FILE__)."/cache/debugger.state");
+		}
 		if (is_null($e = error_get_last()) === false) {
 			if (in_array($e["type"], Array(1, 2, 4, 16, 32, 64, 128))) {
 				$arr_errors = Array(1 => "Fatal Runtime Error", 2=>"Runtime Warning", 4 =>"Parse Error", 16 =>"Fatal Core Error during PHP startup", 32=>"Core Warning during PHP startup", 64=>"Fatal Compile-time Error", 128 => "Compile-time Warning");
