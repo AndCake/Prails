@@ -70,6 +70,43 @@ foreach ($lines as $i=>$line) {
 		color: red;
 		background-color: #ffc;
 	}
+	@font-face {
+	    font-family: 'MesloLGMDZRegular';
+	    src: url('../../templates/builder/css/meslolgm-dz-regular-webfont.eot');
+	    src: url('../../templates/builder/css/meslolgm-dz-regular-webfont.eot?#iefix') format('embedded-opentype'),
+	         url('../../templates/builder/css/meslolgm-dz-regular-webfont.woff') format('woff'),
+	         url('../../templates/builder/css/meslolgm-dz-regular-webfont.ttf') format('truetype'),
+	         url('../../templates/builder/css/meslolgm-dz-regular-webfont.svg#MesloLGMDZRegular') format('svg');
+	    font-weight: normal;
+	    font-style: normal;
+	}
+
+	pre {
+		font-family: MesloLGMDZRegular, monospace;
+		font-size: 11px;	
+	}
+	div table {
+		border: 0px;
+		border-color: #CCC;
+		border-collapse: collapse;
+	}
+	div table tr td pre {
+		max-height: 1.25em;
+		overflow: hidden;
+	}
+	div table tr td:first-child {
+		padding-left: 18px;
+		background: transparent url(../../templates/builder/images/icon_maximize.gif) 2px 5px no-repeat;
+		cursor: pointer;
+		font-size: 11px;
+	}
+	div table tr.open td:first-child {
+		background-image: url(../../templates/builder/images/icon_minimize.gif);
+	}
+	div table tr.open td pre {
+		max-height: inherit;
+		overflow: inherit;
+	}
 </style>
 <div style='float: right; height:99%;max-height:99%;overflow: auto;width: 49%;'><b>Variables:</b><br/><table border='1' cellspacing='0' style='border-color: #ccc;' cellpadding='5'>
 <?
@@ -83,11 +120,11 @@ if (is_array($json["variables"])) {
 echo "</table></div>";
 echo "<div style='float:left;width: 49%;height:99%;'><b>".$json["class"]." </b><br/><div style='border: 1px solid #ccc;height:100%;overflow: auto;white-space:nowrap;'>\n";
 for ($i = $start; $i < $end; $i++) {
-	$lines[$i] = str_replace(Array("Debugger::breakpoint();", "Debugger::wait(get_defined_vars());", "Debugger::wait();"), "", $lines[$i]);
+	$lines[$i] = str_replace(Array("Debugger::breakpoint();", "Debugger::wait(get_defined_vars());", "Debugger::wait();", "/*[END ACTUAL]*/"), "", $lines[$i]);
 	$lines[$i] = preg_replace('/(\s*)\$this->_callPrinter\s*\("[^"]+"\s*,\s*(.*)\)/i', '\1out(\2)', $lines[$i]);
 	$lines[$i] = preg_replace('/(\s*)\$this->obj_data->/i', '\1$data->', $lines[$i]);
-	if ($i == $json["line"]-1) {
-		echo "<span id='selected' style='color:red;background-color: #ffc;'><span class='line-number'>".($i - $start + 1)."</span>".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."</span>";
+	if ($i == $json["line"] - 1) {
+		echo "<span id='selected' style='color:red;background-color: #ffc;'><span class='line-number'>".($i - $start + 1)."</span> ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."</span>";
 	} else {
 		echo "<span class='line-number'>".($i - $start + 1)."</span> ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."";
 	}
@@ -100,9 +137,22 @@ echo "</div></div>\n";
 //<![CDATA[
 	setTimeout(function() {
 		var sel = document.getElementById("selected");
-		sel.parentNode.scrollTop = sel.offsetTop - 60;
+		if (sel) {
+			sel.parentNode.scrollTop = sel.offsetTop - 60;
+		}
+		var tds = document.getElementsByTagName("td");
+		for (var i = 0, len = tds.length; i < len; i++) {
+			tds[i].onclick = function() {
+				if (this.parentNode.className.indexOf("open") >= 0) {
+					this.parentNode.className = "";
+				} else {
+					this.parentNode.className = "open";
+				}
+			};
+		}
 	}, 10);
 	opener && opener.focus();
 	self && self.focus();
 //]]>
 </script>
+
