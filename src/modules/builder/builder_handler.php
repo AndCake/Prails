@@ -149,20 +149,26 @@ class BuilderHandler
 		if (!function_exists("makeDebuggable")) {
 			function makeDebuggable($code, $addBreakpoint = false) {
 				if (ENV_PRODUCTION === true) return $code;
-	      		if ($addBreakpoint) {
+	      			if ($addBreakpoint) {
 					$debugStart = "Debugger::breakpoint();";
-	      		} else {
-	             	$debugStart = "Debugger::wait();";
-	            }
+	      			} else {
+	             			$debugStart = "Debugger::wait();";
+	            		}
 	
-	            $lines = explode("\n", $code);
-	            foreach ($lines as $i=>$line) {
-	            	if (preg_match("/(\{$)|(;$)/i", $line) && (preg_match("/(^|\s+)switch\s*\(/i", $line) ||
-	            			(preg_match("/^\s*\{/i", $line) && preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
-							$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
-	            	}
-	            }
-	            return $debugStart.implode("\n", $lines);			
+	            		$lines = explode("\n", $code);
+				foreach ($lines as $i=>$line) {
+	            			if (preg_match("/(\\{\\s*\$)|(;\\s*\$)/i", $line) && (!preg_match("/(^|\\s+)switch\\s*\\(/i", $line) ||
+	            			    (preg_match("/^\\s*\\{/i", $line) && !preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
+						$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
+	            			}
+	            		}
+				$code = implode("\n", $lines);
+				if (strpos($code, "/*[ACTUAL]*/") !== false) {
+					$code = str_replace("/*[ACTUAL]*/", "/*[ACTUAL]*/".$debugStart, $code);
+					$last = strrpos($code, "/*[END POST-");
+					$code = substr($code, 0, $last) . preg_replace('/\/\*\[END POST-(\w+)\]\*\//', '\0'.$debugStart, substr($code, $last));
+				} else $code = $debugStart . $code;
+	            		return $code;
 			}
 		}
 		

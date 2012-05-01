@@ -6,9 +6,9 @@
 
 	"name": "<? if (is_array($name)) foreach ($name as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=($line)?><? } else if (strlen($entry["i"])>0) {?><?=($entry["i"])?><?}} else { echo ($entry); }} ?>",
 
-	"js": "<? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line))."\\n"?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"]))."\\n"?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry))."\\n"; }} ?>",
+	"js": "<? if (is_array($js)) foreach ($js as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line, ENT_NOQUOTES))."\\n"?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"], ENT_NOQUOTES))."\\n"?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry, ENT_NOQUOTES))."\\n"; }} ?>",
 	
-	"less": "<? if (is_array($less)) foreach ($less as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line))."\\n"?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"]))."\\n"?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry))."\\n"; }} ?>"
+	"less": "<? if (is_array($less)) foreach ($less as $entry) { if (is_array($entry)) { if(is_array($entry["i"])) foreach ($entry["i"] as $line) { ?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($line, ENT_NOQUOTES))."\\n"?><? } else if (strlen($entry["i"])>0) {?><?=str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry["i"], ENT_NOQUOTES))."\\n"?><?}} else { echo str_replace(Array('"', "\n"), Array('\\"', "\\n"), htmlspecialchars($entry, ENT_NOQUOTES))."\\n"; }} ?>"
 },
 <? } ?>
 {
