@@ -155,7 +155,11 @@ class LangData
 	      	"  identifier='".$str_item."'"
 	      	);
 	      	if ($res != null) $arr_result = @array_pop($res);
-	      	if (!$arr_result) $arr_result["content"] = "{".$str_item."}";
+	      	if (!$arr_result) {
+			if (!ENV_PRODUCTION) {
+				$arr_result["content"] = "{".$str_item."}";
+			} else $arr_result["content"] = "";
+		}
 	      	$arr_result["content"] = stripslashes(preg_replace('/^(.*)(<br>|<br\/>)$/i', '$1', $arr_result["content"]));
 	      	if (strlen($arr_result["content"]) < 1024) {
 	      		$this->arr_item_cache[$str_item] = $arr_result["content"];
