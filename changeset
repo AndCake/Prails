@@ -1,3 +1,26 @@
+V1.4.1 (May 2nd, 2012)
+
+ * increased usability of debugger's variable view
+ * fixed end-of-execution detection for debugger
+ * updated line number display for debugger
+ * fixed debugger, made the shown code more compliant to what the developer created and added support for endpoints
+ * made sure that on production system unfilled content assets wont be displayed (will have empty content)
+ * fixed a bug with builder_data producing 'headers already sent' warning
+ * increased maximum image size for embedding into CSS to 19kb
+ * made sure that the lang_data is largely independent of session data
+ * removed request time from session variable so that there is no need to create new sessions on and on
+ * fixed another bug with database query tester (needed some more escaping)
+ * added graphical onload effect for IDE
+ * fixed history data retrieval for elements that allow to go back in history
+ * updated history information shown to be more accurately and helpfully representing the latest changes
+ * updated API link on builder's home page to link to the documentation page on prails.org
+ * fixed a bug history display: line endings were missing and quotes were escaped
+ * fixed a problem with query tester, where once sorted, you always were forced to newly sort to see the results of other tables
+ * finally implemented searching in query tester by using the search UI there
+ * updated documentation for if and else tags to reflect the else condition part
+ * replaced @<variable-scope>.<variable-name> with #!<varaible-scope>.<variable-name> (fixes bug #4)
+
+
 V1.4.0 (April 16th, 2012)
 
  * fixed a bug with custom attributes on content assets not being correctly stored

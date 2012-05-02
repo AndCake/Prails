@@ -26,7 +26,7 @@
  * the configuration, you can enter separate configuration data for development and production
  * instances.
  **/
-define ("FRAMEWORK_VERSION", "1.4.0");
+define ("FRAMEWORK_VERSION", "1.4.1");
 define ("PROJECT_LOG", "log/framework_");
 
 $SERVER = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
