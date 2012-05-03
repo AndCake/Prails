@@ -28,4 +28,3 @@
 <? if ($_POST["h_scaffold"]["list"] && $_POST["d_scaffold"]["list"]) { ?>
 <a href="<?=getUrl($mod.'/list'.$title)?>">back</a>
 <? } ?>
-

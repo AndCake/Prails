@@ -155,4 +155,3 @@ echo "</div></div>\n";
 	self && self.focus();
 //]]>
 </script>
-
