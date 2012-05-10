@@ -85,6 +85,23 @@ class Database extends TblClass {
 	function query($query) {
 		return $this->SqlQuery($query);
 	}
+
+	/**
+	 * escape($value) -> String
+	 * - $value (String) - the string to be escaped
+	 * 
+	 * This function will escape the value given, so that it is safe to place it in a query or condition. 
+	 * It does so depending on the underlying database in use.
+	 * 
+	 * *Example:* 
+	 * 
+	 * For a MySQL database this example will output: `Escaped string: Zak''s Laptop`
+	 * {{{
+	 * $item = "Zak's Laptop";
+	 * $escaped_item = $this->escape($item);
+	 * printf("Escaped string: %s\n", $escaped_item);
+	 * }}}
+	 **/
 	 
 	/**
          * get($table[, $filter[, $sort[, $start[, $limit]]]]) -> Array

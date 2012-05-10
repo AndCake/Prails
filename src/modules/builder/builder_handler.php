@@ -139,7 +139,7 @@ class BuilderHandler
         if (!$_SESSION["builder"]["user_code"]) {
             $_SESSION["builder"]["user_code"] = md5(rand());
         }
-
+        
         return $this->_callPrinter("home", $arr_param);
     }
 
@@ -525,7 +525,11 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectModule($_GET["module_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
-        }
+        } else if ($_GET["check"] == "tag") {
+		    setcookie("builder-lastVersionTag", $_POST['tag']['name'], time() + 30 * 60 * 60 * 24, "/");
+		    $this->obj_data->setVersionTag("module", $_GET["module_id"], $_POST["tag"]["name"]);
+		    die("success");
+		}
 
         if ($_GET["module_id"] < 0)
         {
@@ -548,6 +552,7 @@ class BuilderHandler
         {
             $arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
             $arr_param["module"]["header_info"] = @unserialize($arr_param["module"]["header_info"]);
+	        $arr_param['lastVersion'] = $this->obj_data->selectLatestVersion("module", $_GET["module_id"]);
         }
         
         if ($_GET["refresh"]) {
@@ -681,7 +686,11 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectHandler($_GET["handler_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
-        }
+        } else if ($_GET["check"] == "tag") {
+		    setcookie("builder-lastVersionTag", $_POST['tag']['name'], time() + 30 * 60 * 60 * 24, "/");
+		    $this->obj_data->setVersionTag("handler", $_GET["handler_id"], $_POST["tag"]["name"]);
+		    die("success");
+		}
 
         $arr_param["configurations"] = Array();
         if ($_GET["handler_id"] < 0 && $_GET["module_id"] < 0)
@@ -707,7 +716,8 @@ class BuilderHandler
             	if (!in_array($config["name"], $arr_param['configurations'])) {
             		array_push($arr_param['configurations'], $config["name"]);
             	}
-            }            
+            }
+	        $arr_param['lastVersion'] = $this->obj_data->selectLatestVersion("handler", $_GET["handler_id"]);                    
         }
         
         if ($_GET["handler_id"] <= 0 && $_GET["module_id"] > 0) {
@@ -842,9 +852,14 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectData($_GET["data_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
-        }
+        } else if ($_GET["check"] == "tag") {
+		    setcookie("builder-lastVersionTag", $_POST['tag']['name'], time() + 30 * 60 * 60 * 24, "/");
+		    $this->obj_data->setVersionTag("data", $_GET["data_id"], $_POST["tag"]["name"]);
+		    die("success");
+		}
 
         $arr_param["data"] = $this->obj_data->selectData($_GET["data_id"]);
+        $arr_param['lastVersion'] = $this->obj_data->selectLatestVersion("data", $_GET["data_id"]);
         
         if ($_GET["refresh"]) {
         	die(json_encode(Array("code"=>$arr_param["data"][$_GET["refresh"]])));
@@ -955,7 +970,11 @@ class BuilderHandler
             $arr_data["newDB"] = $this->obj_data->selectLibrary($_GET["library_id"]);
             echo $arr_data["newDB"][$_GET["type"]]."\n6c7f3ed76b9e883ec951f60dedb25491\n";
             die ($this->_mergeContent($arr_data["oldDB"], $arr_data["newDB"][$_GET["type"]], $arr_data["newUser"]));
-        } else if ($_GET["select"]) {
+        } else if ($_GET["check"] == "tag") {
+		    setcookie("builder-lastVersionTag", $_POST['tag']['name'], time() + 30 * 60 * 60 * 24, "/");
+		    $this->obj_data->setVersionTag("library", $_GET["library_id"], $_POST["tag"]["name"]);
+		    die("success");
+		} else if ($_GET["select"]) {
         	$arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
         	if (file_exists("lib/custom/".$arr_param['library']['name']."/".$_GET['select'])) {
         		highlight_file("lib/custom/".$arr_param['library']['name']."/".$_GET['select']);
@@ -1021,6 +1040,7 @@ class BuilderHandler
         }
 
         $arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
+        $arr_param['lastVersion'] = $this->obj_data->selectLatestVersion("library", $_GET["module_id"]);        
 
         if ($_GET["refresh"]) {
         	die(json_encode(Array("code"=>$arr_param["library"][$_GET["refresh"]])));
@@ -1818,11 +1838,9 @@ class BuilderHandler
 	function import($content = null, $dataRestore = null) {
 		if ($_FILES["file"]) {
 			$fp = fopen($_FILES["file"]["tmp_name"], "r");
-//			$content = file_get_contents($_FILES["file"]["tmp_name"]);
 		} else {
 			if ($content == null || is_array($content)) {
 				$fp = fopen("php://input", "r");
-//				$content = file_get_contents("php://input");
 			} else {
 				$fp = fopen($content, "r");
 			}
@@ -1862,19 +1880,6 @@ class BuilderHandler
 					continue;
 				}
 				
-/*			}
-//			foreach ($sections as $section) {
-				if ($section[0] !== "I") {
-					$data = unserialize(gzuncompress(substr($section, 1)));
-				} else {
-					$fileMagic = substr($section, 1, strpos($section, "\n"));					
-					$files = explode($fileMagic, $section);
-					for ($i = 1; $i < count($files); $i++) {
-						$fpos = strpos($files[$i], "\n");
-						$name = substr($files[$i], 0, $fpos);
-						file_put_contents("static/images/".$name, substr($files[$i], $fpos + 1));
-					}
-				}*/
 				if ($section[0] == "A") { // import database contents
 					// ignore DB contents explicitly on production so that nothing will be imported accidentally
 					if (ENV_PRODUCTION === true && !$dataRestore) continue;
@@ -2000,8 +2005,11 @@ class BuilderHandler
 						}
 						if (is_array($mod["configs"])) {
 							$this->obj_data->clearConfiguration($id, 0);
+							$confs = Array();
 							foreach ($mod["configs"] as $config) {
 								$config = $config->getArrayCopy();
+								if ($confs[$config["name"]]) continue;
+								$confs[$config["name"]] = true;
 								$config["fk_module_id"] = $modId;
 								unset($config["configuration_id"]);
 								$this->obj_data->insertConfiguration($config);
@@ -2009,8 +2017,11 @@ class BuilderHandler
 						}	
 						if (is_array($mod["configsDevel"])) {					
 							$this->obj_data->clearConfiguration($id, 1);
+							$confs = Array();
 							foreach ($mod["configsDevel"] as $config) {
 								$config = $config->getArrayCopy();
+								if ($confs[$config["name"]]) continue;
+								$confs[$config["name"]] = true;
 								$config["fk_module_id"] = $modId;
 								unset($config["configuration_id"]);
 								$this->obj_data->insertConfiguration($config);
@@ -2018,8 +2029,11 @@ class BuilderHandler
 						}
 						if (is_array($mod["configsProd"])) {
 							$this->obj_data->clearConfiguration($id, 2);
+							$confs = Array();
 							foreach ($mod["configsProd"] as $config) {
 								$config = $config->getArrayCopy();
+								if ($confs[$config["name"]]) continue;
+								$confs[$config["name"]] = true;
 								$config["fk_module_id"] = $modId;
 								unset($config["configuration_id"]);
 								$this->obj_data->insertConfiguration($config);
@@ -2449,7 +2463,10 @@ class BuilderHandler
 		}
 		usort($arr_param["files"], create_function('$a,$b', 'if($a["type"] == "dir" && $b["type"] == "file")return -1;else if ($b["type"] == "dir" && $a["type"] == "file")return 1; return strcmp($a["name"],$b["name"]);'));
 		closedir($dp);
-		
+
+        global $BUILDER_CLASS;
+        $BUILDER_CLASS = "x-viewport";
+
 		return $this->_callPrinter("fileBrowser", $arr_param);
 	}
 	

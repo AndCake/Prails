@@ -115,6 +115,7 @@ $arr_database = Array
 		"style_code"=>"LONGTEXT",					// should store only the difference between previous and new state
 		"js_code"=>"LONGTEXT",						// should store only the difference between previous and new state
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),
 	"library_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_library",		// original module id
@@ -123,6 +124,7 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"code"=>"LONGTEXT",					// should store only the difference between previous and new state
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),
 	"handler_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_handler",
@@ -131,6 +133,7 @@ $arr_database = Array
 		"code"=>"TEXT",
 		"html_code"=>"TEXT",
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),
 	"configuration_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_configuration",
@@ -139,6 +142,7 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"value"=>"VARCHAR(255)",
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),
 	"data_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_data",
@@ -146,6 +150,7 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"code"=>"TEXT",
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),	
 	"tag_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_tag",
@@ -153,6 +158,7 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"html_code"=>"TEXT",
 		"change_time"=>"BIGINT",
+		"tag" => "VARCHAR(255)",
 	),	
 	"table_history"=>Array(
 		"fk_original_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_table",
@@ -160,6 +166,7 @@ $arr_database = Array
 		"name"=>"VARCHAR(255)",
 		"field_names"=>"VARCHAR(1024)",
 		"field_types"=>"VARCHAR(1024)",
+		"tag" => "VARCHAR(255)",
 	),
 	
 	// session table

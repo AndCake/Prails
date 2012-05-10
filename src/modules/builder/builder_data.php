@@ -294,7 +294,7 @@ class BuilderData extends Database
         {
             $arr_result["fk_original_id"] = $id;
             $arr_result["change_time"] = time();
-            $this->InsertQuery($str_tbl, $arr_result);
+            return $this->InsertQuery($str_tbl, $arr_result);
         }
     }
 
@@ -397,6 +397,32 @@ class BuilderData extends Database
     function insertTableHistory($module_id, $arr_old, $arr_new)
     {
         $this->insertHistory("tbl_prailsbase_table_history", $module_id, $arr_old, $arr_new);
+    }
+
+    function setVersionTag($type, $id, $tagName, $version = 0) {
+		if ($version == 0) {
+            $last = $this->selectLatestVersion($type, $id);
+	    	$this->update("tbl_prailsbase_".$type."_history", Array("tag" => ""), "fk_original_id=".$id." AND tag='".$this->escape($tagName)."'");
+            if ($last["fk_original_id"] > 0) {
+                $version = $last[$type."_history_id"];
+            } else {
+				$arr_item = $this->getItem("tbl_prailsbase_".$type, $id);
+        	    $version = $this->insertHistory("tbl_prailsbase_".$type."_history", $id, Array(), $arr_item);
+            }
+		}
+        $this->update("tbl_prailsbase_".$type."_history", Array("tag" => $tagName), $type."_id=".$version);
+    }
+    
+    function selectLatestVersion($type, $id) {
+    	return @array_pop($this->select("tbl_prailsbase_".$type."_history", "fk_original_id=".$id, "change_time DESC", 0, 1));
+    }
+    
+    function selectTagOrLatestVersion($type, $id, $tagName) {
+    	$arr_history = @array_pop($this->select("tbl_prailsbase_".$type."_history", "tag='".$this->escape($tagName)."' AND fk_original_id=".$id, "change_time DESC", 0, 1));
+    	if (!$arr_history) {
+ 			$arr_history = $this->selectLatestVersion($type, $id);
+    	}
+    	return $arr_history;
     }
 
     function listResources($module_id)

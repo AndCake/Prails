@@ -123,6 +123,65 @@
 						}
 					}	
 				}
+			}, "-", {
+				xtype: "button",
+				id: "library.#library.library_id_versionTag.button",
+				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;#lastVersion.tag&gt;' : 'Tag version'%>",
+				iconCls: "bookmark",
+				disabled: (<?=(int)$arr_param["library"]["library_id"]?> <= 0 || !empty($arr_param['lastVersion']['tag']) ? true : false),
+				handler: function(e) {
+					var tagForm = null;
+					var tagWin=new Ext.Window({
+						layout: "fit",
+                        title: "Tag this version",
+                        iconCls: "bookmark",
+                        modal: true,
+                        shadow: true,
+                        width: 300,
+                        height: 200,
+                        plain: true,
+                        items: [tagForm=new Ext.form.FormPanel({
+                        	url: "?event=builder:editLibrary&library_id=<?=(int)$arr_param['library']['library_id']?>&check=tag",
+                            labelWidth: 100,
+                            border: false,
+                            hideBorders: true,
+                            headerAsText: true,
+                            bodyStyle: "padding-left:5px;padding-top:5px;",
+                            padding: 10,
+                            title: "Please enter the version tag's name:",
+                            defaultType: "textfield",
+                            monitorValid: true,
+                            items: [{
+                            	fieldLabel: "Name",
+                                name: "tag[name]",
+                                value: Cookie.read("builder-lastVersionTag") || "",
+                                allowBlank: false
+                            }],
+                            buttons: [{
+                            	text: "Save",
+                                formBind: true,
+                                handler: function() {
+                                    tagForm.getForm().submit({
+                                      	method: "POST",
+                                      	success: function() {
+                                    		Ext.getCmp("library.#library.library_id_versionTag.button").setText("&lt;"+tagForm.getForm().getEl().down("input").value+"&gt;");
+                                    		Ext.getCmp("library.#library.library_id_versionTag.button").setDisabled(true);
+                                      		tagWin.close();
+									  	},
+                                      	failure: function() {
+                                        	Ext.Msg.alert("Error", "There was an error setting the tag. Please try again later.");
+                                      	}
+                                    });
+		      					}
+                            }, {
+                            	text: "Cancel",
+                                handler: function() {
+                                	tagWin.close();
+                                }
+                            }]
+                        }]
+					});							
+				}
 			}]);
 			Ext.getCmp("portlet_content_l_<?=(int)$arr_param['library']['library_id']?>").getTopToolbar().doLayout();
 		}, 100);

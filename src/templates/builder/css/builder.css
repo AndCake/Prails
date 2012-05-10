@@ -26,40 +26,41 @@ div#qwbuilder_headerPanel .x-panel-body {
 	z-index:20000;
 }
 
-.add, button.add { background-image: url(../images/add.png); }
-.apply { background-image: url(../images/apply.png) !important; }
-.config { background-image: url(../images/settings.png) !important; }
-.delete, button.delete { background-image: url(../images/delete.png); }
-.edit { background-image: url(../images/edit.png) !important; }
-.folder, #qwbuilder_modulePanel .x-tree-node-el .x-tree-node-icon { background-image: url(../images/default/tree/folder.gif); }
-.handler { background-image: url(../images/default/tree/leaf.gif) !important; }
-.handler-hook img.x-tree-node-icon, .x-tab-panel-header span.handler-hook { background-image: url(../images/plugin.png) !important; }
-.HelpTabIcon { background-image: url(../images/help.png) !important; }
-.user { background-image: url(../images/user.png) !important; }
-.users { background-image: url(../images/users.png) !important; }
-.flush { background-image: url(../images/clear.png) !important; }
-.history { background-image: url(../images/history.gif) !important; }
-.library { background-image: url(../images/library.png) !important; }
-.locale { background-image: url(../images/locale.png) !important; }
-.options { background-image: url(../images/editModule.png) !important; }
-.package { background-image: url(../images/package.png) !important; }
-.debug { background-image: url(../images/debug.png) !important; }
-.play {  background-image: url(../images/play.png) !important;  }
-.step {  background-image: url(../images/step.png) !important;  }
-.stop {  background-image: url(../images/stop.png) !important;  }
-.run { background-image: url(../images/run.png) !important; }
-.form { background-image: url(../images/form.png) !important; }
-.resource { background-image: url(../images/resource.png) !important; }
-.save { background-image: url(../images/save.gif) !important; }
-.x-tree-node .query img.x-tree-node-icon, .data { background-image: url(../images/default/grid/columns.gif) !important; } 
-.tagLib { background-image: url(../images/taglib.gif) !important; }
-.table { background-image: url(../images/table.gif) !important; }
-.urls, .handler-url { background-image: url(../images/url.png) !important; }
-.testUnknown { background-image: url(../images/test_unknown.png) !important; }
-.testRunning { background-image: url(../images/test_active.png) !important; }
-.testError { background-image: url(../images/test_fail.png) !important; }
-.testSuccess { background-image: url(../images/test_success.png) !important; }
-.testcase { background-image: url(../images/testcase.png) !important; }
+body .add, button.add { background-image: url(../images/add.png); }
+body .apply { background-image: url(../images/apply.png) !important; }
+body .config { background-image: url(../images/settings.png) !important; }
+body .delete, button.delete { background-image: url(../images/delete.png); }
+body .edit { background-image: url(../images/edit.png) !important; }
+body .folder, #qwbuilder_modulePanel .x-tree-node-el .x-tree-node-icon { background-image: url(../images/default/tree/folder.gif); }
+body .handler { background-image: url(../images/default/tree/leaf.gif) !important; }
+body .handler-hook img.x-tree-node-icon, body .x-tab-panel-header span.handler-hook { background-image: url(../images/plugin.png) !important; }
+body .HelpTabIcon { background-image: url(../images/help.png) !important; }
+body .user { background-image: url(../images/user.png) !important; }
+body .users { background-image: url(../images/users.png) !important; }
+body .flush { background-image: url(../images/clear.png) !important; }
+body .history { background-image: url(../images/history.gif) !important; }
+body .library { background-image: url(../images/library.png) !important; }
+body .locale { background-image: url(../images/locale.png) !important; }
+body .options { background-image: url(../images/editModule.png) !important; }
+body .package { background-image: url(../images/package.png) !important; }
+body .bookmark { background-image: url(../images/bookmark.png) !important; }
+body .debug { background-image: url(../images/debug.png) !important; }
+body .play {  background-image: url(../images/play.png) !important;  }
+body .step {  background-image: url(../images/step.png) !important;  }
+body .stop {  background-image: url(../images/stop.png) !important;  }
+body .run { background-image: url(../images/run.png) !important; }
+body .form { background-image: url(../images/form.png) !important; }
+body .resource { background-image: url(../images/resource.png) !important; }
+body .save { background-image: url(../images/save.gif) !important; }
+body .x-tree-node .query img.x-tree-node-icon, body .data { background-image: url(../images/default/grid/columns.gif) !important; } 
+body .tagLib { background-image: url(../images/taglib.gif) !important; }
+body .table { background-image: url(../images/table.gif) !important; }
+body .urls, .handler-url { background-image: url(../images/url.png) !important; }
+body .testUnknown { background-image: url(../images/test_unknown.png) !important; }
+body .testRunning { background-image: url(../images/test_active.png) !important; }
+body .testError { background-image: url(../images/test_fail.png) !important; }
+body .testSuccess { background-image: url(../images/test_success.png) !important; }
+body .testcase { background-image: url(../images/testcase.png) !important; }
 
 .testLog { padding: 10px; }
 .testLog .success { color: #0a0; }

@@ -64,6 +64,23 @@ $arr_result = Array(
 </pre>
 <br/><br/>
 <br/><br/>
+<div class='method-type'>Method</div><a name='escape' class='method-title'>escape</a><div class='method'><span class='name'>escape</span>(<span class='parameters'>$value</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$value</code> (<span class='type'>String</span>)<span class='divider'> - </span>the string to be escaped</li>
+</ul>
+
+This function will escape the value given, so that it is safe to place it in a query or condition. 
+It does so depending on the underlying database in use.
+<br/><br/>
+<strong>Example:</strong> 
+<br/><br/>
+For a MySQL database this example will output: <code>Escaped string: Zak''s Laptop</code>
+<pre>
+$item = "Zak's Laptop";
+$escaped_item = $this-&gt;escape($item);
+printf("Escaped string: %s\n", $escaped_item);
+</pre>
+<br/><br/>
+<br/><br/>
 <div class='method-type'>Method</div><a name='get' class='method-title'>get</a><div class='method'><span class='name'>get</span>(<span class='parameters'>$table[, $filter[, $sort[, $start[, $limit]]]]</span>) &rarr; <span class='type'>Array</span></div>
 <ul><li class='param'><code>$table</code> (<span class='type'>String</span>)<span class='divider'> - </span>table name (with or without prefix)</li>
 <li class='param'><code>$filter</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>retrieve what? (example: <code>"customer_id=12"</code> or <code>Array("customer_id" => 12)</code>); multiple entries in array will be joined using <code>AND</code></li>
