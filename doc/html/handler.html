@@ -50,7 +50,7 @@ Event handler code - "send" endpoint
 <pre>
 $arr_param["message"] = $_POST['message'];
 $arr_param['topic'] = $_POST['topic'];
-$content = out($arr_param, "", "mail");
+$content = out($arr_param, null, "mail");
 sendMail("service@example.org", "Inquiry", $content, "Example Service", "no-reply@example.org");
 </pre>
 <br/><br/>
@@ -73,7 +73,7 @@ The following variables are always defined in a handler:
 In order to trigger generating the view, the following method exists:
 <div class='method-type'>Method</div><a name='out' class='method-title'>out</a><div class='method'><span class='name'>out</span>(<span class='parameters'>$arr_param[, $decorator[, $template]]</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$arr_param</code> (<span class='type'>Array</span>)<span class='divider'> - </span>the context that should be available to the template being run</li>
-<li class='param'><code>$decorator</code> (<span class='type'>String</span>)<span class='divider'> - </span>the event handler name of the decorator with which the output code should be decorated. This is supposed to be in the colon notation (<code>module:event</code>). Within that decorator the same context will be available as the one given to the output code.</li>
+<li class='param'><code>$decorator</code> (<span class='type'>String</span>)<span class='divider'> - </span>the event handler name of the decorator with which the output code should be decorated. This is supposed to be in the colon notation (<code>module:event</code>). Within that decorator the same context will be available as the one given to the output code. If no decorator should be used, but you still want to provide a template name, you can use <code>""</code> or <code>null</code> as the decorator value.</li>
 <li class='param'><code>$template</code> (<span class='type'>String</span>)<span class='divider'> - </span>an identifier referencing the output code's template name that should be used. You can add new templates by using the "Add Template" button in the Prails IDE.</li>
 </ul>
 

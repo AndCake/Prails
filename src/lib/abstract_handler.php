@@ -64,7 +64,7 @@
  * {{{
  * $arr_param["message"] = $_POST['message'];
  * $arr_param['topic'] = $_POST['topic'];
- * $content = out($arr_param, "", "mail");
+ * $content = out($arr_param, null, "mail");
  * sendMail("service@example.org", "Inquiry", $content, "Example Service", "no-reply@example.org");
  * }}}
  *
@@ -86,7 +86,7 @@
  * In order to trigger generating the view, the following method exists:
  * out($arr_param[, $decorator[, $template]]) -> String
  * - $arr_param (Array) - the context that should be available to the template being run
- * - $decorator (String) - the event handler name of the decorator with which the output code should be decorated. This is supposed to be in the colon notation (`module:event`). Within that decorator the same context will be available as the one given to the output code.
+ * - $decorator (String) - the event handler name of the decorator with which the output code should be decorated. This is supposed to be in the colon notation (`module:event`). Within that decorator the same context will be available as the one given to the output code. If no decorator should be used, but you still want to provide a template name, you can use `""` or `null` as the decorator value.
  * - $template (String) - an identifier referencing the output code's template name that should be used. You can add new templates by using the "Add Template" button in the Prails IDE.
  * 
  **/ 
@@ -106,6 +106,8 @@ class AbstractHandler {
      */
     public function _callPrinter ($str_func, $arr_param, $decorator = "", $template = "")
     {
+		if ($decorator == null) $decorator = "";
+		if ($template == null) $template = "";
         if (method_exists($this->obj_print, $str_func))
         {
             return $this->obj_print->$str_func($arr_param, $decorator, $template);
