@@ -237,35 +237,47 @@ class DBEntry extends DBEntryObject {
          * which is afterwards used to loop over it and print out the comment's contents.
          **/	
 	function get($index, $filter = "", $name = "") {
+		// check if there is a foreign key for the given index
 		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
+			// any filter given?
 			if (is_array($filter)) {
 				$res = "";
+				// build filter query
 				foreach ($filter as $key => $value) {
 					if (strlen($res) > 0) $res .= " AND ";
 					$res .= $key."='".$this->obj_tbl->escape($value)."'";
 				}
 				$filter = $res;
-			}		
+			}
 			$mix = $index.md5($filter);
+			// check if someone asked this already
 			if (parent::offsetGet($mix) == null) {
+				// no, so we need to fetch it from the database
 				parent::offsetSet($mix, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."' AND ".if_set($filter, "1")."")));
+				// and cache it for later used
 				if (strlen($name) > 0) {
 					parent::offsetSet($name, parent::offsetGet($mix));					
 				}
 			}
+			// retrieve that value
 			return parent::offsetGet($mix); 
-		} else if (substr($index, -5) == "_list") {
+		} else if (substr($index, -5) == "_list") {	// no foreign key, but maybe it's a list?
+			// any filter given?
 			if (is_array($filter)) {
 				$res = "";
+				// build filter query
 				foreach ($filter as $key => $value) {
 					if (strlen($res) > 0) $res .= " AND ";
 					$res .= $key."='".$this->obj_tbl->escape($value)."'";
 				}
 				$filter = $res;
-			}		
+			}
+			// extract actual name of interest
 			$collection_name = preg_replace("/_list\$/", "", $index);
 			$mix = $index.md5($filter);
+			// check if someone asked this already
 			if (parent::offsetGet($mix) == null) {
+				// extract the other table's meta data
 				$cols = $this->obj_tbl->obj_mysql->listColumns($this->prefix.$collection_name);
 				$lCols = Array();
 				foreach ($cols as $col) {
@@ -273,53 +285,36 @@ class DBEntry extends DBEntryObject {
 				}
 				$list = parent::keys();
 				$pairs = Array();
+				// and check if our own primary key has a foreign key in the meta data
 				foreach ($list as $entry) {
 					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
 						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
 					}
 				}
+				// use it to extract the tuples in the other table that link to the current entry
 				parent::offsetSet($mix, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").") AND ".if_set($filter, "1").""));
+				// and cache it for later use
 				if (strlen($name) > 0) {
 					parent::offsetSet($name, parent::offsetGet($mix));					
 				}
 			}
+			// retrieve that value
 			return parent::offsetGet($mix); 
-		} else {
+		} else {	// no foreign key and no list
+			// so just return the value
 			return parent::offsetGet($index);
 		}
 	}
 	
+	/**
+	 * alias of `get` - just for convenience access via array syntax
+	 */
 	function offsetGet($index) {
-		if (strlen($id = parent::offsetGet("fk_".$index."_id")) > 0) {
-			if (parent::offsetGet($index) == null) {
-				parent::offsetSet($index, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."'")));
-			}
-			return parent::offsetGet($index); 
-		} else if (substr($index, -5) == "_list") {
-			$collection_name = preg_replace("/_list\$/", "", $index);
-			if (parent::offsetGet($index) == null) {
-				$cols = $this->obj_tbl->obj_mysql->listColumns($this->prefix.$collection_name);
-				$lCols = Array();
-				foreach ($cols as $col) {
-					array_push($lCols, $col["Field"]);
-				}
-				$list = parent::keys();
-				$pairs = Array();
-				foreach ($list as $entry) {
-					if (preg_match("/^([^f]|f[^k]|fk[^_])[a-zA-Z0-9_]*_id\$/", $entry) > 0 && in_array("fk_".$entry, $lCols)) {
-						array_push($pairs, "fk_".$entry."='".parent::offsetGet($entry)."'");
-					}
-				}
-				parent::offsetSet($index, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").")"));
-			}
-			return parent::offsetGet($index); 
-		} else {
-			return parent::offsetGet($index);
-		}
+		return $this->get($index);
 	} 
 
 	/**
-         * save() -> boolean
+	 * save() -> boolean
 	 * 
 	 * saves the current `DBEntry` back into it's original table. If the `DBEntry` contains the result
 	 * of a complex SQL query (one that was joined, unioned or similar), it will return `false` and 
@@ -355,26 +350,34 @@ class DBEntry extends DBEntryObject {
 		$keys = parent::keys();
 		$primaryKeys = 0;
 		$lastPK = "";
+		// find out name and count of primary keys
 		foreach ($keys as $key) {
 			if (preg_match('/^(?!fk_)([a-z_A-Z]+)_id$/', $key, $match)) {
 				$primaryKeys++;
 				$lastPK = $match[1];
 			}
 		}
+		// if there were too many (more than one)
 		if ($primaryKeys > 1) {
+			// we won't save it.
 			$log->warn("Unable to save DBEntry: it was a complex query result.");
 			return false;	// unable to save
 		}
+
 		$table = "tbl_".$lastPK;
 		$pk = $lastPK."_id";
+		// check if the primary key has a valid value
 		if (parent::offsetGet($pk) < 0 || !is_numeric(parent::offsetGet($pk))) {
 			$log->warn("Unable to save DBEntry: invalid primary key value.");
 			return false;
-		} else if (parent::offsetGet($pk) === 0) {
+		} else if (parent::offsetGet($pk) === 0) {	// if that value is 0
 			$arr_data = parent::getArrayCopy();
 			unset($arr_data[$pk]);
-			$this->obj_tbl->InsertQuery($table, $arr_data);
+			// we need to insert a new row
+			$id = $this->obj_tbl->InsertQuery($table, $arr_data);
+			parent::offsetSet($pk, $id);
 		} else {
+			// existing value, so we just run an update
 			$this->obj_tbl->UpdateQuery($table, parent::getArrayCopy(), $pk."=".parent::offsetGet($pk));
 		}
 		return true;
@@ -402,23 +405,30 @@ class DBEntry extends DBEntryObject {
 		$keys = parent::keys();
 		$primaryKeys = 0;
 		$lastPK = "";
+		// find out name and count of primary keys
 		foreach ($keys as $key) {
 			if (preg_match('/^(?!fk_)([a-z_A-Z]+)_id$/', $key, $match)) {
 				$primaryKeys++;
 				$lastPK = $match[1];
 			}
 		}
+		// if there were too many
 		if ($primaryKeys > 1) {
-			$log->warn("Unable to save DBEntry: it was a complex query result.");
-			return false;	// unable to save
+			// we won't remove it.
+			$log->warn("Unable to delete DBEntry: it was a complex query result.");
+			return false;
 		}
 		$table = "tbl_".$lastPK;
 		$pk = $lastPK."_id";
+		// check if the primary key has a valid value
 		if (parent::offsetGet($pk) <= 0 || !is_numeric(parent::offsetGet($pk))) {
 			$log->warn("Unable to delete DBEntry: invalid primary key value.");
 			return false;
 		}
+		// everything ok, so remove it
 		$this->obj_tbl->DeleteQuery($table, $pk."=".parent::offsetGet($pk));
+		// including all cached data
+		parent::unserialize(serialize(Array()));
 		return true;
 	}
 }

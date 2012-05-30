@@ -4,6 +4,7 @@ class SessionManager extends TblClass {
 	var $life_time;
 
 	function SessionManager() {
+		// initialize Database access
 		parent::TblClass("tbl_prailsbase_");
 
 		// Read the maxlifetime setting from PHP
@@ -19,6 +20,7 @@ class SessionManager extends TblClass {
 			array( &$this, "gc" )
 		);
 		
+		// make sure the session cache directory exists
 		if (!is_dir("cache/session/")) {
 			@mkdir("cache/session/", 0755, true);
 		}
@@ -28,11 +30,16 @@ class SessionManager extends TblClass {
 
 	function open( $save_path, $session_name ) {
 		global $sess_save_path;
+		// don't really need to do anything here...
 		$sess_save_path = $save_path;
 		return true;
 	}
 	
+	/** 
+	 * Checks if the session has actually been used (something written to)
+	 */
 	function isActive() {
+		// check if the file system marker exists
 		return file_exists("cache/session/".crc32(session_id()));
 	}
 
@@ -47,19 +54,20 @@ class SessionManager extends TblClass {
 		$data = '';
 		$newid = crc32($id);
 		
+		// if there is no marker for the session
 		if (!file_exists("cache/session/".$newid)) {
-			return $data;
+			return $data;	// there is none, so we return nothing
 		}
 		
 		// Fetch session data from the selected database
 		$time = $_SERVER["REQUEST_TIME"];
 
 		$sql = "SELECT session_data FROM tbl_prailsbase_sessions WHERE sessions_id = '$newid' AND expires > $time";
-
 		$arr_data = $this->SqlQuery($sql);
 
+		// if we found a session
 		if (count($arr_data) > 0) {
-			$data = $arr_data[0]["session_data"];
+			$data = $arr_data[0]["session_data"];	// retrieve it's stored data
 		}
 
 		return $data;
@@ -76,10 +84,11 @@ class SessionManager extends TblClass {
 
 		$newid = crc32($id);
 		$newdata = $this->escape($data);
-
+		
 		$sql = "REPLACE INTO tbl_prailsbase_sessions (sessions_id, session_data, expires) VALUES ('$newid', '".$newdata."', $time)";
 		$this->SqlQuery($sql);
 
+		// make sure we update the file system marker to indicate the time of the last write operation
 		@touch("cache/session/".$newid);
 		
 		return TRUE;
@@ -90,9 +99,10 @@ class SessionManager extends TblClass {
 	 * @param STRING $id session id to be removed
 	 */
 	function destroy( $id ) {
-		// Build query
 		$newid = crc32($id);
+		// remove file system marker
 		@unlink("cache/session/".$newid);
+		// Build query
 		$sql = "DELETE FROM tbl_prailsbase_sessions WHERE sessions_id = '$newid'";
 		$this->SqlQuery($sql);
 
@@ -108,6 +118,7 @@ class SessionManager extends TblClass {
 		$sql = 'DELETE FROM tbl_prailsbase_sessions WHERE expires < UNIX_TIMESTAMP()';
 		$this->SqlQuery($sql);
 		
+		// clean up file system markers
 		$dp = opendir("cache/session/");
 		while (($file = readdir($dp)) !== false) {
 			if ($file[0] != '.' && filemtime("cache/session/".$file) < $expires) {

@@ -242,19 +242,29 @@ sendMail( $customerEmail,
 This example sends an email with one attachment.
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $includeHeaders]</span>) &rarr; <span class='type'>String</span> | <span class='type'>Array</span></div>
+<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $timeout[, &$response]</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to fetch data from</li>
-<li class='param'><code>$includeHeaders</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>if set to <code>true</code>, it will cause the return value to be an array consisting two entries: the headers returned by the server and the content.</li>
+<li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
+<li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
 </ul>
 
-do a server-side get request to another server/site. HTTPS is supported and returns the data fetched from the (other) server.
+Does a server-side GET request to another server/site. HTTPS is supported. The function returns the data fetched from the (other) server.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239");
+</pre>
+This example will print out the received response body from the remote server.
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='doPost' class='method-title'>doPost</a><div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $user, $pass]]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method-type'>Method</div><a name='doPost' class='method-title'>doPost</a><div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to POST to</li>
-<li class='param'><code>$postData</code> (<span class='type'>Array</span>)<span class='divider'> - </span>data to be posted as key-value pairs</li>
-<li class='param'><code>$user</code> (<span class='type'>String</span> | <span class='type'>Boolean</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>false</code>, no authorization header will be sent (default).</li>
-<li class='param'><code>$pass</code> (<span class='type'>String</span> | <span class='type'>Boolean</span>)<span class='divider'> - </span>password to connect with (for basic HTTP authentication). If <code>false</code>, then no authorization header will be sent (default).</li>
+<li class='param'><code>$postData</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>data to be posted. Array as key-value pairs.</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>null</code>, no authorization header will be sent (default).</li>
+<li class='param'><code>$pass</code> (<span class='type'>String</span>)<span class='divider'> - </span>password to connect with (for basic HTTP authentication). If <code>null</code>, then no authorization header will be sent (default).</li>
+<li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
+<li class='param'><code>$headers</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>additional headers to be sent as part of the request. Array as key-value pairs.</li>
+<li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
 </ul>
 
 do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a <code>String</code>.
@@ -267,6 +277,25 @@ $reply = doPost("http://www.example.org/cgi-bin/process.cgi", Array(
             "age"=&gt;"27",
          ));
 </pre>
+This example runs a simple server-side POST request to the example.org server.
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+doPost(
+		"http://www.example.org/cgi-bin/process.cgi?receive=file", 	// URL
+	file_get_contents("testfile.dat"), 							// data to be sent
+		null, 														// no user credentials
+	null, 
+	5, 															// timeout
+	Array(														// additional headers
+			"X-Custom-Header" =&gt; "My-Content"
+		), 
+	$response													// receive response here
+);
+var_dump($response);
+</pre>
+This example shows how to do a more complex POST with custom headers to be sent and a lowered timeout value (only 5 seconds).
+The response is stored into the <code>$response</code> variable and after the successful post, printed out.
 <br/><br/>
 <br/><br/>
 <div class='method-type'>Method</div><a name='invoke' class='method-title'>invoke</a><div class='method'><span class='name'>invoke</span>(<span class='parameters'>$event[, $params]</span>) &rarr; <span class='type'>Mixed</span></div>
