@@ -51,7 +51,7 @@ class Quartz {
 		}
 		$base = dirname($_SERVER["SCRIPT_FILENAME"]);
 		$mail = ">> ".$base."/log/quartz.log 2>&1";
-		$prog = (Quartz::_getFirstAvailable())." '".str_replace("://", "://".$_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"]."@", $SERVER)."?event=".$event."'";
+		$prog = (Quartz::_getFirstAvailable())." '".str_replace("://", "://".$_SERVER["PHP_AUTH_USER"].":".$_SERVER["PHP_AUTH_PW"]."@", $SERVER)."?event=".$event."&prailsjob'";
 		$cron[] = $time["min"]." ".$time["hour"]." ".$time["day"]." ".$time["month"]." ".$time["week"]." ".$prog." ".$mail." # \$id: ".$id;
 		
 		file_put_contents("cache/temp.cron", implode("\n", $cron)."\n");
@@ -160,7 +160,15 @@ if (defined('STDIN')) {
 	// job is to be executed!
 	if ($argc > 1) {
 		preg_match('/[^?]+\?event=(.*)/mi', $argv[1], $match);
-		echo "[".date("Y-m-d H:i:s")."] [".$match[1]."] ".file_get_contents($argv[1])."\n";
+		$opts = array(
+			'http'=>array(
+				'method'  => "GET",
+				'timeout' => 3600
+			)
+		);
+		$context = stream_context_create($opts);
+		$result = file_get_contents($argv[1], NULL, $context);
+		echo "[".date("Y-m-d H:i:s")."] [".$match[1]."] ".$result."\n";
 	} else {
 		echo "[".date("Y-m-d H:i:s")."] ERROR - unable to find job to be executed!\n";
 	}

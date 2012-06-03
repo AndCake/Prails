@@ -70,10 +70,6 @@ if (file_exists($__cacheName)) {
 	}
 }
 
-//if (!isset($_SESSION["last_access"]) || ($_SERVER["REQUEST_TIME"] - $_SESSION["last_access"]) > 60) {
-//	$_SESSION["REQUEST_TIME"] = time();
-//}
-
 if (IS_SETUP) {
 	HookCore::init();
 }
@@ -90,7 +86,7 @@ if ($_GET["event"]) {
 if ($profiler) $profiler->logEvent("page_no_cache_hit#".$_SERVER["REQUEST_URI"]);
 
 $endTime = microtime(true);
-if (ENV_PRODUCTION && $endTime - $startTime > 25 && array_shift(split(":", $_GET["event"])) !== "builder") {
+if (ENV_PRODUCTION && !isset($_GET['prailsjob']) && $endTime - $startTime > 25 && array_shift(split(":", $_GET["event"])) !== "builder") {
 	touch("cache/heavyload");
 }
 ?>
