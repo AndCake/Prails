@@ -119,6 +119,10 @@ function initAjaxLinks() {
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();
 						});
+                                                setTimeout(function() {
+                                                        document.fire("dom:loaded");
+                                                        try { eval(item.onload); } catch(e){};
+                                                }, 10);
 					}
 				} else {
 					var suffix = this.getAttribute("href").split(".").pop();

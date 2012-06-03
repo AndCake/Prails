@@ -1,9 +1,6 @@
 window.Overlabel = {};
 addLoadEvent(Overlabel.init = function() {
-	var convertToOverlabel = function(element, content) {
-		element = $(element);
-		element.wrap("span", {"class": 'withLabel'});
-		element.parentNode.insert({before: label=new Element("label", {"class": 'overlabel-apply'}).update(content).hide()});
+	var attachEvents = function(label, element) {
 		label.observe("click", function() {
 			this.hide();
 			element.focus();
@@ -21,6 +18,16 @@ addLoadEvent(Overlabel.init = function() {
 		$(element).observe("focus", function() {
 			this.up().up().down("label").hide();
 		});
+		if (element == $(document.activeElement)) {
+			label.hide();
+		}
+	};
+	var convertToOverlabel = function(element, content) {
+		element = $(element);
+		element.overlabelled = true;
+		element.wrap("span", {"class": 'withLabel'});
+		element.parentNode.insert({before: label=new Element("label", {"class": 'overlabel-apply'}).update(content).hide()});
+		attachEvents(label, element);
 		if (element.value.length <= 0) {
 			label.show();
 		}
@@ -34,6 +41,10 @@ addLoadEvent(Overlabel.init = function() {
 			if (!$(item).up().hasClassName("withLabel")) {
 				convertToOverlabel(item, item.getAttribute("label"));
 			} else {
+				if (!item.overlabelled) {
+					// re-attach events
+					attachEvents(item.up(".value").down("label.overlabel-apply"), item);
+				}
 				if (item.value && item.value.length > 0) {
 					item.up(".value").down("label.overlabel-apply").hide();
 				}
