@@ -128,7 +128,7 @@
 				id: "library.#library.library_id_versionTag.button",
 				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;#lastVersion.tag&gt;' : 'Tag version'%>",
 				iconCls: "bookmark",
-				disabled: (<?=(int)$arr_param["library"]["library_id"]?> <= 0 || !empty($arr_param['lastVersion']['tag']) ? true : false),
+				disabled: (<?=(int)$arr_param["library"]["library_id"]?> <= 0 || <?=!empty($arr_param['lastVersion']['tag']) ? 'true' : 'false'?> ? true : false),
 				handler: function(e) {
 					var tagForm = null;
 					var tagWin=new Ext.Window({
@@ -179,7 +179,7 @@
                                 	tagWin.close();
                                 }
                             }]
-                        }]
+                        })]
 					});							
 				}
 			}]);
