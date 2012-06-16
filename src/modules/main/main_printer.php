@@ -43,7 +43,6 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/validator.js");
         $obj_gen->addJavaScript("templates/main/js/overlabels.js");
         $obj_gen->addJavaScript("templates/main/js/base64.js");
-        $obj_gen->addJavaScript("templates/main/js/browserdetect.js");
         $obj_gen->addJavaScript("templates/main/js/cookie.js");
         $obj_gen->addJavaScript("templates/main/js/control.date.js");
         $obj_gen->addJavaScript("templates/main/js/jquery.js");

@@ -1,7 +1,7 @@
 var IEHacks = {
     init: function() {
         IEHacks.breakClickToActivate();
-        if (BrowserDetect.version < 7) {
+        if (parseFloat(navigator.userAgent.substring(navigator.userAgent.indexOf('MSIE')+("MSIE".length)+1)) < 7) {
             IEHacks.applyPNGFilter();
         }
     },
@@ -39,6 +39,6 @@ var IEHacks = {
     }
 };
 
-if (BrowserDetect.browser == "Explorer") {
+if (navigator.userAgent.indexOf("MSIE") >= 0) {
     addLoadEvent(IEHacks.init);
 }
