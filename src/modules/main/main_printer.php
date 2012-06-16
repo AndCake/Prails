@@ -47,6 +47,7 @@ class MainPrinter
         $obj_gen->addJavaScript("templates/main/js/cookie.js");
         $obj_gen->addJavaScript("templates/main/js/control.date.js");
         $obj_gen->addJavaScript("templates/main/js/jquery.js");
+        $obj_gen->addJavaScript("templates/main/js/jquery-ui.js");
         /*</JAVASCRIPT-INCLUDES>*/
         $obj_gen->addJavaScript("templates/main/js/global.js");
 		
