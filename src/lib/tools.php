@@ -786,22 +786,52 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
 }
 
 /**
- * doGet($url[, $timeout[, &$response]) -> String
+ * doGet($url[, $user, $password[, $timeout[, $headers[, &$response]) -> String
+ * doGet($url[, $options]) -> String
  * - $url (String) - URL to fetch data from
+ * - $user (String) - the username to authenticate with
+ * - $password (String) - the password to authenticate with
+ * - $headers (String|Array) - additional header information to be sent. Array as key-value pairs.
  * - $timeout (Number) - connection timeout in seconds. Defaults to `30` seconds.
  * - $response (Array) - if provided, this array will receive the complete response data (including headers). The array will contain a `headers` key and a `body` key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.
+ * - $options (Array) - contains an array with key-value pairs defining the above parameters. This is just for convenience.
  *
  * Does a server-side GET request to another server/site. HTTPS is supported. The function returns the data fetched from the (other) server.
  *
  * *Example:*
  * {{{
- * echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239");
+ * echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239", "myriad92", "md969430");
  * }}}
- * This example will print out the received response body from the remote server.
+ * This example will print out the received response body from the remote server. The request to that remote server
+ * will authenticate with the username "myriad92" and the respective password.
+ * 
+ * *Example 2:*
+ * {{{
+ * doGet("http://api.example.org/cgi-bin/query.cgi?product=239", Array(
+ *     "timeout" => 10,
+ *     "headers" => Array(
+ *         "X-Sent-With" => "Test Example"
+ *     ),
+ *     "response" => &$response
+ * ));
+ * var_dump($response);
+ * }}}
+ * This example will print out the complete response from the remote server. The request to that remote server will have a timeout value of 10 seconds and contain an additional HTTP header.
  **/
-function doGet($url, $timeout = 30, &$response = Array()) {
+function doGet($url, $user=null, $pass=null, $timeout = null, $headers, &$response = null) {
+    if (is_array($user)) {
+        $options = $user;
+        $user = $options["user"];
+        $pass = $options["password"];
+        $timeout = $options["timeout"];
+        $headers = $options["headers"];
+        $response = $options["response"];
+    }
+    if ($timeout == null) $timeout = 30;
+    if ($response == null) $response = Array();
+    if ($headers == null) $headers = Array();
     if (!$url_info = parse_url($url)) {
-        pushError("could not post data to url '".$url."'");
+        pushError("could not read data from url '".$url."'");
         return false;
     }
     switch ($url_info["scheme"]) {
@@ -819,19 +849,21 @@ function doGet($url, $timeout = 30, &$response = Array()) {
     $content = "GET ".$path." HTTP/1.0\r\n";
     $content .= "Host: ".$url_info["host"]."\r\n";
     $content .= "User-Agent: Prails Web Framework\r\n";
-    $content .= "Content-Type: application/x-www-form-urlencoded\r\n";
-    $content .= "Content-Length: ".strlen($postdata)."\r\n";
+    if (!empty($user) && !empty($pass)) {
+        $content .= "Authorization: Basic ".base64_encode($user.":".$pass)."\r\n";
+    }
+    if (is_string($headers)) $content .= $headers; else foreach ($headers as $key => $entry) {
+        $content .= $key.": ".$entry."\r\n";
+    }
     $content .= "Connection: close\r\n\r\n";
     fwrite ($da, $content);
-    $response = "";
+    $result = "";
     $content = "";
     $header = "";
     while (!feof($da)) {
-        $response .= @fgets($da, 128);
+        $result .= @fgets($da, 128);
     }
-    $response = split("\r\n\r\n", $response);
-    $header = $response[0];
-    $content = $response[1];
+    list($header, $content) = split("\r\n\r\n", $result);
     if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
         $aux = split("\r\n", $content); 
         for ($i = 0; $i < count($aux); $i++) {
@@ -841,7 +873,7 @@ function doGet($url, $timeout = 30, &$response = Array()) {
         }
         $content = implode("", $aux);
     }
-	$result = chop($content);
+    $result = chop($content);
     $hdata = explode("\n", $header);
     $response["headers"] = Array();
     foreach ($hdata as $h) {
@@ -854,6 +886,7 @@ function doGet($url, $timeout = 30, &$response = Array()) {
 
 /**
  * doPost($url[, $postData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]) -> String
+ * doPost($url[, $postData[, $options]]) -> String
  * - $url (String) - URL to POST to
  * - $postData (Array|String) - data to be posted. Array as key-value pairs.
  * - $user (String) - user name to connect with (for basic HTTP authentication). If `null`, no authorization header will be sent (default).
@@ -861,6 +894,7 @@ function doGet($url, $timeout = 30, &$response = Array()) {
  * - $timeout (Number) - connection timeout in seconds. Defaults to `30` seconds.
  * - $headers (Array|String) - additional headers to be sent as part of the request. Array as key-value pairs.
  * - $response (Array) - if provided, this array will receive the complete response data (including headers). The array will contain a `headers` key and a `body` key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.
+ * - $options (Array) - contains an array with key-value pairs defining the above parameters. This is just for convenience.
  *
  * do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a `String`.
  *
@@ -877,23 +911,35 @@ function doGet($url, $timeout = 30, &$response = Array()) {
  * *Example 2:*
  * {{{
  * doPost(
- * 		"http://www.example.org/cgi-bin/process.cgi?receive=file", 	// URL
- *		file_get_contents("testfile.dat"), 							// data to be sent
- * 		null, 														// no user credentials
- *		null, 
- *		5, 															// timeout
- *		Array(														// additional headers
- * 			"X-Custom-Header" => "My-Content"
- * 		), 
- *		$response													// receive response here
+ *     "http://www.example.org/cgi-bin/process.cgi?receive=file",    // URL
+ *     file_get_contents("testfile.dat"),                            // data to be sent
+ *     null,                                                         // no user credentials
+ *     null, 
+ *     5,                                                            // timeout
+ *     Array(                                                        // additional headers
+ *         "X-Custom-Header" => "My-Content"
+ *     ), 
+ *     $response                                                     // receive response here
  * );
  * var_dump($response);
  * }}}
  * This example shows how to do a more complex POST with custom headers to be sent and a lowered timeout value (only 5 seconds).
  * The response is stored into the `$response` variable and after the successful post, printed out.
  **/
-function doPost($url, $arr_post = Array(), $user = null, $pass = null, $timeout = 30, $headers = Array(), &$response = Array())
+function doPost($url, $arr_post = Array(), $user = null, $pass = null, $timeout = null, $headers = null, &$response = Array())
 {
+    if (is_array($user)) {
+        $options = $user;
+        $user = $options["user"];
+        $pass = $options["password"];
+        $timeout = $options["timeout"];
+        $headers = $options["headers"];
+        $response = $options["response"];
+    }
+    if ($timeout == null) $timeout = 30;
+    if ($response == null) $response = Array();
+    if ($headers == null) $headers = Array();
+ 
     if (!$url_info = parse_url($url)) {
         pushError("could not post data to url '".$url."'");
         return false;

@@ -116,8 +116,10 @@ Renders a form field with the specified properties. It is able to render text fi
 </pre>
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Tag</div><a name='print' class='method-title'>print</a><div class='method'>&lt;c:<span class='name'>print</span>  value="&lt;inline-var&gt;"/&gt;</div>
-<br/><br/>
+<div class='method-type'>Tag</div><a name='print' class='method-title'>print</a><div class='method'>&lt;c:<span class='name'>print</span>  value="&lt;inline-var&gt;" /&gt;</div>
+<ul><li class='param'><code>value</code> (<span class='type'>String</span>)<span class='divider'> - </span>the variable name whose value to print</li>
+</ul>
+
 Safely prints a variable's value. Usually text entered by the user, that you want to display might be
 used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 
 all dangerous characters as HTML entites. 
@@ -127,6 +129,26 @@ all dangerous characters as HTML entites.
 &lt;p class="content"&gt;
    &lt;c:print value="user.description"/&gt;
 &lt;/p&gt;
+</pre>
+<br/><br/>
+<div class='method-type'>Tag</div><a name='set' class='method-title'>set</a><div class='method'>&lt;c:<span class='name'>set</span>  name="&lt;var&gt;" value="&lt;value&gt;"[ scope="&lt;scope&gt;"] /&gt;</div>
+<ul><li class='param'><code>name</code> (<span class='type'>String</span>)<span class='divider'> - </span>variable's name</li>
+<li class='param'><code>value</code> (<span class='type'>Expression</span>)<span class='divider'> - </span>should evaluate to new variable's value</li>
+<li class='param'><code>scope</code> (<span class='type'>String</span>)<span class='divider'> - </span>the target scope of the variable. The default scope is <code>local</code>. </li>
+</ul>
+
+Defines the value of a variable that can later be accessed. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;c:set name="test" value="123"/&gt;
+#local.test  ==&gt; will output 123
+<br/><br/>
+&lt;c:set name="test" value="strlen(#local.test)" scope="local.test"/&gt;
+#local.test.test  ==&gt; will output 3
+<br/><br/>
+&lt;c:set name="test" value="'Hello World!'"/&gt;
+#local.test  ==&gt; will output Hello, World!
 </pre>
 <br/><br/>
 <br/><br/>

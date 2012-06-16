@@ -1,6 +1,7 @@
 <?
 /** Section Tags
- * <c:print value="<inline-var>"/>
+ * <c:print value="<inline-var>" />
+ * - `value` (String) - the variable name whose value to print
  *
  * Safely prints a variable's value. Usually text entered by the user, that you want to display might be
  * used for code injection or even cross-site scripting attacks. To prevent this, the print tag encodes 

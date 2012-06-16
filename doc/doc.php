@@ -6,6 +6,7 @@ $path = "doc/html/";
 $bulletCreated = false;
 $sections = Array();
 $inCodeBlock = false;
+$fileHistory = Array();
 
 if (!file_exists($path)) {
 	mkdir($path, 0755, true);
@@ -15,7 +16,8 @@ function findFiles($path, $allowedSuffixes) {
 	if (is_dir($path)) {
 		$dp = opendir($path);
 		while (($file = readdir($dp)) !== false) {
-			if ($file[0] != ".") {
+			if ($file[0] != "." && !$fileHistory[$file]) {
+				$fileHistory[$file] = true;
 				$suffix = array_pop(explode(".", $file));
 				if (is_dir($path."/".$file)) {
 					findFiles($path.'/'.$file, $allowedSuffixes);

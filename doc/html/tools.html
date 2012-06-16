@@ -242,22 +242,42 @@ sendMail( $customerEmail,
 This example sends an email with one attachment.
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $timeout[, &$response]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $user, $password[, $timeout[, $headers[, &$response]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $options]</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to fetch data from</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>the username to authenticate with</li>
+<li class='param'><code>$password</code> (<span class='type'>String</span>)<span class='divider'> - </span>the password to authenticate with</li>
+<li class='param'><code>$headers</code> (<span class='type'>String</span> | <span class='type'>Array</span>)<span class='divider'> - </span>additional header information to be sent. Array as key-value pairs.</li>
 <li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
 <li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
+<li class='param'><code>$options</code> (<span class='type'>Array</span>)<span class='divider'> - </span>contains an array with key-value pairs defining the above parameters. This is just for convenience.</li>
 </ul>
 
 Does a server-side GET request to another server/site. HTTPS is supported. The function returns the data fetched from the (other) server.
 <br/><br/>
 <strong>Example:</strong>
 <pre>
-echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239");
+echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239", "myriad92", "md969430");
 </pre>
-This example will print out the received response body from the remote server.
+This example will print out the received response body from the remote server. The request to that remote server
+will authenticate with the username "myriad92" and the respective password.
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+doGet("http://api.example.org/cgi-bin/query.cgi?product=239", Array(
+    "timeout" =&gt; 10,
+    "headers" =&gt; Array(
+        "X-Sent-With" =&gt; "Test Example"
+    ),
+    "response" =&gt; &$response
+));
+var_dump($response);
+</pre>
+This example will print out the complete response from the remote server. The request to that remote server will have a timeout value of 10 seconds and contain an additional HTTP header.
 <br/><br/>
 <br/><br/>
 <div class='method-type'>Method</div><a name='doPost' class='method-title'>doPost</a><div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $options]]</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to POST to</li>
 <li class='param'><code>$postData</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>data to be posted. Array as key-value pairs.</li>
 <li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>null</code>, no authorization header will be sent (default).</li>
@@ -265,6 +285,7 @@ This example will print out the received response body from the remote server.
 <li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
 <li class='param'><code>$headers</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>additional headers to be sent as part of the request. Array as key-value pairs.</li>
 <li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
+<li class='param'><code>$options</code> (<span class='type'>Array</span>)<span class='divider'> - </span>contains an array with key-value pairs defining the above parameters. This is just for convenience.</li>
 </ul>
 
 do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a <code>String</code>.
@@ -282,15 +303,15 @@ This example runs a simple server-side POST request to the example.org server.
 <strong>Example 2:</strong>
 <pre>
 doPost(
-		"http://www.example.org/cgi-bin/process.cgi?receive=file", 	// URL
-	file_get_contents("testfile.dat"), 							// data to be sent
-		null, 														// no user credentials
-	null, 
-	5, 															// timeout
-	Array(														// additional headers
-			"X-Custom-Header" =&gt; "My-Content"
-		), 
-	$response													// receive response here
+    "http://www.example.org/cgi-bin/process.cgi?receive=file",    // URL
+    file_get_contents("testfile.dat"),                            // data to be sent
+    null,                                                         // no user credentials
+    null, 
+    5,                                                            // timeout
+    Array(                                                        // additional headers
+        "X-Custom-Header" =&gt; "My-Content"
+    ), 
+    $response                                                     // receive response here
 );
 var_dump($response);
 </pre>
