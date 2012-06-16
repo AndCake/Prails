@@ -45,27 +45,35 @@ class HookCore {
          **/	
 	static function notify($hookName, $context = Array()) {
 		$arr_results = Array();
+		// check if anyone registered for that hook sink
 		if (is_array(HookCore::$hookList[$hookName])) {
+			// loop all hooks
 			foreach (HookCore::$hookList[$hookName] as $hook) {
+				// and call them, saving their results
 				array_push($arr_results, invoke($hook, $context));
 			}
 		}
 			
+		// return all retrieved results
 		return $arr_results;
 	}
 	
 	static function hook($hookName, $event) {
+		// check if anyone registered for that hook sink
 		if (!is_array(HookCore::$hookList[$hookName])) {
+			// if not, initialize it
 			HookCore::$hookList[$hookName] = Array();
 		}
+		// and add the given event to the hook sink
 		array_push(HookCore::$hookList[$hookName], $event);
 	}
 	
 	static function init() {
-		// fetch all hooks and put them into the hookList
 		$data = new Database("tbl_prailsbase_");
+		// fetch all hooks and put them into the hookList
 		$hooks = $data->SqlQuery("SELECT * FROM tbl_prailsbase_module AS a, tbl_prailsbase_handler AS b WHERE hook<>'' AND b.fk_module_id=a.module_id");
 		if (is_array($hooks)) foreach ($hooks as $hook) {
+			// add all hooks from the database to the respective hook sink
 			HookCore::hook($hook["hook"], $hook["name"].":".$hook["event"]);
 		}
 	}

@@ -670,11 +670,6 @@ function debugLog($message) {
 	$log->debug($message);
 }
 
-function price($val)
-{
-    return str_replace(".", ",", sprintf("%.2f", $val))." EUR";
-}
-
 /**
  * sends an email. Any HTML code gets stripped off.
  *
@@ -791,40 +786,37 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
 }
 
 /**
- * doGet($url[, $includeHeaders]) -> String|Array
+ * doGet($url[, $timeout[, &$response]) -> String
  * - $url (String) - URL to fetch data from
- * - $includeHeaders (Boolean) - if set to `true`, it will cause the return value to be an array consisting two entries: the headers returned by the server and the content.
+ * - $timeout (Number) - connection timeout in seconds. Defaults to `30` seconds.
+ * - $response (Array) - if provided, this array will receive the complete response data (including headers). The array will contain a `headers` key and a `body` key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.
  *
- * do a server-side get request to another server/site. HTTPS is supported and returns the data fetched from the (other) server.
+ * Does a server-side GET request to another server/site. HTTPS is supported. The function returns the data fetched from the (other) server.
+ *
+ * *Example:*
+ * {{{
+ * echo doGet("http://www.example.org/cgi-bin/process.cgi?product=239");
+ * }}}
+ * This example will print out the received response body from the remote server.
  **/
-function doGet($url, $includeHeaders = false)
-{
-    if (!$url_info = parse_url($url))
-    {
+function doGet($url, $timeout = 30, &$response = Array()) {
+    if (!$url_info = parse_url($url)) {
         pushError("could not post data to url '".$url."'");
         return false;
     }
-    switch ($url_info["scheme"])
-    {
-        case "https":
-            $scheme = "ssl://";
-            $port = 443;
-            break;
+    switch ($url_info["scheme"]) {
+        case "https": $scheme = "ssl://"; $port = 443; break;
         case "http":
-        default:
-            $scheme = "";
-            $port = 80;
-            break;
+        default: $scheme = ""; $port = 80; break;
     }
-    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, 30);
-    if (!$da)
-    {
+    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, $timeout);
+    if (!$da)  {
         pushError($errstr." (".$errno.")");
         return false;
     }
     $path = $url_info["path"];
     if (strlen($url_info["query"]) > 0) $path .= "?".$url_info["query"];
-    $content .= "GET ".$path." HTTP/1.0\r\n";
+    $content = "GET ".$path." HTTP/1.0\r\n";
     $content .= "Host: ".$url_info["host"]."\r\n";
     $content .= "User-Agent: Prails Web Framework\r\n";
     $content .= "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -834,43 +826,41 @@ function doGet($url, $includeHeaders = false)
     $response = "";
     $content = "";
     $header = "";
-    while (!feof($da))
-    {
+    while (!feof($da)) {
         $response .= @fgets($da, 128);
     }
     $response = split("\r\n\r\n", $response);
     $header = $response[0];
     $content = $response[1];
-    if (!(strpos($header, "Transfer-Encoding: chunked") === false))
-    {
-        $aux = split("\r\n", $content);
-        for ($i = 0; $i < count($aux); $i++)
-        {
-            if ($i == 0 || ($i % 2 == 0))
-            {
+    if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
+        $aux = split("\r\n", $content); 
+        for ($i = 0; $i < count($aux); $i++) {
+            if ($i == 0 || ($i % 2 == 0)) {
                 $aux[$i] = "";
             }
         }
         $content = implode("", $aux);
     }
 	$result = chop($content);
-	if ($includeHeaders) {
-		$result = Array("body" => $result);
-		$headerList = explode("\r\n", $header);
-		foreach ($headerList as $entry) {
-			$param = explode(":", $entry);
-			$result["header"][trim($param[0])] = trim($param[1]);
-		}
-	}
+    $hdata = explode("\n", $header);
+    $response["headers"] = Array();
+    foreach ($hdata as $h) {
+    	list($key, $value) = explode(":", $h);
+    	$response["headers"][$key] = $value;
+    }
+    $response["body"] = $result;
     return $result;
 }
 
 /**
- * doPost($url[, $postData[, $user, $pass]]) -> String
+ * doPost($url[, $postData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]) -> String
  * - $url (String) - URL to POST to
- * - $postData (Array) - data to be posted as key-value pairs
- * - $user (String|Boolean) - user name to connect with (for basic HTTP authentication). If `false`, no authorization header will be sent (default).
- * - $pass (String|Boolean) - password to connect with (for basic HTTP authentication). If `false`, then no authorization header will be sent (default).
+ * - $postData (Array|String) - data to be posted. Array as key-value pairs.
+ * - $user (String) - user name to connect with (for basic HTTP authentication). If `null`, no authorization header will be sent (default).
+ * - $pass (String) - password to connect with (for basic HTTP authentication). If `null`, then no authorization header will be sent (default).
+ * - $timeout (Number) - connection timeout in seconds. Defaults to `30` seconds.
+ * - $headers (Array|String) - additional headers to be sent as part of the request. Array as key-value pairs.
+ * - $response (Array) - if provided, this array will receive the complete response data (including headers). The array will contain a `headers` key and a `body` key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.
  *
  * do a server-side post request to another server/site. HTTPS is supported. This method returns the server's reply as a `String`.
  *
@@ -882,44 +872,58 @@ function doGet($url, $includeHeaders = false)
  *             "age"=>"27",
  *          ));
  * }}}
+ * This example runs a simple server-side POST request to the example.org server.
+ *
+ * *Example 2:*
+ * {{{
+ * doPost(
+ * 		"http://www.example.org/cgi-bin/process.cgi?receive=file", 	// URL
+ *		file_get_contents("testfile.dat"), 							// data to be sent
+ * 		null, 														// no user credentials
+ *		null, 
+ *		5, 															// timeout
+ *		Array(														// additional headers
+ * 			"X-Custom-Header" => "My-Content"
+ * 		), 
+ *		$response													// receive response here
+ * );
+ * var_dump($response);
+ * }}}
+ * This example shows how to do a more complex POST with custom headers to be sent and a lowered timeout value (only 5 seconds).
+ * The response is stored into the `$response` variable and after the successful post, printed out.
  **/
-function doPost($url, $arr_post = Array(), $user = false, $pass = false)
+function doPost($url, $arr_post = Array(), $user = null, $pass = null, $timeout = 30, $headers = Array(), &$response = Array())
 {
-    if (!$url_info = parse_url($url))
-    {
+    if (!$url_info = parse_url($url)) {
         pushError("could not post data to url '".$url."'");
         return false;
     }
-    switch ($url_info["scheme"])
-    {
-        case "https":
-            $scheme = "ssl://";
-            $port = 443;
-            break;
+    // update scheme and port for socket compatibility
+    switch ($url_info["scheme"]) {
+        case "https": $scheme = "ssl://"; $port = 443; break;
         case "http":
-        default:
-            $scheme = "";
-            $port = 80;
-            break;
+        default: $scheme = ""; $port = 80; break;
     }
-    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, 30);
-    if (!$da)
-    {
+    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, $timeout);
+    if (!$da) {
         pushError($errstr." (".$errno.")");
         return false;
     }
-    $postdata = "";
-    foreach ($arr_post as $key=>$value)
-    {
-        if (strlen($postdata) > 0) $postdata .= "&";
-        $postdata .= $key."=".urlencode($value);
+    $postdata = is_string($arr_post) ? $arr_post : http_build_query($arr_post);
+    if (is_string($headers)) {
+    	$headerdata = $headers;
+    } else {
+	    $headerdata = "";
+		foreach ($headers as $key=>$value) {
+			$headerdata .= $key.": ".$value."\r\n";
+		}
     }
-    $content .= "POST ".$url_info["path"].(strlen($url_info["query"])>0?"?".$url_info["query"]:"")." HTTP/1.1\r\n";
+    $content = "POST ".$url_info["path"].(strlen($url_info["query"])>0?"?".$url_info["query"]:"")." HTTP/1.1\r\n";
     $content .= "Host: ".$url_info["host"]."\r\n";
-	if ($user !== false && $pass !== false) {
+	if ($user !== null && $pass !== null) {
 		$content .= "Authorization: Basic ".base64_encode($user.":".$pass)."\r\n";
 	}
-    $content .= "User-Agent: Klatcher Service\r\n";
+    $content .= $headerdata;
     $content .= "Content-Type: application/x-www-form-urlencoded\r\n";
     $content .= "Content-Length: ".strlen($postdata)."\r\n";
     $content .= "Connection: close\r\n\r\n";
@@ -928,26 +932,30 @@ function doPost($url, $arr_post = Array(), $user = false, $pass = false)
     $response = "";
     $content = "";
     $header = "";
-    while (!feof($da))
-    {
+    while (!feof($da)) {
         $response .= @fgets($da, 128);
     }
     $response = split("\r\n\r\n", $response);
     $header = $response[0];
     $content = $response[1];
-    if (!(strpos($header, "Transfer-Encoding: chunked") === false))
-    {
+    if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
         $aux = split("\r\n", $content);
-        for ($i = 0; $i < count($aux); $i++)
-        {
-            if ($i == 0 || ($i % 2 == 0))
-            {
+        for ($i = 0; $i < count($aux); $i++) {
+            if ($i == 0 || ($i % 2 == 0)) {
                 $aux[$i] = "";
             }
         }
         $content = implode("", $aux);
     }
-    return chop($content);
+    $content = chop($content);
+    $hdata = explode("\n", $header);
+    $response["headers"] = Array();
+    foreach ($hdata as $h) {
+    	list($key, $value) = explode(":", $h);
+    	$response["headers"][$key] = $value;
+    }
+    $response["body"] = $content;
+    return $content;
 }
 
 /**
