@@ -2058,6 +2058,8 @@ class BuilderHandler
 				}
 			} 
 		}
+		$this->flushWebCache(true);
+		$this->flushCustomLibraries(true);
 		return $this->flushDBCache();
 	}
 
@@ -2298,6 +2300,22 @@ class BuilderHandler
 		$arr_modules = $this->obj_data->listModulesFromUser($_SESSION['builder']['user_id']);
 		foreach ($arr_modules as $mod) {
 			$this->resetModule(false, $mod['module_id']);
+		}
+		
+		$this->flushCustomLibraries($return);
+		if (!$return || is_array($return)) die("success");
+		return "success";
+	}
+
+	function flushCustomLibraries($return = false) {
+		// flush libs
+		$arr_libs = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
+		foreach ($arr_libs as $lib) {
+            		if (ENV_PRODUCTION) {
+				@unlink("lib/custom/".$lib["name"].".php");
+                	} else {
+				@unlink("lib/custom/".$lib["name"].$lib["library_id"].".php");
+	                }
 		}
 		if (!$return || is_array($return)) die("success");
 		return "success";
