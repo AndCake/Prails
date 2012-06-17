@@ -1,11 +1,11 @@
 <?php
-class SessionManager extends TblClass {
+class SessionManager extends Database {
 
 	var $life_time;
 
 	function SessionManager() {
 		// initialize Database access
-		parent::TblClass("tbl_prailsbase_");
+		parent::Database("tbl_prailsbase_");
 
 		// Read the maxlifetime setting from PHP
 		$this->life_time = get_cfg_var("session.gc_maxlifetime");
@@ -63,7 +63,7 @@ class SessionManager extends TblClass {
 		$time = $_SERVER["REQUEST_TIME"];
 
 		$sql = "SELECT session_data FROM tbl_prailsbase_sessions WHERE sessions_id = '$newid' AND expires > $time";
-		$arr_data = $this->SqlQuery($sql);
+		$arr_data = $this->query($sql);
 
 		// if we found a session
 		if (count($arr_data) > 0) {
@@ -86,7 +86,7 @@ class SessionManager extends TblClass {
 		$newdata = $this->escape($data);
 		
 		$sql = "REPLACE INTO tbl_prailsbase_sessions (sessions_id, session_data, expires) VALUES ('$newid', '".$newdata."', $time)";
-		$this->SqlQuery($sql);
+		$this->query($sql);
 
 		// make sure we update the file system marker to indicate the time of the last write operation
 		@touch("cache/session/".$newid);
@@ -104,7 +104,7 @@ class SessionManager extends TblClass {
 		@unlink("cache/session/".$newid);
 		// Build query
 		$sql = "DELETE FROM tbl_prailsbase_sessions WHERE sessions_id = '$newid'";
-		$this->SqlQuery($sql);
+		$this->query($sql);
 
 		return TRUE;
 	}
@@ -116,7 +116,7 @@ class SessionManager extends TblClass {
 		// Build DELETE query.  Delete all records who have passed the expiration time
 		$expires = time() - $this->life_time;
 		$sql = 'DELETE FROM tbl_prailsbase_sessions WHERE expires < UNIX_TIMESTAMP()';
-		$this->SqlQuery($sql);
+		$this->query($sql);
 		
 		// clean up file system markers
 		$dp = opendir("cache/session/");
@@ -130,6 +130,5 @@ class SessionManager extends TblClass {
 		// Always return TRUE
 		return true;
 	}
-
 }
 ?>

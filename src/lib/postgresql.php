@@ -24,17 +24,16 @@ class PostgreSQL extends Cacheable {
 	);
 	
 	static $instance = null;
-	var $arr_links = null;
-	var $int_MySqlErrNo;
-	var $int_affectedId;
-	var $int_affectedRows;
-	var $bol_stripSlashes = false;
+	var $links = null;
+	var $affectedId;
+	var $affectedRows;
+	var $stripSlashes = false;
 	var $lastError = "";
 	var $prefix = null;
 
 	function PostgreSQL($prefix = "tbl_") {
 		parent::__construct();
-		$this->arr_links = Array();
+		$this->links = Array();
 		$this->prefix = $prefix;
 	}
 
@@ -54,12 +53,12 @@ class PostgreSQL extends Cacheable {
 
 	function connect($str_db = "offline") {
 		global $arr_dbs;
-		$id = count($this->arr_links);
-		$this->arr_links[$id]["overrides"] = $arr_dbs[$str_db]["table_overrides"];
-		$this->arr_links[$id]["name"] = $arr_dbs[$str_db]["name"];
+		$id = count($this->links);
+		$this->links[$id]["overrides"] = $arr_dbs[$str_db]["table_overrides"];
+		$this->links[$id]["name"] = $arr_dbs[$str_db]["name"];
 		try {
-			$this->arr_links[$id]["link"] = pg_connect("host=".$arr_dbs[$str_db]["host"]." dbname=".$arr_dbs[$str_db]["name"]." user=".$arr_dbs[$str_db]["user"]." password=".$arr_dbs[$str_db]["pass"]);
-			if (!$this->arr_links[$id]["link"]) {
+			$this->links[$id]["link"] = pg_connect("host=".$arr_dbs[$str_db]["host"]." dbname=".$arr_dbs[$str_db]["name"]." user=".$arr_dbs[$str_db]["user"]." password=".$arr_dbs[$str_db]["pass"]);
+			if (!$this->links[$id]["link"]) {
 				throw new Exception($arr_dbs[$str_db]["user"]."@".$arr_dbs[$str_db]["host"].":".$arr_dbs[$str_db]["name"]);
 			}
 		} catch (Exception $ex) {
@@ -70,8 +69,8 @@ class PostgreSQL extends Cacheable {
 
 	function _prepareQuery($str_query, $linkId = 0) {
 		// apply table override settings
-		if (is_array($this->arr_links[(int)$linkId]["overrides"])) {
-			foreach ($this->arr_links[(int)$linkId]["overrides"] as $table=>$newTable) {
+		if (is_array($this->links[(int)$linkId]["overrides"])) {
+			foreach ($this->links[(int)$linkId]["overrides"] as $table=>$newTable) {
 				$str_query = str_replace(" ".$table." ", " ".$newTable." ", $str_query);
 			}
 		}
@@ -163,7 +162,7 @@ class PostgreSQL extends Cacheable {
 
 	function query($str_query, $cacheTime = 0) {
 		global $profiler;
-		$link = $this->arr_links[0]["link"];
+		$link = $this->links[0]["link"];
 
 		$str_query = $this->_prepareQuery($str_query);
 		
@@ -175,7 +174,7 @@ class PostgreSQL extends Cacheable {
 			// if we currently have no connection, connect
 			if (!$link) {
 				$this->connect();
-				$link = $this->arr_links[0]["link"];
+				$link = $this->links[0]["link"];
 				$str_query = $this->_prepareQuery($str_query);
 			}
 
@@ -186,7 +185,7 @@ class PostgreSQL extends Cacheable {
 
 			// if query successful
 			if (is_resource($dbr_queryResult)) {
-				$this->int_affectedId = 0;
+				$this->affectedId = 0;
 				if (preg_match('/^CREATE TABLE ([^\(]+)\(([a-zA-Z_\-]+_id) '.$this->constructs["pk"].'/mi', $str_query, $match)) {
 					$table = trim(str_replace("IF NOT EXISTS", "", $match[1]));
 					$pk = $match[2];
@@ -196,16 +195,16 @@ class PostgreSQL extends Cacheable {
 						pushError($this->lastError);
 					}
 				} else if (preg_match('/^INSERT\s+INTO\s+(?!tbl_prailsbase_session)/mi', trim($str_query))) {
-					$this->int_affectedId = @array_pop(@pg_fetch_assoc($dbr_queryResult));
+					$this->affectedId = @array_pop(@pg_fetch_assoc($dbr_queryResult));
 				}
 				$int_resultCounter = 0;
 				$arr_result = Array();
 
-				if (pg_result_status($dbr_queryResult) == PGSQL_TUPLES_OK && $this->int_affectedId <= 0) {
-					$this->int_affectedRows = @pg_num_rows ($dbr_queryResult);
-					while ($this->int_affectedRows > 0 && $arr_fetchedResult = @pg_fetch_assoc($dbr_queryResult)) {
+				if (pg_result_status($dbr_queryResult) == PGSQL_TUPLES_OK && $this->affectedId <= 0) {
+					$this->affectedRows = @pg_num_rows ($dbr_queryResult);
+					while ($this->affectedRows > 0 && $arr_fetchedResult = @pg_fetch_assoc($dbr_queryResult)) {
 						// remove slashes if needed
-						if ($this->bol_stripSlashes) {
+						if ($this->stripSlashes) {
 							foreach ($arr_fetchedResult as &$mix_val) {
 								if (gettype ($mix_val) == "string" ) {
 									$mix_val = stripslashes($mix_val);

@@ -34,7 +34,7 @@ class EmptyData extends Database {
 		}
 		$str_cond .= "%";
 
-		$arr_result = $this->SqlQuery("SELECT * FROM " . tbl_custom_object . " WHERE fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
+		$arr_result = $this->query("SELECT * FROM " . tbl_custom_object . " WHERE fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
 
 		$arr_return = Array ();
 		foreach ($arr_result as $arr_res) {
@@ -65,7 +65,7 @@ class EmptyData extends Database {
 		}
 		$str_cond .= "%";
 
-		$arr_result = @ array_pop($this->SqlQuery("SELECT * FROM " . tbl_custom_object . " WHERE fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'"));
+		$arr_result = @ array_pop($this->query("SELECT * FROM " . tbl_custom_object . " WHERE fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'"));
 		return $this->_deserializeCustomObject($arr_result["data"]);
 	}
 
@@ -96,7 +96,7 @@ class EmptyData extends Database {
 			
 		);
 
-		return $this->InsertQuery(tbl_custom_object, $arr_data);
+		return $this->add(tbl_custom_object, $arr_data);
 	}
 
 	/*
@@ -119,7 +119,7 @@ class EmptyData extends Database {
 			$str_cond .= "&" . str_replace("_", "\\_", str_replace("%", "\\%", urlencode($key))) . "=" . str_replace("_", "\\_", str_replace("%", "\\%", urlencode($value)));
 		}
 		$str_cond .= "%";
-		$this->UpdateQuery(tbl_custom_object, $arr_data, "fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
+		$this->update(tbl_custom_object, $arr_data, "fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
 	}
 
 	/**
@@ -133,7 +133,7 @@ class EmptyData extends Database {
 			$str_cond .= "&" . str_replace("_", "\\_", str_replace("%", "\\%", urlencode($key))) . "=" . str_replace("_", "\\_", str_replace("%", "\\%", urlencode($value)));
 		}
 		$str_cond .= "%";
-		$this->DeleteQuery(tbl_custom_object, "fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
+		$this->delete(tbl_custom_object, "fk_module_id='<MODULEID>' AND data LIKE '" . $str_cond . "'");
 	}
 
 	function _serializeCustomObject($arr_data) {

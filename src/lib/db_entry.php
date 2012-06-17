@@ -192,7 +192,7 @@ class DBEntry extends DBEntryObject {
         $this->prefix = $data["prefix"];
 		$this->flags = $data["flags"];
 		$this->iterator_class = $data["iterator_class"];
-		$this->obj_tbl = new TblClass($this->prefix);
+		$this->obj_tbl = new Database($this->prefix);
     }	
 
     /**
@@ -253,7 +253,7 @@ class DBEntry extends DBEntryObject {
 			// check if someone asked this already
 			if (parent::offsetGet($mix) == null) {
 				// no, so we need to fetch it from the database
-				parent::offsetSet($mix, @array_pop($this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."' AND ".if_set($filter, "1")."")));
+				parent::offsetSet($mix, @array_pop($this->obj_tbl->query("SELECT * FROM ".$this->prefix.$index." WHERE ".$index."_id='".$id."' AND ".if_set($filter, "1")."")));
 				// and cache it for later used
 				if (strlen($name) > 0) {
 					parent::offsetSet($name, parent::offsetGet($mix));					
@@ -278,7 +278,7 @@ class DBEntry extends DBEntryObject {
 			// check if someone asked this already
 			if (parent::offsetGet($mix) == null) {
 				// extract the other table's meta data
-				$cols = $this->obj_tbl->obj_mysql->listColumns($this->prefix.$collection_name);
+				$cols = $this->obj_tbl->sql->listColumns($this->prefix.$collection_name);
 				$lCols = Array();
 				foreach ($cols as $col) {
 					array_push($lCols, $col["Field"]);
@@ -292,7 +292,7 @@ class DBEntry extends DBEntryObject {
 					}
 				}
 				// use it to extract the tuples in the other table that link to the current entry
-				parent::offsetSet($mix, $this->obj_tbl->SqlQuery("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").") AND ".if_set($filter, "1").""));
+				parent::offsetSet($mix, $this->obj_tbl->query("SELECT * FROM ".$this->prefix.$collection_name." WHERE (".if_set(implode(" OR ", $pairs), "1=0").") AND ".if_set($filter, "1").""));
 				// and cache it for later use
 				if (strlen($name) > 0) {
 					parent::offsetSet($name, parent::offsetGet($mix));					
@@ -374,11 +374,11 @@ class DBEntry extends DBEntryObject {
 			$arr_data = parent::getArrayCopy();
 			unset($arr_data[$pk]);
 			// we need to insert a new row
-			$id = $this->obj_tbl->InsertQuery($table, $arr_data);
+			$id = $this->obj_tbl->add($table, $arr_data);
 			parent::offsetSet($pk, $id);
 		} else {
 			// existing value, so we just run an update
-			$this->obj_tbl->UpdateQuery($table, parent::getArrayCopy(), $pk."=".parent::offsetGet($pk));
+			$this->obj_tbl->update($table, parent::getArrayCopy(), $pk."=".parent::offsetGet($pk));
 		}
 		return true;
 	}
@@ -426,7 +426,7 @@ class DBEntry extends DBEntryObject {
 			return false;
 		}
 		// everything ok, so remove it
-		$this->obj_tbl->DeleteQuery($table, $pk."=".parent::offsetGet($pk));
+		$this->obj_tbl->delete($table, $pk."=".parent::offsetGet($pk));
 		// including all cached data
 		parent::unserialize(serialize(Array()));
 		return true;

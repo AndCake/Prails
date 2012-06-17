@@ -1345,7 +1345,7 @@ class BuilderHandler
         $arr_table = $this->obj_data->selectTable($_GET["table_id"]);
         if (strlen($arr_table["name"]) > 0)
         {
-            $this->obj_data->SqlQuery("DROP TABLE IF EXISTS ".$arr_table["name"]);
+            $this->obj_data->query("DROP TABLE IF EXISTS ".$arr_table["name"]);
         }
         $this->obj_data->deleteTable($_GET["table_id"]);
         die ("success");
@@ -1427,7 +1427,7 @@ class BuilderHandler
             $arr_db[$arr_table["name"]] = $arr_fields;
             DBDeployer::deploy($arr_db);
             echo $_GET["table_id"]."\n";
-			$this->obj_data->obj_mysql->flush();            
+			$this->obj_data->sql->flush();            
             die ("success");
         }
 
@@ -1543,12 +1543,12 @@ class BuilderHandler
     		$this->obj_data->str_prefix = "tbl_";
     		if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
     			$query .= " LIMIT [offset], [limit]";
-				$arr_param["totals"] = $this->obj_data->SqlQuery("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1=1");
+				$arr_param["totals"] = $this->obj_data->query("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1=1");
     		}
-    		$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
+    		$arr_param["result"] = $this->obj_data->query(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
     		$this->obj_data->str_prefix = "tbl_prailsbase_";
 			$result = Array();
-			$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
+			$arr_param["error"] = $this->obj_data->sql->lastError;
 			
 			if (is_array($arr_param["result"])) foreach ($arr_param["result"] as $i => $res) {
 				$arr_res["id"] = $i + 1;
@@ -1579,10 +1579,10 @@ class BuilderHandler
 	    			}
 				$this->obj_data->str_prefix = "tbl_";
 	    			if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
-	    				$arr_param["result"] = $this->obj_data->SqlQuery(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
+	    				$arr_param["result"] = $this->obj_data->query(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
 	        		}
 	    			$this->obj_data->str_prefix = "tbl_prailsbase_";
-	        		$arr_param["error"] = $this->obj_data->obj_mysql->lastError;
+	        		$arr_param["error"] = $this->obj_data->sql->lastError;
 	        		$loop++;
 			} while (!empty($arr_param['error']) && isset($_POST['sort']) && $loop < 2);					
 
@@ -1605,7 +1605,7 @@ class BuilderHandler
 			$query = "SELECT name AS table_name, REPLACE(field_names, ':', ', ') AS fields FROM tbl_prailsbase_table WHERE fk_user_id=\"".$_SESSION["builder"]["user_id"]."\"";
 			$_SESSION["builder"]["currentQuery"] = $query;
 			
-			$arr_param["result"] = $this->obj_data->SqlQuery($query);
+			$arr_param["result"] = $this->obj_data->query($query);
 		}
 
 		die ($this->_callPrinter("queryTest", $arr_param));
@@ -2151,7 +2151,7 @@ class BuilderHandler
     function updateSystem() {
         // run the system update
         if ($_GET["empty"] == "cache") {
-			$this->obj_data->obj_mysql->flush();        	
+			$this->obj_data->sql->flush();        	
 			$this->flushWebCache(true);
 			$this->flushCustomModules(true);
 			die("success\n--\n".$_GET['warnings']);        	
@@ -2277,7 +2277,7 @@ class BuilderHandler
 	}
 	
 	function flushDBCache() {
-		$this->obj_data->obj_mysql->flush();
+		$this->obj_data->sql->flush();
 		die("success");
 	}
 	

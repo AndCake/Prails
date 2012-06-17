@@ -19,22 +19,21 @@
 
 class MySQL extends Cacheable {
 
-	static $instance = null;
-	var $arr_links = null;
-	var $int_MySqlErrNo;
-	var $int_affectedId;
-	var $int_affectedRows;
-	var $bol_stripSlashes = false;
-	var $lastError = "";
-	var $prefix = null;
-
 	var $constructs = Array(
 		"pk" => "INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY"
 	);	
 
+	static $instance = null;
+	var $links = null;
+	var $affectedId;
+	var $affectedRows;
+	var $stripSlashes = false;
+	var $lastError = "";
+	var $prefix = null;
+
 	function MySQL($prefix = "tbl_") {
 		parent::__construct();
-		$this->arr_links = Array();
+		$this->links = Array();
 		$this->prefix = $prefix;
 	}
 
@@ -52,58 +51,56 @@ class MySQL extends Cacheable {
 		return $this->prefix;
 	}
 
-	function connect($str_db = "offline") {
-		global $arr_dbs;
+	function connect($db = "offline") {
+		global $dbs;
 		global $log;
-		$id = count($this->arr_links);
-		$this->arr_links[$id]["link"] = @mysql_connect($arr_dbs[$str_db]["host"], $arr_dbs[$str_db]["user"], $arr_dbs[$str_db]["pass"]);
-		$this->arr_links[$id]["overrides"] = $arr_dbs[$str_db]["table_overrides"];
-		$this->arr_links[$id]["name"] = $arr_dbs[$str_db]["name"];
-		if ($this->arr_links[$id]["link"]) {
-			if ( @mysql_select_db ($arr_dbs[$str_db]["name"], $this->arr_links[$id]["link"]) ) {
+		$id = count($this->links);
+		$this->links[$id]["link"] = @mysql_connect($dbs[$db]["host"], $dbs[$db]["user"], $dbs[$db]["pass"]);
+		$this->links[$id]["overrides"] = $dbs[$db]["table_overrides"];
+		$this->links[$id]["name"] = $dbs[$db]["name"];
+		if ($this->links[$id]["link"]) {
+			if ( @mysql_select_db ($dbs[$db]["name"], $this->links[$id]["link"]) ) {
 				return (TRUE);
 			} else {
-				$str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
-				$this->int_MySqlErrNo = mysql_errno ();
-				$log->fatal($str_mySqlError);
+				$mySqlError .= mysql_error () . " Error code: " . mysql_errno();
+				$log->fatal($mySqlError);
 				return false;
 			}
 		} else {
 			// set error code and leave method
-			$str_mySqlError .= mysql_error () . " Error code: " . mysql_errno();
-			$this->int_MySqlErrNo = mysql_errno ();
-			$log->fatal($str_mySqlError);
+			$mySqlError .= mysql_error () . " Error code: " . mysql_errno();
+			$log->fatal($mySqlError);
 		}
 
 	}
 
 
-	function _prepareQuery($str_query, $linkId = 0) {
+	function _prepareQuery($query, $linkId = 0) {
 		// apply table override settings
-		if (is_array($this->arr_links[(int)$linkId]["overrides"])) {
-			foreach ($this->arr_links[(int)$linkId]["overrides"] as $table=>$newTable) {
-				$str_query = str_replace(" ".$table." ", " ".$newTable." ", $str_query);
+		if (is_array($this->links[(int)$linkId]["overrides"])) {
+			foreach ($this->links[(int)$linkId]["overrides"] as $table=>$newTable) {
+				$query = str_replace(" ".$table." ", " ".$newTable." ", $query);
 			}
 		}
 
-		if ((strtoupper(substr($str_query, 0, 12)) == "ALTER TABLE " || strtoupper(substr($str_query, 0, 13)) == "CREATE TABLE ") && 
-			stripos($str_query, " REFERENCES ") !== false) {
+		if ((strtoupper(substr($query, 0, 12)) == "ALTER TABLE " || strtoupper(substr($query, 0, 13)) == "CREATE TABLE ") && 
+			stripos($query, " REFERENCES ") !== false) {
 			// clean out foreign key constraints as MySQL MyISAM does not support that...
-			$str_query = preg_replace('/ REFERENCES [a-zA-Z0-9_]+/mi', '', $str_query);
+			$query = preg_replace('/ REFERENCES [a-zA-Z0-9_]+/mi', '', $query);
 		}
 		
-		return $str_query;
+		return $query;
 	}
 
-	function listColumns($str_table) {
-		return $this->query("SHOW COLUMNS FROM ".$str_table."");
+	function listColumns($table) {
+		return $this->query("SHOW COLUMNS FROM ".$table."");
 	}
 
-	function tableExists($str_table) {
+	function tableExists($table) {
 		$res = $this->query("SHOW TABLES");
 		foreach ($res as $r) {
 			$tbl = array_values($r->getArrayCopy());
-			if ($tbl[0] == $str_table) return true;
+			if ($tbl[0] == $table) return true;
 		}
 		return false;
 	}
@@ -112,62 +109,61 @@ class MySQL extends Cacheable {
 		return str_replace(Array("'", "\\"), Array("''", "\\\\"), $str);
 	}
 
-	function query($str_query, $cacheTime = 0) {
+	function query($query, $cacheTime = 0) {
 		global $profiler;
-		$link = $this->arr_links[0]["link"];
+		$link = $this->links[0]["link"];
 
-		$str_query = $this->_prepareQuery($str_query);
+		$query = $this->_prepareQuery($query);
 
-		if (/*$cacheTime > 0 && */$this->isCached($str_query, $cacheTime)) {
+		if (/*$cacheTime > 0 && */$this->isCached($query, $cacheTime)) {
 			if ($profiler) $profiler->logEvent("query_cache_hit"); 
-			return $this->getCached($str_query);
+			return $this->getCached($query);
 		} else {
 			// if we currently have no connection, connect
 			if (!$link) {
 				$this->connect();
-				$link = $this->arr_links[0]["link"];
-				$str_query = $this->_prepareQuery($str_query);
+				$link = $this->links[0]["link"];
+				$query = $this->_prepareQuery($query);
 			}
 
 			if ($profiler) $profiler->logEvent("query_no_cache_hit");
 			 
 			// send SQL statement to database
-			$dbr_queryResult = @mysql_query ($str_query, $link);
+			$queryResult = @mysql_query ($query, $link);
 			// if query successful
-			if ($dbr_queryResult) {
-				$this->int_affectedId = @mysql_insert_id ();
-				$int_resultCounter = 0;
-				$arr_result = Array ();
+			if ($queryResult) {
+				$this->affectedId = @mysql_insert_id ();
+				$resultCounter = 0;
+				$result = Array ();
 
-				if (is_resource($dbr_queryResult)) {
-					$this->int_affectedRows = @mysql_num_rows ($dbr_queryResult);
-					while ($arr_fetchedResult = @mysql_fetch_array ($dbr_queryResult, MYSQL_ASSOC)) {
+				if (is_resource($queryResult)) {
+					$this->affectedRows = @mysql_num_rows ($queryResult);
+					while ($fetchedResult = @mysql_fetch_array ($queryResult, MYSQL_ASSOC)) {
 						// remove slashes if needed
-						if ($this->bol_stripSlashes) {
-							foreach ($arr_fetchedResult as &$mix_val) {
-								if (gettype ($mix_val) == "string" ) {
-									$mix_val = stripslashes($mix_val);
+						if ($this->stripSlashes) {
+							foreach ($fetchedResult as &$val) {
+								if (gettype ($val) == "string" ) {
+									$val = stripslashes($val);
 								}
 							}
 						}
 						// create resulting array
-						$arr_result[] = new DBEntry($arr_fetchedResult, 0, "ArrayIterator", $this->prefix);
+						$result[] = new DBEntry($fetchedResult, 0, "ArrayIterator", $this->prefix);
 					}
 	
-					@mysql_free_result($dbr_queryResult);
+					@mysql_free_result($queryResult);
 					if ($profiler) $profiler->logEvent("query_add_cache"); 
-					$this->setCache($str_query, $arr_result, $this->prefix);
+					$this->setCache($query, $result, $this->prefix);
 				} else {
 					if ($profiler) $profiler->logEvent("query_clean_cache"); 
-					$this->cleanCacheBlock($str_query, $this->prefix);
+					$this->cleanCacheBlock($query, $this->prefix);
 				}
 
-				return ($arr_result);
+				return ($result);
 			} else {
-				$str_mySqlError .= mysql_error () . " Error-Code: " . mysql_errno ();
-				$this->int_MySqlErrNo = mysql_errno ();
-				$this->lastError = $str_mySqlError;
-				pushError($str_mySqlError);
+				$mySqlError .= mysql_error () . " Error-Code: " . mysql_errno ();
+				$this->lastError = $mySqlError;
+				pushError($mySqlError);
 			}
 		}
 	}

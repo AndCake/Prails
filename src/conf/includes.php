@@ -37,9 +37,8 @@ if (PROFILING_ENABLED === true) {
 include "lib/db_entry.php";
 include "lib/cacheable.php";
 include "lib/".strtolower(DB_TYPE).".php";
-include "lib/tblclass.php";
-include "lib/sessionmgr.php";
 include "lib/database.php";
+include "lib/sessionmgr.php";
 
 // include output classes
 include "lib/hookcore.php";
