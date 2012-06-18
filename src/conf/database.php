@@ -28,12 +28,12 @@ $arr_database = Array
 	"texts"=>Array(
 		"fk_language_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_language",
 		"identifier"=>"VARCHAR(255)",
-		"content"=>"TEXT",
+		"content"=>"LONGTEXT",
 		"type" => "TINYINT NOT NULL",
 		"decorator" => "VARCHAR(255)",
 		"title" => "VARCHAR(255)",
 		"description" => "TEXT",
-		"custom" => "TEXT",
+		"custom" => "LONGTEXT",
 	),
 	
 	"custom" => Array(
@@ -47,15 +47,15 @@ $arr_database = Array
 	    "fk_user_id"=>"BIGINT NOT NULL",
 	    "name"=>"VARCHAR(255)",
 		"header_info" => "TEXT",
-		"js_code"=>"TEXT",
-	    "style_code"=>"TEXT",
+		"js_code"=>"LONGTEXT",
+	    "style_code"=>"LONGTEXT",
 	),
 	"library"=>Array(
 		"fk_module_id"=>"INTEGER NOT NULL",
 		"fk_user_id"=>"BIGINT NOT NULL",
 		"fk_resource_id" => "INTEGER NOT NULL",
 		"name"=>"VARCHAR(255)",
-		"code"=>"TEXT",
+		"code"=>"LONGTEXT",
 	),
 	"handler"=>Array(
 	    "fk_module_id"=>"INTEGER NOT NULL REFERENCES tbl_prailsbase_module",
@@ -172,7 +172,7 @@ $arr_database = Array
 	// session table
 	"sessions" => Array(
 		"expires" => "INTEGER NOT NULL",
-		"session_data" => "TEXT",
+		"session_data" => "LONGTEXT",
 	)
 );
 
