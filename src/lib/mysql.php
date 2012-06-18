@@ -52,14 +52,14 @@ class MySQL extends Cacheable {
 	}
 
 	function connect($db = "offline") {
-		global $dbs;
+		global $arr_dbs;
 		global $log;
 		$id = count($this->links);
-		$this->links[$id]["link"] = @mysql_connect($dbs[$db]["host"], $dbs[$db]["user"], $dbs[$db]["pass"]);
-		$this->links[$id]["overrides"] = $dbs[$db]["table_overrides"];
-		$this->links[$id]["name"] = $dbs[$db]["name"];
+		$this->links[$id]["link"] = @mysql_connect($arr_dbs[$db]["host"], $arr_dbs[$db]["user"], $arr_dbs[$db]["pass"]);
+		$this->links[$id]["overrides"] = $arr_dbs[$db]["table_overrides"];
+		$this->links[$id]["name"] = $arr_dbs[$db]["name"];
 		if ($this->links[$id]["link"]) {
-			if ( @mysql_select_db ($dbs[$db]["name"], $this->links[$id]["link"]) ) {
+			if ( @mysql_select_db ($arr_dbs[$db]["name"], $this->links[$id]["link"]) ) {
 				return (TRUE);
 			} else {
 				$mySqlError .= mysql_error () . " Error code: " . mysql_errno();

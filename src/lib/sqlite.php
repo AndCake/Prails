@@ -52,12 +52,12 @@ class SQLite extends Cacheable {
 	}
 
 	function connect($db = "offline") {
-		global $dbs;
+		global $arr_dbs;
 		$id = count($this->links);
 		$this->links[$id]["overrides"] = $dbs[$db]["table_overrides"];
 		$this->links[$id]["name"] = $dbs[$db]["name"];
 		try {
-			$this->links[$id]["link"] = new SQLite3($dbs[$db]["name"].".".$dbs[$db]["host"]);
+			$this->links[$id]["link"] = new SQLite3($arr_dbs[$db]["name"].".".$arr_dbs[$db]["host"]);
 			$this->links[$id]["link"]->createFunction("CONCAT", Array($this, "_ext_concat"));
 			$this->links[$id]["link"]->createFunction("REPLACE", Array($this, "_ext_replace"));
 			$this->links[$id]["link"]->createFunction("MD5", "md5");
