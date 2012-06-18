@@ -158,7 +158,7 @@
 			}, "-", {
 				xtype: "button",
 				id: "data.#data.data_id_versionTag.button",
-				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;#lastVersion.tag&gt;' : 'Tag version'%>",
+				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;'.$arr_param['lastVersion']['tag'].'&gt;' : 'Tag version'%>",
 				iconCls: "bookmark",
 				disabled: (<?=(int)$arr_param["data"]["data_id"]?> <= 0 || <?=!empty($arr_param['lastVersion']['tag']) ? 'true' : 'false'?> ? true : false),
 				handler: function(e) {
@@ -180,7 +180,7 @@
                             headerAsText: true,
                             bodyStyle: "padding-left:5px;padding-top:5px;",
                             padding: 10,
-                            title: "Please enter the version tag's name:",
+//                            title: "Please enter the version tag's name:",
                             defaultType: "textfield",
                             monitorValid: true,
                             items: [{

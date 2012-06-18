@@ -47,6 +47,7 @@ class Database {
 	var $prefix = null;
 	var $isCached = true;
 	var $sql = null;
+	var dumpSqlQuery = DEBUG_MYSQL;
 	
 	function Database($prefix = "tbl_") {
 		$this->prefix = $prefix;
@@ -109,7 +110,7 @@ class Database {
     	global $profiler;
 
       	// dump query if needed
-    	if (DEBUG_MYSQL != 0) echo ($query."<br/>");
+    	if ($this->dumpSqlQuery != 0) echo ($query."<br/>");
     	$this->sql->setPrefix($this->prefix);
     	if ($profiler) $profiler->logEvent("queryStart");
     	$result = $this->sql->query($query, ($this->isCached ? DB_CACHE_TTL : 0));
@@ -227,7 +228,7 @@ class Database {
 			$field = strtolower($column["Field"]);
 			if (isset($data[$field])) {     	
 				array_push($fields, $column["Field"]);
-				array_push($values, ($escape?$this->escape($data[$field]):$data[$field]));
+				array_push($values, $this->escape($data[$field]));
 		   }
 		}
 		if (count($fields) <= 0) return 0;
@@ -339,19 +340,19 @@ class Database {
 		$query = "UPDATE ".$table." SET ";
 		$i = 0;
 		$data = $this->unifyData($data);
-		foreach ($columns as $col) {
+		foreach ($columns as $column) {
 			$field = strtolower($column["Field"]);
 			if (isset($data[$field])) {
-			   	if ($i > 0) $query .= ", ";
-			   	if ($enclose) {
-			   		if (preg_match("/[^\\\]'/", $data[$field])) {
-			    		$data[$column["Field"]] = $this->escape($data[$field]);
-			    	}
-			       $query .= $column["Field"]."='".$data[$field];
-			   	} else {
-			   		$query .= $column["Field"]."=".$data[$field];
-			   	}
-			   	$i++;
+				if ($i > 0) $query .= ", ";
+				if (preg_match("/[^\\\]'/", $data[$field])) {
+					$data[$column["Field"]] = $this->escape($data[$field]);
+				}
+				if (!preg_match('/^[0-9.-]+$/', $data[$field])) {
+					$query .= $column["Field"]."='".$data[$field]."'";
+				} else {
+					$query .= $column["Field"]."=".$data[$field];
+				}
+				$i++;
 			}
 		}
 		// nothing needs to be updated... got no data.
