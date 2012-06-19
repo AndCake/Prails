@@ -346,9 +346,9 @@ window.Builder = Object.extend(window.Builder || {}, {
 					}],
 					listeners: {
 						tabchange: function(tab, content) {
-							if (content.metaDataObj != null && content.metaDataObj.lastFocus != null) {
+							if (content.el != null && content.el.dom.hasFocus != null) {
 								setTimeout(function() {
-									content.metaDataObj.lastFocus.focus();
+								       Builder.focusBespin(content.el.dom.hasFocus);
 								}, 50);
 							}
 							var id = content.getId();
