@@ -142,7 +142,6 @@ Builder = Object.extend(Builder || {}, {
 	quickOpen: function(id) {
 		if (id == null) {
 			$("item.quickOpen").focus();
-			$("item.quickOpen").highlight();
 		} else {
 			var type = id.split(/_/g)[0];
 			switch (type) {
