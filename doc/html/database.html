@@ -29,6 +29,12 @@ This example of a data query fetches the first parameter and then checks whether
 there is another parameter given to it. If so, it will use the second one for controlling 
 the sorting rule applied to the <code><a href="Database.html#get">get</a></code> method.
 <br/><br/>
+<div class='method-type'>Method</div><a name='escape' class='method-title'>escape</a><div class='method'><span class='name'>escape</span>(<span class='parameters'>$string</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$string</code> (<span class='type'>String</span>)<span class='divider'> - </span>the string to be escaped</li>
+</ul>
+
+escapes a string and returns a properly safe string that can be used for sending it to the DB. 
+<br/><br/>
 <br/><br/>
 <div class='method-type'>Method</div><a name='query' class='method-title'>query</a><div class='method'><span class='name'>query</span>(<span class='parameters'>$query</span>) &rarr; <span class='type'>Array</span></div>
 <ul><li class='param'><code>$query</code> (<span class='type'>String</span>)<span class='divider'> - </span>The complete SQL query to be sent to the database.</li>
@@ -64,7 +70,7 @@ $arr_result = Array(
 </pre>
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='escape' class='method-title'>escape</a><div class='method'><span class='name'>escape</span>(<span class='parameters'>$value</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>escape</span>(<span class='parameters'>$value</span>) &rarr; <span class='type'>String</span></div>
 <ul><li class='param'><code>$value</code> (<span class='type'>String</span>)<span class='divider'> - </span>the string to be escaped</li>
 </ul>
 

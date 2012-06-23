@@ -1,109 +1,105 @@
-/**
- * Simple Form Validation, controlled by HTML alone
+/** Section Forms
+ * In Prails, the ideal way to code a form is by making use of endpoints. These endpoints resemble handler code that will be called if a certain button in a form was pressed. The endpoint's name thereby represents the button's name it belongs to. The endpoint will then be used to take care of server-side form validation and processing the data.  
+ * Please note, that for some AJAX situations it might be necessary to explicitly add the button name of the endpoint that should be used, as Javascript framework's form serializers usually don't take button names into account. 
  *
- * Copyright (c) 2011 Robert Kunze
+ * Prails offers a simple form validation engine, that can be controlled by HTML alone. 
  *
- * Validation syntax:
-    <form method="post" action="">
-        <div class="validate-email-error" error="empty=Your eMail address is important!|invalid=Oh! Seems you have a type in your eMail address."></div>
-        <div class="required-error" error="empty=Don't want to give us your eMail address? Oh, please..."></div>
-        <input type="text" name="email" class="validate-email required" />
-        <button type="submit">send</button>
-    </form>
+ * *Validation syntax:*
+ * {{{
+ *   <form method="post" action="">
+ *       <div class="validate-email-error" error="empty=Your eMail address is important!|invalid=Oh! Seems you have a type in your eMail address."></div>
+ *       <div class="required-error" error="empty=Don't want to give us your eMail address? Oh, please..."></div>
+ *       <input type="text" name="email" class="validate-email required" />
+ *       <button type="submit">send</button>
+ *   </form>
+ * }}}
  *
- * CSS classes used + generated:
- * =============================
+ * *CSS classes used + generated:*
  *
  * Field Classes (provided by user):
- * - required: this field is required
- * - validate-number: this field needs to be a number
- * - validate-alpha: this field needs to consist of letters only
- * - validate-alphanum: this field needs to contain only word characters
- * - validate-date: this field needs to contain a date (yyyy-mm-dd)
- * - validate-email: this field needs to contain an email address
- * - validate-url: this field needs to contain a valid URL
- * - no-cancel: set for form; if set, then invalid fields won't stop form submission
+ * - `required`: this field is required
+ * - `validate-number`: this field needs to be a number
+ * - `validate-alpha`: this field needs to consist of letters only
+ * - `validate-alphanum`: this field needs to contain only word characters
+ * - `validate-date`: this field needs to contain a date (yyyy-mm-dd)
+ * - `validate-email`: this field needs to contain an email address
+ * - `validate-url`: this field needs to contain a valid URL
+ * - `no-cancel`: set for form; if set, then invalid fields won't stop form submission
  *
  * Field classes (generated):
- * - validate-valid: this field has been detected as valid
- * - validate-invalid: this field has been detected as invalid
- * - validate-valid-hint: this element will be put after the current form field, indicating, that the current field has been correctly filled in. No content.
- * - validate-advice: this element will be put after the current form field, giving the user some advice on what to fill in this field. Text content.
+ * - `validate-valid`: this field has been detected as valid
+ * - `validate-invalid`: this field has been detected as invalid
+ * - `validate-valid-hint`: this element will be put after the current form field, indicating, that the current field has been correctly filled in. No content.
+ * - `validate-advice`: this element will be put after the current form field, giving the user some advice on what to fill in this field. Text content.
  *
  * By default the internally defined expressions are checked for. But you may extend and override them using elements with the corresponding CSS class:
- * - validate-number-error: override definition of validate-number.
- * - validate-<anything>-error: override / create definition of validate-<anything>.
+ * - `validate-number-error`: override definition of `validate-number`.
+ * - `validate-anything-error`: override / create definition of `validate-anything`.
  * 
- * The element containing exactly one of the above CSS classes will be checked for a "rel" attribute, defining the regular expression (or some custom Javascript 
- * code, if prepended with "javascript:") to use for validation and also checked for a "error" attribute, which can contain the error messages to be shown 
+ * The element containing exactly one of the above CSS classes will be checked for a `rel` attribute, defining the regular expression (or some custom Javascript 
+ * code, if prepended with "javascript:") to use for validation and also checked for a `error` attribute, which can contain the error messages to be shown 
  * for this kind of field. Both are optional. 
- * Furthermore you can override these globally-defined classes by specifying the "rel" or/and the "error" attribute in the element itself to be validated.
- * The error attribute must be structured like this: "empty=<text to show, if this field is empty>|invalid=<text to show, if this field is invalid>"
+ * Furthermore you can override these globally-defined classes by specifying the `rel` or/and the `error` attribute in the element itself to be validated.
+ * The error attribute must be structured like this: "empty=text to show, if this field is empty|invalid=text to show, if this field is invalid"
  *
- * Example form:
- * =============
- 
-<form method="post" action="?submitted">
-
-    <!-- definition of a new validator, called "meiner", which does not accept any alpha character -->
-    <div class="validate-meiner-error" error="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"></div>
-    <fieldset>
-        <legend>Login</legend>
-        <div class="formfield">
-            <label for="test">eMail</label>
-            
-            <!-- using the standard email validator -->
-            <input type="text" name="email" id="test" class="required validate-email" />
-        </div>
-        <div class="formfield">
-            <label for="test2">Password</label>
-            
-            <!-- using no special validator, but a dedicated valid pattern and invalid advice text -->
-            <input type="password" name="password" id="test2" class="required" rel=".{6,}" error="invalid=Your password must have at least 6 characters." />
-        </div>
-        <div class="formfield">
-            <label for="test3">No Chars</label>
-            
-            <!-- using the previously defined "meiner" validator -->
-            <input type="text" name="chars" id="test3" class="required validate-meiner" />
-        </div>
-        <div class="formfield">
-            <label for="test4">Gender</label>
-            <select name="gender" id="test4" size="1" class="required">
-                <option value="">select one</option>
-                <option value="m">male</option>
-                <option value="f">female</option>
-            </select>
-         </div>
-        <div class="formfield">
-            <label for="test5">School</label>
-            
-            <!-- using a validator for a group of radio boxes -->
-            <div class="radiobox required">
-                <div class="radio">
-                    <input type="radio" name="school" value="1" id="gs" />
-                    <label for="gs">Grundschule</label>
-                </div>
-                <div class="radio">
-                    <input type="radio" name="school" value="2" id="sek1" />
-                    <label for="sek1">Sekundarstufe 1</label>
-                </div>
-                <div class="radio">
-                    <input type="radio" name="school" value="3" id="sek2" />
-                    <label for="sek2">Sekundarstufe 2</label>
-                </div>
-                <div class="radio">
-                    <input type="radio" name="school" value="4" id="uni" />
-                    <label for="uni">Hochschule</label>
-                </div>
-            </div>
-        </div>
-        <button type="submit">Login</button>
-    </fieldset>
-</form> 
+ * *Example form:*
+ * {{{
+ * <form method="post" action="?submitted">
+ *   <!-- definition of a new validator, called "meiner", which does not accept any alpha character -->
+ *   <div class="validate-meiner-error" error="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"></div>
+ *   <fieldset>
+ *       <legend>Login</legend>
+ *       <div class="formfield">
+ *           <label for="test">eMail</label>
+ *           <!-- using the standard email validator -->
+ *           <input type="text" name="email" id="test" class="required validate-email" />
+ *       </div>
+ *       <div class="formfield">
+ *           <label for="test2">Password</label>
+ *           <!-- using no special validator, but a dedicated valid pattern and invalid advice text -->
+ *           <input type="password" name="password" id="test2" class="required" rel=".{6,}" error="invalid=Your password must have at least 6 characters." />
+ *       </div>
+ *       <div class="formfield">
+ *           <label for="test3">No Chars</label>
+ *           <!-- using the previously defined "meiner" validator -->
+ *           <input type="text" name="chars" id="test3" class="required validate-meiner" />
+ *       </div>
+ *       <div class="formfield">
+ *           <label for="test4">Gender</label>
+ *           <select name="gender" id="test4" size="1" class="required">
+ *               <option value="">select one</option>
+ *               <option value="m">male</option>
+ *               <option value="f">female</option>
+ *           </select>
+ *        </div>
+ *       <div class="formfield">
+ *           <label for="test5">School</label>
+ *           <!-- using a validator for a group of radio boxes -->
+ *           <div class="radiobox required">
+ *               <div class="radio">
+ *                   <input type="radio" name="school" value="1" id="gs" />
+ *                   <label for="gs">Elementary School</label>
+ *               </div>
+ *               <div class="radio">
+ *                   <input type="radio" name="school" value="2" id="sek1" />
+ *                   <label for="sek1">Junior High</label>
+ *               </div>
+ *               <div class="radio">
+ *                   <input type="radio" name="school" value="3" id="sek2" />
+ *                   <label for="sek2">Highschool</label>
+ *               </div>
+ *               <div class="radio">
+ *                   <input type="radio" name="school" value="4" id="uni" />
+ *                   <label for="uni">College</label>
+ *               </div>
+ *           </div>
+ *       </div>
+ *       <button type="submit">Login</button>
+ *   </fieldset>
+ * </form> 
+ * }}}
  *
- *
- */
+ **/
 
 var Validator = Class.create({
     

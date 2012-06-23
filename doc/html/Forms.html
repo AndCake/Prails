@@ -1,0 +1,107 @@
+<html>
+	<head>
+		<title>Forms</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Forms</h1>In Prails, the ideal way to code a form is by making use of endpoints. These endpoints resemble handler code that will be called if a certain button in a form was pressed. The endpoint's name thereby represents the button's name it belongs to. The endpoint will then be used to take care of server-side form validation and processing the data.  
+Please note, that for some AJAX situations it might be necessary to explicitly add the button name of the endpoint that should be used, as Javascript framework's form serializers usually don't take button names into account. 
+<br/><br/>
+Prails offers a simple form validation engine, that can be controlled by HTML alone. 
+<br/><br/>
+<strong>Validation syntax:</strong>
+<pre>
+  &lt;form method="post" action=""&gt;
+      &lt;div class="validate-email-error" error="empty=Your eMail address is important!|invalid=Oh! Seems you have a type in your eMail address."&gt;&lt;/div&gt;
+      &lt;div class="required-error" error="empty=Don't want to give us your eMail address? Oh, please..."&gt;&lt;/div&gt;
+      &lt;input type="text" name="email" class="validate-email required" /&gt;
+      &lt;button type="submit"&gt;send&lt;/button&gt;
+  &lt;/form&gt;
+</pre>
+<br/><br/>
+<strong>CSS classes used + generated:</strong>
+<br/><br/>
+Field Classes (provided by user):
+<li><code>required</code>: this field is required</li>
+<li><code>validate-number</code>: this field needs to be a number</li>
+<li><code>validate-alpha</code>: this field needs to consist of letters only</li>
+<li><code>validate-alphanum</code>: this field needs to contain only word characters</li>
+<li><code>validate-date</code>: this field needs to contain a date (yyyy-mm-dd)</li>
+<li><code>validate-email</code>: this field needs to contain an email address</li>
+<li><code>validate-url</code>: this field needs to contain a valid URL</li>
+<li><code>no-cancel</code>: set for form; if set, then invalid fields won't stop form submission</li>
+<br/><br/>
+Field classes (generated):
+<li><code>validate-valid</code>: this field has been detected as valid</li>
+<li><code>validate-invalid</code>: this field has been detected as invalid</li>
+<li><code>validate-valid-hint</code>: this element will be put after the current form field, indicating, that the current field has been correctly filled in. No content.</li>
+<li><code>validate-advice</code>: this element will be put after the current form field, giving the user some advice on what to fill in this field. Text content.</li>
+<br/><br/>
+By default the internally defined expressions are checked for. But you may extend and override them using elements with the corresponding CSS class:
+<li><code>validate-number-error</code>: override definition of <code>validate-number</code>.</li>
+<li><code>validate-anything-error</code>: override / create definition of <code>validate-anything</code>.</li>
+<br/><br/>
+The element containing exactly one of the above CSS classes will be checked for a <code>rel</code> attribute, defining the regular expression (or some custom Javascript 
+code, if prepended with "javascript:") to use for validation and also checked for a <code>error</code> attribute, which can contain the error messages to be shown 
+for this kind of field. Both are optional. 
+Furthermore you can override these globally-defined classes by specifying the <code>rel</code> or/and the <code>error</code> attribute in the element itself to be validated.
+The error attribute must be structured like this: "empty=text to show, if this field is empty|invalid=text to show, if this field is invalid"
+<br/><br/>
+<strong>Example form:</strong>
+<pre>
+&lt;form method="post" action="?submitted"&gt;
+  &lt;!-- definition of a new validator, called "meiner", which does not accept any alpha character --&gt;
+  &lt;div class="validate-meiner-error" error="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"&gt;&lt;/div&gt;
+  &lt;fieldset&gt;
+      &lt;legend&gt;Login&lt;/legend&gt;
+      &lt;div class="formfield"&gt;
+          &lt;label for="test"&gt;eMail&lt;/label&gt;
+          &lt;!-- using the standard email validator --&gt;
+          &lt;input type="text" name="email" id="test" class="required validate-email" /&gt;
+      &lt;/div&gt;
+      &lt;div class="formfield"&gt;
+          &lt;label for="test2"&gt;Password&lt;/label&gt;
+          &lt;!-- using no special validator, but a dedicated valid pattern and invalid advice text --&gt;
+          &lt;input type="password" name="password" id="test2" class="required" rel=".{6,}" error="invalid=Your password must have at least 6 characters." /&gt;
+      &lt;/div&gt;
+      &lt;div class="formfield"&gt;
+          &lt;label for="test3"&gt;No Chars&lt;/label&gt;
+          &lt;!-- using the previously defined "meiner" validator --&gt;
+          &lt;input type="text" name="chars" id="test3" class="required validate-meiner" /&gt;
+      &lt;/div&gt;
+      &lt;div class="formfield"&gt;
+          &lt;label for="test4"&gt;Gender&lt;/label&gt;
+          &lt;select name="gender" id="test4" size="1" class="required"&gt;
+              &lt;option value=""&gt;select one&lt;/option&gt;
+              &lt;option value="m"&gt;male&lt;/option&gt;
+              &lt;option value="f"&gt;female&lt;/option&gt;
+          &lt;/select&gt;
+       &lt;/div&gt;
+      &lt;div class="formfield"&gt;
+          &lt;label for="test5"&gt;School&lt;/label&gt;
+          &lt;!-- using a validator for a group of radio boxes --&gt;
+          &lt;div class="radiobox required"&gt;
+              &lt;div class="radio"&gt;
+                  &lt;input type="radio" name="school" value="1" id="gs" /&gt;
+                  &lt;label for="gs"&gt;Elementary School&lt;/label&gt;
+              &lt;/div&gt;
+              &lt;div class="radio"&gt;
+                  &lt;input type="radio" name="school" value="2" id="sek1" /&gt;
+                  &lt;label for="sek1"&gt;Junior High&lt;/label&gt;
+              &lt;/div&gt;
+              &lt;div class="radio"&gt;
+                  &lt;input type="radio" name="school" value="3" id="sek2" /&gt;
+                  &lt;label for="sek2"&gt;Highschool&lt;/label&gt;
+              &lt;/div&gt;
+              &lt;div class="radio"&gt;
+                  &lt;input type="radio" name="school" value="4" id="uni" /&gt;
+                  &lt;label for="uni"&gt;College&lt;/label&gt;
+              &lt;/div&gt;
+          &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;button type="submit"&gt;Login&lt;/button&gt;
+  &lt;/fieldset&gt;
+&lt;/form&gt; 
+</pre>
+<br/><br/>
+<br/><br/>

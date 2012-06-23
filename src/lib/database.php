@@ -63,11 +63,10 @@ class Database {
         $this->isCached = $isCache;
     }
    
-    /**
-     * escapes a string before sending it to the DB
-     * 
-     * @param STRING $str the string to be escaped
-     * @returns STRING the properly escaped string
+    /** escape($string) -> String
+     * - $string (String) - the string to be escaped
+     *
+     * escapes a string and returns a properly safe string that can be used for sending it to the DB. 
      **/ 
     function escape($str) {
     	return $this->sql->escape($str);

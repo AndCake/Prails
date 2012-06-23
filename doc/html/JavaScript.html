@@ -1,0 +1,101 @@
+<html>
+	<head>
+		<title>JavaScript</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>JavaScript</h1> In pages you create using Prails you always have access to the complete functionality provided by <a href="http://prototypejs.org" target="_blank">PrototypeJS</a>, <a href="http://scripty2.com/" target="_blank">Scripty 2</a>, <a href="http://jquery.com/" target="_blank">jQuery</a> and <a href="http://jqueryui.com/" target="_blank">jQuery UI</a>, which makes it easy to deliver a great user experience. 
+<strong>Please note</strong>, that due to the presence of both - Prototype and jQuery - you need to access jQuery functionality not via <code>$</code> but via <code>_</code> (underscore character) or directly via <code>jQuery</code>. 
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;div id="myid"&gt;&lt;/div&gt;
+&lt;p style="display: none;"&gt;And this will appear&lt;/p&gt;
+&lt;script type="text/javascript"&gt;
+// using jQuery's on-document-ready event registration
+_(function() {
+    // using prototype to add some CSS class and insert text
+    $("myid").addClassName("myclass").update("I read this message");
+    // using jQuery to show the
+    _(".myclass + p").addClass("ohmy").show('slow');
+});
+&lt;/script&gt;
+</pre>
+This example demonstrates ways in which PrototypeJS and jQuery can be intertwined.
+<br/><br/>
+This section covers some pre-defined functions inherent in Prails. 
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='include' class='method-title'>include</a><div class='method'><span class='name'>include</span>(<span class='parameters'>file</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>file</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL of the javascript file to be loaded</li>
+</ul>
+
+This method will load the given javascript file immediately.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='loadURL' class='method-title'>loadURL</a><div class='method'><span class='name'>loadURL</span>(<span class='parameters'>url</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>url</code> (<span class='type'>String</span>)<span class='divider'> - </span>the URL to load</li>
+</ul>
+
+This function loads a given URL by changing the current window's URL.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='invoke' class='method-title'>invoke</a><div class='method'><span class='name'>invoke</span>(<span class='parameters'>element, event[, parameters[, post[, onSuccess]]]</span>) &rarr; <span class='type'>void</span></div>
+<div class='method'><span class='name'>invoke</span>(<span class='parameters'>event[, parameters[, post[, onSuccess[, showIndicator]]]]</span>) &rarr; <span class='type'>void</span></div>
+<div class='method'><span class='name'>invoke</span>(<span class='parameters'>event[, onSuccess]</span>) &rarr; <span class='type'>void</span></div>
+<div class='method'><span class='name'>invoke</span>(<span class='parameters'>event[, post]</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>element</code> (<span class='type'>String</span> | <span class='type'>DOMElement</span>)<span class='divider'> - </span>the element the resulting response body should be inserted into (contents are replaced!)</li>
+<li class='param'><code>event</code> (<span class='type'>String</span>)<span class='divider'> - </span>either a URL (relative or absolute) or a event in colon notation which should be requested</li>
+<li class='param'><code>parameters</code> (<span class='type'>Object</span> | <span class='type'>String</span>)<span class='divider'> - </span>additional parameters to be sent (or POST body, if <code>post</code> is set to true)</li>
+<li class='param'><code>post</code> (<span class='type'>Boolean</span>)<span class='divider'> - </span>what kind of request to perform: a GET request (<code>false</code>) or a POST request (<code>true</code>), defaults to <code>false</code></li>
+<li class='param'><code>onSuccess</code> (<span class='type'>Function</span>)<span class='divider'> - </span>the callback function to call when the response is received. In case an element was specified, the callback function is called after the contents have been added to the document.</li>
+</ul>
+
+This method executes an AJAX request.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+&lt;div id="response"&gt;&lt;/div&gt;
+&lt;script type="text/javascript"&gt;
+   _(function() {
+       invoke('response', 'global:home');
+   });
+&lt;/script&gt;
+</pre>
+This example sends an AJAX request to the event <code>global:home</code> and writes it's response into the <code>response</code> element.
+<br/><br/>
+<strong>Example 2:</strong>
+<pre>
+invoke("User/search", $("myform").serialize(), true, function(req) {
+   alert(req.responseText);
+});
+</pre>
+This example sends an AJAX POST request to the relative URL User/search, while submitting data from the form <code>myform</code>. The server's response is shown in an alert window.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='addLoadEvent' class='method-title'>addLoadEvent</a><div class='method'><span class='name'>addLoadEvent</span>(<span class='parameters'>callback</span>) &rarr; <span class='type'>void</span></div>
+<code>callback</code> (Function) - the callback function to call. Notice, that it will also be called for AJAX requests via <code>invoke</code>
+<br/><br/>
+Registers a function to be called as soon as the document was loaded completely. When <code>invoke</code> is used to load additional contents into the page, the callback functions registered through <code>addLoadEvent</code> will be called again. If you don't want that to happen, use the jQuery-style onload registration.
+<br/><br/>
+<strong>Example 1:</strong>
+<pre>
+addLoadEvent(function() {
+    $$("form").each(function(item) {
+        if (item._eventAttached) return;
+        item._eventAttached = true;
+        item.observe("submit", function(event) {
+            alert("tried to submit a form");
+            event.stop();
+        });
+    });
+});    
+</pre>
+This example will prevent all forms on the page to be submitted, if not triggered via javascript. 
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='crc32' class='method-title'>crc32</a><div class='method'><span class='name'>crc32</span>(<span class='parameters'>data</span>) &rarr; <span class='type'>Number</span></div>
+<code>data</code> (String) - the data to compute the checksum for
+<br/><br/>
+This function computes the CRC32 checksum for a given string and returns the checksum.
+<br/><br/>

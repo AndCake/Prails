@@ -1,8 +1,7 @@
 /** Section Builder
  * The builder section allows for client-side (javascript) customization of the Prails IDE and thus to 
  * extend it's functionality. In order to do so, you will need to define an event handler to hook into the 
- * `[HookCore]builder-init` hook sink. Your output code will then require to be pure javascript code 
- * - _no HTML tags allowed_ .
+ * `[HookCore]builder-init` hook sink. Your output code will then require to be pure javascript code - _no HTML tags allowed_ .
  **/
 Builder = Object.extend(Builder || {}, {
 	/**

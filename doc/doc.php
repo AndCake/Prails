@@ -184,7 +184,7 @@ function writeParam($details) {
 		$content .= "<ul>";
 		$bulletCreated = true;
 	}
-	$content .= "<li class='param'><code>".preg_replace('/`([^`]+)`/', '\\1', $details[1])."</code> (<span class='type'>".$types."</span>)<span class='divider'> - </span>".parseWikiCode($details[4])."</li>\n";
+	$content .= "<li class='param'><code>".preg_replace('/`([^`]+)`/', '\\1', $details[1])."</code> (<span class='type'>".$types."</span>)<span class='divider'> - </span>".parseWikiCode($details[4], true)."</li>\n";
 	file_put_contents($path.$file, $content);
 }
 
@@ -207,7 +207,7 @@ function writeDescription($desc) {
 	file_put_contents($path.$file, $content);
 }
 
-function parseWikiCode($desc) {
+function parseWikiCode($desc, $ignoreBullets = false) {
 	global $inCodeBlock, $path;
 	if ($inCodeBlock) {
 		$desc = str_replace(Array('<', '>'), Array('&lt;', '&gt;'), $desc);
@@ -216,7 +216,10 @@ function parseWikiCode($desc) {
 	$desc = preg_replace('/\\*([^*]+)\\*/', '<strong>\\1</strong>', $desc);
 	$desc = preg_replace('/\\s*_([^_]+)_\\s/', ' <u>\\1</u> ', $desc);
 	$desc = preg_replace('/\\!\\[([^\\]]+)\\]\\(([^\\)]+)\\)/', '<a href="\\2" class="dialog image" title="\\1"><img src="\\2" alt="\\1" border="0"/><span class="caption">\\1</span></a>', $desc);
-	$desc = preg_replace('/\\!\\(([^\\)]+)\\)/', '<a href="\\1" target="_blank">\\1</a>', $desc);
+	$desc = preg_replace('/!\\(([^\\) ]+)(?: ([^\\)]*))?\\)/', '<a href="\\1" target="_blank">\\2</a>', $desc);
+	if (!$ignoreBullets) {
+		$desc = preg_replace('/^\\s*-\\s+(.+)$/', '<li>\\1</li>', $desc);
+	}
 	if (preg_match('/\\{\\{\\{/', $desc)) {
 		$inCodeBlock = true;
 	} else if (preg_match('/\\}\\}\\}/', $desc)) {
