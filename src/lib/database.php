@@ -62,12 +62,22 @@ class Database {
     function setCache($isCache = true) {
         $this->isCached = $isCache;
     }
-   
-    /** escape($string) -> String
-     * - $string (String) - the string to be escaped
-     *
-     * escapes a string and returns a properly safe string that can be used for sending it to the DB. 
-     **/ 
+   	/**
+	 * escape($value) -> String
+	 * - $value (String) - the string to be escaped
+	 * 
+	 * This function will escape the value given, so that it is safe to place it in a query or condition. 
+	 * It does so depending on the underlying database in use.
+	 * 
+	 * *Example:* 
+	 * 
+	 * For a MySQL database this example will output: `Escaped string: Zak''s Laptop`
+	 * {{{
+	 * $item = "Zak's Laptop";
+	 * $escaped_item = $this->escape($item);
+	 * printf("Escaped string: %s\n", $escaped_item);
+	 * }}}
+	 **/
     function escape($str) {
     	return $this->sql->escape($str);
     }
@@ -121,22 +131,6 @@ class Database {
 	}
 	function SqlQuery($query) { return $this->query($query); }
 
-	/**
-	 * escape($value) -> String
-	 * - $value (String) - the string to be escaped
-	 * 
-	 * This function will escape the value given, so that it is safe to place it in a query or condition. 
-	 * It does so depending on the underlying database in use.
-	 * 
-	 * *Example:* 
-	 * 
-	 * For a MySQL database this example will output: `Escaped string: Zak''s Laptop`
-	 * {{{
-	 * $item = "Zak's Laptop";
-	 * $escaped_item = $this->escape($item);
-	 * printf("Escaped string: %s\n", $escaped_item);
-	 * }}}
-	 **/
 	 
 	/**
 	 * get($table[, $filter[, $sort[, $start[, $limit]]]]) -> Array

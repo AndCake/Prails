@@ -6,7 +6,7 @@
 Builder = Object.extend(Builder || {}, {
 	/**
          * addTab(url, title, id[, icon]) -> void
-         * - `url` (String) - the URL to load into the new tab (via AJAX)
+         * - `url` (String) - the URL to load into the newly formed tab (via AJAX)
          * - `title` (String) - the tab's title
          * - `id` (String) - a unique identifier for the page to be loaded within the tab
          * - `icon` (String) - an icon CSS class that will be used for the small icon next to the tab title.

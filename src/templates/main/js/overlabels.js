@@ -25,7 +25,13 @@ addLoadEvent(Overlabel.init = function() {
 	var convertToOverlabel = function(element, content) {
 		element = $(element);
 		element.overlabelled = true;
-		element.wrap("span", {"class": 'withLabel'});
+		if (element.wrap) {
+			element.wrap("span", {"class": 'withLabel'});
+		} else {
+			var par = element.parentNode;
+			element.parentNode.innerHTML = "<span class='withLabel'>" + element.parentNode.innerHTML + "</span>";
+			element = par.down("span.withLabel>*");
+		}
 		element.parentNode.insert({before: label=new Element("label", {"class": 'overlabel-apply'}).update(content).hide()});
 		attachEvents(label, element);
 		if (element.value.length <= 0) {
