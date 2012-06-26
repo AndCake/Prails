@@ -47,7 +47,7 @@ class Database {
 	var $prefix = null;
 	var $isCached = true;
 	var $sql = null;
-	var dumpSqlQuery = DEBUG_MYSQL;
+	var $dumpSqlQuery = DEBUG_MYSQL;
 	
 	function Database($prefix = "tbl_") {
 		$this->prefix = $prefix;

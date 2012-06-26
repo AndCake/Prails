@@ -147,7 +147,7 @@ clear, .clear { display: block; height: 0px; clear: both; }
   display: inline-block;
   padding: @padding;
   text-shadow: @textShadow;
-  #gradient > .vertical-three-colors(lighten(@color, 20),@color,0.5,lighten(saturate(@color, 10), 10));
+  #gradient > .vertical(lighten(@color, 20),@color);
   border: 1px solid darken(@color, 20);
   color: @textColor;
   font-size: @fontSize;
@@ -157,7 +157,7 @@ clear, .clear { display: block; height: 0px; clear: both; }
   .box-shadow(@shadow);
 
   &:hover {
-    background-position: 0 -15px;
+    .opacity(75);
     color: @textColor;
     text-decoration: none;
   }
