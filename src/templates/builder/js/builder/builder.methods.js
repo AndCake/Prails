@@ -317,14 +317,15 @@ Builder = Object.extend(Builder || {}, {
     	        			Builder.blurBespin(el);
     	        			Builder.nextTab(event);
     	        			setTimeout(function() { window.switching = false; }, 200);
+    	        			return false;
     	        		} else if (event.keyCode == 37) {
     	        			if (window.switching) return;
     	        			window.switching = true;
     	        			Builder.blurBespin(el);
     	        			Builder.previousTab(event);
     	        			setTimeout(function() { window.switching = false; }, 200);
+    	        			return false;
     	        		}
-    	        		return false;
     	        	} else if (event.ctrlKey && event.shiftKey) {
     	        		if (event.keyCode == "D".charCodeAt(0)) {
     	        			Builder.quickOpen();
