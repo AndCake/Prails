@@ -38,7 +38,7 @@
         
         var mode = cm.getOption('mode');
         
-        if (mode == 'text/html') {
+        if (mode == 'text/html' || mode == 'application/x-httpd-php') {
         
             /*
              * Relevant structure of token:
@@ -68,7 +68,7 @@
             }
             
             if (ch == '>') {
-                var type = state.htmlState ? state.htmlState.type : state.type; // htmlmixed : xml
+                var type = (state.htmlState && state.htmlState.type) || (state.html && state.html.type) || state.type; // htmlmixed : xml
                 
                 if (tok.className == 'tag' && type == 'closeTag') {
                     throw CodeMirror.Pass; // Don't process the '>' at the end of an end-tag.
@@ -80,11 +80,11 @@
         
                 tok = cm.getTokenAt(cm.getCursor());
                 state = tok.state;
-                type = state.htmlState ? state.htmlState.type : state.type; // htmlmixed : xml
+                type = (state.htmlState && state.htmlState.type) || (state.html && state.html.type) || state.type; // htmlmixed : xml
 
                 if (tok.className == 'tag' && type != 'selfcloseTag') {
-                    var tagName = state.htmlState ? state.htmlState.context.tagName : state.tagName; // htmlmixed : xml
-                    if (tagName.length > 0) {
+                    var tagName = (state.htmlState && state.htmlState.context.tagName) || (state.html && state.html.tagName) || state.tagName; // htmlmixed : xml
+                    if (tagName && tagName.length > 0) {
                         insertEndTag(cm, indent, pos, tagName);
                     }
                     return;
@@ -96,8 +96,8 @@
             
             } else if (ch == '/') {
                 if (tok.className == 'tag' && tok.string == '<') {
-                    var tagName = state.htmlState ? (state.htmlState.context ? state.htmlState.context.tagName : '') : state.context.tagName; // htmlmixed : xml # extra htmlmized check is for '</' edge case
-                    if (tagName.length > 0) {
+                    var tagName = (state.htmlState && state.htmlState.context && state.htmlState.context.tagName || "") || (state.html && state.html.context && state.html.context.tagName || "") || state.context.tagName; // htmlmixed : xml # extra htmlmized check is for '</' edge case
+                    if (tagName && tagName.length > 0) {
                         completeEndTag(cm, pos, tagName);
                         return;
                     }

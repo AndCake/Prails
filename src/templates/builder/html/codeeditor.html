@@ -245,8 +245,8 @@
 					parent.Builder.previousTab();
 					setTimeout(function() { parent.switching = false; }, 200);
 				},
-		                "'>'": function(cm) { if (txt.mode == 'application/x-httpd-php') cm.closeTag(cm, '>'); },
-		                "'/'": function(cm) { if (txt.mode == 'application/x-httpd-php') cm.closeTag(cm, '/'); }
+		                "'>'": function(cm) { cm.closeTag(cm, '>'); },
+		                "'/'": function(cm) { cm.closeTag(cm, '/'); }
 			}			
 		});
 		window.hlLine = txt.editor.setLineClass(0, "activeline");		

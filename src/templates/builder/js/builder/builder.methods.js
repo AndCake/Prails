@@ -310,7 +310,6 @@ Builder = Object.extend(Builder || {}, {
 				} catch(e){};
 				return false;
 			} else if (event.ctrlKey && event.altKey) {
-    	    			window.focus();
     	        		if (event.keyCode == 39) {
     	        			if (window.switching) return;
     	        			window.switching = true;
