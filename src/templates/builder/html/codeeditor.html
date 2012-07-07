@@ -46,6 +46,25 @@
 			font-family: MesloLGMDZRegular, monospace;
 			line-height: 1.5em; 
 		}
+		.CodeMirror .CodeMirror-gutter {
+			border-right: 1px solid #DDD;
+			background-color: #EFEBE7;
+    		background-repeat: repeat-x;
+    		background-image: -khtml-gradient(linear, left top, right top, from(#FCFCF9), to(#EFEBE7)); 
+    		background-image: -moz-linear-gradient(left, #FCFCF9, #EFEBE7);
+    		background-image: -ms-linear-gradient(left, #FCFCF9, #EFEBE7); 
+    		background-image: -webkit-gradient(linear, left top, right top, color-stop(0%, #FCFCF9), color-stop(100%, #EFEBE7));
+    		background-image: -webkit-linear-gradient(left, #FCFCF9, #EFEBE7);
+    		background-image: -o-linear-gradient(left, #FCFCF9, #EFEBE7);
+    		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FCFCF9', endColorstr='#EFEBE7', GradientType=1);
+    		-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FCFCF9', endColorstr='#EFEBE7', GradientType=1);
+    		background-image: linear-gradient(left, #FCFCF9, @endColor);
+    		background: -webkit-linear-gradient(left, #FCFCF9, #EFEBE7);
+			text-shadow: 1px 1px 1px white;
+			-webkit-box-shadow: 1px 0px 8px #dfdfdf;
+			-moz-box-shadow: 1px 0px 8px #dfdfdf;
+			box-shadow: 1px 0px 8px #dfdfdf;
+		}
 		.CodeMirror .CodeMirror-gutter-text span.error {
 			font-size: 18px;
 			position: absolute;

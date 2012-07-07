@@ -541,13 +541,15 @@ class BuilderData extends Database
 		$start = strpos($file, $startMarker) + strlen($startMarker);
 		$len = (strpos($file, $endMarker, $start) - 1) - $start;
 		$area = substr($file, $start, $len);
-		preg_match_all('@\s*RewriteRule\s+\^([^\s]+)\$\s+index.php\?([^\s]+)\s+\[.+\]@usix', $area, $matches);
-		$arr_result = Array();
-		// loop over all found rules
-		foreach ($matches[0] as $key => $match) {
-			$arr_result[$matches[1][$key]] = str_replace("&%1", "", $matches[2][$key]);
-		}
-		
+        $lines = explode("\n", $area);
+        $arr_result = Array();
+        // loop over all found rules
+        foreach ($lines as $line) {
+            if (preg_match('@\s*RewriteRule\s+\^([^\$]+)\$\s+index\.php\?([^\s+]+)\s+\[.+\]@usix', $line, $match)) {
+                $arr_result[$match[1]] = str_replace("&%1", "", $match[2]);
+            }
+        }
+
 		return $arr_result;
 	}
 	
@@ -602,17 +604,44 @@ class BuilderData extends Database
 	
 	function updateUrlRules($arr_data) {
 		$file = file_get_contents(".htaccess");
+
+        // first remove any previous URL for the current event handler
+        // therefore first compute the ID
+        foreach ($arr_data as $target) {
+            preg_match('/event=(\w+):(\w+)&/', $target["original"], $match);
+            list($module, $handler) = array_slice($match, 1);
+            $id = md5($module.$handler);
+
+            $lines = explode("\n", $file);
+            $file = "";
+            foreach ($lines as $line) {
+                // then scan the file contents for the ID
+                if (strpos($line, "\$id\$: $id") === false) {
+                    // if not found in current line, add the line to the resulting file content
+                    $file .= $line."\n";
+                }
+            }
+        }
+
+
+        // make out the custom rules section in .htaccess file
 		$startMarker = "#--START_CUSTOM--#";
 		$endMarker = "#--END_CUSTOM--#";
-		$start = strpos($file, $startMarker) + strlen($startMarker);
-		$len = (strpos($file, $endMarker, $start) - 1) - $start;
+        $file = preg_replace('/\n{3,}/', "\n", $file);
+		$start = strpos($file, $endMarker);
 
+        // add the new rules (including their IDs)
 		$newArea = Array();
 		foreach ($arr_data as $target) {
-			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\nRewriteCond %{REQUEST_FILENAME} !-f\nRewriteCond %{QUERY_STRING} ^(.*)\$\n".
-						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]."&%1 [L]";
+            preg_match('/event=(\w+):(\w+)&/', $target["original"], $match);
+            list($module, $handler) = array_slice($match, 1);
+            $id = md5($module.$handler);
+			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\t# \$id\$: $id\nRewriteCond %{REQUEST_FILENAME} !-f\t# \$id\$: $id\nRewriteCond %{QUERY_STRING} ^(.*)\$\t# \$id\$: $id\n".
+						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]."&%1 [L]\t# \$id\$: $id";
 		}
-		$file = substr($file, 0, $start)."\n".implode("\n\n", $newArea)."\n".substr($file, $start+$len);
+
+        // finally write it all back to the file
+		$file = substr($file, 0, $start)."\n".implode("\n\n", $newArea)."\n".substr($file, $start);
 		@file_put_contents(".htaccess", $file);
 	}
 	

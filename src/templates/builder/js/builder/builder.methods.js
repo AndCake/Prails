@@ -32,7 +32,14 @@ Builder = Object.extend(Builder || {}, {
 					id: "portlet_content_"+id,
 					autoScroll: true,
 					tbar: new Ext.Toolbar()
-				}]
+				}],
+				listeners: {
+					beforeclose: function(tab) {
+						$$("#"+tab.getEl().dom.id+" .dirty").each(function(item) {
+							invoke("builder:updateCRCFile&clean="+item.id);
+						});
+					}
+				}
 			});
 			
 			// set this tab as the active one
@@ -238,10 +245,11 @@ Builder = Object.extend(Builder || {}, {
         		var code = Builder.getCode(crc.el);
         		if (code != crc.content && !crc.el.dirty) {
         			// mark as dirty
-        			crc.el.dirty = true;
-        			invoke("builder:updateCRCFile&dirty="+crc.el.id);
+        			//crc.el.dirty = true;
+        			//invoke("builder:updateCRCFile&dirty="+crc.el.id);
         		} else if (code == crc.content && crc.el.dirty) {
         			crc.el.dirty = false;
+					crc.el.removeClassName("dirty");
         			invoke("builder:updateCRCFile&clean="+crc.el.id);
         		}
         	} catch(e){};
@@ -260,31 +268,43 @@ Builder = Object.extend(Builder || {}, {
                 if (data.html == true) {
                 	cwin.txt.enableHtmlScript();
                 }
-                if (obj && obj.save) {
-                	cwin.txt.save = obj.save;
-                }
-		cwin.txt.changed = function(mode, code) {
-			var functions = {"text/x-php": "checkPHPSyntax", "application/x-httpd-php": "checkHtmlSyntax", "text/javascript": "checkJSSyntax"};
-			if (functions[mode]) {
-				var result = Builder[functions[mode]](code, function(errors) {
-					if (cwin.txt.previousErrors) for (var i = 0; i < cwin.txt.previousErrors.length; i++) {
-						cwin.txt.editor.clearMarker(cwin.txt.previousErrors[i].line - 1);
-						cwin.el.style.border = "inherit";
-					}
-					if (errors) {
-						for (var i = 0; i < errors.length; i++) {
-							var info = cwin.txt.editor.lineInfo(errors[i].line - 1);
-							if (info && !info.markerText) {
-								cwin.txt.editor.setMarker(errors[i].line - 1, "<span class='error' title=\""+errors[i].message.replace(/"/g, "''")+"\"><span>&bull;</span></span>"+errors[i].line);
+               	cwin.txt.save = function() {
+	                if (obj && obj.save) {
+						obj.save();
+                	}
+               		crc.content = cwin.txt.getCode();
+                };
+                cwin.txt.initComplete = false;
+				cwin.txt.changed = function(mode, code) {
+					var functions = {"text/x-php": "checkPHPSyntax", "application/x-httpd-php": "checkHtmlSyntax", "text/javascript": "checkJSSyntax"};
+					if (!cwin.el.dirty && cwin.txt.initComplete) {
+	        			// mark as dirty
+	        			cwin.el.dirty = true;
+	        			invoke("builder:updateCRCFile&dirty="+cwin.el.id);
+	        		}
+					if (functions[mode]) {
+						var result = Builder[functions[mode]](code, function(errors) {
+							if (cwin.txt.previousErrors) for (var i = 0; i < cwin.txt.previousErrors.length; i++) {
+								cwin.txt.editor.clearMarker(cwin.txt.previousErrors[i].line - 1);
+								cwin.el.removeClassName("error");
 							}
-						}
-						cwin.el.style.border = "1px solid red";
+							if (errors) {
+								for (var i = 0; i < errors.length; i++) {
+									var info = cwin.txt.editor.lineInfo(errors[i].line - 1);
+									if (info && !info.markerText) {
+										cwin.txt.editor.setMarker(errors[i].line - 1, "<span class='error' title=\""+errors[i].message.replace(/"/g, "''")+"\"><span>&bull;</span></span>"+errors[i].line);
+									}
+								}
+								cwin.el.addClassName("error");
+								cwin.el.down(".blockable").title = errors[i].message;
 
-						cwin.txt.previousErrors = errors;
+								cwin.txt.previousErrors = errors;
+							} else {
+								cwin.el.removeClassName("error");
+                            }
+						});
 					}
-				});
-			}
-		};
+				};
                 cwin.txt.setCode(content);
                 if (el.getAttribute("onload")) {
                 	try {
@@ -294,6 +314,7 @@ Builder = Object.extend(Builder || {}, {
                 
                 cwin.document.body.onkeydown = function(event) {
                 	if (!event) event = cwin.event;
+                	cwin.txt.initComplete = true;
     				Ext.getCmp("qwbuilder_startupPanel").getActiveTab().el.dom.hasFocus = cwin.id;
     	        	if (event.keyCode == 'F'.charCodeAt(0) && (event.ctrlKey || event.metaKey)) {
     	        		cwin.parent.Builder.searchInBespin(cwin);
@@ -303,13 +324,13 @@ Builder = Object.extend(Builder || {}, {
     	        		} catch(e){};
     	        		return false;
     	        	} else if (event.keyCode == "S".charCodeAt(0) && (event.ctrlKey || event.metaKey)) {
-				cwin.txt.save();
-				try {
+						cwin.txt.save();
+						try {
     	        			event.stopPropagation();
     	        			event.cancelBubble = true;
-				} catch(e){};
-				return false;
-			} else if (event.ctrlKey && event.altKey) {
+						} catch(e){};
+						return false;
+					} else if (event.ctrlKey && event.altKey) {
     	        		if (event.keyCode == 39) {
     	        			if (window.switching) return;
     	        			window.switching = true;
@@ -412,7 +433,34 @@ Builder = Object.extend(Builder || {}, {
     	invoke(url, function(req){
     		if (req.responseText.length > 0) {
     			var res = eval("("+req.responseText+")");
-    			Builder.setCode(el, res["code"]);
+    			if (el.dirty) {
+					Ext.MessageBox.show({
+           				title:'Conflict!',
+           				msg: 'While you were editing <b><code>'+el.up('form').down('input').value+'</code></b>, someone else updated it. <br/>Please see below:<br/><div id="conflict-text"></div>Do you want to apply the changes?',
+           				buttons: Ext.MessageBox.YESNO,
+           				fn: function(btn) {
+           					if (btn == "yes") {
+			    				el.down("iframe").contentWindow.txt.initComplete = false;
+			    				Builder.setCode(el, res["code"]);
+			    				setTimeout(function() {
+			    					el.down("iframe").contentWindow.txt.initComplete = true;
+			    				}, 250);
+           					}
+           				},
+           				minWidth: 500,
+           				icon: Ext.MessageBox.WARNING
+       				});
+       				var oldCode = Builder.getCode(el);
+       				setTimeout(function() {
+       					$("conflict-text").innerHTML = diffString(oldCode, res["code"]);
+       				}, 100);
+    			} else {
+    				el.down("iframe").contentWindow.txt.initComplete = false;
+    				Builder.setCode(el, res["code"]);
+    				setTimeout(function() {
+    					el.down("iframe").contentWindow.txt.initComplete = true;
+    				}, 250);
+    			}
     		}
     	});
     },

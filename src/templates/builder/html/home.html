@@ -628,6 +628,7 @@
 		window.firstCall = true;
 		window.detag = "";
 		window.uid = "<?=$_SESSION['builder']['user_id']?>";
+		window.user = "<?=$_SESSION['builder']['name']?>";
 		window.testsuites = [{
 			checked: true,
 			id: "all",
@@ -941,6 +942,14 @@
 				event.stop();
 			}
 		});
+		window.onunload = function(event) {
+			$$(".dirty").each(function(item) {
+				invoke("builder:updateCRCFile&clean="+item.id);
+			});
+			if ($$(".dirty").length > 0) {
+				return confirm("Do you really want to close Prails? You still have unsaved changes.");
+			}
+		};	
 	});
 	//]]>
 </script>

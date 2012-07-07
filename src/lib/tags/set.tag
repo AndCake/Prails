@@ -19,4 +19,4 @@
  * #local.test  ==> will output Hello, World!
  * }}}
  **/
-?><@ $arr_param["<?=$this->makeVar(if_set($tag['attributes']['scope'], 'local'))?>"]["<?=$tag['attributes']['name']?>"] = <?=$this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"]))?>; @>
+?><@ $arr_param["<?=$this->makeVar(if_set($tag['attributes']['scope'], 'local'))?>"]["<?=$tag['attributes']['name']?>"] = <?=$this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["value"]))?>; @>

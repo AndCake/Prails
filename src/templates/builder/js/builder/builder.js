@@ -1062,13 +1062,13 @@ window.Builder = Object.extend(window.Builder || {}, {
 	    	new Ajax.Request("builder.crc32", {
 				method: "get",
 				requestHeaders: {
-//					"If-Modified-Since": (new Date(Builder.dold)).toGMTString(),
-//					"If-None-Match": Builder.detag 
+					"If-Modified-Since": (new Date(Builder.dold)).toGMTString(),
+					"If-None-Match": Builder.detag 
 				}, 
 				onSuccess: function(req) {
 					var date = new Date(req.getHeader("Last-Modified"));
 					var dnew = date.getTime();
-//					if (dnew > Builder.dold) {
+					if (dnew > Builder.dold) {
 						Builder.dold = dnew;
 						Builder.detag = req.getHeader("Etag");
 						// fetch new content
@@ -1080,22 +1080,18 @@ window.Builder = Object.extend(window.Builder || {}, {
 						 * }
 						 */
 						$$(".blockable").each(function(item) {
-							if (!item.up().dirty) {
-								if (item.up().hasClassName("dirty") && (!obj[item.up().id] || obj[item.up().id].uid == window.uid)) {
-									item.hide();
-									Builder.enableBespin(item.up().id);
-									item.up().removeClassName("dirty");
-									// reload editor content
-									Builder.refreshBespin(item.up().id);
-								} else if (obj[item.up().id] && !item.up().hasClassName("dirty") && obj[item.up().id].uid != window.uid) {
-									item.update('Currently being modified by '+obj[item.up().id].user);
-									item.show();
-									Builder.disableBespin(item.up().id);
-									item.up().addClassName("dirty");
-								}
+							if (item.up().hasClassName("dirty") && (!obj[item.up().id] || obj[item.up().id].user != window.user)) {
+								Builder.enableBespin(item.up().id);
+								item.title = "";
+								item.up().removeClassName("dirty");
+								// reload editor content
+								Builder.refreshBespin(item.up().id, obj[item.up().id] && obj[item.up().id].user);
+							} else if (obj[item.up().id] && !item.up().hasClassName("dirty") && obj[item.up().id].user != window.user) {
+								item.title = 'Currently being modified by '+obj[item.up().id].user;
+								item.up().addClassName("dirty");
 							}
 						});
-//					}
+					}
 				}
 			});
 	    }, 5);
@@ -1103,73 +1099,73 @@ window.Builder = Object.extend(window.Builder || {}, {
 });
 
 (function() {
-		window.showHistory = function(target, source) {
-			if (typeof(source) == "string") {
+	window.showHistory = function(target, source) {
+		if (typeof(source) == "string") {
+			var target = $(target);
+			var rel = $(target).getAttribute('rel');
+			if (rel && rel.length > 0) {
+				if ((matches=/call:([^\(]+)\(([^\)]+)\)/g.exec(rel))) {
+					var func = eval(matches[1]);
+					try {
+						func.apply(window, matches[2].split(/,/).concat([(source || "")]));
+					} catch(e) {
+						console.log("error calling history function "+matches[1]+"\nReason: ", e);
+					}
+				} else {
+					if ($(rel)) {
+						Builder.setCode(rel, source || "");
+					} else {
+						Builder.setCode(target, source || "");
+					}
+				}
+			} else {
+				if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
+					target.value = source || "";
+				} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
+					Builder.setCode(target, source || "");
+				}
+			}	
+		} else if (source.tagName.toLowerCase() == "textarea") {
+			target.setCode(source.value);
+		} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
+			target.value = source.value;
+		} else {
+			
+			var pos = 0;
+			source.up().childElements().each(function(item, key){
+				if (item == source) pos = key;
+			});
+			if (source.tagName.toLowerCase() == "code") {
+				while (source != null && source.up().up().previous() && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
+			}
+			if (source != null) {
 				var target = $(target);
 				var rel = $(target).getAttribute('rel');
 				if (rel && rel.length > 0) {
 					if ((matches=/call:([^\(]+)\(([^\)]+)\)/g.exec(rel))) {
 						var func = eval(matches[1]);
 						try {
-							func.apply(window, matches[2].split(/,/).concat([(source || "")]));
+							func.apply(window, matches[2].split(/,/).concat([(source.innerText || source.innerHTML || source.value || "")]));
 						} catch(e) {
 							console.log("error calling history function "+matches[1]+"\nReason: ", e);
 						}
 					} else {
 						if ($(rel)) {
-							Builder.setCode(rel, source || "");
+							Builder.setCode(rel, source.innerText || source.innerHTML || source.value || "");
 						} else {
-							Builder.setCode(target, source || "");
+							Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
 						}
 					}
 				} else {
 					if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
-						target.value = source || "";
+						target.value = source.innerHTML || source.value;
 					} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
-						Builder.setCode(target, source || "");
-					}
-				}	
-			} else if (source.tagName.toLowerCase() == "textarea") {
-				target.setCode(source.value);
-			} else if (target.tagName != null && target.tagName.toLowerCase() == "input" && source.tagName.toLowerCase() == "input") {
-				target.value = source.value;
-			} else {
-				
-				var pos = 0;
-				source.up().childElements().each(function(item, key){
-					if (item == source) pos = key;
-				});
-				if (source.tagName.toLowerCase() == "code") {
-					while (source != null && source.up().up().previous() && (source.innerHTML.length <= 0 && (source.value == null || source.value.length <= 0))) source = source.up().up().previous().down("a code", pos);
-				}
-				if (source != null) {
-					var target = $(target);
-					var rel = $(target).getAttribute('rel');
-					if (rel && rel.length > 0) {
-						if ((matches=/call:([^\(]+)\(([^\)]+)\)/g.exec(rel))) {
-							var func = eval(matches[1]);
-							try {
-								func.apply(window, matches[2].split(/,/).concat([(source.innerText || source.innerHTML || source.value || "")]));
-							} catch(e) {
-								console.log("error calling history function "+matches[1]+"\nReason: ", e);
-							}
-						} else {
-							if ($(rel)) {
-								Builder.setCode(rel, source.innerText || source.innerHTML || source.value || "");
-							} else {
-								Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
-							}
-						}
-					} else {
-						if (target.tagName != null && target.tagName.toLowerCase() == "input" && (source.innerHTML || source.value)) {
-							target.value = source.innerHTML || source.value;
-						} else if (!target.tagName || target.tagName.toLowerCase() != "input") {
-							Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
-						}
+						Builder.setCode(target, source.innerText || source.innerHTML || source.value || "");
 					}
 				}
 			}
-		};	
+		}
+	};	
 })();
 
 window.Replication = {
@@ -1235,3 +1231,106 @@ window.Replication = {
 		});
 	}
 };
+
+
+/*
+ * Javascript Diff Algorithm
+ *  By John Resig (http://ejohn.org/)
+ *  Modified by Chu Alan "sprite"
+ *
+ * Released under the MIT license.
+ *
+ * More Info:
+ *  http://ejohn.org/projects/javascript-diff-algorithm/
+ */
+
+function escape(s) {
+    var n = s;
+    n = n.replace(/&/g, "&amp;");
+    n = n.replace(/</g, "&lt;");
+    n = n.replace(/>/g, "&gt;");
+    n = n.replace(/"/g, "&quot;");
+
+    return n;
+}
+
+function diffString( o, n ) {
+  o = o.replace(/\s+$/, '');
+  n = n.replace(/\s+$/, '');
+
+  var out = diff(o == "" ? [] : o.split(/\n/), n == "" ? [] : n.split(/\n/) );
+  var str = "";
+
+  var oSpace = o.match(/\n+/g);
+  var nSpace = n.match(/\n+/g);
+  if (oSpace == null) oSpace = ["\n"];
+  if (nSpace == null) nSpace = ["\n"];
+  if (out.n.length == 0) {
+      for (var i = 0; i < out.o.length; i++) {
+        str += '<del>' + escape(out.o[i]) + '<br/>' + "</del>";
+      }
+  } else {
+    if (out.n[0].text == null) {
+      for (n = 0; n < out.o.length && out.o[n].text == null; n++) {
+        str += '<del>' + escape(out.o[n]) + '<br/>' + "</del>";
+      }
+    }
+
+    for ( var i = 0; i < out.n.length; i++ ) {
+      if (out.n[i].text == null) {
+        str += '<ins>' + escape(out.n[i]) + '<br/>' + "</ins>";
+      } else {
+        var pre = "";
+
+        for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++ ) {
+          pre += '<del>' + escape(out.o[n]) + '<br/>' + "</del>";
+        }
+        str += " " + escape(out.n[i].text) + "<br/>" + pre;
+      }
+    }
+  }
+  
+  return str;
+}
+
+function diff( o, n ) {
+  var ns = new Object();
+  var os = new Object();
+  
+  for ( var i = 0; i < n.length; i++ ) {
+    if ( ns[ n[i] ] == null )
+      ns[ n[i] ] = { rows: new Array(), o: null };
+    ns[ n[i] ].rows.push( i );
+  }
+  
+  for ( var i = 0; i < o.length; i++ ) {
+    if ( os[ o[i] ] == null )
+      os[ o[i] ] = { rows: new Array(), n: null };
+    os[ o[i] ].rows.push( i );
+  }
+  
+  for ( var i in ns ) {
+    if ( ns[i].rows.length == 1 && typeof(os[i]) != "undefined" && os[i].rows.length == 1 ) {
+      n[ ns[i].rows[0] ] = { text: n[ ns[i].rows[0] ], row: os[i].rows[0] };
+      o[ os[i].rows[0] ] = { text: o[ os[i].rows[0] ], row: ns[i].rows[0] };
+    }
+  }
+  
+  for ( var i = 0; i < n.length - 1; i++ ) {
+    if ( n[i].text != null && n[i+1].text == null && n[i].row + 1 < o.length && o[ n[i].row + 1 ].text == null && 
+         n[i+1] == o[ n[i].row + 1 ] ) {
+      n[i+1] = { text: n[i+1], row: n[i].row + 1 };
+      o[n[i].row+1] = { text: o[n[i].row+1], row: i + 1 };
+    }
+  }
+  
+  for ( var i = n.length - 1; i > 0; i-- ) {
+    if ( n[i].text != null && n[i-1].text == null && n[i].row > 0 && o[ n[i].row - 1 ].text == null && 
+         n[i-1] == o[ n[i].row - 1 ] ) {
+      n[i-1] = { text: n[i-1], row: n[i].row - 1 };
+      o[n[i].row-1] = { text: o[n[i].row-1], row: i - 1 };
+    }
+  }
+  
+  return { o: o, n: n };
+}
