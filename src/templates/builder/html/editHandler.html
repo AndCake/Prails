@@ -438,7 +438,7 @@
 	          	fr.txt.addKeywords("<c"+":", arr);
 
 	            fr.txt.addKeywords(null, [
-					"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\">", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", 
+					"<c"+":if cond=\"\">\n</"+"c:if>", "<c"+":else />", "<c"+":include event=\"\" />", "<c"+":hook name=\"\" />", "<c"+":foreach var=\"\" name=\"\"></c"+":foreach>", "<c"+":print value=\"\" />", "<c"+":input type=\"\" class=\"\" name=\"\" value=\"\" label=\"\" overlabel=\"\" />", "<c"+":body/>", "<c"+":set name=\"\" value=\"\" />", 
 					"<a href=\"\"></a>", "<div class=\"clear\"><!-- clear floating --></div>", "<form method=\"post\" action=\"\">\n</form>", "<button type=\"\"></button>"
 				]);
 	            
@@ -534,7 +534,7 @@
 						}
 					}	
 				}
-			}, "-", {
+			}, "-", /*{
 				xtype: "button",
 				id: "handler.#handler.handler_id_versionTag.button",
 				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;'.$arr_param['lastVersion']['tag'].'&gt;' : 'Tag version'%>",
@@ -594,7 +594,7 @@
 					});
 					tagWin.show();
 				}
-			}, "-", {
+			}, "-", */ {
 				xtype: "button",
 				text: "Add Endpoint",
 				tooltip: "Inserts an endpoint for submitting forms. In order to reach it, make sure a variable of the endpoint's name is posted.",

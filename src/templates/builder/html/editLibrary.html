@@ -123,7 +123,7 @@
 						}
 					}	
 				}
-			}, "-", {
+			}/*, "-", {
 				xtype: "button",
 				id: "library.#library.library_id_versionTag.button",
 				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;'.$arr_param['lastVersion']['tag'].'&gt;' : 'Tag version'%>",
@@ -183,7 +183,7 @@
 					});
 					tagWin.show();
 				}
-			}]);
+			}*/]);
 			Ext.getCmp("portlet_content_l_<?=(int)$arr_param['library']['library_id']?>").getTopToolbar().doLayout();
 		}, 100);
 	//]]>

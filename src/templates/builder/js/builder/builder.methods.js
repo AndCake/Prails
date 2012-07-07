@@ -433,6 +433,8 @@ Builder = Object.extend(Builder || {}, {
 				text: "Find",
 				handler: startFind = function() {
 					Cookie.create("prails-last-search", $("tosearch").getValue());
+					Cookie.create("prails-last-regexp", $("regexp").checked ? '1' : '0');
+					Cookie.create("prails-last-direction", $("forward").checked ? 'forward' : 'backward');
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
@@ -450,6 +452,8 @@ Builder = Object.extend(Builder || {}, {
 				handler: function() {
 					Cookie.create("prails-last-search", $("tosearch").getValue());
 					Cookie.create("prails-last-replace", $("toreplace").getValue());
+					Cookie.create("prails-last-regexp", $("regexp").checked ? '1' : '0');
+					Cookie.create("prails-last-direction", $("forward").checked ? 'forward' : 'backward');
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
 					var nextMatch = bespin[dir.func](bespin["selection"+dir.attr], $("wrapsearch").checked);
@@ -468,6 +472,8 @@ Builder = Object.extend(Builder || {}, {
 				handler: function() {
 					Cookie.create("prails-last-search", $("tosearch").getValue());
 					Cookie.create("prails-last-replace", $("toreplace").getValue());
+					Cookie.create("prails-last-regexp", $("regexp").checked ? '1' : '0');
+					Cookie.create("prails-last-direction", $("forward").checked ? 'forward' : 'backward');
 					bespin.setSearchText($("tosearch").getValue(), $("regexp").checked);
 					var replaced = 0;
 					var dir = ($("forward").checked && {func: "findNext", attr: "End"}) || ($("backward").checked && {func: "findPrevious", attr: "Start"});
@@ -497,7 +503,10 @@ Builder = Object.extend(Builder || {}, {
 		setTimeout(function() {
 			$("tosearch").value = Cookie.read("prails-last-search") || "";
 			$("toreplace").value = Cookie.read("prails-last-replace") || "";
+			$("regexp").checked = Cookie.read('prails-last-regexp') == 1;
+			if (Cookie.read("prails-last-direction")) $(Cookie.read("prails-last-direction")).checked = true;
 			$("tosearch").focus();
+			$("tosearch").select();
 			$("tosearch").observe("keyup", function(event) {
 				if (event.keyCode == 13) {
 					startFind();

@@ -486,7 +486,7 @@ class BuilderData extends Database
     }
     
 	function findHandlerByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE (event LIKE '%".$name."%' OR a.code LIKE '%".$name."%' OR a.html_code LIKE '%".$name."%') AND a.fk_module_id=module_id AND fk_user_id=".$uid);
+		$result = $this->SqlQuery("SELECT CONCAT('h_', handler_id) AS id, CONCAT(event, ' (', b.name, ' Event)') AS name, 'Event' AS type FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module AS b WHERE (event LIKE '%".$name."%' OR a.code LIKE '%".$name."%' OR a.html_code LIKE '%".$name."%') AND a.fk_module_id=module_id AND fk_user_id=".$uid);
 		$arr_return = Array();
 		foreach ($result as $res) {
 			array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
@@ -494,7 +494,7 @@ class BuilderData extends Database
 		return $arr_return;
 	}
 	function findDataByName($name, $uid) {
-		$result = $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (Data Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE (a.name LIKE '%".$name."%' OR a.code LIKE '%".$name."%') AND a.fk_module_id=module_id AND fk_user_id=".$uid);
+		$result = $this->SqlQuery("SELECT CONCAT('d_', data_id) AS id, CONCAT(a.name,' (', b.name, ' Query)') AS name, 'Data Query' AS type FROM tbl_prailsbase_data AS a, tbl_prailsbase_module AS b WHERE (a.name LIKE '%".$name."%' OR a.code LIKE '%".$name."%') AND a.fk_module_id=module_id AND fk_user_id=".$uid);
                 $arr_return = Array();
                 foreach ($result as $res) {
                         array_push($arr_return, Array("id" => $res["id"], "name" => $res["name"], "type" => $res["type"]));
