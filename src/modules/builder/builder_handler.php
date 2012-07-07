@@ -1572,7 +1572,7 @@ class BuilderHandler
     				$query = if_set($_SESSION["builder"]["currentQuery"], base64_decode($_GET["q"]));
 	    			if (!empty($_POST['query'])) {
 	    			     $searches = " ".$_POST['query']." ";
-	    			     $query = str_replace(" 1=1 ", if_set(trim($searches), " 1=1 "), $query);
+	    			     $query = str_replace(" 1=1 ", " (".if_set(trim($searches), "1=1").") ", $query);
 	    			}
 		                if ($loop == 0 && isset($_POST["sort"])) {
 					$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
