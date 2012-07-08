@@ -56,6 +56,8 @@ Prails to only output the actual translation without HTML comments by adding a $
 </pre>
 This example demonstrates how it is actually used within templates (like the event handler's output code).
 <br/><br/>
+ <u>Note:</u> Within <code><a href="Handler.html#Handler">Handler</a></code> code, you always have access to the language and CMS API via <code>$currentLang</code>.
+<br/><br/>
 <br/><br/>
 <strong>The CMS</strong>
 <br/><br/>
@@ -63,7 +65,7 @@ The CMS let's you create and manage static pages. These static pages can be edit
 and be decorated by any existent decorator that has been created in the project. See <code>Decorator</code> for more 
 information on creating decorators.
 <br/><br/>
-In order to create a new page in the CMS, you just need to add a new top section called <code>cms</code> to the 
+In order to create a new page in the CMS, you just need to add a new text inside the section called <code>pages</code> within the 
 translations area in the IDE. Within this top section any text created will have automatically a URL 
 it can be opened as a new html page.
 <br/><br/>

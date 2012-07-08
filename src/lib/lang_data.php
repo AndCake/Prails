@@ -70,6 +70,8 @@
  * }}}
  * This example demonstrates how it is actually used within templates (like the event handler's output code).
  * 
+ * _Note:_ Within `[Handler]Handler` code, you always have access to the language and CMS API via `$currentLang`.
+ * 
  *
  * *The CMS*
  * 
@@ -77,7 +79,7 @@
  * and be decorated by any existent decorator that has been created in the project. See `Decorator` for more 
  * information on creating decorators.
  *
- * In order to create a new page in the CMS, you just need to add a new top section called `cms` to the 
+ * In order to create a new page in the CMS, you just need to add a new text inside the section called `pages` within the 
  * translations area in the IDE. Within this top section any text created will have automatically a URL 
  * it can be opened as a new html page.
  *
