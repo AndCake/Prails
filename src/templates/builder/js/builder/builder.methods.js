@@ -269,8 +269,8 @@ Builder = Object.extend(Builder || {}, {
                 	cwin.txt.enableHtmlScript();
                 }
                	cwin.txt.save = function() {
-	                if (obj && obj.save) {
-						obj.save();
+	                if (cwin.prails && cwin.prails.save) {
+				cwin.prails.save();
                 	}
                		crc.content = cwin.txt.getCode();
                 };
