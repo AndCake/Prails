@@ -605,28 +605,39 @@ class BuilderData extends Database
 	function updateUrlRules($arr_data) {
 		$file = file_get_contents(".htaccess");
 
-        // first remove any previous URL for the current event handler
-        // therefore first compute the ID
+        	// first remove any previous URL for the current event handler
+	        // therefore first compute the ID
+		$startMarker = "#--START_CUSTOM--#";
+		$endMarker = "#--END_CUSTOM--#";
+		$startPos = strpos($file, $startMarker) + strlen($startMarker);
+		$endPos = strpos($file, $endMarker);
+		$pre = substr($file, 0, $startPos);
+		$post = substr($file, $endPos);
+		$inner = substr($file, $startPos, $endPos - $startPos);
         foreach ($arr_data as $target) {
             preg_match('/event=(\w+):(\w+)&/', $target["original"], $match);
             list($module, $handler) = array_slice($match, 1);
             $id = md5($module.$handler);
 
-            $lines = explode("\n", $file);
-            $file = "";
+            $lines = explode("\n", $inner);
+            $file = $pre;
+	    $block = true;
+	    $inner = "";
             foreach ($lines as $line) {
                 // then scan the file contents for the ID
-                if (strpos($line, "\$id\$: $id") === false) {
-                    // if not found in current line, add the line to the resulting file content
-                    $file .= $line."\n";
-                }
+		if ($block && strpos($line, "\$id\$: $id") === false) {
+		    	$block = true;
+	            	// if not found in current line, add the line to the resulting file content
+	            	$file .= $line."\n";
+			$inner .= $line."\n";
+		} else { $block = false; }
+		if ($block == false && strpos($line, "RewriteRule") !== false) $block = true;
             }
+	    $file .= $post;
         }
 
 
         // make out the custom rules section in .htaccess file
-		$startMarker = "#--START_CUSTOM--#";
-		$endMarker = "#--END_CUSTOM--#";
         $file = preg_replace('/\n{3,}/', "\n", $file);
 		$start = strpos($file, $endMarker);
 
@@ -636,8 +647,8 @@ class BuilderData extends Database
             preg_match('/event=(\w+):(\w+)&/', $target["original"], $match);
             list($module, $handler) = array_slice($match, 1);
             $id = md5($module.$handler);
-			$newArea[] = "RewriteCond %{REQUEST_FILENAME} !-d\t# \$id\$: $id\nRewriteCond %{REQUEST_FILENAME} !-f\t# \$id\$: $id\nRewriteCond %{QUERY_STRING} ^(.*)\$\t# \$id\$: $id\n".
-						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]."&%1 [L]\t# \$id\$: $id";
+			$newArea[] = "# \$id\$: $id\nRewriteCond %{REQUEST_FILENAME} !-d\nRewriteCond %{REQUEST_FILENAME} !-f\nRewriteCond %{QUERY_STRING} ^(.*)\$\n".
+						 "RewriteRule ^".$target["nice"]."\$ index.php?".$target["original"]."&%1 [L]";
 		}
 
         // finally write it all back to the file

@@ -99,6 +99,24 @@
  * </form> 
  * }}}
  *
+ * The above form can also be written in a much shorter way by utilizing the Prails `[Tags]input` tag:
+ * {{{
+ * <form method="post" action="?submitted">
+ *   <!-- definition of a new validator, called "meiner", which does not accept any alpha character -->
+ *   <div class="validate-meiner-error" error="empty=My own empty field.|invalid=Hey! It's invalid..." rel="^[^a-z]+$"></div>
+ *   <? $arr_param['genders'] = Array("" => "select one", "m" => "male", "f" => "female"); ?>
+ *   <? $arr_param['schools'] = Array("gs" => "Elementary school", "sek1" => "Junior High", "sek2" => "Highschool", "uni" => "College"); ?>
+ *   <fieldset>
+ *    <legend>Login</legend>
+ *    <c:input name="email" label="eMail" class="required validate-email"/>
+ *    <c:input name="password" type="password" class="required" rel=".{6,}" error="invalid=Your password must have at least 6 characters." label="Password"/>
+ *    <c:input name="chars" label="No Chars" class="required validate-meiner"/>
+ *    <c:input type="select" name="gender" class="required" values="genders"/>
+ *    <c:input type="radio" name="school" values="schools" class="required"/>
+ *    <button type="submit">Login</button>
+ *   </fieldset>
+ * </form>
+ * }}} 
  **/
 
 var Validator = Class.create({

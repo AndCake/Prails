@@ -1,3 +1,43 @@
+V1.4.3 (July 8th, 2012)
+
+ * removed browserdetect.js
+ * added jquery ui natively
+ * fixed a bug with overlabels
+ * updated documentation for print
+ * improved search/replace handling
+ * updated display of @button elements
+ * added disabled attribute to input tag
+ * updated code editor to latest version
+ * added set tag (including documentation)
+ * added some more comments to critical section
+ * optimized updating and reading of custom URLs
+ * improved search result display for quick open
+ * documentation update for javascript + database
+ * updated jQuery UI/S2 theme to be less obstrusive
+ * added documentation for the Database::escape method
+ * added basic set of CSS properties for style code editor
+ * fixed JS error when focussing quick open field via shortcut
+ * finally made the closetag plugin for the editor work correctly
+ * removed obsolete tblclass and integrated it into database class
+ * fixed a bug with searching in database queries in SQL Query tab
+ * added documentation for using forms, form validation and javascript
+ * enhanced concurrent access notifications and it's general behaviour
+ * updated some documentation for using forms, tags and the language API
+ * improved open item search to also look for contents rather than just names
+ * updated documentation and usage of out() function to support arguments set to null
+ * updated doGet and doPost methods to support more flexibility and updated documentation
+ * added custom URL export and import (happens automatically as part of the module import/export)
+ * fixed a problem with the fileBrowser functionality in the static content section (was invisible)
+ * added re-focus on tab change, so your focus is restored to where you left when changing the prails tab
+ * fixed bug with curly braces and squared brackets being problematic on keyboard layouts utilizing the ALT GR key
+ * fixed a bug where after successful replication, the libraries were not flushed - same for regular module flushing
+ * added some duplication checks for importing of configurations, which in some rare cases failed during replication
+ * made sure that database deploy process is only turned off, if the deploying of the database was actually successful
+ * added job-detection for production jobs so that those can run for longer than 25 seconds (now timeout is at 1 hour)
+ * increased maximum allowed size for several code fields (CSS, JS, libraries, static content assets, custom attributes)
+ * fixed a problem with overlabels not being correctly initialized after opening it in a local hop up (content not pulled via AJAX)
+ 
+
 V1.4.2 (May 3rd, 2012)
 
  * hotfix: development environments broken due to newline at end of file in lib/debug/debugger.php
