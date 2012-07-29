@@ -17,6 +17,7 @@
         <base href="<?=str_replace('http:', ($_SERVER['HTTPS'] ? 'https:' : 'http:'), $SERVER)?>" /> 
     	<meta name="revisit-after" content="1 day" />
     	<?=$this->getHeaders()?>
+    	<script type="text/javascript"><?=ENV_PRODUCTION !== true ? "devel=true;" : ""?></script>
         <style type="text/css">
             @encoding 'UTF-8';
         </style>
@@ -27,7 +28,7 @@
         <?=$this->getStyleSheets()?>
         <?=$this->getJavaScripts()?>
    	</head>
-	<body>
+	<body<?=strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ? ' class="post-request"' : (ENV_PRODUCTION !== true ? ' class="get-request"' : '')?>>
 		<div id="page">
 			<?=$str_content?>
 	    </div>

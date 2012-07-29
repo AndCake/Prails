@@ -363,3 +363,15 @@ function crc32(str) {
 
 addLoadEvent(initAjaxLinks);
 addLoadEvent(initWysiwyg);
+addLoadEvent(function() {
+	if (!window.debugRefresher && window.devel && document.body.className.indexOf("get-request") >= 0) {
+		window.debugRefresher = new PeriodicalExecuter(function(pe) {
+			_.get("cache/update-stream", function(data) {
+				if (parseInt(data) > window.debugRefresher.now) {
+					location.reload();
+				}
+			});
+		}, 2);
+		window.debugRefresher.now = (new Date().getTime() / 1000).toFixed();
+	}
+});

@@ -380,6 +380,7 @@ class BuilderHandler
 			removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
 			exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
 		}
+		@file_put_contents("cache/update-stream", time());
 
 		if ($die) {
 			die ("success");
