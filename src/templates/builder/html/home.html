@@ -24,6 +24,9 @@
 		By double clicking an entry you edit this module. By right clicking you can change the module's options. </p>
 		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
 		can edit it.</p>
+		<? if (ENV_PRODUCTION !== true && $_SESSION["builder"]["group"] == "devel") { ?>
+		<p>You can also <a href="?event=builder:downloadProject">download</a> your project as source code files and edit them with your favorite IDE. In order to save the files back to the server again, you need this <a href="">synchronization script</a> to be running while editing the files.</p>
+		<? } ?>
 		<br/><h2>Short Cuts:</h2>
 		<table>
 			<tr><td>move one tab left</td><td>Ctrl+Alt+Left</td></tr>
@@ -36,7 +39,7 @@
 			<tr><td>search/replace in code</td><td>Ctrl+F</td></tr>
 		</table>
 		<br/>
-		<h2>Futher help:</h2>
+		<h2>Further help:</h2>
 		<ul style="list-style-type: list;">
 			<li><a href="http://prails.org/static/documentation.html" target="_api">API Documentation</a></li>
 			<li><a href="javascript:(function(){var s=document.createElement('script');s.src='templates/builder/js/langhelper.js';document.body.appendChild(s);})();">CMS Helper Bookmarklet</a></li>

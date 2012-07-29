@@ -1251,4 +1251,34 @@ function getUrl($event) {
 	return $event;
 }
 
+/**
+ * caesar($content, $key) -> String
+ * - $content (String) - the content to be encrypted
+ * - $key (String) - an arbitrary key to be used for encryption
+ *
+ * This method symmetrically encrypts a given string with a given key.
+ **/
+function caesar($content, $key) {
+        $result = "";
+        for ($i = 0; $i < strlen($content); $i++) {
+                $result .= chr(ord($content[$i]) + ord($key[$i % strlen($key)]));
+        }
+        return $result;
+}
+
+/**
+ * uncaesar($content, $key) -> String
+ * - $content (String) - the content to be decrypted
+ * - $key (String) - the key used to encrypt the string
+ *
+ * This method decrypts a given string that was previously encrypted with the Caesar encryption method
+ **/
+function uncaesar($content, $key) {
+        $result = "";
+        for ($i = 0; $i < strlen($content); $i++) {
+                $result .= chr(ord($content[$i]) - ord($key[$i % strlen($key)]));
+        }
+        return $result;
+}
+
 ?>

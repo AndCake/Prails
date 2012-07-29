@@ -403,7 +403,11 @@ class BuilderHandler
 
 	function deleteModule()
 	{
-		$arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+		if (!isset($_GET['module_id']) && isset($_GET['module'])) {
+			$arr_param['module'] = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_GET['module']);
+		} else {
+			$arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
+		}
 
 		removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
 		removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
@@ -425,6 +429,14 @@ class BuilderHandler
 
 		if ($_GET["check"] == "1")
 		{
+			if (!isset($_GET['module_id']) && !empty($_POST['module']['name'])) {
+				$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
+				if ($module) {
+					$_GET['module_id'] = $module['module_id'];
+				} else {
+					$_GET['module_id'] = 0;
+				}
+			}
 			$this->updateCRCFile(Array("code".$_GET["module_id"], "js_code".$_GET["module_id"]));
 			
 			$arr_data = $_POST["module"];
@@ -441,7 +453,11 @@ class BuilderHandler
 				{
 					$headerInfo = @unserialize($arr_param["module"]["header_info"]);
 					if (!is_array($headerInfo)) $headerInfo = Array();
-					$arr_data["header_info"] = @serialize(array_merge($headerInfo, $arr_data["header_info"]));
+					if (isset($_POST['recursive'])) {
+						$arr_data['header_info'] = @serialize(array_merge_recursive_distinct($headerInfo, $arr_data['header_info']));
+					} else {
+						$arr_data["header_info"] = @serialize(array_merge($headerInfo, $arr_data["header_info"]));
+					}
 				}
 
 				$this->resetModule(false, $_GET["module_id"]);
@@ -588,6 +604,12 @@ class BuilderHandler
 
 	function deleteHandler()
 	{
+		if (!isset($_GET['handler_id']) && !empty($_POST['module']['name']) && !empty($_POST['handler']['event'])) {
+			$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
+			$mid = $module['module_id'];
+			$handler = $this->obj_data->selectHandlerByNameAndModule($mid, $_POST['handler']['event']);
+			$_GET['handler_id'] = (int)$handler['handler_id'];
+		}
 		$this->obj_data->deleteHandler($_GET["handler_id"]);
 		die ("success");
 	}
@@ -662,6 +684,115 @@ class BuilderHandler
 			setcookie("builder-lastVersionTag", $_POST['tag']['name'], time() + 30 * 60 * 60 * 24, "/");
 			$this->obj_data->setVersionTag("handler", $_GET["handler_id"], $_POST["tag"]["name"]);
 			die("success");
+		} else if ($_GET['check'] == "3") {
+			if (!empty($_POST['handler']['event']) && !empty($_POST['module']['name'])) {
+				$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
+				if ($module) {
+					$mid = $module['module_id'];
+					$handler = $this->obj_data->selectHandlerByNameAndModule($mid, $_POST['handler']['event']);
+					$_SESSION['module_id'] = $_GET['module_id'] = $mid;
+					$arr_data = Array();
+					if (!$handler) $hid = 0; else $hid = $handler['handler_id'];
+					if ($_POST['html_code']) {
+						if (is_array($_POST['html_code'])) {
+							$key = array_pop(array_keys($_POST['html_code']));
+						} else $key = "";
+						$code = $handler['html_code'];
+						preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+						$lastPos = 0;
+						$codes = Array();
+						array_push($codes, Array("title" => "Default", "id" => "html_".$arr_param["handler"]["handler_id"]));
+						$added = false;
+						if (is_array($matches) && is_array($matches[1])) {         
+							foreach ($matches[1] as $match) {
+								$cd = Array(
+									"title" => $match[0],
+									"id" => "html_".$match[0].$arr_param["handler"]["handler_id"] 
+								);
+								if ($key == $cd["title"]) {
+									$cd["content"] = $_POST['html_code'][$key];
+									$added = true;
+								} else {
+									$start = $match[1] + strlen("".$match[0].">\n");
+									$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+									$cd["content"] = substr($code, $start, $end - $start);
+								}
+								$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+								array_push($codes, $cd);
+							}
+						}
+						if ($key == "") {
+							$codes[0]["content"] = $_POST['html_code'];
+						} else {
+							if (!$added) {
+								array_push($codes, Array("title" => $key, "content" => $_POST['html_code'][$key]));
+							}
+							$codes[0]["content"] = substr($code, $lastPos);
+						}
+						// re-build it and store it into the handler field
+						$html = "";
+						for ($i = 1; $i < count($codes); $i++) {
+							$html .= "<part-".$codes[$i]["title"].">\n" . $codes[$i]["content"] . "</part-".$codes[$i]["title"].">\n";
+						}
+						$html .= $codes[0]["content"];
+						$arr_data["html_code"] = $html;
+					} else if ($_POST['code']) {
+						if (is_array($_POST['code'])) {
+							$key = array_pop(array_keys($_POST['code']));
+						} else $key = "";
+						$code = $handler["code"];
+						preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+						$lastPos = 0;
+						$codes = Array();
+						array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
+						$added = false;
+						if (is_array($matches) && is_array($matches[1])) {         
+							foreach ($matches[1] as $match) {
+								$cd = Array(
+									"title" => $match[0],
+									"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+								);
+								if ($cd["title"] == $key) {
+									$cd["content"] = $_POST['code'][$key];
+									$added = true;
+								} else {
+									$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+									$end = strpos($code, "/*[END ACTUAL]*/", $start);
+									$cd["content"] = substr($code, $start, $end - $start);
+								}
+								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+								array_push($codes, $cd);
+							}
+						}
+						if ($key == "") {
+							$codes[0]["content"] = $_POST['code'];
+						} else {
+							if (!$added) {
+								array_push($codes, Array("title" => $key, "content" => $_POST['code'][$key]));
+							}
+							$codes[0]["content"] = substr($code, $lastPos);
+						}
+						// re-build it and store it into the handler field
+						$code = "";
+						for ($i = 1; $i < count($codes); $i++) {
+							$code .= "/*[BEGIN POST-".$codes[$i]["title"]."]*/\nif (isset(\$_POST[\"".$codes[$i]["title"]."\"])) { /*[ACTUAL]*/\n".$codes[$i]["content"]."/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-".$codes[$i]["title"]."]*/\n";
+						}
+						$code .= $codes[0]["content"];
+						$arr_data["code"] = $code;
+					}
+					if ($hid > 0) {
+						$this->obj_data->updateHandler($hid, $arr_data);
+					} else {
+						$arr_data["fk_module_id"] = $mid;
+						$this->obj_data->insertHandler($arr_data);
+					}
+					return $this->resetModule();
+				} else {
+					die("Module not found: ".$_POST['module']['name']);
+				}
+			} else {
+				die("Missing parameters");
+			}
 		}
 
 		$arr_param["configurations"] = Array();
@@ -779,6 +910,21 @@ class BuilderHandler
 
 	function deleteData()
 	{
+		if (!isset($_GET['data_id']) && !empty($_POST['data']['name']) && !empty($_POST['module']['name'])) {
+			$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
+			if ($module) {
+				$mid = $module['module_id'];
+				$_GET['module_id'] = $mid;
+				$data = $this->obj_data->getDataFromName($_POST['data']['name'], $mid);
+				if ($data) {
+					$_GET['data_id'] = $data['data_id'];
+				} else {
+					die("Query not found!");
+				}
+			} else {
+				die("Module not found!");
+			}
+		}			
 		$this->obj_data->deleteData($_GET["data_id"]);
 		die ("success");
 	}
@@ -790,6 +936,23 @@ class BuilderHandler
 
 		if ($_GET["check"] == "1")
 		{
+			if (!isset($_GET['data_id']) && !empty($_POST['data']['name']) && !empty($_POST['module']['name'])) {
+				$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
+				if ($module) {
+					$mid = $module['module_id'];
+					$_GET['module_id'] = $mid;
+					$data = $this->obj_data->getDataFromName($_POST['data']['name'], $mid);
+					if ($data) {
+						$_GET['data_id'] = $data['data_id'];
+					} else {
+						$_GET['data_id'] = 0;
+					}
+				} else {
+					// module not found!
+					$_SESSION["module_id"] = $_GET["module_id"] = $this->obj_data->insertModule(Array("name" => $_POST['module']['name'], "fk_user_id" => $_SESSION['builder']['user_id']));
+					$_GET['data_id'] = 0;
+				}
+			}			
 			$arr_data = $_POST["data"];
 			$arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
 			$arr_data["fk_module_id"] = $_GET["module_id"];
@@ -853,6 +1016,10 @@ class BuilderHandler
 
 	function deleteLibrary()
 	{
+		if (!isset($_GET['library_id']) && !empty($_POST['library']['name'])) {
+			$library = $this->obj_data->selectLibraryByUserAndName($_SESSION['builder']['user_id'], $_POST['library']['name']);
+			$_GET['library_id'] = (int)$library['library_id'];
+		}
 		$lib = $this->obj_data->selectLibrary($_GET["library_id"]);
 		if ($lib["fk_resource_id"] > 0) {
 			$this->obj_data->deleteResource($lib["fk_resource_id"]);
@@ -881,6 +1048,14 @@ class BuilderHandler
 
 		if ($_GET["check"] == "1")
 		{
+			if (!isset($_GET['library_id']) && !empty($_POST['library']['name'])) {
+				$library = $this->obj_data->selectLibraryByUserAndName($_SESSION['builder']['user_id'], $_POST['library']['name']);
+				if ($library) {
+					$_GET['library_id'] = $library['library_id'];
+				} else {
+					$_GET['library_id'] = 0;
+				}
+			}
 			$this->updateCRCFile(Array("codel".$_GET["library_id"]));
 			$arr_library = $_POST["library"];
 			$arr_library["code"] = ($arr_library["code"]);
@@ -1009,6 +1184,10 @@ class BuilderHandler
 
 	function deleteTag()
 	{
+		if (!isset($_GET['tag_id']) && !empty($_POST['tag']['name'])) {
+			$tag = $this->obj_data->selectTagByUserAndName($_SESSION['builder']['user_id'], $_POST['tag']['name']);
+			$_GET['tag_id'] = (int)$tag['tag_id'];
+		}
 		$this->obj_data->deleteTag($_GET["tag_id"]);
 		die ("success");
 	}
@@ -1020,6 +1199,14 @@ class BuilderHandler
 
 		if ($_GET["check"] == "1")
 		{
+			if (!isset($_GET['tag_id']) && strlen($_POST['tag']['name']) > 0) {
+				$tag = $this->obj_data->selectTagByUserAndName($_SESSION['builder']['user_id'], $_POST['tag']['name']);
+				if ($tag) {
+					$_GET['tag_id'] = $tag['tag_id'];
+				} else {
+					$_GET['tag_id'] = 0;
+				}
+			}
 			$this->updateCRCFile(Array("codet".$_GET["tag_id"]));
 			
 			$arr_tag = $_POST["tag"];
@@ -1093,16 +1280,27 @@ class BuilderHandler
 			if ($_GET["do"] == "upload")
 			{
 				$file = $_FILES["resource"]["tmp_name"]["file"];
+				if (!isset($_GET['resource_id']) && !empty($_GET['file'])) {
+					$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_GET['module']);
+					if ($module) {
+						$_GET['module_id'] = $module['module_id'];
+						$res = $this->obj_data->selectResourceByName($module['module_id'], $_GET['file']);
+						$_GET['resource_id'] = $_SESSION['resource_id'] = (int)$res['resource_id'];
+						$type = getMIMEType($_GET['file']);
+					} else {
+						die("Unable to locate specified module");
+					}
+				}
 				$content = file_get_contents($file);
 				$arr_data["fk_module_id"] = $_GET["module_id"];
-				$arr_data["type"] = $_FILES["resource"]["type"]["file"];
+				$arr_data["type"] = if_set($type, $_FILES["resource"]["type"]["file"]);
 				$arr_data["data"] = base64_encode($content);
 				if ($_GET["resource_id"] > 0)
 				{
 					$this->obj_data->updateResource($_GET["resource_id"], $arr_data);
 				} else
 				{
-					$arr_data["name"] = $_FILES["resource"]["name"]["file"];
+					$arr_data["name"] = if_set($_FILES["resource"]["name"]["file"], $_GET['file']);
 					$_SESSION["resource_id"] = $this->obj_data->insertResource($arr_data);
 				}
 				echo "<img src='?event=builder:previewResource&resource_id=".$_SESSION["resource_id"]."' width='64' />\n";
@@ -1407,7 +1605,23 @@ class BuilderHandler
 			}
 			
 			return $this->resetModule($_GET["die"] == "no", $_GET["module_id"]);
-		}
+		} else if ($_GET['check'] == "2" && $_GET['module']) {
+			$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_GET['module']);
+			if ($module) {
+				$_GET['module_id'] = $module['module_id'];
+				$this->obj_data->clearConfiguration($_GET["module_id"], 0);
+				$this->obj_data->clearConfiguration($_GET["module_id"], 1);
+				foreach ($_POST['config']['name'] as $key => $conf) {
+					$arr_conf["name"] = $conf;
+					$arr_conf["value"] = $_POST['config']['value'][$key];
+					$arr_conf['flag_public'] = $_POST['config']['flag_public'][$key];
+					$arr_conf["fk_module_id"] = $_GET["module_id"];
+					$this->obj_data->insertConfiguration($arr_conf);
+				}
+				die("success");
+			}
+			die("Module not found");
+		}		
 
 		if ($_GET["module_id"] < 0)
 		{
@@ -2559,6 +2773,351 @@ class BuilderHandler
 			die(json_encode(Array("message" => $result[0], "line" => $result[1]))."\n");
 		}
 	}	
+	
+	function downloadProject() {
+		global $SERVER;
+		$project = PROJECT_NAME.".tar.bz2";
+
+		header("Expires: Mon, 26 Jul 1997 05:00:00 GMT\n");
+                header("Content-Transfer-Encoding: binary");
+                header("Content-type: application/octet-stream");
+                header("Content-Disposition: attachment; filename=\"".$project."\"");
+		
+		$path = "cache/download/".preg_replace('/[^a-zA-Z0-9_]/', '_', PROJECT_NAME)."/";
+		removeDir($path, true);
+		mkdir($path, 0777, true);
+		$metadata = "identifier=".$_SESSION['builder']['user_id']."\n";
+		$metadata.= "instance=".$SERVER."\n";
+		$metadata.= "credentials=".base64_encode(caesar($_SERVER['PHP_AUTH_USER'].":".$_SERVER['PHP_AUTH_PW'], $SERVER))."\n";
+		file_put_contents($path.".metadata", $metadata);
+		
+		$modules = $this->obj_data->listModulesFromUser($_SESSION["builder"]["user_id"]);
+		mkdir($path."modules/", 0777, true);
+		foreach ($modules as $mod) {
+			mkdir($path."modules/".$mod['name'], 0777, true);
+			mkdir($path."modules/".$mod['name']."/client", 0777, true);
+			mkdir($path."modules/".$mod['name']."/client/resources/", 0777, true);
+			mkdir($path."modules/".$mod['name']."/server", 0777, true);
+			mkdir($path."modules/".$mod['name']."/server/templates/", 0777, true);
+			mkdir($path."modules/".$mod['name']."/server/handlers/", 0777, true);
+			mkdir($path."modules/".$mod['name']."/server/queries/", 0777, true);
+			file_put_contents($path."modules/".$mod['name']."/client/".$mod['name'].".less", $mod['style_code']);
+			file_put_contents($path."modules/".$mod['name']."/client/".$mod['name'].".js", $mod['js_code']);
+			$handlers = $this->obj_data->listHandlers($mod['module_id']);
+			foreach ($handlers as $handler) {
+				// handle PHP code
+		                $code = $handler["code"];
+		                preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+		                $lastPos = 0;
+		                if (is_array($matches) && is_array($matches[1])) {
+		                        foreach ($matches[1] as $match) {
+		                                $cd = Array(
+		                                        "title" => $match[0],
+		                                );
+		                                $start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+		                                $end = strpos($code, "/*[END ACTUAL]*/", $start);
+                		                $cd["content"] = substr($code, $start, $end - $start);
+		                                $lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+						file_put_contents($path."modules/".$mod['name']."/server/handlers/".$handler['event'].".".$cd["title"].".php", "<"."?\n".$cd["content"]."\n?".">");
+                		        }
+				}
+	                	$code = substr($code, $lastPos);
+				file_put_contents($path."modules/".$mod['name'].'/server/handlers/'.$handler['event'].".php", "<"."?\n".$code."\n?".">");
+				
+				// handle HTML code
+				$code = $handler['html_code'];
+		                preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+			        $lastPos = 0;
+		                if (is_array($matches) && is_array($matches[1])) {
+		                        foreach ($matches[1] as $match) {
+		                                $cd = Array(
+		                                        "title" => $match[0],
+		                                );
+		                                $start = $match[1] + strlen("".$match[0].">\n");
+		                                $end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+		                                $cd["content"] = substr($code, $start, $end - $start);
+		                                $lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+						file_put_contents($path."modules/".$mod['name']."/server/templates/".$handler['event'].".".$cd['title'].".html", $cd['content']);
+                        		}
+		                }
+                		$code = substr($code, $lastPos);
+				file_put_contents($path."modules/".$mod['name']."/server/templates/".$handler['event'].".html", $code);
+			}
+			$datas = $this->obj_data->listDatas($mod['module_id']);
+			foreach ($datas as $data) {
+				file_put_contents($path."modules/".$mod['name']."/server/queries/".$data['name'].".php", "<"."?\n".$data["code"]."\n?".">");
+			}
+
+			// handle configuration options
+		    $privateConfig = $this->obj_data->listConfigurationFromModule($mod["module_id"], 0);
+			$publicConfig = $this->obj_data->listConfigurationFromModule($mod['module_id'], 1);
+			$config = "# This file contains the module's configuration options. It's split into a \n".
+				  "# development part and a production part. The first one means these configuration\n".
+				  "# options should be used in development environments (so all instance types that\n".
+				  "# are no production instances). Whereas all configuration options in the production\n".
+				  "# section are only used on production instances.\n[development]\n";
+			foreach ($publicConfig as $conf) {
+				$config .= $conf['name']."=".$conf['value']."\n";
+			}
+			$config .= "\n[production]\n";
+			foreach ($privateConfig as $conf) {
+				$config .= $conf['name']."=".$conf['value']."\n";
+			}
+			file_put_contents($path."modules/".$mod['name']."/config.ini", $config);
+		
+			// handle resources
+			$resources = $this->obj_data->listResources($mod["module_id"]);
+			foreach ($resources as $res) {
+				file_put_contents($path."modules/".$mod['name']."/client/resources/".$res['name'], base64_decode($res["data"]));
+			}
+		}
+
+		// write out library codes
+		mkdir($path."libs/", 0777, true);
+		$libraries = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
+		foreach ($libraries as $lib) {
+			file_put_contents($path."libs/".$lib['name'].".php", "<"."?\n".$lib['code']."\n?".">");
+			if ($lib["fk_resource_id"] > 0) {
+				$libfile = $path."lib/".$lib['name']."/".$lib['resource']['name'];
+				file_put_contents($libfile, base64_decode($lib["resource"]["data"]));
+                                preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $libfile, $match);
+                                if (strlen($match[1]) > 0) {
+	                                // unpack it to get contents
+                                        $progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+                                        exec("pushd;cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile)."; rm ".basename($libfile)."; popd");
+                                }
+			}
+		}
+
+		mkdir($path."tags/", 0777, true);
+		$tags = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
+		foreach ($tags as $tag) {
+			file_put_contents($path."tags/".$tag['name'].".tag", $tag['html_code']);
+		}
+
+		// pack it into an archive
+		exec("pushd;cd cache/download;tar cvjf ".preg_replace('/[^a-zA-Z0-9_]/', '_', PROJECT_NAME).".tar.bz2 ".basename($path).";popd");
+		readfile(substr($path, 0, -1) . ".tar.bz2");
+		@unlink(substr($path, 0, -1) . ".tar.bz2");
+		die();
+	}
+	
+	function syncStatus() {
+		if (!empty($_POST['status'])) {
+			$obj = json_decode($_POST['status'], true);
+			$result = Array();
+			$tagList = Array();
+			$libList = Array();
+			$moduleList = Array();
+			$dataList = Array();
+			$handlerList = Array();
+			$resourceList = Array();
+			if ($obj["tags"] && is_array($obj["tags"])) {
+				foreach ($obj["tags"] as $tag) {
+					$t = $this->obj_data->selectTagByUserAndName($_SESSION['builder']['user_id'], $tag["name"]);
+					$time = $this->obj_data->selectLastChanged("tag", $t["tag_id"]);
+					$tagList[$tag["name"]] = $t["tag_id"];
+					array_push($result, Array(
+						"diff" => crc32($t['html_code'])+4294967296 == $tag['crc'] ? 0 : ($time <= 0 ? $tag["time"] : $time) - (int)$tag["time"],
+						"paths" => Array("../tags/".$tag["name"].".tag"),
+						"id" => $t["tag_id"],
+						"type" => "tag"
+					));
+				}
+			}
+			if ($obj["libs"] && is_array($obj["libs"])) {
+				foreach ($obj["libs"] as $lib) {
+					$l = $this->obj_data->selectLibraryByUserAndName($_SESSION['builder']['user_id'], $lib["name"]);
+					$time = $this->obj_data->selectLastChanged("library", $l["library_id"]);
+					$libList[$lib["name"]] = $l["library_id"];
+					array_push($result, Array(
+						"diff" => crc32($l['code'])+4294967296 == $lib['crc'] ? 0 : ($time <= 0 ? (int)$lib["time"] : $time) - (int)$lib["time"],
+						"paths" => Array("../libs/".$lib["name"].".php"),
+						"id" => $l["library_id"],
+						"type" => "library"
+					));
+				}
+			}
+			if ($obj["modules"] && is_array($obj["modules"])) {
+				foreach ($obj["modules"] as $module) {
+					$m = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $module["name"]);
+					if (!empty($module["resource"])) {
+						$resource = $this->obj_data->selectResourceByName($module['resource']);
+						if (!$resource) {
+							array_push($result, Array(
+								"diff" => -1,
+								"paths" => Array($module['path']),
+								"id" => 0,
+								"type" => "resource"
+							));
+						} else {
+							$resourceList[$module['resource']] = $resource['resource_id'];
+						}
+					} else if (!empty($module['data'])) {
+						// queries are checked
+						$d = $this->obj_data->getDataFromName($module['data'], $m['module_id']);
+						$time = $this->obj_data->selectLastChanged("data", $d["data_id"]);
+						$dataList[$module["data"]] = $d["data_id"];
+						array_push($result, Array(
+							"diff" => crc32($d['code'])+4294967296 == $module['crc'] ? 0 : ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"paths" => Array("../modules/".$module["name"]."/server/queries/".$module['data'].".php"),
+							"id" => $d["data_id"],
+							"type" => "data"
+						));
+					} else if (!empty($module['handler'])) {
+						// queries are checked
+						$h = $this->obj_data->selectHandlerByNameAndModule($m['module_id'], $module['handler']);
+						$time = $this->obj_data->selectLastChanged("handler", $h["handler_id"]);
+						$handlerList[$module["handler"]] = $h["handler_id"];
+						array_push($result, Array(
+							"diff" => ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"paths" => Array($module['path']),
+							"id" => $h["handler_id"],
+							"type" => "handler"
+						));
+					} else if ($module["config"]) {
+						// ... skip for now
+						// @TODO
+					} else {
+						// module itself is checked
+						$time = $this->obj_data->selectLastChanged("module", $m["module_id"]);
+						$moduleList[$module["name"]] = $m['module_id'];
+						array_push($result, Array(
+							"diff" => ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"paths" => Array($module['path']),
+							"id" => $m["module_id"],
+							"type" => "module"
+						));
+					} 
+				} // end foreach
+			} // end is modules
+			
+			// now check what is missing
+			$missingTags = $this->obj_data->query("SELECT * FROM tbl_prailsbase_tag WHERE tag_id NOT IN ('".implode("', '", $tagList)."') AND name!=''");
+			foreach ($missingTags as $tag) {
+				array_push($result, Array(
+					"diff" => 1,
+					"paths" => Array("../tags/".$tag["name"].".tag"),
+					"id" => $tag["tag_id"],
+					"type" => "tag"
+				));
+			}
+			$missingLibs = $this->obj_data->query("SELECT * FROM tbl_prailsbase_library WHERE library_id NOT IN ('".implode("', '", $libList)."') AND name!=''");
+			foreach ($missingLibs as $lib) {
+				array_push($result, Array(
+					"diff" => 1,
+					"paths" => Array("../libs/".$lib["name"].".php"),
+					"id" => $lib["library_id"],
+					"type" => "library"
+				));
+			}
+			$missingMods = $this->obj_data->query("SELECT * FROM tbl_prailsbase_module WHERE module_id NOT IN ('".implode("', '", $moduleList)."') AND name!=''");
+			foreach ($missingMods as $mod) {
+				array_push($result, Array(
+					"diff" => 1,
+					"paths" => Array("../modules/client/".$mod["name"].".js", "../modules/client/".$mod["name"].".less"),
+					"id" => $mod["module_id"],
+					"type" => "module"
+				));
+			}
+			$missingDatas = $this->obj_data->query("SELECT a.* FROM tbl_prailsbase_data AS a, tbl_prailsbase_module WHERE a.fk_module_id=module_id AND data_id NOT IN ('".implode("', '", $dataList)."') AND a.name!=''");
+			foreach ($missingDatas as $data) {
+				array_push($result, Array(
+					"diff" => 1,
+					"paths" => Array("../modules/server/queries/".$data["name"].".php"),
+					"id" => $data["data_id"],
+					"type" => "data"
+				));
+			}
+			$missingHandlers = $this->obj_data->query("SELECT a.* FROM tbl_prailsbase_handler AS a, tbl_prailsbase_module WHERE fk_user_id='".$_SESSION['builder']['user_id']."' AND a.fk_module_id=module_id AND handler_id NOT IN ('".implode("', '", $handlerList)."') AND event!=''");
+			foreach ($missingHandlers as $handler) {
+				array_push($result, Array(
+					"diff" => 1,
+					"paths" => Array(),
+					"id" => $handler["handler_id"],
+					"type" => "handler"
+				));
+			}
+			die(json_encode($result));
+		} // end status
+		die();
+	}
+	
+	function singleDownload() {
+		if (!empty($_POST['type']) && !empty($_POST['id'])) {
+			$result = Array();
+			switch ($_POST['type']) {
+				case "tag": 
+					$tag = $this->obj_data->selectTag($_POST['id']);
+					if ($tag) {
+						$result["tags/".$tag['name'].".tag"] = $tag['html_code'];
+					}
+					break;
+				case "library": 
+					$lib = $this->obj_data->selectLibrary($_POST['id']);
+					if ($lib) {
+						$result['libs/'.$lib['name'].'.php'] = "<"."?\n".$lib['code']."\n?".">";
+					}
+					break;
+				case "data":
+					$data = $this->obj_data->selectData($_POST['id']);
+					if ($data) {
+						$result['modules/'.$data['module']['name'].'/server/queries/'.$data['name'].'.php'] = "<"."?\n".$data['code']."\n?".">";
+					}
+					break;
+				case "handler":
+					$handler = $this->obj_data->selectHandler($_POST['id']);
+					if ($handler) {
+						// handle event code
+		                $code = $handler["code"];
+		                preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+		                $lastPos = 0;
+		                if (is_array($matches) && is_array($matches[1])) {
+							foreach ($matches[1] as $match) {
+							    $cd = Array(
+							    	"title" => $match[0],
+							    );
+							    $start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+							    $end = strpos($code, "/*[END ACTUAL]*/", $start);
+							    $cd["content"] = substr($code, $start, $end - $start);
+							    $lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+								$result["modules/".$handler['module']['name']."/server/handlers/".$handler['event'].".".$cd["title"].".php"] = "<"."?\n".$cd["content"]."\n?".">";
+							}
+						}
+						$code = substr($code, $lastPos);
+						$result["modules/".$handler['module']['name'].'/server/handlers/'.$handler['event'].".php"] = "<"."?\n".$code."\n?".">";
+				
+						// handle HTML code
+						$code = $handler['html_code'];
+		                preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+				        $lastPos = 0;
+						if (is_array($matches) && is_array($matches[1])) {
+							foreach ($matches[1] as $match) {
+								$cd = Array(
+									"title" => $match[0],
+								);
+								$start = $match[1] + strlen("".$match[0].">\n");
+								$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+								$cd["content"] = substr($code, $start, $end - $start);
+								$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+								$result["modules/".$handler['module']['name']."/server/templates/".$handler['event'].".".$cd['title'].".html"] = $cd['content'];
+                       		}
+		                }
+                		$code = substr($code, $lastPos);
+						$result["modules/".$handler['module']['name']."/server/templates/".$handler['event'].".html"] = $code;
+					}
+					break;
+				case "module":
+					$module = $this->obj_data->selectModule($_POST['id']);
+					if ($module) {
+						$result["modules/".$module['name']."/client/".$module['name'].".less"] = $module['style_code'];
+						$result["modules/".$module['name']."/client/".$module['name'].".js"] = $module['js_code'];
+					}
+					break;
+			}
+			die(json_encode($result));
+		}
+	}
 	
 /*</EVENT-HANDLERS>*/
 	function _checkPHPSyntax($code) {

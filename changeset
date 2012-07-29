@@ -1,3 +1,9 @@
+V1.4.4 (July 26th, 2012)
+
+ * fixed a bug with certain Apache versions not supporting inline comments in .htaccess file
+ * fixed a scope bug for saving using the CTRL+S shortcut in a code window with multiple tabs
+
+
 V1.4.3 (July 8th, 2012)
 
  * removed browserdetect.js

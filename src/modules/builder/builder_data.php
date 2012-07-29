@@ -354,6 +354,17 @@ class BuilderData extends Database
     {
         $this->insertHistory("tbl_prailsbase_data_history", $module_id, $arr_old, $arr_new);
     }
+    
+    // returns the last change date
+    function selectLastChanged($item, $id) {
+    	$history = @array_pop($this->query("SELECT change_time FROM tbl_prailsbase_".$item."_history WHERE fk_original_id=".$id." ORDER BY change_time DESC LIMIT 0,1"));
+    	if ($history) {
+    		return (int)$history["change_time"];
+    	} else {
+    		return 0;
+    	}
+    }
+    
     function listDataHistory($data_id)
     {
 	$comp = $this->_getCompletion(Array("name", "code"), (int)$data_id, "data");
