@@ -394,59 +394,72 @@ class Generator {
     function getJavaScripts() {
 		global $SERVER;
     	$str_js = "";
-    	$time = time();
-        $prefix = md5(implode("", $this->arr_js));
-    	$dp = opendir("cache/");
-        while (($file = readdir($dp)) !== false) {
-    		if (strpos($file, $prefix) !== false) {
-    			$points = explode(".", $file);
-    			$time = (int)$points[1];
-    			break;
-    		}
-    	}
-		
-        foreach ($this->arr_js as $js) {
-        	if (@filectime($js) > $time) {
-        		// we need to regenerate the javascript files
-				@unlink("cache/".$prefix.".".$time.".js");
-				if (file_exists("cache/".$prefix.".".$time.".jsgz")) {
-					@unlink("cache/".$prefix.".".$time.".jsgz");
-				}
-				$time = time();
-				break;				
-        	}
-    	}
-    		
-    	$path = "cache/".$prefix.".".$time.".js";
-    	if (!file_exists($path)) {
-    		$fp = fopen($path, "w+");
-    		$gp = gzopen(str_replace(".js", ".jsgz", $path), "w9");
-			$gzData = "";
-            foreach ($this->arr_js as $js) {
-            	if (file_exists($js)) {
-	            	$str = file_get_contents($js)."\n";
-	                if (ENV_PRODUCTION === true) {
+    	
+    	if (ENV_PRODUCTION === true) {
+	    	$time = time();
+	        $prefix = md5(implode("", $this->arr_js));
+	    	$dp = opendir("cache/");
+	        while (($file = readdir($dp)) !== false) {
+	    		if (strpos($file, $prefix) !== false) {
+	    			$points = explode(".", $file);
+	    			$time = (int)$points[1];
+	    			break;
+	    		}
+	    	}
+			
+	        foreach ($this->arr_js as $js) {
+	        	if (@filectime($js) > $time) {
+	        		// we need to regenerate the javascript files
+					@unlink("cache/".$prefix.".".$time.".js");
+					if (file_exists("cache/".$prefix.".".$time.".jsgz")) {
+						@unlink("cache/".$prefix.".".$time.".jsgz");
+					}
+					$time = time();
+					break;				
+	        	}
+	    	}
+	    		
+	    	$path = "cache/".$prefix.".".$time.".js";
+	    	if (!file_exists($path)) {
+	    		$fp = fopen($path, "w+");
+	    		$gp = gzopen(str_replace(".js", ".jsgz", $path), "w9");
+				$gzData = "";
+	            foreach ($this->arr_js as $js) {
+	            	if (file_exists($js)) {
+		            	$str = ";".file_get_contents($js)."\n";
 	    			    $str = JSMIN::minify($str);
-	    			}
-	            	fwrite($fp, $str);
-					gzwrite($gp, $str);
-            	} else {
-            		if (!is_array($this->arr_noCacheJS)) $this->arr_noCacheJS = Array();
-            		array_push($this->arr_noCacheJS, $js);
-            	}
-            }
-    		fclose($fp);
-    		gzclose($gp);
-           	@chmod($path, 0755);
-           	@chmod(str_replace(".js", ".jsgz", $path), 0755);
-        }
-        $str_js .= "<script src='" . str_replace('http:', '', $SERVER).$path . "' type='text/javascript'></script>\n";
-        
-        if (is_array($this->arr_noCacheJS)) {
-        	foreach ($this->arr_noCacheJS as $ncjs) {
-	        	$str_js .= "<script src='" . $ncjs . "' type='text/javascript'></script>\n";
-        	}
-        }
+		            	fwrite($fp, $str);
+						gzwrite($gp, $str);
+	            	} else {
+	            		if (!is_array($this->arr_noCacheJS)) $this->arr_noCacheJS = Array();
+	            		array_push($this->arr_noCacheJS, $js);
+	            	}
+	            }
+	    		fclose($fp);
+	    		gzclose($gp);
+	           	@chmod($path, 0755);
+	           	@chmod(str_replace(".js", ".jsgz", $path), 0755);
+	        }
+	        $str_js .= "<script src='" . str_replace('http:', '', $SERVER).$path . "' type='text/javascript'></script>\n";
+	        
+	        if (is_array($this->arr_noCacheJS)) {
+	        	foreach ($this->arr_noCacheJS as $ncjs) {
+		        	$str_js .= "<script src='" . $ncjs . "' type='text/javascript'></script>\n";
+	        	}
+	        }
+    	} else {
+    		// for development environments we keep the JS files separate
+    		if (is_array($this->arr_js)) {
+    			foreach ($this->arr_js as $js) {
+		        	$str_js .= "<script src='" . $js . "' type='text/javascript'></script>\n";
+    			}
+    		}
+	        if (is_array($this->arr_noCacheJS)) {
+	        	foreach ($this->arr_noCacheJS as $ncjs) {
+		        	$str_js .= "<script src='" . $ncjs . "' type='text/javascript'></script>\n";
+	        	}
+	        }    		
+    	}
     		
         return $str_js;
     }
