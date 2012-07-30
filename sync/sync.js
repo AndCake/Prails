@@ -28,10 +28,22 @@ function readConfigFile() {
 		}
 	}
 }
+function writeConfigFile() {
+	var configFile = fs.readFileSync(basePath+".metadata");
+	var buffer = "";
+	var lines = (""+configFile).split('\n');
+	for (var i = lines.length; i--;) {
+		if (!lines[i].match(/^\s*lastupdate\s*=\s*[0-9]+\s*$/) && !lines[i].match(/^\s*$/g)) {
+			buffer += lines[i] + "\n";
+		}
+	}
+	buffer += "lastupdate=" + metadata.lastupdate + "\n";
+	fs.writeFileSync(basePath+".metadata", buffer);
+}
 try {
 	readConfigFile();
 } catch(e) {
-	basePath += ".."+osSep;
+	basePath = ".."+osSep + basePath;
 	try {
 		readConfigFile();
 	} catch(e) {
@@ -114,11 +126,11 @@ function postData(endpoint, data, fn) {
 			// everything ok
 			fn && fn(res);
 		} else {
-			console.log("Server reported problems: "+res.statusCode+" - "+JSON.stringify(res.headers));
+			console.error("Server reported problems: "+res.statusCode+" - "+JSON.stringify(res.headers));
 		}
 	});
 	req.on("error", function(e) {
-		console.log("Error posting data: " + e.message, endpoint);
+		console.error("Error posting data: " + e.message, endpoint);
 	});
 
 	var pdata = "";
@@ -163,14 +175,14 @@ function uploadFile(endpoint, file, fn) {
 			// everything ok
 			fn && fn(res);
 		} else {
-			console.log("Server reported problems: "+res.statusCode+" - "+JSON.stringify(res.headers));
+			console.error("Server reported problems: "+res.statusCode+" - "+JSON.stringify(res.headers));
 			res.on("data" ,function(chunk) {
 				console.log(chunk.toString());
 			});
 		}
 	});
 	req.on("error", function(e) {
-		console.log("Error uploading file: " + e.message);
+		console.error("Error uploading file: " + e.message);
 	});
 	var boundary = "--------------" + (new Date).getTime();
 	post_data.push(new Buffer("--"+boundary+"\r\nContent-Disposition: form-data; name=\"resource[file]\"; filename=\""+file.split(osSep).pop()+"\"\r\nContent-Type: application/octet-stream\r\nContent-Transfer-Encoding: binary\r\n\r\n", "ascii"));
@@ -210,19 +222,25 @@ var updateMapping = {
 				"tag[html_code]": content
 			}, function(res) {
 				console.log("Updated tag "+parts[0].split(".").slice(0,-1).join("."));
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
 			});
 		}
 	},
 	"libs": function(parts, f) {
 		if (parts.length <= 1 && parts[0].match(/\.php$/i)) {
 			// normal lib update
-			var content = preparePHPFile(f);
-			postData("editLibrary&check=1", {
-				'library[name]': parts[0].replace(/\.php$/i, ''),
-				'library[code]': content
-			}, function(res) {
-				console.log("Updated library "+parts[0].split(".").slice(0, -1).join("."));
-			});
+			try {
+				var content = preparePHPFile(f);
+				postData("editLibrary&check=1", {
+					'library[name]': parts[0].replace(/\.php$/i, ''),
+					'library[code]': content
+				}, function(res) {
+					console.log("Updated library "+parts[0].split(".").slice(0, -1).join("."));
+					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					writeConfigFile();
+				});
+			} catch(e) {console.error(e.message);};
 		} else {
 			// we have a resource-bundled library content at hand
 			// this will be more difficult...
@@ -242,6 +260,8 @@ var updateMapping = {
 					opts["module["+(parts[1].match(/\.js$/i) ? "js_code" : "style_code")+"]"] = content;
 					postData("editModule&check=1", opts, function(res) {
 						console.log("Updated "+f+" successfully.");
+						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						writeConfigFile();
 					});
 				} else {
 					// other JS / LESS files - need to uploaded as resources
@@ -253,6 +273,8 @@ var updateMapping = {
 						postData("editModule&check=1", opts, function(res) {
 							res.on("data", function(chunk) {});
 							console.log("Updated "+f+" successfully.");
+							metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+							writeConfigFile();
 						});
 					});
 				}
@@ -260,6 +282,8 @@ var updateMapping = {
 				// we have a resource at hand - accordingly upload it
 				uploadFile("editResource&check=1&do=upload&module="+encodeURIComponent(module)+"&file="+encodeURIComponent(f.split(osSep).pop()), f, function(res){
 					console.log("Updated "+f+" successfully.");
+					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					writeConfigFile();
 				});
 			}
 		} else if (parts[0] == "server" && parts.length == 3) {
@@ -276,20 +300,28 @@ var updateMapping = {
 					console.log("Updated handler template code "+f+" successfully.");
 				});
 			} else if (parts[1] == "handlers" && parts[2].match(/\.php$/i)) {
-				if (els.length > 1) {
-					opts['code['+els[1]+']'] = preparePHPFile(f);
-				} else {
-					opts['code'] = preparePHPFile(f);
-				}
-				postData("editHandler&check=3", opts, function(res) {
-					console.log("Updated handler code "+f+" successfully.");
-				});
+				try {
+					if (els.length > 1) {
+						opts['code['+els[1]+']'] = preparePHPFile(f);
+					} else {
+						opts['code'] = preparePHPFile(f);
+					}
+					postData("editHandler&check=3", opts, function(res) {
+						console.log("Updated handler code "+f+" successfully.");
+						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						writeConfigFile();
+					});
+				} catch(e) { console.error(e.message); }
 			} else if (parts[1] == "queries" && parts[2].match(/\.php$/i)) {
-	            var opts = {"data[name]": els[0], "module[name]": module};
-	            opts['data[code]'] = preparePHPFile(f);
-				postData("editData&check=1", opts, function(res) {
-					console.log("Updated query code "+f+" successfully.");
-				});
+				try {
+	            	var opts = {"data[name]": els[0], "module[name]": module};
+	            	opts['data[code]'] = preparePHPFile(f);
+					postData("editData&check=1", opts, function(res) {
+						console.log("Updated query code "+f+" successfully.");
+						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						writeConfigFile();
+					});
+				} catch(e) { console.error(e.message); }
 			}
 		} else if (parts[0] == "config.ini") {
 			// we have the module's configuration at hand
@@ -313,6 +345,8 @@ var updateMapping = {
 			}
 			postData("editConfiguration&check=2&module="+module, obj, function(req) {
 				console.log("Updated module configuration "+f);
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
 			});
 		}
 	}
@@ -323,14 +357,22 @@ var deleteMapping = {
 		if (parts.length <= 1 && parts[0].match(/\.tag$/i)) {
 			postData("deleteTag", {
 				"tag[name]": parts[0].replace(/\.tag$/i, '')
-			}, function(res){ console.log("Successfully removed tag "+parts[0].replace(/\.tag$/i,''));});
+			}, function(res){ 
+				console.log("Successfully removed tag "+parts[0].replace(/\.tag$/i,''));
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
+			});
 		}
 	},
 	"libs": function(parts, f) {
 		if (parts.length <= 1 && parts[0].match(/\.php$/i)) {
 			postData("deleteLibrary", {
 				"library[name]": parts[0].replace(/\.php$/i, '')
-			}, function(res){ console.log("Successfully removed library "+parts[0].replace(/\.php$/i,''));});
+			}, function(res){ 
+				console.log("Successfully removed library "+parts[0].replace(/\.php$/i,''));
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
+			});
 		} else {
 			console.error("Resource handling not yet supported");
 		}
@@ -346,7 +388,10 @@ var deleteMapping = {
 						opts["module[js_code]"] = ""; 
 					else 
 						opts["module[style_code]"] = "";
-					postData("editModule&check=1", opts);
+					postData("editModule&check=1", opts, function(res) {
+						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						writeConfigFile();
+					});
 				} else {
 					console.error("Resource handling not yet supported.");
 				}
@@ -363,7 +408,10 @@ var deleteMapping = {
 	            var els = parts[2].split(".");
 	            els.pop();      // ignore .html suffix
 	            var opts = {"handler[event]": els[0], "module[name]": module};
-				postData("deleteHandler", opts);
+				postData("deleteHandler", opts, function(res) {
+					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					writeConfigFile();
+				});
         	}
 		} else if (parts[0] == "config.ini") {
             // we have the module's configuration at hand
@@ -371,10 +419,16 @@ var deleteMapping = {
             var lines = content.split(/\n/);
             var obj = [];
             var mode = null;
-            postData("editConfiguration&check=2&module="+module, obj);
+            postData("editConfiguration&check=2&module="+module, obj, function(res) {
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
+            });
 		} else if (parts.length <= 0) {
 			// module directory has been removed
-			postData("deleteModule&module="+module, {});
+			postData("deleteModule&module="+module, {}, function(res) {
+				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				writeConfigFile();
+			});
 		}
 	}
 };
@@ -426,12 +480,14 @@ if (process.argv.length < 3) {
 				if (paths.length <= 1 && paths[0].match(/\.php$/i)) {
 					var stats = fs.statSync(file);
 					var name = paths.pop().replace(/\.php$/i, '');
-					result = {
-						name: name,
-						path: file,
-						crc: crc32(preparePHPFile(file)),
-						time: ((stats.mtime || stats.atime || stats.ctime || new Date(0)).getTime() / 1000).toFixed(0)
-					};
+					try {
+						result = {
+							name: name,
+							path: file,
+							crc: crc32(preparePHPFile(file)),
+							time: ((stats.mtime || stats.atime || stats.ctime || new Date(0)).getTime() / 1000).toFixed(0)
+						};
+					} catch(e) { console.error(e.message); }
 				} else {
 					console.error("Updating resources is not yet supported");
 				}
@@ -479,15 +535,17 @@ if (process.argv.length < 3) {
 					if (paths[1] == "queries" && paths[2].match(/\.php$/i)) {
 			            var els = paths[2].split(".");
 			            els.pop();      // ignore suffix
-						var stats = fs.statSync(file);
-			            var time = ((stats.mtime || stats.atime || stats.ctime || new Date(0)).getTime() / 1000).toFixed(0); 
-						result = {
-							name: module,
-							data: els[0],
-							path: file,
-							crc: crc32(""+fs.readFileSync(file)),
-							time: time
-						};
+						try {
+							var stats = fs.statSync(file);
+				            var time = ((stats.mtime || stats.atime || stats.ctime || new Date(0)).getTime() / 1000).toFixed(0); 
+							result = {
+								name: module,
+								data: els[0],
+								path: file,
+								crc: crc32(preparePHPFile(file)),
+								time: time
+							};
+						} catch(e) { console.error(e.message); }
 					} else {
 			            var els = paths[2].split(".");
 			            els.pop();      // ignore suffix
@@ -524,106 +582,124 @@ if (process.argv.length < 3) {
 				return result;
 			}
 		};
-		var set = {};
-		for (var all in files) {
-			if (typeof(files[all]) != "function" && files[all].split(osSep).pop()[0] != ".") {
-				var paths = files[all].split(osSep);
-				paths = paths.slice(1);
-				if (!set[paths[0]]) set[paths[0]] = [];
-				var res = checkMapping[paths[0]](paths.slice(1), files[all]);
-				if (res) {
-					set[paths[0]].push(res);
-				}
-			}
-		}
-		postData("syncStatus", {
-			"status": JSON.stringify(set)
-		}, function(res) { 
+	
+		http.get(metadata.instance + "cache/update-stream", function(res) {
 			var data = "";
 			res.on("data", function(chunk) {
 				data += chunk.toString();
-			});
+			});	
 			res.on("end", function() {
-				try {
-					var result = JSON.parse(data);
-					var completed = 0;
-					var totalLen = result.length;
-					for (var i = 0; i < totalLen; i++) {
-						if (result[i].diff < -30 || result[i].diff == -1) {
-							// local is newer
-							// upload it...
-							var file = result[i].paths.shift();
-							var parts = file.split(osSep).slice(1);
-							try {
-								updateMapping[parts[0]](parts.slice(1), file);
-							} catch(e) {
-								console.error("Error while updating the mapping.", e);
+				var time = parseInt(data);
+				if (data > metadata.lastupdate) {
+					var set = {};
+					for (var all in files) {
+						if (typeof(files[all]) != "function" && files[all].split(osSep).pop()[0] != ".") {
+							var paths = files[all].split(osSep);
+							paths = paths.slice(1);
+							if (!set[paths[0]]) set[paths[0]] = [];
+							var res = checkMapping[paths[0]](paths.slice(1), files[all]);
+							if (res) {
+								set[paths[0]].push(res);
 							}
-							completed++;
-							if (completed >= totalLen) syncCompleted = true;
-						} else if (result[i].diff > 30 || result[i].diff == 1) {
-							// remote is newer
-							// fetch update ...
-							postData("singleDownload", {
-								type: result[i].type,
-								id: result[i].id
-							}, function(res) {
-								var pullData = "";
-								var el = result[i];
-								res.on("data", function(chunk) {
-									pullData += chunk.toString();
-								});
-								res.on("end", function() {
-									try {
-										var obj = JSON.parse(pullData);
-										var items = Object.keys(obj);
-										for (var name in obj) {
-											if (typeof(obj[name]) != "function") {
-												var code = obj[name];
-												name = basePath + name;
-												var dir = name.split(osSep);
-												dir.pop();
-												mkdirs(dir.join(osSep), 0777, function(err) {
-													if (!err) {
-														fs.writeFileSync(name, code);
-														console.log("Pulled latest changes from "+name);
-														completed++;
-														if (completed >= totalLen) syncCompleted = true;
-													} else {
-														console.error("Error creating directory.", err);
-													}
-												});
-											}
-										}
-									} catch(e) {
-										console.error("Unable to fetch object ", el, e, pullData);
-									}
-								});
-							});
-						} else {
-							completed++;
-							if (completed >= totalLen) syncCompleted = true;
 						}
 					}
-				} catch(e) {
-					console.error("Unable to synchronize with server. ", e, "Server returned: "+data);
+					postData("syncStatus", {
+						"status": JSON.stringify(set)
+					}, function(res) { 
+						var data = "";
+						res.on("data", function(chunk) {
+							data += chunk.toString();
+						});
+						res.on("end", function() {
+							try {
+								var result = JSON.parse(data);
+								var completed = 0;
+								var totalLen = result.length;
+								for (var i = 0; i < totalLen; i++) {
+									if (result[i].diff < -30 || result[i].diff == -1) {
+										// local is newer
+										// upload it...
+										var file = result[i].paths.shift();
+										var parts = file.split(osSep).slice(1);
+										try {
+											updateMapping[parts[0]](parts.slice(1), file);
+										} catch(e) {
+											console.error("Error while updating the mapping.", e);
+										}
+										completed++;
+										if (completed >= totalLen) syncCompleted = true;
+									} else if (result[i].diff > 30 || result[i].diff == 1) {
+										// remote is newer
+										// fetch update ...
+										postData("singleDownload", {
+											type: result[i].type,
+											id: result[i].id
+										}, function(res) {
+											var pullData = "";
+											var el = result[i];
+											res.on("data", function(chunk) {
+												pullData += chunk.toString();
+											});
+											res.on("end", function() {
+												try {
+													var obj = JSON.parse(pullData);
+													var items = Object.keys(obj);
+													for (var name in obj) {
+														if (typeof(obj[name]) != "function") {
+															var code = obj[name];
+															name = basePath + name;
+															var dir = name.split(osSep);
+															dir.pop();
+															mkdirs(dir.join(osSep), 0777, function(err) {
+																if (!err) {
+																	fs.writeFileSync(name, code);
+																	console.log("Pulled latest changes from "+name);
+																	completed++;
+																	if (completed >= totalLen) syncCompleted = true;
+																} else {
+																	console.error("Error creating directory.", err);
+																}
+															});
+														}
+													}
+												} catch(e) {
+													console.error("Unable to fetch object ", el, e, pullData);
+												}
+											});
+										});
+									} else {
+										completed++;
+										if (completed >= totalLen) syncCompleted = true;
+									}
+								}
+							} catch(e) {
+								console.error("Unable to synchronize with server. ", e, "Server returned: "+data);
+								syncCompleted = true;
+							}
+						});
+					});
+				} else {
 					syncCompleted = true;
 				}
 			});
-		});
+		});					
 	});
 
-	var int = setInterval(function() {
+	var inte = setInterval(function() {
 		if (syncCompleted) {
-			sys.puts("Prails watcher listening...\n");
-			clearInterval(int);
+			sys.puts("Prails watcher listening on "+basePath+"...\n");
+			clearInterval(inte);
+			metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+			writeConfigFile();
 			watch.createMonitor(basePath, {ignoreDotFiles: true}, function(monitor) {
 				monitor.on("created", function(f, stat) {
 					// handle file creation
 					// need to notice creation of files and directories
 					if (f.split(osSep).pop()[0] != ".") {
 						parts = f.split(osSep);
-						parts.shift();
+						if (parts[0][0] == ".") {
+							parts.shift();
+						}
 						if (updateMapping[parts[0]]) {
 							updateMapping[parts[0]](parts.slice(1), f);
 						}
@@ -633,7 +709,9 @@ if (process.argv.length < 3) {
 					// need to notice removal of directories (esp. handler and module directories)
 					if (f.split(osSep).pop()[0] != ".") {
 						parts = f.split(osSep);
-						parts.shift();
+						if (parts[0][0] == ".") {
+							parts.shift();
+						}
 						if (deleteMapping[parts[0]]) {
 							deleteMapping[parts[0]](parts.slice(1), f);
 						}
@@ -643,7 +721,9 @@ if (process.argv.length < 3) {
 					// need to notice editing of files, then post them to the server
 					if (f.split(osSep).pop()[0] != ".") {
 						parts = f.split(osSep);
-						parts.shift();
+						if (parts[0][0] == ".") {
+							parts.shift();
+						}
 						if (updateMapping[parts[0]]) {
 							updateMapping[parts[0]](parts.slice(1), f);
 						}
@@ -656,7 +736,9 @@ if (process.argv.length < 3) {
 	var f = process.argv[2];
 	if (f.split(osSep).pop()[0] != ".") {
 		parts = f.split(osSep);
-		parts.shift();
+		if (parts[0][0] == ".") {
+			parts.shift();
+		}
 		if (updateMapping[parts[0]]) {
 			console.log("Updating file "+f);
 			updateMapping[parts[0]](parts.slice(1), f);

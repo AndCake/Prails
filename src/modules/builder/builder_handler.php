@@ -781,6 +781,7 @@ class BuilderHandler
 						$code .= $codes[0]["content"];
 						$arr_data["code"] = $code;
 					}
+					$arr_data["event"] = $_POST['handler']['event'];
 					if ($hid > 0) {
 						$this->obj_data->updateHandler($hid, $arr_data);
 					} else {
@@ -2916,10 +2917,10 @@ class BuilderHandler
 			if ($obj["tags"] && is_array($obj["tags"])) {
 				foreach ($obj["tags"] as $tag) {
 					$t = $this->obj_data->selectTagByUserAndName($_SESSION['builder']['user_id'], $tag["name"]);
-					$time = $this->obj_data->selectLastChanged("tag", $t["tag_id"]);
-					$tagList[$tag["name"]] = $t["tag_id"];
+					$time = $this->obj_data->selectLastChanged("tag", (int)$t["tag_id"]);
+					$tagList[$tag["name"]] = (int)$t["tag_id"];
 					array_push($result, Array(
-						"diff" => crc32($t['html_code'])+4294967296 == $tag['crc'] ? 0 : ($time <= 0 ? $tag["time"] : $time) - (int)$tag["time"],
+						"diff" => crc32($t['html_code'])+4294967296 == $tag['crc'] ? 0 : ($time <= 0 ? $tag["time"] - 1 : $time) - (int)$tag["time"],
 						"paths" => Array("../tags/".$tag["name"].".tag"),
 						"id" => $t["tag_id"],
 						"type" => "tag"
@@ -2929,10 +2930,10 @@ class BuilderHandler
 			if ($obj["libs"] && is_array($obj["libs"])) {
 				foreach ($obj["libs"] as $lib) {
 					$l = $this->obj_data->selectLibraryByUserAndName($_SESSION['builder']['user_id'], $lib["name"]);
-					$time = $this->obj_data->selectLastChanged("library", $l["library_id"]);
-					$libList[$lib["name"]] = $l["library_id"];
+					$time = $this->obj_data->selectLastChanged("library", (int)$l["library_id"]);
+					$libList[$lib["name"]] = (int)$l["library_id"];
 					array_push($result, Array(
-						"diff" => crc32($l['code'])+4294967296 == $lib['crc'] ? 0 : ($time <= 0 ? (int)$lib["time"] : $time) - (int)$lib["time"],
+						"diff" => crc32($l['code'])+4294967296 == $lib['crc'] ? 0 : ($time <= 0 ? (int)$lib["time"] - 1 : $time) - (int)$lib["time"],
 						"paths" => Array("../libs/".$lib["name"].".php"),
 						"id" => $l["library_id"],
 						"type" => "library"
@@ -2957,10 +2958,10 @@ class BuilderHandler
 					} else if (!empty($module['data'])) {
 						// queries are checked
 						$d = $this->obj_data->getDataFromName($module['data'], $m['module_id']);
-						$time = $this->obj_data->selectLastChanged("data", $d["data_id"]);
-						$dataList[$module["data"]] = $d["data_id"];
+						$time = $this->obj_data->selectLastChanged("data", (int)$d["data_id"]);
+						$dataList[$module["data"]] = (int)$d["data_id"];
 						array_push($result, Array(
-							"diff" => crc32($d['code'])+4294967296 == $module['crc'] ? 0 : ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"diff" => crc32($d['code'])+4294967296 == $module['crc'] ? 0 : ($time <= 0 ? (int)$module["time"] - 1 : $time) - (int)$module["time"],
 							"paths" => Array("../modules/".$module["name"]."/server/queries/".$module['data'].".php"),
 							"id" => $d["data_id"],
 							"type" => "data"
@@ -2968,10 +2969,10 @@ class BuilderHandler
 					} else if (!empty($module['handler'])) {
 						// queries are checked
 						$h = $this->obj_data->selectHandlerByNameAndModule($m['module_id'], $module['handler']);
-						$time = $this->obj_data->selectLastChanged("handler", $h["handler_id"]);
-						$handlerList[$module["handler"]] = $h["handler_id"];
+						$time = $this->obj_data->selectLastChanged("handler", (int)$h["handler_id"]);
+						$handlerList[$module["handler"]] = (int)$h["handler_id"];
 						array_push($result, Array(
-							"diff" => ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"diff" => ($time <= 0 ? (int)$module["time"] - 1 : $time) - (int)$module["time"],
 							"paths" => Array($module['path']),
 							"id" => $h["handler_id"],
 							"type" => "handler"
@@ -2981,10 +2982,10 @@ class BuilderHandler
 						// @TODO
 					} else {
 						// module itself is checked
-						$time = $this->obj_data->selectLastChanged("module", $m["module_id"]);
-						$moduleList[$module["name"]] = $m['module_id'];
+						$time = $this->obj_data->selectLastChanged("module", (int)$m["module_id"]);
+						$moduleList[$module["name"]] = (int)$m['module_id'];
 						array_push($result, Array(
-							"diff" => ($time <= 0 ? (int)$module["time"] : $time) - (int)$module["time"],
+							"diff" => ($time <= 0 ? (int)$module["time"] - 1 : $time) - (int)$module["time"],
 							"paths" => Array($module['path']),
 							"id" => $m["module_id"],
 							"type" => "module"
@@ -2998,7 +2999,7 @@ class BuilderHandler
 			foreach ($missingTags as $tag) {
 				array_push($result, Array(
 					"diff" => 1,
-					"paths" => Array("../tags/".$tag["name"].".tag"),
+					"paths" => Array("./tags/".$tag["name"].".tag"),
 					"id" => $tag["tag_id"],
 					"type" => "tag"
 				));
@@ -3007,7 +3008,7 @@ class BuilderHandler
 			foreach ($missingLibs as $lib) {
 				array_push($result, Array(
 					"diff" => 1,
-					"paths" => Array("../libs/".$lib["name"].".php"),
+					"paths" => Array("./libs/".$lib["name"].".php"),
 					"id" => $lib["library_id"],
 					"type" => "library"
 				));
@@ -3016,7 +3017,7 @@ class BuilderHandler
 			foreach ($missingMods as $mod) {
 				array_push($result, Array(
 					"diff" => 1,
-					"paths" => Array("../modules/client/".$mod["name"].".js", "../modules/client/".$mod["name"].".less"),
+					"paths" => Array("./modules/client/".$mod["name"].".js", "./modules/client/".$mod["name"].".less"),
 					"id" => $mod["module_id"],
 					"type" => "module"
 				));
@@ -3025,7 +3026,7 @@ class BuilderHandler
 			foreach ($missingDatas as $data) {
 				array_push($result, Array(
 					"diff" => 1,
-					"paths" => Array("../modules/server/queries/".$data["name"].".php"),
+					"paths" => Array("./modules/server/queries/".$data["name"].".php"),
 					"id" => $data["data_id"],
 					"type" => "data"
 				));

@@ -1,7 +1,7 @@
 /**
  * @author roq
  */
-
+window.devel = false;
 window.Builder = Object.extend(window.Builder || {}, {
 
 	updaters: [],
