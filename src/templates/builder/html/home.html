@@ -642,23 +642,25 @@
 		$("searchReplaceForm").remove();
 		
 		new PeriodicalExecuter(function(pe) {
-			if (window.testStarted) {
-				if (Ext.getCmp("testresult").initialConfig.iconCls != "testRunning") {
-					Ext.getCmp("testresult").setIconClass("testRunning");
+			if (Ext.getCmp("testresult")) {
+				if (window.testStarted) {
+					if (Ext.getCmp("testresult").initialConfig.iconCls != "testRunning") {
+						Ext.getCmp("testresult").setIconClass("testRunning");
+					} else {
+						if (window.success > 0) {
+							Ext.getCmp("testresult").setIconClass("testSuccess");
+						} else {
+							Ext.getCmp("testresult").setIconClass("testUnknown")
+						}
+					}
 				} else {
-					if (window.success > 0) {
+					if (window.errors > 0) {
+						Ext.getCmp("testresult").setIconClass("testError");
+					} else if (window.success > 0) {
 						Ext.getCmp("testresult").setIconClass("testSuccess");
 					} else {
-						Ext.getCmp("testresult").setIconClass("testUnknown")
+						Ext.getCmp("testresult").setIconClass("testUnknown")	
 					}
-				}
-			} else {
-				if (window.errors > 0) {
-					Ext.getCmp("testresult").setIconClass("testError");
-				} else if (window.success > 0) {
-					Ext.getCmp("testresult").setIconClass("testSuccess");
-				} else {
-					Ext.getCmp("testresult").setIconClass("testUnknown")	
 				}
 			}
 			if (window.testLog) {
