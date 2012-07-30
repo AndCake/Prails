@@ -15,18 +15,28 @@ var caesar = function(content, key) {
 }
 
 osSep = process.platform === 'win32' ? '\\' : '/'
-var files = [];
-var paths = [process.argv[2]||(".."+osSep)];
-var basePath = process.argv[2]||(".."+osSep);
-var watchers = {};
-
+var basePath = process.argv[2]||("."+osSep);
 var metadata = {};
-var configFile = fs.readFileSync(basePath+".metadata");
-var lines = (""+configFile).split('\n');
-for (var i = lines.length; i--;) {
-	if (!lines[i].match(/^\s*#/)) {
-		var kv = lines[i].split(/=/);
-		metadata[kv[0]] = kv.slice(1).join("=");
+
+function readConfigFile() {
+	var configFile = fs.readFileSync(basePath+".metadata");
+	var lines = (""+configFile).split('\n');
+	for (var i = lines.length; i--;) {
+		if (!lines[i].match(/^\s*#/)) {
+			var kv = lines[i].split(/=/);
+			metadata[kv[0]] = kv.slice(1).join("=");
+		}
+	}
+}
+try {
+	readConfigFile();
+} catch(e) {
+	basePath += ".."+osSep;
+	try {
+		readConfigFile();
+	} catch(e) {
+		console.error("Unable to locate Prails project. Please make sure you run this file from a direct sub-directory of a Prails project");
+		process.exit(1);
 	}
 }
 metadata.credentials = caesar(metadata.credentials, metadata.instance);
