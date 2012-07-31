@@ -707,13 +707,14 @@ function send_mail($to, $body, $subject, $fromaddress, $fromname, $attachments=f
 }
 
 /** 
- * sendMail($to, $subject, $content, $fromname, $fromaddress[, $attachments]) -> Boolean
+ * sendMail($to, $subject, $content, $fromname, $fromaddress[, $attachments[, $headers]]) -> Boolean
  * - $to (String) - email address to send the email to
  * - $subject (String) - the subject to be used for the email
  * - $content (String) - the email's body
  * - $fromname (String) - the sender's name
  * - $fromaddress (String) - the sender's email address
  * - $attachments (Boolean|Array) - if this is an array, with two keys: `file`, containing the array of files to be attached and `name`, containing an array of names of the files attached as how they should appear in the mail. In case this parameter is set to `false`, there won't be any attachments (which is the default). 
+ * - $headers (Array) - an array specifying additional headers, whereas the keys represent the header name, the values the header content
  * 
  * This method sends out an email to the specified receiver. The email body will be a multi-part email
  * containing the original HTML body and a text-only version of it. Additionally one or more attachments 
@@ -729,18 +730,27 @@ function send_mail($to, $body, $subject, $fromaddress, $fromname, $attachments=f
  *           Array(
  *              "file" => Array( "static/invoices/somestrangename.pdf" ),
  *              "name" => Array( "2003-02-02.pdf" )
+ *           ),
+ *           Array(
+ *              "Reply-To" => "do-reply@example.org"
  *           )
  *         );
  * }}}
  * This example sends an email with one attachment.
  **/
-function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments = false) {
+function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments = false, $header = null) {
     $eol = "\r\n";
     $random_hash = md5(date('r', time()));
- 
+
     $from = $fromname." <".$fromaddress.">";
+    if ($header == null) $header = Array();
+    $header["From"] = if_set($header["From"], $from);
+    $header["Reply-To"] = if_set($header['Reply-To'], $from);
+    if ($replyTo == null) $replyTo = $from;
     //define the headers we want passed. Note that they are separated with \r\n
-    $headers = "From: ".$from.$eol."Reply-To: ".$from.$eol;
+    foreach ($header as $key => $value) {
+	$headers .= $key.": ".$value.$eol;
+    }
     //add boundary string and mime type specification
     $headers .= "Return-Path: ".$fromname."<".$fromaddress.">".$eol;    // these two to set reply address
     $headers .= "Message-ID: <".time()."-".$fromaddress.">".$eol;
