@@ -213,13 +213,14 @@ Redirect the user to another site/page.
 generates a thumbnail out of a image file and returns <code>true</code>, if the generation of the thumbnail was successful.
 <br/><br/>
  <br/><br/>
-<div class='method-type'>Method</div><a name='sendMail' class='method-title'>sendMail</a><div class='method'><span class='name'>sendMail</span>(<span class='parameters'>$to, $subject, $content, $fromname, $fromaddress[, $attachments]</span>) &rarr; <span class='type'>Boolean</span></div>
+<div class='method-type'>Method</div><a name='sendMail' class='method-title'>sendMail</a><div class='method'><span class='name'>sendMail</span>(<span class='parameters'>$to, $subject, $content, $fromname, $fromaddress[, $attachments[, $headers]]</span>) &rarr; <span class='type'>Boolean</span></div>
 <ul><li class='param'><code>$to</code> (<span class='type'>String</span>)<span class='divider'> - </span>email address to send the email to</li>
 <li class='param'><code>$subject</code> (<span class='type'>String</span>)<span class='divider'> - </span>the subject to be used for the email</li>
 <li class='param'><code>$content</code> (<span class='type'>String</span>)<span class='divider'> - </span>the email's body</li>
 <li class='param'><code>$fromname</code> (<span class='type'>String</span>)<span class='divider'> - </span>the sender's name</li>
 <li class='param'><code>$fromaddress</code> (<span class='type'>String</span>)<span class='divider'> - </span>the sender's email address</li>
 <li class='param'><code>$attachments</code> (<span class='type'>Boolean</span> | <span class='type'>Array</span>)<span class='divider'> - </span>if this is an array, with two keys: <code>file</code>, containing the array of files to be attached and <code>name</code>, containing an array of names of the files attached as how they should appear in the mail. In case this parameter is set to <code>false</code>, there won't be any attachments (which is the default). </li>
+<li class='param'><code>$headers</code> (<span class='type'>Array</span>)<span class='divider'> - </span>an array specifying additional headers, whereas the keys represent the header name, the values the header content</li>
 </ul>
 
 This method sends out an email to the specified receiver. The email body will be a multi-part email
@@ -236,6 +237,9 @@ sendMail( $customerEmail,
           Array(
              "file" =&gt; Array( "static/invoices/somestrangename.pdf" ),
              "name" =&gt; Array( "2003-02-02.pdf" )
+          ),
+          Array(
+             "Reply-To" =&gt; "do-reply@example.org"
           )
         );
 </pre>
@@ -339,4 +343,20 @@ this function takes an arbitrary number of arguments and returns the value of th
 
 this function copies the received file to the specified directory. It returns <code>false</code> if no file was received, else the name (including path) of the file after copy is completed.
 If the file already exists in the target path, the resulting file name will be unique (so it won't override existing files).
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='caesar' class='method-title'>caesar</a><div class='method'><span class='name'>caesar</span>(<span class='parameters'>$content, $key</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$content</code> (<span class='type'>String</span>)<span class='divider'> - </span>the content to be encrypted</li>
+<li class='param'><code>$key</code> (<span class='type'>String</span>)<span class='divider'> - </span>an arbitrary key to be used for encryption</li>
+</ul>
+
+This method symmetrically encrypts a given string with a given key.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='uncaesar' class='method-title'>uncaesar</a><div class='method'><span class='name'>uncaesar</span>(<span class='parameters'>$content, $key</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$content</code> (<span class='type'>String</span>)<span class='divider'> - </span>the content to be decrypted</li>
+<li class='param'><code>$key</code> (<span class='type'>String</span>)<span class='divider'> - </span>the key used to encrypt the string</li>
+</ul>
+
+This method decrypts a given string that was previously encrypted with the Caesar encryption method
 <br/><br/>
