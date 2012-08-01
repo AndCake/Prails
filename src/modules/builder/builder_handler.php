@@ -942,7 +942,7 @@ class BuilderHandler
 				$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
 				if ($module) {
 					$mid = $module['module_id'];
-					$_GET['module_id'] = $mid;
+					$_GET['module_id'] = $_SESSION['module_id'] = $mid;
 					$data = $this->obj_data->getDataFromName($_POST['data']['name'], $mid);
 					if ($data) {
 						$_GET['data_id'] = $data['data_id'];

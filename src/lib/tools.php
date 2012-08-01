@@ -753,7 +753,7 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
     }
     //add boundary string and mime type specification
     $headers .= "Return-Path: ".$fromname."<".$fromaddress.">".$eol;    // these two to set reply address
-    $headers .= "Message-ID: <".time()."-".$fromaddress.">".$eol;
+    $headers .= "Message-ID: <".microtime(true)."-".$fromaddress.">".$eol;
     $headers .= "Content-Type: multipart/mixed; boundary=\"PHP-mixed-".$random_hash."\"".$eol;
 
     $message = "--PHP-mixed-".$random_hash.$eol;
