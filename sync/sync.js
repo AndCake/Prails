@@ -15,7 +15,18 @@ var caesar = function(content, key) {
 }
 
 osSep = process.platform === 'win32' ? '\\' : '/'
-var basePath = process.argv[2]||("."+osSep);
+var basePath = "."+osSep;
+var syncFile = null;
+for (var i = 2; i < process.argv.length; i++) {
+	switch(process.argv[i]) {
+		case "-b": 
+			basePath = process.argv[++i];
+			break;
+		default: 
+			syncFile = process.argv[i];
+			break;
+	}
+}
 var metadata = {};
 
 function readConfigFile() {
@@ -435,7 +446,7 @@ var deleteMapping = {
 
 // find differences between local code and server-side
 var syncCompleted = false;
-if (process.argv.length < 3) {
+if (!syncFile) {
 	var walk;
 	(walk = function(dir, done) {
 	  var results = [];
@@ -733,7 +744,7 @@ if (process.argv.length < 3) {
 		}
 	}, 1000);
 } else {
-	var f = process.argv[2];
+	var f = syncFile;
 	if (f.split(osSep).pop()[0] != ".") {
 		parts = f.split(osSep);
 		if (parts[0][0] == ".") {

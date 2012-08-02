@@ -25,7 +25,7 @@
 		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
 		can edit it.</p>
 		<? if (ENV_PRODUCTION !== true && $_SESSION["builder"]["group"] == "devel") { ?>
-		<p>You can also <a href="?event=builder:downloadProject">download</a> your project as source code files and edit them with your favorite IDE. In order to save the files back to the server again, you need this <a href="">synchronization script</a> to be running while editing the files.</p>
+		<p>You can also <a href="?event=builder:downloadProject">download</a> your project as source code files and edit them with your favorite IDE. In order to save the files back to the server, you need the synchronization script you'll find in the sync folder to be running while editing the files.</p>
 		<? } ?>
 		<br/><h2>Short Cuts:</h2>
 		<table>

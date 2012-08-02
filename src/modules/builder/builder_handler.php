@@ -2898,6 +2898,7 @@ class BuilderHandler
 		}
 
 		// pack it into an archive
+		exec("pushd;cp sync.tar.bz2 ".$path."; cd ".$path."; tar xvjf sync.tar.bz2; rm sync.tar.bz2; popd");
 		exec("pushd;cd cache/download;tar cvjf ".preg_replace('/[^a-zA-Z0-9_]/', '_', PROJECT_NAME).".tar.bz2 ".basename($path).";popd");
 		readfile(substr($path, 0, -1) . ".tar.bz2");
 		@unlink(substr($path, 0, -1) . ".tar.bz2");
