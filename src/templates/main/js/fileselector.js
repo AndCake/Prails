@@ -113,6 +113,8 @@ var QuixoticWorxUpload = {
 			
 			// send the actual file content to the target address
 			xhr.open("POST", options.target+(file.fileName || file.name || Math.random().toString(16)), true);
+			xhr.setRequestHeader("Content-Type", "application/octet-stream");
+			xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 			if (typeof(FileReader) !== "undefined" && typeof(xhr.sendAsBinary) == "function") {
 				var reader = new FileReader();
 				reader.onload = function(event) {
