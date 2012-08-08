@@ -101,21 +101,29 @@ exports.watchTree = function ( root, options, callback ) {
 }
 
 exports.createMonitor = function (root, options, cb) {
-  if (!cb) {cb = options; options = {}}
-  var monitor = new events.EventEmitter();
-  exports.watchTree(root, options, function (f, curr, prev) {
-    if (typeof f == "object" && prev == null && curr === null) {
-      monitor.files = f;
-      return cb(monitor);
-    }
-    if (prev === null) {
-      return monitor.emit("created", f, curr);
-    }
-    if (curr.nlink === 0) {
-      return monitor.emit("removed", f, curr);
-    }
-    monitor.emit("changed", f, curr, prev);
-  })
+	if (!cb) {cb = options; options = {}}
+	var monitor = new events.EventEmitter();
+	exports.watchTree(root, options, function _watchTree(f, curr, prev) {
+		if (typeof f == "object" && prev == null && curr === null) {
+			if (monitor.files) {
+				for (var all in f) {
+					if (!monitor.files[all]) monitor.files[all] = f[all];
+				}
+			} else monitor.files = f;
+			return cb(monitor);
+		}
+		if (prev === null) {
+			if (curr.isDirectory() && !monitor.files[f]) {
+				exports.watchTree(f, options, _watchTree);
+				monitor.files[f] = curr;
+			}
+			return monitor.emit("created", f, curr);
+		}
+		if (curr.nlink === 0) {
+			return monitor.emit("removed", f, curr);
+		}
+		monitor.emit("changed", f, curr, prev);
+	})
 }
 
 exports.walk = walk;

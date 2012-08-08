@@ -409,11 +409,12 @@ class BuilderHandler
 		} else {
 			$arr_param["module"] = $this->obj_data->selectModule($_GET["module_id"]);
 		}
-
-		removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
-		removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
-		removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
-		removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
+		if ($arr_param['module']) {
+			removeDir("modules/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+			removeDir("modules/".strtolower($arr_param["module"]["name"]), true);
+			removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
+			removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
+		}
 		
 		$this->obj_data->deleteHandlerFromModule($_GET["module_id"]);
 		$this->obj_data->deleteDataFromModule($_GET["module_id"]);
@@ -688,110 +689,110 @@ class BuilderHandler
 		} else if ($_GET['check'] == "3") {
 			if (!empty($_POST['handler']['event']) && !empty($_POST['module']['name'])) {
 				$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_POST['module']['name']);
-				if ($module) {
-					$mid = $module['module_id'];
-					$handler = $this->obj_data->selectHandlerByNameAndModule($mid, $_POST['handler']['event']);
-					$_SESSION['module_id'] = $_GET['module_id'] = $mid;
-					$arr_data = Array();
-					if (!$handler) $hid = 0; else $hid = $handler['handler_id'];
-					if ($_POST['html_code']) {
-						if (is_array($_POST['html_code'])) {
-							$key = array_pop(array_keys($_POST['html_code']));
-						} else $key = "";
-						$code = $handler['html_code'];
-						preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
-						$lastPos = 0;
-						$codes = Array();
-						array_push($codes, Array("title" => "Default", "id" => "html_".$arr_param["handler"]["handler_id"]));
-						$added = false;
-						if (is_array($matches) && is_array($matches[1])) {         
-							foreach ($matches[1] as $match) {
-								$cd = Array(
-									"title" => $match[0],
-									"id" => "html_".$match[0].$arr_param["handler"]["handler_id"] 
-								);
-								if ($key == $cd["title"]) {
-									$cd["content"] = $_POST['html_code'][$key];
-									$added = true;
-								} else {
-									$start = $match[1] + strlen("".$match[0].">\n");
-									$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-									$cd["content"] = substr($code, $start, $end - $start);
-								}
-								$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
-								array_push($codes, $cd);
-							}
-						}
-						if ($key == "") {
-							$codes[0]["content"] = $_POST['html_code'];
-						} else {
-							if (!$added) {
-								array_push($codes, Array("title" => $key, "content" => $_POST['html_code'][$key]));
-							}
-							$codes[0]["content"] = substr($code, $lastPos);
-						}
-						// re-build it and store it into the handler field
-						$html = "";
-						for ($i = 1; $i < count($codes); $i++) {
-							$html .= "<part-".$codes[$i]["title"].">\n" . $codes[$i]["content"] . "</part-".$codes[$i]["title"].">\n";
-						}
-						$html .= $codes[0]["content"];
-						$arr_data["html_code"] = $html;
-					} else if ($_POST['code']) {
-						if (is_array($_POST['code'])) {
-							$key = array_pop(array_keys($_POST['code']));
-						} else $key = "";
-						$code = $handler["code"];
-						preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
-						$lastPos = 0;
-						$codes = Array();
-						array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
-						$added = false;
-						if (is_array($matches) && is_array($matches[1])) {         
-							foreach ($matches[1] as $match) {
-								$cd = Array(
-									"title" => $match[0],
-									"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
-								);
-								if ($cd["title"] == $key) {
-									$cd["content"] = $_POST['code'][$key];
-									$added = true;
-								} else {
-									$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
-									$end = strpos($code, "/*[END ACTUAL]*/", $start);
-									$cd["content"] = substr($code, $start, $end - $start);
-								}
-								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
-								array_push($codes, $cd);
-							}
-						}
-						if ($key == "") {
-							$codes[0]["content"] = $_POST['code'];
-						} else {
-							if (!$added) {
-								array_push($codes, Array("title" => $key, "content" => $_POST['code'][$key]));
-							}
-							$codes[0]["content"] = substr($code, $lastPos);
-						}
-						// re-build it and store it into the handler field
-						$code = "";
-						for ($i = 1; $i < count($codes); $i++) {
-							$code .= "/*[BEGIN POST-".$codes[$i]["title"]."]*/\nif (isset(\$_POST[\"".$codes[$i]["title"]."\"])) { /*[ACTUAL]*/\n".$codes[$i]["content"]."/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-".$codes[$i]["title"]."]*/\n";
-						}
-						$code .= $codes[0]["content"];
-						$arr_data["code"] = $code;
-					}
-					$arr_data["event"] = $_POST['handler']['event'];
-					if ($hid > 0) {
-						$this->obj_data->updateHandler($hid, $arr_data);
-					} else {
-						$arr_data["fk_module_id"] = $mid;
-						$this->obj_data->insertHandler($arr_data);
-					}
-					return $this->resetModule();
-				} else {
-					die("Module not found: ".$_POST['module']['name']);
+				if (!$module) {
+					$module = Array("name" => $_POST['module']['name'], "fk_user_id" => $_SESSION['builder']['user_id']);
+					$module["module_id"] = $this->obj_data->insertModule($module);
 				}
+				$mid = $module["module_id"];
+				$handler = $this->obj_data->selectHandlerByNameAndModule($mid, $_POST['handler']['event']);
+				$_SESSION['module_id'] = $_GET['module_id'] = $mid;
+				$arr_data = Array();
+				if (!$handler) $hid = 0; else $hid = $handler['handler_id'];
+				if ($_POST['html_code']) {
+					if (is_array($_POST['html_code'])) {
+						$key = array_pop(array_keys($_POST['html_code']));
+					} else $key = "";
+					$code = $handler['html_code'];
+					preg_match_all('/<part-([^>]+)>/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+					$lastPos = 0;
+					$codes = Array();
+					array_push($codes, Array("title" => "Default", "id" => "html_".$arr_param["handler"]["handler_id"]));
+					$added = false;
+					if (is_array($matches) && is_array($matches[1])) {         
+						foreach ($matches[1] as $match) {
+							$cd = Array(
+								"title" => $match[0],
+								"id" => "html_".$match[0].$arr_param["handler"]["handler_id"] 
+							);
+							if ($key == $cd["title"]) {
+								$cd["content"] = $_POST['html_code'][$key];
+								$added = true;
+							} else {
+								$start = $match[1] + strlen("".$match[0].">\n");
+								$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
+								$cd["content"] = substr($code, $start, $end - $start);
+							}
+							$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+							array_push($codes, $cd);
+						}
+					}
+					if ($key == "") {
+						$codes[0]["content"] = $_POST['html_code'];
+					} else {
+						if (!$added) {
+							array_push($codes, Array("title" => $key, "content" => $_POST['html_code'][$key]));
+						}
+						$codes[0]["content"] = substr($code, $lastPos);
+					}
+					// re-build it and store it into the handler field
+					$html = "";
+					for ($i = 1; $i < count($codes); $i++) {
+						$html .= "<part-".$codes[$i]["title"].">\n" . $codes[$i]["content"] . "</part-".$codes[$i]["title"].">\n";
+					}
+					$html .= $codes[0]["content"];
+					$arr_data["html_code"] = $html;
+				} else if ($_POST['code']) {
+					if (is_array($_POST['code'])) {
+						$key = array_pop(array_keys($_POST['code']));
+					} else $key = "";
+					$code = $handler["code"];
+					preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+					$lastPos = 0;
+					$codes = Array();
+					array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
+					$added = false;
+					if (is_array($matches) && is_array($matches[1])) {         
+						foreach ($matches[1] as $match) {
+							$cd = Array(
+								"title" => $match[0],
+								"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+							);
+							if ($cd["title"] == $key) {
+								$cd["content"] = $_POST['code'][$key];
+								$added = true;
+							} else {
+								$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+								$end = strpos($code, "/*[END ACTUAL]*/", $start);
+								$cd["content"] = substr($code, $start, $end - $start);
+							}
+							$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+							array_push($codes, $cd);
+						}
+					}
+					if ($key == "") {
+						$codes[0]["content"] = $_POST['code'];
+					} else {
+						if (!$added) {
+							array_push($codes, Array("title" => $key, "content" => $_POST['code'][$key]));
+						}
+						$codes[0]["content"] = substr($code, $lastPos);
+					}
+					// re-build it and store it into the handler field
+					$code = "";
+					for ($i = 1; $i < count($codes); $i++) {
+						$code .= "/*[BEGIN POST-".$codes[$i]["title"]."]*/\nif (isset(\$_POST[\"".$codes[$i]["title"]."\"])) { /*[ACTUAL]*/\n".$codes[$i]["content"]."/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-".$codes[$i]["title"]."]*/\n";
+					}
+					$code .= $codes[0]["content"];
+					$arr_data["code"] = $code;
+				}
+				$arr_data["event"] = $_POST['handler']['event'];
+				if ($hid > 0) {
+					$this->obj_data->updateHandler($hid, $arr_data);
+				} else {
+					$arr_data["fk_module_id"] = $mid;
+					$this->obj_data->insertHandler($arr_data);
+				}
+				return $this->resetModule();
 			} else {
 				die("Missing parameters");
 			}
@@ -1284,14 +1285,14 @@ class BuilderHandler
 				$file = $_FILES["resource"]["tmp_name"]["file"];
 				if (!isset($_GET['resource_id']) && !empty($_GET['file'])) {
 					$module = $this->obj_data->selectModuleByUserAndName($_SESSION['builder']['user_id'], $_GET['module']);
-					if ($module) {
-						$_GET['module_id'] = $module['module_id'];
-						$res = $this->obj_data->selectResourceByName($module['module_id'], $_GET['file']);
-						$_GET['resource_id'] = $_SESSION['resource_id'] = (int)$res['resource_id'];
-						$type = getMIMEType($_GET['file']);
-					} else {
-						die("Unable to locate specified module");
+					if (!$module) {
+						$module = Array("name" => $_POST['module']['name'], "fk_user_id" => $_SESSION['builder']['user_id']);
+						$module["module_id"] = $this->obj_data->insertModule($module);
 					}
+					$_GET['module_id'] = $module['module_id'];
+					$res = $this->obj_data->selectResourceByName($module['module_id'], $_GET['file']);
+					$_GET['resource_id'] = $_SESSION['resource_id'] = (int)$res['resource_id'];
+					$type = getMIMEType($_GET['file']);
 				}
 				$content = file_get_contents($file);
 				$arr_data["fk_module_id"] = $_GET["module_id"];

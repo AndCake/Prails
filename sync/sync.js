@@ -17,6 +17,7 @@ var caesar = function(content, key) {
 osSep = process.platform === 'win32' ? '\\' : '/'
 var basePath = "."+osSep;
 var syncFile = null;
+var fileUpdates = {};
 for (var i = 2; i < process.argv.length; i++) {
 	switch(process.argv[i]) {
 		case "-b": 
@@ -99,6 +100,11 @@ var crc32 = function(str, hex) {
 
 function mkdirs (path, mode, callback, position) {
 	var parts = require('path').normalize(path).split(osSep);
+	if (typeof(callback) === "undefined") {
+		callback = function(err) {
+			console.error(err);
+		};
+	}
 	
 	mode = mode || process.umask();
 	position = position || 0;
@@ -259,10 +265,33 @@ var updateMapping = {
 			console.error("Uploading additional resources not yet supported for libraries.");
 		}
 	},
-	"modules": function(parts, f) {
+	"modules": function(parts, f, fn) {
 		var module = parts[0];
 		parts.shift();
-		if (parts[0] == "client") {
+		if (parts.length <= 0) {
+			// module created
+			mkdirs(f + osSep + 'server' + osSep + 'handlers', 0755, function(err) {
+				mkdirs(f + osSep + 'server' + osSep + 'templates', 0755, function(err) {
+					mkdirs(f + osSep + 'server' + osSep + 'queries', 0755, function(err) {
+						mkdirs(f + osSep + 'client' + osSep + 'resources', function(err) {
+							fs.writeFileSync(f + osSep + 'client' + osSep + module + '.less', "// Put your module's LESS CSS code here\n");
+							fs.writeFileSync(f + osSep + 'client' + osSep + module + '.js', "// Put your module's JS code here\n");
+							fs.writeFileSync(f + osSep + 'server' + osSep + 'handlers' + osSep + 'home.php', "<?\n// your home handler code here...\n\nreturn out($arr_param);\n?>");
+							fs.writeFileSync(f + osSep + 'server' + osSep + 'templates' + osSep + 'home.html', "<h1>"+module+" Home</h1>\n\n<p>This is the default entry event of your module. Change this however you like to.</p>");
+							updateMapping.modules([module, "server", "templates", "home.html"], f + osSep + "server" + osSep + "templates" + osSep + "home.html", function() {
+								updateMapping.modules([module, "server", "handlers", "home.php"], f + osSep + "server" + osSep + "handlers" + osSep + "home.php", function() {
+									updateMapping.modules([module, "client", module+'.less'], f + osSep + "client" + osSep + module + ".less", function() {
+										updateMapping.modules([module, "client", module+'.js'], f + osSep + "client" + osSep + module + ".js", function() {
+											console.log("Created module skeleton for " + module + ".");
+										});
+									});
+								});
+							});
+						});
+					});
+				});
+			});
+		} else if (parts[0] == "client") {
 			if (parts[1] && parts[1].match(/\.js$|\.less$|\.css$/i)) {
 				if (parts[1].replace(/\.js$|\.less$/i, '') == module) {
 					// update item
@@ -273,6 +302,7 @@ var updateMapping = {
 						console.log("Updated "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						writeConfigFile();
+						if (typeof(fn) === "function") fn();
 					});
 				} else {
 					// other JS / LESS files - need to uploaded as resources
@@ -286,6 +316,7 @@ var updateMapping = {
 							console.log("Updated "+f+" successfully.");
 							metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 							writeConfigFile();
+							if (typeof(fn) === "function") fn();
 						});
 					});
 				}
@@ -309,6 +340,7 @@ var updateMapping = {
 				}
 				postData("editHandler&check=3", opts, function(res) {
 					console.log("Updated handler template code "+f+" successfully.");
+					if (typeof(fn) === "function") fn();
 				});
 			} else if (parts[1] == "handlers" && parts[2].match(/\.php$/i)) {
 				try {
@@ -321,6 +353,7 @@ var updateMapping = {
 						console.log("Updated handler code "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						writeConfigFile();
+						if (typeof(fn) === "function") fn();
 					});
 				} catch(e) { console.error(e.message); }
 			} else if (parts[1] == "queries" && parts[2].match(/\.php$/i)) {
@@ -331,6 +364,7 @@ var updateMapping = {
 						console.log("Updated query code "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						writeConfigFile();
+						if (typeof(fn) === "function") fn();
 					});
 				} catch(e) { console.error(e.message); }
 			}
@@ -600,17 +634,20 @@ if (!syncFile) {
 				data += chunk.toString();
 			});	
 			res.on("end", function() {
+				if (data.length == 0) return;
 				var time = parseInt(data);
 				if (data > metadata.lastupdate) {
 					var set = {};
 					for (var all in files) {
 						if (typeof(files[all]) != "function" && files[all].split(osSep).pop()[0] != ".") {
 							var paths = files[all].split(osSep);
-							paths = paths.slice(1);
+							paths = paths.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 							if (!set[paths[0]]) set[paths[0]] = [];
-							var res = checkMapping[paths[0]](paths.slice(1), files[all]);
-							if (res) {
-								set[paths[0]].push(res);
+							if (checkMapping[paths[0]]) {
+								var res = checkMapping[paths[0]](paths.slice(1), files[all]);
+								if (res) {
+									set[paths[0]].push(res);
+								}
 							}
 						}
 					}
@@ -631,11 +668,12 @@ if (!syncFile) {
 										// local is newer
 										// upload it...
 										var file = result[i].paths.shift();
-										var parts = file.split(osSep).slice(1);
+										var parts = file.split(osSep);
+										parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 										try {
 											updateMapping[parts[0]](parts.slice(1), file);
 										} catch(e) {
-											console.error("Error while updating the mapping.", e);
+											console.error("Error while updating the mapping.", e); throw e
 										}
 										completed++;
 										if (completed >= totalLen) syncCompleted = true;
@@ -698,7 +736,7 @@ if (!syncFile) {
 
 	var inte = setInterval(function() {
 		if (syncCompleted) {
-			sys.puts("Prails watcher listening on "+basePath+"...\n");
+			sys.puts("Prails watcher listening on '"+basePath+"'...\n");
 			clearInterval(inte);
 			metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 			writeConfigFile();
@@ -706,11 +744,13 @@ if (!syncFile) {
 				monitor.on("created", function(f, stat) {
 					// handle file creation
 					// need to notice creation of files and directories
-					if (f.split(osSep).pop()[0] != ".") {
+					if (f.split(osSep).pop()[0] != "." && !fileUpdates[f]) {
 						parts = f.split(osSep);
-						if (parts[0][0] == ".") {
-							parts.shift();
-						}
+						fileUpdates[f] = true;
+						setTimeout(function() {
+							delete fileUpdates[f];
+						}, 100);
+						parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 						if (updateMapping[parts[0]]) {
 							updateMapping[parts[0]](parts.slice(1), f);
 						}
@@ -718,11 +758,13 @@ if (!syncFile) {
 				});
 				monitor.on("removed", function(f, stat) {
 					// need to notice removal of directories (esp. handler and module directories)
-					if (f.split(osSep).pop()[0] != ".") {
+					if (f.split(osSep).pop()[0] != "." && !fileUpdates[f]) {
+						fileUpdates[f] = true;
+						setTimeout(function() {
+							delete fileUpdates[f];
+						}, 100);
 						parts = f.split(osSep);
-						if (parts[0][0] == ".") {
-							parts.shift();
-						}
+						parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 						if (deleteMapping[parts[0]]) {
 							deleteMapping[parts[0]](parts.slice(1), f);
 						}
@@ -730,11 +772,13 @@ if (!syncFile) {
 				});
 				monitor.on("changed", function(f, curr, prev) {
 					// need to notice editing of files, then post them to the server
-					if (f.split(osSep).pop()[0] != ".") {
+					if (f.split(osSep).pop()[0] != "." && !fileUpdates[f]) {
+						fileUpdates[f] = true;
+						setTimeout(function() {
+							delete fileUpdates[f];
+						}, 100);
 						parts = f.split(osSep);
-						if (parts[0][0] == ".") {
-							parts.shift();
-						}
+						parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 						if (updateMapping[parts[0]]) {
 							updateMapping[parts[0]](parts.slice(1), f);
 						}
@@ -747,9 +791,7 @@ if (!syncFile) {
 	var f = syncFile;
 	if (f.split(osSep).pop()[0] != ".") {
 		parts = f.split(osSep);
-		if (parts[0][0] == ".") {
-			parts.shift();
-		}
+		parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
 		if (updateMapping[parts[0]]) {
 			console.log("Updating file "+f);
 			updateMapping[parts[0]](parts.slice(1), f);
