@@ -44,9 +44,11 @@
 		$new = false;
 		if (!file_exists($dir)) {
 			$new = true;
+			@mkdir($dir, 0755, true);
 		}
 		// do the actual stuff...
-		$tp = fopen("prails.tar.bz2", "w+");
+		$tp = @fopen("prails.tar.bz2", "w+");
+		if (!$tp) { die("Unable to extract data! Please enable write access to the current directory.\n"); }
 		$fp = fopen(__FILE__, "r");
 		fseek($fp, __COMPILER_HALT_OFFSET__+1);
 		$i = 0;
@@ -58,7 +60,9 @@
 		fclose($tp);
 		fclose($fp);
 		exec("tar xvjf prails.tar.bz2");
-		if (!file_exists($dir) || !$new) {
+		if ($dir == "./" || $dir == ".") {
+			exec("cd prails; mv * .[^.]* ..; cd ..; rm -rf prails");
+		} else {
 			exec("mv prails ".$dir);
 		}
 		unlink("prails.tar.bz2");
