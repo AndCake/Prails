@@ -1,3 +1,21 @@
+V1.5.0 (August 9th, 2012)
+
+ * fixed a problem with installer, which was not able to install prails into the current directory instead of a sub directory
+ * fixed a bug with removal of modules
+ * added the possibility to use dashes in content asset names in templates
+ * updated displaying of multiple lines edit fields in static content area
+ * when a new update becomes available, the 'update here' link on home tab won't immediately trigger update, but rather first ask the user
+ * the upload mechanism should now work again with all browsers and apache versions
+ * fixed a bug in firefox, where only one or two lines of code were visible in CodeMirror
+ * Added option to sendMail that allows specifying additional headers
+ * fixed a javascript error in latest safari
+ * updated jslint to newest version
+ * for development environments, made sure that the JS files are not merged into a large one in order to make debugging easier
+ * added auto-refresh feature for development mode
+ * added first version of offline editing + synchronization script
+ * added skeleton creation of new modules to synchronizer
+ 
+
 V1.4.4 (July 26th, 2012)
 
  * fixed a bug with certain Apache versions not supporting inline comments in .htaccess file

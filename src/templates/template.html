@@ -28,7 +28,7 @@
         <?=$this->getStyleSheets()?>
         <?=$this->getJavaScripts()?>
    	</head>
-	<body<?=strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ? ' class="post-request"' : (ENV_PRODUCTION !== true && IS_SETUP === true ? ' class="get-request"' : '')?>>
+	<body<?=strtoupper($_SERVER['REQUEST_METHOD']) == 'POST' ? ' class="post-request"' : (ENV_PRODUCTION !== true && IS_SETUP === true && AUTO_REFRESH ? ' class="get-request"' : '')?>>
 		<div id="page">
 			<?=$str_content?>
 	    </div>
