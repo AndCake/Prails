@@ -55,6 +55,7 @@ define ("PRAILS_HOME_PATH", "http://prails.googlecode.com/svn/trunk/");
  * - `SMTP_POST` (Number) - specifies the SMTP port to be used for the SMTP connection, if `USE_SMTP` is set to `true`.
  * - `SMTP_USERNAME` (String) - defines the SMTP user name with which to connect to the SMTP server if `USE_SMTP` is set to `true`.
  * - `SMTP_PASSWORD` (String) - defines the SMTP password with which to connect to the SMTP server if `USE_SMTP` is set to `true`.
+ * - `AUTO_REFRESH` (Boolean) - turns auto-refreshing of development instances on code changes on (`true`) or off (`false`). Defaults to `true`.
  **/
 /*<KEEP-1>*/
 $arr_settings = Array(

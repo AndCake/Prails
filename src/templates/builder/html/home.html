@@ -628,7 +628,7 @@
 
             buttons: [{
                 text: "Update",
-                handler: runSelfUpdate
+                handler: function() { runSelfUpdate(false); }
             }, {
                 text: 'Close',
                 handler: function(){
