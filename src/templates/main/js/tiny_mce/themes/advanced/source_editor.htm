@@ -25,21 +25,30 @@
 		}
 
 		html, body { margin: 0px; padding: 0px; font-size: 11px; }
+		html, body, .CodeMirror-scroll {
+			height: 100%;
+		}
+		.CodeMirror {
+			height: 90%;
+		}
+		.CodeMirror-scrollbar {
+			position: absolute;
+			right: 0px;
+			z-index: 1;
+		}
 		.CodeMirror pre.activeline {
 			background-color: #ffffef;
 		}
-		.CodeMirror-scroll { height: 100%; }
 		.CodeMirror-completions { position: absolute; margin-top: -1em; }
 		.CodeMirror-completions select { outline: none; }
 		.CodeMirror, .CodeMirror-scroll {
 			display: block;
-			width: 100% !important;
+			width: 99% !important;
 		}
 		.CodeMirror {
 			font-family: MesloLGMDZRegular, monospace;
 			line-height: 1.5em; 
 			background: white;
-			height: 90%;
 		}
 	</style>
 </head>
