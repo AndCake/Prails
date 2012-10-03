@@ -1,10 +1,10 @@
 <? 
 /** Section Tags
  * <c:input [type="<type>"] [name="<name>"] [value="<value>"] [values="<values>"] [class="<css classes>"] [label="<label>"] [rel="<rel>"] [overlabel="<overlabel text>"] [error="<validation-error>"] [multiple="<size>"]/>
- * - `type` (String) - type of input; can be: `text`, `password`, `file`, `checkbox`, `radio`, `select`, `date`, `email`
+ * - `type` (String) - type of input; can be: `text`, `password`, `file`, `checkbox`, `radio`, `select`, `date`, `email`, `combo`
  * - `name` (String) - name of the input to be used for submission
  * - `value` (String) - single value (for text, password, date), selected value (for select, radio), selected values (for checkbox and select box multiple; values split by ";")
- * - `values` (Array) - all values (for radio, checkbox, select) : Array(value : label)
+ * - `values` (Array) - all values (for radio, checkbox, select, combo) : Array(value : label)
  * - `class` (String) - CSS classes to add
  * - `disabled` (String) - if set, the input control will be disabled.
  * - `label` (String) - input field's label which will be placed in front of it
@@ -39,6 +39,30 @@
     if ($type != "radio" && $type != "checkbox") { ?>
 	<? if ($type == "text" && $tag["attributes"]["multiple"] > 0) { ?>
 		<textarea<?=strlen($tag['attributes']['error'])>0 ? ' error="'.$tag['attributes']['error'].'"' : ''?> rows="<?=$tag['attributes']['multiple']?>" name="<?=$tag['attributes']['name']?>"<?=isset($tag['attributes']['disabled']) ? ' disabled="disabled"' : ''?> class="<?=$tag['attributes']['class']?><?=(strlen($tag['attributes']['overlabel'])>0 ? ' overlabel' : '')?>" label="<?=$tag['attributes']['overlabel']?>" rel="<?=$tag['attributes']['rel']?>"><?=$tag['attributes']['value']?></textarea>
+	<? } else if ($type == 'combo') { ?>
+		<% $var = $arr_param["<?=$this->makeVar($tag["attributes"]["values"])?>"]; $val = $arr_param["<?=$this->makeVar(preg_replace('/^#/', '', $tag['attributes']['value']))?>"]; %>
+		<input type="text" id="<?=$tag['attributes']['name']?>_id" value="<%=$val%>" <?=strlen($tag['attributes']['error'])>0 ? 'error="'.$tag['attributes']['error'].'"' : ''?><?=isset($tag['attributes']['disabled']) ? ' disabled="disabled"' : ''?> class="<?=$tag['attributes']['class']?><?=(strlen($tag['attributes']['overlabel']) > 0 ? ' overlabel' : '')?>" label="<?=$tag['attributes']['overlabel']?>" rel="<?=$tag['attributes']['rel']?>" />
+		<input type="hidden" id="<?=$tag['attributes']['name']?>_h" name="<?=$tag['attributes']['name']?>" value="<%=$val%>"/>
+		<script type="text/javascript">
+			addLoadEvent(function() {
+				_($("<?=$tag['attributes']['name']?>_id")).autocomplete({
+					source: <%=(is_array($var) ? json_encode(array_values(array_filter($var))) : (!empty($var) ? '"'.$var.'"' : '"<?=$tag['attributes']['values']?>"'))%>,
+					minLength: <?=if_set($tag['attributes']['minlength'], 1)?>,
+					change: function(event, ui) {
+						<% if (is_array($var)) { %>
+                                                        var values = <%=json_encode(array_flip($var))%>;
+                                                        if (ui.item) {
+                                                                $("<?=$tag['attributes']['name']?>_h").value = values[ui.item.value || this.value];
+                                                        } else {
+                                                                $("<?=$tag['attributes']['name']?>_h").value = values[this.value] || "";
+                                                        }
+                                                <% } else { %>
+                                                        $("<?=$tag['attributes']['name']?>_h").value = (ui.item && ui.item.value) || this.value || "";
+                                                <% } %>
+					}
+				});
+			});
+		</script>
 	<? } else { ?>
 	        <input<?=strlen($tag['attributes']['error'])>0 ? ' error="'.$tag['attributes']['error'].'"' : ''?> type="<?=$type?>" name="<?=$tag['attributes']['name']?>"<?=isset($tag['attributes']['disabled']) ? ' disabled="disabled"' : ''?> value="<?=$tag['attributes']['value']?>" class="<?=$tag['attributes']['class']?><?=(strlen($tag['attributes']['overlabel']) > 0 ? ' overlabel' : '')?>" label="<?=$tag['attributes']['overlabel']?>" rel="<?=$tag['attributes']['rel']?>" />
 	<? } ?>

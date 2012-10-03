@@ -365,13 +365,18 @@ addLoadEvent(initAjaxLinks);
 addLoadEvent(initWysiwyg);
 addLoadEvent(function() {
 	if (!window.debugRefresher && window.devel && document.body.className.indexOf("get-request") >= 0) {
-		window.debugRefresher = new PeriodicalExecuter(function(pe) {
-			_.get("cache/update-stream", function(data) {
-				if (parseInt(data) > window.debugRefresher.now) {
-					location.reload();
-				}
-			});
-		}, 2);
+		window.debugRefresher = function() {
+			setTimeout(function() {
+				_.get("cache/update-stream?"+(new Date().getTime()), function(data) {
+					if (parseInt(data) > window.debugRefresher.now) {
+						location.reload();
+					} else {
+						window.debugRefresher();
+					}
+				});
+			}, 500);
+		};
 		window.debugRefresher.now = (new Date().getTime() / 1000).toFixed();
+		window.debugRefresher();
 	}
 });
