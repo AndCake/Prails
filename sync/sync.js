@@ -627,111 +627,56 @@ if (!syncFile) {
 				return result;
 			}
 		};
-	
-		http.get(metadata.instance + "cache/update-stream", function(res) {
+
+		var set = {};
+		for (var all in files) {
+			if (typeof(files[all]) != "function" && files[all].split(osSep).pop()[0] != ".") {
+				var paths = files[all].split(osSep);
+				paths = paths.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
+				if (!set[paths[0]]) set[paths[0]] = [];
+				if (checkMapping[paths[0]]) {
+					var res = checkMapping[paths[0]](paths.slice(1), files[all]);
+					if (res) {
+						set[paths[0]].push(res);
+					}
+				}
+			}
+		}
+		postData("syncStatus", {
+			"status": JSON.stringify(set)
+		}, function(res) { 
 			var data = "";
 			res.on("data", function(chunk) {
 				data += chunk.toString();
-			});	
+			});
 			res.on("end", function() {
-				if (data.length == 0) return;
-				var time = parseInt(data);
-				if (data > metadata.lastupdate) {
-					var set = {};
-					for (var all in files) {
-						if (typeof(files[all]) != "function" && files[all].split(osSep).pop()[0] != ".") {
-							var paths = files[all].split(osSep);
-							paths = paths.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
-							if (!set[paths[0]]) set[paths[0]] = [];
-							if (checkMapping[paths[0]]) {
-								var res = checkMapping[paths[0]](paths.slice(1), files[all]);
-								if (res) {
-									set[paths[0]].push(res);
-								}
+				try {
+					var result = JSON.parse(data);
+					var completed = 0;
+					var totalLen = result.length;
+					for (var i = 0; i < totalLen; i++) {
+						if (result[i].diff < -30 || result[i].diff == -1) {
+							// local is newer => upload it!
+							var file = result[i].paths.shift();
+							var parts = file.split(osSep);
+							parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
+							try {
+								updateMapping[parts[0]](parts.slice(1), file);
+							} catch(e) {
+								console.error("Error while updating the mapping.", e); throw e
 							}
 						}
+						completed++;
+						if (completed >= totalLen) syncCompleted = true;
 					}
-					postData("syncStatus", {
-						"status": JSON.stringify(set)
-					}, function(res) { 
-						var data = "";
-						res.on("data", function(chunk) {
-							data += chunk.toString();
-						});
-						res.on("end", function() {
-							try {
-								var result = JSON.parse(data);
-								var completed = 0;
-								var totalLen = result.length;
-								for (var i = 0; i < totalLen; i++) {
-									if (result[i].diff < -30 || result[i].diff == -1) {
-										// local is newer
-										// upload it...
-										var file = result[i].paths.shift();
-										var parts = file.split(osSep);
-										parts = parts.slice(basePath.replace(/^\/|\/$/g, '').split(osSep).length - 1);
-										try {
-											updateMapping[parts[0]](parts.slice(1), file);
-										} catch(e) {
-											console.error("Error while updating the mapping.", e); throw e
-										}
-										completed++;
-										if (completed >= totalLen) syncCompleted = true;
-									} else if (result[i].diff > 30 || result[i].diff == 1) {
-										// remote is newer
-										// fetch update ...
-										postData("singleDownload", {
-											type: result[i].type,
-											id: result[i].id
-										}, function(res) {
-											var pullData = "";
-											var el = result[i];
-											res.on("data", function(chunk) {
-												pullData += chunk.toString();
-											});
-											res.on("end", function() {
-												try {
-													var obj = JSON.parse(pullData);
-													var items = Object.keys(obj);
-													for (var name in obj) {
-														if (typeof(obj[name]) != "function") {
-															var code = obj[name];
-															name = basePath + name;
-															var dir = name.split(osSep);
-															dir.pop();
-															mkdirs(dir.join(osSep), 0777, function(err) {
-																if (!err) {
-																	fs.writeFileSync(name, code);
-																	console.log("Pulled latest changes from "+name);
-																	completed++;
-																	if (completed >= totalLen) syncCompleted = true;
-																} else {
-																	console.error("Error creating directory.", err);
-																}
-															});
-														}
-													}
-												} catch(e) {
-													console.error("Unable to fetch object ", el, e, pullData);
-												}
-											});
-										});
-									} else {
-										completed++;
-										if (completed >= totalLen) syncCompleted = true;
-									}
-								}
-							} catch(e) {
-								console.error("Unable to synchronize with server. ", e, "Server returned: "+data);
-								syncCompleted = true;
-							}
-						});
-					});
-				} else {
+				} catch(e) {
+					console.error("Unable to synchronize with server. ", e, "Server returned: "+data);
 					syncCompleted = true;
 				}
 			});
-		});					
+		});
+
+			
 	});
 
 	var inte = setInterval(function() {
@@ -740,6 +685,114 @@ if (!syncFile) {
 			clearInterval(inte);
 			metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 			writeConfigFile();
+
+			setInterval(function() {
+				http.get(metadata.instance + "cache/update-stream", function(res) {
+					var data = "";
+					res.on("data", function(chunk) {
+						data += chunk.toString();
+					});	
+					res.on("end", function() {
+						if (data.length == 0) return;
+						var timeObject = JSON.parse(data);
+
+						var isOlder = function(files, time) {
+							var older = false;
+							for (var i = 0; i < files.length; i++) {
+								var stat = {};
+								try {
+									stat = fs.statSync(files[i]);
+								} catch(e){};
+								if (((stat.mtime || new Date(0)).getTime() / 1000 + 30) < time) {
+									return true;
+								}
+							}
+							return false;
+						};
+
+						var fetchFile = function(type, id) {
+							postData("singleDownload", {
+								type: type,
+								id: id
+							}, function(res) {
+								var pullData = "";
+								var el = result[i];
+								res.on("data", function(chunk) {
+									pullData += chunk.toString();
+								});
+								res.on("end", function() {
+									try {
+										var obj = JSON.parse(pullData);
+										var items = Object.keys(obj);
+										for (var name in obj) {
+											if (typeof(obj[name]) != "function") {
+												var code = obj[name];
+												name = basePath + name;
+												var dir = name.split(osSep);
+												dir.pop();
+												mkdirs(dir.join(osSep), 0777, function(err) {
+													if (!err) {
+														fs.writeFileSync(name, code);
+														console.log("Pulled latest changes from "+name);
+														completed++;
+														if (completed >= totalLen) syncCompleted = true;
+													} else {
+														console.error("Error creating directory.", err);
+													}
+												});
+											}
+										}
+									} catch(e) {
+										console.error("Unable to fetch object ", el, e, pullData);
+									}
+								});
+							});
+						};
+
+						// find out all items that are too old (and thus need to be updated)
+						// -------- START ---------
+						var updated = false;
+						for (var all in timeObject["module"]) {
+							var mod = timeObject["module"][all];
+							var modPath = "modules"+osSep+all+osSep, sPath = modPath + "server"+osSep, cPath = modPath + "client" + osSep;
+							for (var i in mod["handler"]) {
+								if (isOlder([sPath+"handlers"+osSep+i+".php", sPath+"templates"+osSep+i+".html"], mod['handler'][i].time)) {
+									// need to fetch handler
+									updated = true;
+									fetchFile("handler", mod['handler'][i].id);
+								}
+							}
+							for (var i in mod["data"]) {
+								if (isOlder([sPath+"queries"+osSep+i+".php"], mod['data'][i].time)) {
+									// need to fetch query
+									updated = true;
+									fetchFile("data", mod['data'][i].id);
+								}
+							}
+							if (isOlder([cPath+all+".less", cPath+all+".js", modPath+"config.ini"], mod.time)) {
+								// need to fetch module
+								updated = true;
+								fetchFile("module", mod.id);
+							}
+						}
+						for (var all in timeObject["library"]) 
+							if (isOlder(["libs"+osSep+all+".php"], timeObject['library'][all].time)) {
+								// need to fetch library
+								updated = true;
+								fetchFile("library", timeObject.library[all].id);
+							}
+
+						for (var all in timeObject["tag"]) 
+							if (isOlder(['tags'+osSep+all+'.php'], timeObject['tag'][all].time)) {
+								// need to fetch tag
+								updated = true;
+								fetchFile("tag", timeObject.tag[all].id);
+							}
+						// --------- DONE. ------------
+					});
+				});						
+			}, 10000);
+
 			watch.createMonitor(basePath, {ignoreDotFiles: true}, function(monitor) {
 				monitor.on("created", function(f, stat) {
 					// handle file creation

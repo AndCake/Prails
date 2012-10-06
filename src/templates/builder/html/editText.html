@@ -90,7 +90,7 @@
 		    			<div class="label"><%=$arr_param['custom_struct']['data']['name'][$key]%> <a href="javascript:" title="ID: #local.value"> ? </a></div>
 		    			<div class="value">
 		    				<c:if cond="$arr_param['custom_struct']['data']['type'][$key] == 'text' || $arr_param['custom_struct']['data']['type'][$key] == 'html'">
-		    					<textarea id="l_<?=microtime(true)?><%=$key%>" class="<%=$arr_param['custom_struct']['data']['type'][$key] == 'html'?'wysiwyg':''%>" style="border: 1px solid #ccc;" rows="5" name="texts[custom][#local.value]"><%=$arr_param['text']['custom'][$value]%></textarea>
+		    					<textarea id="l_<?=microtime(true)?><?=$key?>" class="<?=$arr_param['custom_struct']['data']['type'][$key] == 'html'?'wysiwyg':''?>" style="border: 1px solid #ccc;" rows="5" name="texts[custom][#local.value]"><%=$arr_param['text']['custom'][$value]%></textarea>
 		    				<c:else/>
 		    					<input name="texts[custom][#local.value]" value="<%=$arr_param['text']['custom'][$value]%>" type="<%=$arr_param['custom_struct']['data']['type'][$key]%>"/>
 		    				</c:if>
@@ -299,7 +299,28 @@
 				           if ('<?=$arr_param['texts'][0]['identifier']?>'.length > 0 && <?=(int)$arr_param["texts"][0]["texts_id"]?> > 0) {
         						Ext.ux.util.msg("Saving completed.", "Your changes have been saved successfully.");
 				           } else {
-                                loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);
+				           		// get the everything except the last part
+				           		var part = data["texts[identifier]"].split(".").slice(0, -1).join("."),
+				           			tree = "";
+				           		
+				           		// loop until we found something we know
+				           		while (!Builder.langRoot.findChild("id", "text_."+part, true)) {
+				           			var parts = part.split(".");
+			           				var ttree = {};
+			           				ttree[parts.pop()] = tree;
+			           				tree = ttree;
+				           			part = parts.join(".");
+				           		}
+				           		
+				           		// add the node to the tree
+				           		console.log("found path: "+part+"; tree:", tree);
+			           			Builder.langRoot.createSubNode(data["texts[identifier]"].split(".").pop(), tree, Builder.langRoot.findChild("id", "text_."+part, true));
+			           			console.log("tried to create node");
+			           			// and re-open the tab
+			           			console.log("trying to close x_<?=$arr_param["texts"][0]['identifier']?>");
+			           			Builder.closeTab("x_<?=$arr_param["texts"][0]['identifier']?>");
+			           			Builder.editText({ident: data['texts[identifier]'], text: data["texts[identifier]"].split(".").pop()});
+                                //loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);
 				           }
 				        }
 				    });

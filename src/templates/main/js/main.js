@@ -367,12 +367,19 @@ addLoadEvent(function() {
 	if (!window.debugRefresher && window.devel && document.body.className.indexOf("get-request") >= 0) {
 		window.debugRefresher = function() {
 			setTimeout(function() {
-				_.get("cache/update-stream?"+(new Date().getTime()), function(data) {
-					if (parseInt(data) > window.debugRefresher.now) {
-						location.reload();
-					} else {
-						window.debugRefresher();
+				_.getJSON("cache/update-stream?"+(new Date().getTime()), function(data) {
+					var all, i;
+					for (all in data) {
+						if (typeof(data[all]) != 'function')
+							for (i in data[all]) {
+								if (typeof(data[all][i]) != 'function' && data[all][i].time) {
+									if (data[all][i].time > window.debugRefresher.now) {
+										location.reload();
+									}
+								}
+							}
 					}
+					window.debugRefresher();
 				});
 			}, 500);
 		};

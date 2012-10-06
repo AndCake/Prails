@@ -380,13 +380,40 @@ class BuilderHandler
 			removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
 			exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
 		}
-		@file_put_contents("cache/update-stream", time());
 
 		if ($die) {
 			die ("success");
 		} else {
 			return "success";
 		}
+	}
+
+	function updateStream($obj) {
+		$update = json_decode(@file_get_contents("cache/update-stream"), true);
+		$now = time();
+		if (is_numeric($update)) $update = Array();
+
+		$val = Array("time" => $now, "id" => $obj['id']);
+		if (!empty($obj["module"])) {
+			$mid = $obj["module"];
+			if (!$update["module"]) $update["module"] = Array();
+			if (!$update["module"][$mid]) 
+				$update["module"][$mid] = Array("time" => 0, "handler" => Array(), "data" => Array(), "resource" => Array());
+			$update["module"][$mid]["time"] = $now;
+			if (count($obj) == 2) {
+				$update["module"][$mid]["id"] = $obj['id'];
+			}
+			if (!empty($obj["handler"])) $update["module"][$mid]["handler"][$obj["handler"]] = $val;
+			if (!empty($obj["data"])) $update["module"][$mid]["data"][$obj["data"]] = $val;
+			if (!empty($obj["library"])) $update["module"][$mid]["library"][$obj['library']] = $val;
+			if (!empty($obj["tag"])) $update["module"][$mid]["tag"][$obj["tag"]] = $val;
+			if (!empty($obj["resource"])) $update["module"][$mid]["resource"][$obj["resource"]] = $val;
+		} else if (!empty($obj["library"])) {
+			$update["library"][$obj["library"]] = $val;
+		} else if (!empty($obj["tag"])) {
+			$update["tag"][$obj["tag"]] = $val;
+		}
+		@file_put_contents("cache/update-stream", json_encode($update));
 	}
 
 	function listModules()
@@ -462,6 +489,7 @@ class BuilderHandler
 					}
 				}
 
+				$this->updateStream(Array("module" => $arr_param['module']['name'], "id" => $_GET['module_id']));
 				$this->resetModule(false, $_GET["module_id"]);
 				$this->obj_data->updateModule($_GET["module_id"], $arr_data);
 			} else if ((int)$_GET["module_id"] == 0)
@@ -482,6 +510,7 @@ class BuilderHandler
 					"html_code"=>$htmlcode
 				));
 				$this->obj_data->insertHandlerHistory($hid, $arr_param["handler"], $arr_handler);
+				$this->updateStream(Array("module" => $arr_module["name"], "handler" => "home", "id" => $hid));
 			} else if ($_GET["module_id"] < 0)
 			{
 				if (!$arr_data["header_info"])
@@ -630,6 +659,7 @@ class BuilderHandler
 			$arr_data["flag_cacheable"] = (int)$arr_data["flag_cacheable"];
 			$arr_data["code"] = ($arr_data["code"]);
 			$arr_data["html_code"] = ($arr_data["html_code"]);
+			$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
 			
 			$this->updateCRCFile(Array("codeh".$_GET["handler_id"], "html_codeh".$_GET["handler_id"]));
 			
@@ -637,7 +667,6 @@ class BuilderHandler
 			{
 				$arr_param["handler"] = $this->obj_data->selectHandler($_GET["handler_id"]);
 				$this->obj_data->updateHandler($_GET["handler_id"], $arr_data);
-				$mod = $this->obj_data->selectModule($_SESSION["module_id"]);
 				if (strlen($arr_param["handler"]["schedule"]) > 0) {
 					Quartz::removeJob(JSON_decode($arr_param["handler"]["schedule"], true), $mod["name"].":".$arr_param["handler"]["event"]);
 				}
@@ -673,6 +702,7 @@ class BuilderHandler
 			$this->obj_data->insertHandlerHistory($_GET["handler_id"], $arr_param["handler"], $arr_data);
 			echo $_GET["handler_id"]."\n";
 
+			$this->updateStream(Array("module" => $mod['name'], "handler" => $arr_data['event'], "id" => $_GET['handler_id']));
 			return $this->resetModule();
 		} else if ($_GET["check"] == "2")
 		{
@@ -790,8 +820,9 @@ class BuilderHandler
 					$this->obj_data->updateHandler($hid, $arr_data);
 				} else {
 					$arr_data["fk_module_id"] = $mid;
-					$this->obj_data->insertHandler($arr_data);
+					$hid = $this->obj_data->insertHandler($arr_data);
 				}
+				$this->updateStream(Array("module" => $module['name'], "handler" => $_POST['handler']['event'], "id" => $hid));
 				return $this->resetModule();
 			} else {
 				die("Missing parameters");
@@ -960,6 +991,7 @@ class BuilderHandler
 			$arr_data["fk_user_id"] = $_SESSION["builder"]["user_id"];
 			$arr_data["fk_module_id"] = $_GET["module_id"];
 			$arr_data["code"] = ($arr_data["code"]);
+			$mod = $this->obj_data->selectModule($_GET["module_id"]);
 			
 			$this->updateCRCFile(Array("coded".$_GET["data_id"]));
 			
@@ -974,6 +1006,7 @@ class BuilderHandler
 			$this->obj_data->insertDataHistory($_GET["data_id"], $arr_param["data"], $arr_data);
 			echo $_GET["data_id"]."\n";
 			
+			$this->updateStream(Array("module" => $mod['name'], "data" => $arr_data['name'], "id" => $_GET['data_id']));
 			return $this->resetModule();
 		} else if ($_GET["check"] == "2")
 		{
@@ -1041,6 +1074,7 @@ class BuilderHandler
 			}
 		}
 		$this->obj_data->deleteLibrary($_GET["library_id"]);
+		$this->updateStream(Array("library" => $lib['name'], "id" => $_GET['library_id']));
 		die ("success");
 	}
 
@@ -1090,6 +1124,7 @@ class BuilderHandler
 			}
 			echo $_GET["library_id"]."\n";
 
+			$this->updateStream(Array("library" => $arr_library['name'], "id" => $_GET['library_id']));
 			return $this->resetModule();
 		} else if ($_GET["check"] == "2")
 		{
@@ -1165,6 +1200,7 @@ class BuilderHandler
 			require("templates/builder/php/library_upload_scaffold.php");
 			$arr_param["library"]["code"] = ob_get_clean();
 			$_SESSION["library_id"] = $_GET["library_id"] = $this->obj_data->insertLibrary($arr_param["library"]);
+			$this->updateStream(Array("library" => $libName, "id" => $_GET['library_id']));
 		}
 
 		$arr_param["library"] = $this->obj_data->selectLibrary($_GET["library_id"]);
@@ -1192,6 +1228,7 @@ class BuilderHandler
 			$_GET['tag_id'] = (int)$tag['tag_id'];
 		}
 		$this->obj_data->deleteTag($_GET["tag_id"]);
+		$this->updateStream(Array("tag" => if_set($_POST['tag']['name'], $tag['name']), "id" => $_GET['tag_id']));		
 		die ("success");
 	}
 
@@ -1200,8 +1237,7 @@ class BuilderHandler
 		$_SESSION["tag_id"] = $_GET["tag_id"] = if_set($_GET["tag_id"], $_SESSION["tag_id"]);
 		$_SESSION["module_id"] = $_GET["module_id"] = if_set($_GET["module_id"], $_SESSION["module_id"]);
 
-		if ($_GET["check"] == "1")
-		{
+		if ($_GET["check"] == "1") {
 			if (!isset($_GET['tag_id']) && strlen($_POST['tag']['name']) > 0) {
 				$tag = $this->obj_data->selectTagByUserAndName($_SESSION['builder']['user_id'], $_POST['tag']['name']);
 				if ($tag) {
@@ -1214,13 +1250,11 @@ class BuilderHandler
 			
 			$arr_tag = $_POST["tag"];
 
-			if ($_GET["tag_id"] > 0)
-			{
+			if ($_GET["tag_id"] > 0) {
 				$arr_param["tag"] = $this->obj_data->selectTag($_GET["tag_id"]);
 				$arr_param["tag"]["html_code"] = ($arr_param["tag"]["html_code"]);
 				$this->obj_data->updateTag($_GET["tag_id"], $arr_tag);
-			} else
-			{
+			} else {
 				$arr_tag["fk_user_id"] = $_SESSION["builder"]["user_id"];
 				$arr_tag["fk_module_id"] = $_GET["module_id"];
 				$_SESSION["tag_id"] = $_GET["tag_id"] = $this->obj_data->insertTag($arr_tag);
@@ -1228,6 +1262,7 @@ class BuilderHandler
 			$this->obj_data->insertTagHistory($_GET["tag_id"], $arr_param["tag"], $arr_tag);
 			echo $_GET["tag_id"]."\n";
 
+			$this->updateStream(Array("tag" => $arr_tag['name'], "id" => $_GET['tag_id']));
 			if ($arr_tag["fk_module_id"] > 0 || $arr_param["tag"]["fk_module_id"] > 0) {
 				return $this->resetModule();
 			}
@@ -1295,6 +1330,7 @@ class BuilderHandler
 					$type = getMIMEType($_GET['file']);
 				}
 				$content = file_get_contents($file);
+				$mod = $this->obj_data->selectModule($_GET['module_id']);
 				$arr_data["fk_module_id"] = $_GET["module_id"];
 				$arr_data["type"] = if_set($type, $_FILES["resource"]["type"]["file"]);
 				$arr_data["data"] = base64_encode($content);
@@ -1304,8 +1340,9 @@ class BuilderHandler
 				} else
 				{
 					$arr_data["name"] = if_set($_FILES["resource"]["name"]["file"], $_GET['file']);
-					$_SESSION["resource_id"] = $this->obj_data->insertResource($arr_data);
+					$_SESSION["resource_id"] = $_GET['resource_id'] = $this->obj_data->insertResource($arr_data);
 				}
+				$this->updateStream(Array("module" => $mod['name'], "resource" => $arr_data['name'], "id" => $_GET['resource_id']));
 				echo "<img src='?event=builder:previewResource&resource_id=".$_SESSION["resource_id"]."' width='64' />\n";
 				echo "OK\n";
 				echo $arr_data["name"];
@@ -1321,10 +1358,13 @@ class BuilderHandler
 				$arr_data["fk_module_id"] = $_GET["module_id"];
 				$_SESSION["resource_id"] = $_GET["resource_id"] = $this->obj_data->insertResource($arr_data);
 			}
+			$mod = $this->obj_data->selectModule($_GET['module_id']);
+			$this->updateStream(Array("module" => $mod['name'], "resource" => $arr_data['name'], "id" => $_GET['resource_id']));
 			return $this->resetModule();
 		} else if ($_GET["check"] == "upload") {
 			$file = receiveFile($_GET["name"], ($_GET["module_id"] < 0 ? "templates/main/resources/" : "static/"));
 			if ($_GET["module_id"] > 0) {
+				$mod = $this->obj_data->selectModule($_GET['module_id']);
 				$content = file_get_contents($file);
 				$mime = mime_content_type($file);
 				@unlink($file);
@@ -1333,10 +1373,12 @@ class BuilderHandler
 				$arr_data["data"] = base64_encode($content);
 				if ($_GET["resource_id"] > 0) {
 					$this->obj_data->updateResource($_GET["resource_id"], $arr_data);
+					$arr_data = $this->obj_data->selectResource($_GET['resource_id']);
 				} else {
 					$arr_data["name"] = basename($file);
-					$_SESSION["resource_id"] = $this->obj_data->insertResource($arr_data);
+					$_SESSION["resource_id"] = $_GET['resource_id'] = $this->obj_data->insertResource($arr_data);
 				}
+				$this->updateStream(Array("module" => $mod['name'], "resource" => $arr_data['name'], "id" => $_GET['resource_id']));
 			} else {
 				$res = $this->obj_data->selectResource($_GET["resource_id"], $_GET["module_id"]);
 				global $log;
@@ -1426,6 +1468,7 @@ class BuilderHandler
 				$path = $basePath.$arr_param["resource"]["name"];
 	
 				$this->obj_data->deleteResource($_GET["resource_id"]);
+				$this->updateStream(Array("module" => $mod, "resource" => $arr_param["resource"]["name"], "id" => $_GET['resource_id']));
 			}
 			@unlink($path);
 		}
@@ -1542,6 +1585,8 @@ class BuilderHandler
 				}
 			}
 			if ($needFlush) {
+				$mod = $this->obj_data->selectModule($_POST['scaffold']['fk_module_id']);
+				$this->updateStream(Array("module" => $mod['name'], "id" => $_POST['scaffold']['fk_module_id']));
 				$this->resetModule(false, $_POST["scaffold"]["fk_module_id"]);
 			}
 			
@@ -1572,6 +1617,8 @@ class BuilderHandler
 	function deleteConfiguration() {
 		$_SESSION["configuration_id"] = if_set($_GET["configuration_id"], $_SESSION["configuration_id"]);
 		$this->obj_data->deleteConfiguration($_GET["configuration_id"]);
+		$mod = $this->obj_data->selectModule($_GET['module_id']);
+		$this->updateStream(Array("module" => $mod['name'], "id" => $_GET['module_id']));
 		return $this->resetModule(true, $_GET["module_id"]);
 	}
 
@@ -1605,6 +1652,8 @@ class BuilderHandler
 					$arr_conf["fk_module_id"] = $_GET["module_id"];
 					$this->obj_data->insertConfiguration($arr_conf);
 				}
+				$mod = $this->obj_data->selectModule($_GET['module_id']);
+				$this->updateStream(Array("module" => $mod['name'], "id" => $_GET['module_id']));
 			}
 			
 			return $this->resetModule($_GET["die"] == "no", $_GET["module_id"]);
@@ -1621,6 +1670,7 @@ class BuilderHandler
 					$arr_conf["fk_module_id"] = $_GET["module_id"];
 					$this->obj_data->insertConfiguration($arr_conf);
 				}
+				$this->updateStream(Array("module" => $_GET['module'], "id" => $_GET["module_id"]));
 				die("success");
 			}
 			die("Module not found");
@@ -2127,6 +2177,7 @@ class BuilderHandler
 						$id = $mod["module_id"];
 						unset($mod["module_id"]);
 						$m = $this->obj_data->selectModuleByUserAndName($mod["fk_user_id"], $mod["name"]);
+						$this->updateStream(Array("module" => $m['name'], "id" => $id));
 						$this->resetModule(false, $m["module_id"]);
 						$this->obj_data->deleteModule($m["module_id"]);
 						$modId = $this->obj_data->insertModule($mod);
