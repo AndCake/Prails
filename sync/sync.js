@@ -250,7 +250,7 @@ var updateMapping = {
 				"tag[name]": parts[0].replace(/\.tag$/i, ''),
 				"tag[html_code]": content
 			}, function(res) {
-				console.log("Updated tag "+parts[0].split(".").slice(0,-1).join("."));
+				console.log("> "+f);
 				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 				fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 				secondBlocked.push(f);
@@ -277,7 +277,7 @@ var updateMapping = {
 					'library[name]': parts[0].replace(/\.php$/i, ''),
 					'library[code]': content
 				}, function(res) {
-					console.log("Updated library "+parts[0].split(".").slice(0, -1).join("."));
+					console.log("> "+f);
 					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 					secondBlocked.push(f);
@@ -335,7 +335,7 @@ var updateMapping = {
 					var opts = {"module[name]": module};
 					opts["module["+(parts[1].match(/\.js$/i) ? "js_code" : "style_code")+"]"] = content;
 					postData("editModule&check=1", opts, function(res) {
-						console.log("Updated "+f+" successfully.");
+						console.log("> "+f);
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 						secondBlocked.push(f);
@@ -351,7 +351,7 @@ var updateMapping = {
 						opts["module[header_info]["+(parts[1].match(/\.js$/i) ? "js_includes" : "css_includes")+"]["+f.split(osSep).pop()+"]"] = "templates" + osSep + module.toLowerCase() + osSep + "images" + osSep + f.split(osSep).pop();
 						postData("editModule&check=1", opts, function(res) {
 							res.on("data", function(chunk) {});
-							console.log("Updated "+f+" successfully.");
+							console.log("> "+f);
 							metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 							fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 							secondBlocked.push(f);
@@ -363,7 +363,7 @@ var updateMapping = {
 			} else if (parts[1] == "resources") {
 				// we have a resource at hand - accordingly upload it
 				uploadFile("editResource&check=1&do=upload&module="+encodeURIComponent(module)+"&file="+encodeURIComponent(f.split(osSep).pop()), f, function(res){
-					console.log("Updated "+f+" successfully.");
+					console.log("> "+f);
 					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 					secondBlocked.push(f);
@@ -391,7 +391,7 @@ var updateMapping = {
 					opts['html_code'] = ""+fs.readFileSync(f);
 				}
 				postData("editHandler&check=3", opts, function(res) {
-					console.log("Updated handler template code "+f+" successfully.");
+					console.log("> "+f);
 					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 					secondBlocked.push(f);
@@ -405,7 +405,7 @@ var updateMapping = {
 						opts['code'] = preparePHPFile(f);
 					}
 					postData("editHandler&check=3", opts, function(res) {
-						console.log("Updated handler code "+f+" successfully.");
+						console.log("> "+f);
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 						secondBlocked.push(f);
@@ -418,7 +418,7 @@ var updateMapping = {
 	            	var opts = {"data[name]": els[0], "module[name]": module};
 	            	opts['data[code]'] = preparePHPFile(f);
 					postData("editData&check=1", opts, function(res) {
-						console.log("Updated query code "+f+" successfully.");
+						console.log("> "+f);
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 						secondBlocked.push(f);
@@ -458,7 +458,7 @@ var updateMapping = {
 				}
 			}
 			postData("editConfiguration&check=2&module="+module, obj, function(req) {
-				console.log("Updated module configuration "+f);
+				console.log("> "+f);
 				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
 				fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
 				secondBlocked.push(f);
@@ -806,7 +806,7 @@ if (!syncFile) {
 													if (!err) {
 														fs.writeFileSync(name, code);
 														blocked.push(path.normalize(name));
-														console.log("Pulled latest changes from "+path.normalize(name));
+														console.log("< "+path.normalize(name));
 													} else {
 														console.error("Error creating directory.", err);
 													}
@@ -840,7 +840,7 @@ if (!syncFile) {
 									fetchFile("data", mod['data'][i].id);
 								}
 							}
-							if (isOlder([cPath+all+".less", cPath+all+".js", modPath+"config.ini"], mod.time)) {
+							if (isOlder([cPath+all+".less", cPath+all+".js"], mod.time)) {
 								// need to fetch module
 								updated = true;
 								fetchFile("module", mod.id);
