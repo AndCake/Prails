@@ -15,7 +15,9 @@ var caesar = function(content, key) {
 }
 
 osSep = process.platform === 'win32' ? '\\' : '/'
-var basePath = "."+osSep;
+var basePath = "."+osSep,
+    blocked = [],
+    secondBlocked = [];
 var syncFile = null;
 var fileUpdates = {};
 for (var i = 2; i < process.argv.length; i++) {
@@ -231,6 +233,16 @@ var preparePHPFile = function(file) {
 
 var updateMapping = {
 	"tags": function(parts, f) {
+		if (blocked.indexOf(f) >= 0) {
+			fs.utimesSync(f, Math.round(Date.now/1000), Math.round(Date.now/1000));
+			blocked.splice(blocked.indexOf(f),1);
+			secondBlocked.push(f);
+			return;
+		}
+		if (secondBlocked.indexOf(f) >= 0) {
+			secondBlocked.splice(secondBlocked.indexOf(f), 1);
+			return;
+		}
 		if (parts.length <= 1 && parts[0].match(/\.tag$/i)) {
 			// normal tag update
 			var content = "" + fs.readFileSync(f);
@@ -240,11 +252,23 @@ var updateMapping = {
 			}, function(res) {
 				console.log("Updated tag "+parts[0].split(".").slice(0,-1).join("."));
 				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+				secondBlocked.push(f);
 				writeConfigFile();
 			});
 		}
 	},
 	"libs": function(parts, f) {
+		if (blocked.indexOf(f) >= 0) {
+			fs.utimesSync(f, Math.round(Date.now/1000), Math.round(Date.now/1000));
+			blocked.splice(blocked.indexOf(f),1);
+			secondBlocked.push(f);
+			return;
+		}
+		if (secondBlocked.indexOf(f) >= 0) {
+			secondBlocked.splice(secondBlocked.indexOf(f), 1);
+			return;
+		}
 		if (parts.length <= 1 && parts[0].match(/\.php$/i)) {
 			// normal lib update
 			try {
@@ -255,6 +279,8 @@ var updateMapping = {
 				}, function(res) {
 					console.log("Updated library "+parts[0].split(".").slice(0, -1).join("."));
 					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+					secondBlocked.push(f);
 					writeConfigFile();
 				});
 			} catch(e) {console.error(e.message);};
@@ -295,12 +321,24 @@ var updateMapping = {
 			if (parts[1] && parts[1].match(/\.js$|\.less$|\.css$/i)) {
 				if (parts[1].replace(/\.js$|\.less$/i, '') == module) {
 					// update item
+					if (blocked.indexOf(f) >= 0) {
+						fs.utimesSync(f, Math.round(Date.now/1000), Math.round(Date.now/1000));
+						blocked.splice(blocked.indexOf(f),1);
+						secondBlocked.push(f);
+						return;
+					}
+					if (secondBlocked.indexOf(f) >= 0) {
+						secondBlocked.splice(secondBlocked.indexOf(f), 1);
+						return;
+					}
 					var content = "" + fs.readFileSync(f);
 					var opts = {"module[name]": module};
 					opts["module["+(parts[1].match(/\.js$/i) ? "js_code" : "style_code")+"]"] = content;
 					postData("editModule&check=1", opts, function(res) {
 						console.log("Updated "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+						secondBlocked.push(f);
 						writeConfigFile();
 						if (typeof(fn) === "function") fn();
 					});
@@ -315,6 +353,8 @@ var updateMapping = {
 							res.on("data", function(chunk) {});
 							console.log("Updated "+f+" successfully.");
 							metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+							fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+							secondBlocked.push(f);
 							writeConfigFile();
 							if (typeof(fn) === "function") fn();
 						});
@@ -325,10 +365,22 @@ var updateMapping = {
 				uploadFile("editResource&check=1&do=upload&module="+encodeURIComponent(module)+"&file="+encodeURIComponent(f.split(osSep).pop()), f, function(res){
 					console.log("Updated "+f+" successfully.");
 					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+					secondBlocked.push(f);
 					writeConfigFile();
 				});
 			}
 		} else if (parts[0] == "server" && parts.length == 3) {
+			if (blocked.indexOf(f) >= 0) {
+				fs.utimesSync(f, Math.round(Date.now/1000), Math.round(Date.now/1000));
+				blocked.splice(blocked.indexOf(f),1);
+				secondBlocked.push(f);
+				return;
+			}
+			if (secondBlocked.indexOf(f) >= 0) {
+				secondBlocked.splice(secondBlocked.indexOf(f), 1);
+				return;
+			}
 			var els = parts[2].split(".");
 			els.pop();	// ignore .html suffix
 			var opts = {"handler[event]": els[0], "module[name]": module};
@@ -340,6 +392,9 @@ var updateMapping = {
 				}
 				postData("editHandler&check=3", opts, function(res) {
 					console.log("Updated handler template code "+f+" successfully.");
+					metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+					fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+					secondBlocked.push(f);
 					if (typeof(fn) === "function") fn();
 				});
 			} else if (parts[1] == "handlers" && parts[2].match(/\.php$/i)) {
@@ -352,6 +407,8 @@ var updateMapping = {
 					postData("editHandler&check=3", opts, function(res) {
 						console.log("Updated handler code "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+						secondBlocked.push(f);
 						writeConfigFile();
 						if (typeof(fn) === "function") fn();
 					});
@@ -363,12 +420,24 @@ var updateMapping = {
 					postData("editData&check=1", opts, function(res) {
 						console.log("Updated query code "+f+" successfully.");
 						metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+						fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+						secondBlocked.push(f);
 						writeConfigFile();
 						if (typeof(fn) === "function") fn();
 					});
 				} catch(e) { console.error(e.message); }
 			}
 		} else if (parts[0] == "config.ini") {
+			if (blocked.indexOf(f) >= 0) {
+				fs.utimesSync(f, Math.round(Date.now/1000), Math.round(Date.now/1000));
+				blocked.splice(blocked.indexOf(f),1);
+				secondBlocked.push(f);
+				return;
+			}
+			if (secondBlocked.indexOf(f) >= 0) {
+				secondBlocked.splice(secondBlocked.indexOf(f), 1);
+				return;
+			}
 			// we have the module's configuration at hand
 			var content = "" + fs.readFileSync(f);
 			var lines = content.split(/\n/);
@@ -391,6 +460,8 @@ var updateMapping = {
 			postData("editConfiguration&check=2&module="+module, obj, function(req) {
 				console.log("Updated module configuration "+f);
 				metadata.lastupdate = (new Date().getTime() / 1000).toFixed(0);
+				fs.utimesSync(f, parseInt(metadata.lastupdate), parseInt(metadata.lastupdate));
+				secondBlocked.push(f);
 				writeConfigFile();
 			});
 		}
@@ -694,16 +765,18 @@ if (!syncFile) {
 					});	
 					res.on("end", function() {
 						if (data.length == 0) return;
-						var timeObject = JSON.parse(data);
+						try {
+							var timeObject = JSON.parse(data);
+						} catch(e) { return; }
 
 						var isOlder = function(files, time) {
 							var older = false;
 							for (var i = 0; i < files.length; i++) {
 								var stat = {};
 								try {
-									stat = fs.statSync(files[i]);
+									stat = fs.statSync(basePath + files[i]);
 								} catch(e){};
-								if (((stat.mtime || new Date(0)).getTime() / 1000 + 30) < time) {
+								if (((stat.mtime || new Date(0)).getTime() / 1000) + 30 < time) {
 									return true;
 								}
 							}
@@ -716,7 +789,6 @@ if (!syncFile) {
 								id: id
 							}, function(res) {
 								var pullData = "";
-								var el = result[i];
 								res.on("data", function(chunk) {
 									pullData += chunk.toString();
 								});
@@ -733,9 +805,8 @@ if (!syncFile) {
 												mkdirs(dir.join(osSep), 0777, function(err) {
 													if (!err) {
 														fs.writeFileSync(name, code);
-														console.log("Pulled latest changes from "+name);
-														completed++;
-														if (completed >= totalLen) syncCompleted = true;
+														blocked.push(path.normalize(name));
+														console.log("Pulled latest changes from "+path.normalize(name));
 													} else {
 														console.error("Error creating directory.", err);
 													}
@@ -743,7 +814,7 @@ if (!syncFile) {
 											}
 										}
 									} catch(e) {
-										console.error("Unable to fetch object ", el, e, pullData);
+										console.error("Unable to fetch object ", e, pullData);
 									}
 								});
 							});
