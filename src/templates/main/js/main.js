@@ -366,6 +366,19 @@ addLoadEvent(initWysiwyg);
 addLoadEvent(function() {
 	if (!window.debugRefresher && window.devel && document.body.className.indexOf("get-request") >= 0) {
 		window.debugRefresher = function() {
+			if (localStorage.getItem("__prails_newData")) {
+				$$("input, textarea, select").each(function(item) {
+					var value;
+					if (value = localStorage.getItem("__prails_input+"+item.name)) {
+						if (item.tagName.toLowerCase() == 'input' && (item.type == 'radio' || item.type == 'checkbox')) 
+							item.checked = (value == "true")
+						else
+							item.value = value
+						localStorage.removeItem("__prails_input+"+item.name);
+					}
+				});
+				localStorage.removeItem("__prails_newData");
+			}
 			setTimeout(function() {
 				_.getJSON("cache/update-stream?"+(new Date().getTime()), function(data) {
 					var all, i;
@@ -374,6 +387,17 @@ addLoadEvent(function() {
 							for (i in data[all]) {
 								if (typeof(data[all][i]) != 'function' && data[all][i].time) {
 									if (data[all][i].time > window.debugRefresher.now) {
+										$$("input, textarea, select").each(function(item) {
+											var value = "";
+											if (item.value.length > 0) {
+												if (item.tagName.toLowerCase() == 'input' && (item.type == 'radio' || item.type == 'checkbox')) 
+													value = item.checked.toString()
+												else 
+													value = item.value
+												localStorage.setItem("__prails_input+"+item.name, value);
+											}
+										}
+										localStorage.setItem("__prails_newData", true);
 										location.reload();
 									}
 								}
