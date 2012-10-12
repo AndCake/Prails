@@ -9,6 +9,12 @@ class SessionManager extends Database {
 
 		// Read the maxlifetime setting from PHP
 		$this->life_time = get_cfg_var("session.gc_maxlifetime");
+	
+		if (get_cfg_var("session.gc_probability") == 0) {
+			// turn on GC
+			ini_set('session.gc_probability', 1);
+			ini_set('session.gc_divisor', 100);
+		}
 
 		// Register this object as the session handler
 		session_set_save_handler(
