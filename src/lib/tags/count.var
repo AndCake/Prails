@@ -1,2 +1,2 @@
-count($arr_param
-<? $var["close"] = true; ?>
+count($arr_param<? 
+$var["close"] = true; ?>

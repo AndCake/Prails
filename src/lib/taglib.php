@@ -38,20 +38,39 @@ class TagLib {
 	
 	public function TagLib($template = "") {
 		$this->template = $template;
+		$this->depth = 0;
+		$this->tagMatch = Array();
+		$this->unclosedPos = Array();
 	}
 	
 	public function compile($html, $allowedDepth = 0) {
+		$this->depth = 0;
+		$this->tagMatch = Array();
+		$this->unclosedPos = Array();
 		$this->html = $html;
 		$this->match($html);
-
+		if ($this->depth > 0) {
+			throw new Exception("ERROR compiling template code: unclosed tag \"".array_pop(array_keys($this->unclosedPos))."\"\n");
+		}
+		if ($this->debugMode) {
+			echo $html."\n";
+			var_dump($this->tagMatch);
+		}
 		foreach ($this->tagMatch as $tag=>$arr_tag) {
 			foreach ($arr_tag as $entry) {
+				if ($this->debugMode) echo "Handling tag '".$tag."'\n";
 				if ($entry["depth"] > $allowedDepth) continue;
 				$rc = new TagLib();
+				if ($this->debugMode) echo "Didn't skip\n";
 				if (strlen($entry["body"]) > 0) {
+					if ($this->debugMode) echo "Compiling body...\n";
+					$oldBody = $entry['body'];
 					$entry["body"] = $rc->compile($entry["body"], $allowedDepth);
+//					$entry["match"] = str_replace($oldBody, $entry['body'], $entry['match']);
+//					if ($this->debugMode) echo "New body match: '{$entry['match']}'\n";
 				}
-				$content = $this->loadTagLib($tag, $entry);
+				$content = trim($this->loadTagLib($tag, $entry));
+				if ($this->debugMode) echo "Loaded tag '$tag'. Result: '".$content."'\n";
 				$html = str_replace($entry["match"], $content, $html);
 			}
 		}
@@ -168,10 +187,10 @@ class TagLib {
 	
 	private function getAttribs($content) {
 		$arr_attributes = Array();
-		$pattern = '@\s*([a-zA-Z0-9\-_]+)=(?:"([^"]*)"|\'([^\']*)\')\s*@usix';
+		$pattern = '@\s*([a-zA-Z0-9\-_]+)=(?:(?:"([^"]*)")|(?:\'([^\']*)\'))\s*@usix';
 		preg_match_all($pattern, $content=trim($content), $m, PREG_OFFSET_CAPTURE | PREG_SET_ORDER);
 		foreach ($m as $set) {
-			$arr_attributes[$set[1][0]] = $set[2][0];
+			$arr_attributes[$set[1][0]] = empty($set[2][0]) ? $set[3][0] : $set[2][0];
 		}
 
 		return $arr_attributes;
@@ -186,7 +205,8 @@ class TagLib {
 	}
 	
 	private function getMatch($tag) {
-		return trim(substr($this->html, $tag["startPos"], ($tag["endPos"] + $tag["endLen"]) - $tag["startPos"]));
+		$match = trim(substr($this->html, $tag["startPos"], ($tag["endPos"] + $tag["endLen"]) - $tag["startPos"]));
+		return $match;
 	}
 	
 	private function integrate($content) {
