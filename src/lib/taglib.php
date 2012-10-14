@@ -64,10 +64,7 @@ class TagLib {
 				if ($this->debugMode) echo "Didn't skip\n";
 				if (strlen($entry["body"]) > 0) {
 					if ($this->debugMode) echo "Compiling body...\n";
-					$oldBody = $entry['body'];
 					$entry["body"] = $rc->compile($entry["body"], $allowedDepth);
-//					$entry["match"] = str_replace($oldBody, $entry['body'], $entry['match']);
-//					if ($this->debugMode) echo "New body match: '{$entry['match']}'\n";
 				}
 				$content = trim($this->loadTagLib($tag, $entry));
 				if ($this->debugMode) echo "Loaded tag '$tag'. Result: '".$content."'\n";

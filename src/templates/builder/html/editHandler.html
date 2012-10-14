@@ -19,7 +19,7 @@
         	<input type="hidden" name="handler[schedule]" value='#handler.schedule' id="hschedule#handler.handler_id" />
         	<br/>
         	<input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
-        	<label for="hook_#handler.handler_id">is a hook <a title="in order to be called as soon as a certain hook sink (defined via <c:hook> or HookCore::notify) is executed, tick this." class="builder-help"> ? </a></label>
+        	<label for="hook_#handler.handler_id">is a hook <a title="in order to be called as soon as a certain hook sink (defined via &lt;c:hook&gt; or HookCore::notify) is executed, tick this." class="builder-help"> ? </a></label>
         	<input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
         </div>
 		<div style="clear:both;"></div>
