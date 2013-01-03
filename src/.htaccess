@@ -44,7 +44,8 @@ ErrorDocument 404 /rewrite.php
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
-	RewriteRule ^static/(.+)\.html$ index.php?event=main:cmsHandler&page=$1 [L]
+	RewriteCond %{QUERY_STRING} ^(.*)$
+	RewriteRule ^static/(.+)\.html$ index.php?event=main:cmsHandler&page=$1&%1 [L]
 
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteCond %{REQUEST_FILENAME} !-f
