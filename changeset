@@ -1,3 +1,25 @@
+V1.5.1 (January 6th, 2013)
+
+ * added some more explanatory documentation for the foreach tag
+ * added combo type to input tag
+ * removed control.date dependency
+ * updated auto-refresh handling
+ * fixed a bug with the source editor in TinyMCE in certain browsers only displaying the first one or two lines
+ * made sure that when adding a content asset, the IDE doesn't need to reload
+ * made the synchronization be more specific (keeps last save time for each entity)
+ * made sure that there is no ping-pong effect when synching
+ * cleaned up messaging for sync and fixed a bug with .less file updates
+ * when auto-refreshing the page, made sure that form data is preserved where possible
+ * fixed a bug with synchronization in client-side code
+ * made sure that the garbage collection is always triggered at some point for sessions
+ * added testsuites for Prails to avoid regressions & implemented first tests for TagLib
+ * fixed several bugs in TagLib
+ * fixed some whitespace problems in the pre-defined custom tags
+ * removed unnecessary code from TagLib
+ * fixed a problem with handler editing throwing exceptions
+ * added a small fix for GET parameters not received in static content page's decorators
+
+
 V1.5.0 (August 9th, 2012)
 
  * fixed a problem with installer, which was not able to install prails into the current directory instead of a sub directory

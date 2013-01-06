@@ -89,14 +89,14 @@ class MainHandler
 			$arr_settings["IS_SETUP"] = true;
 			$arr_settings["FIRST_RUN"] = true;
 			
+			$ht = file_get_contents(".htaccess");
+			$installDir = dirname($_SERVER["SCRIPT_NAME"]);
+			if ($installDir[strlen($installDir) - 1] != "/") $installDir .= "/";
+			$ht = str_replace("ErrorDocument 404 /rewrite.php", "ErrorDocument 404 ".$installDir."rewrite.php", $ht);
 			if (!$arr_settings["MOD_REWRITE"]) {
-				$ht = file_get_contents(".htaccess");
-				$installDir = dirname($_SERVER["SCRIPT_NAME"]);
-				if ($installDir[strlen($installDir) - 1] != "/") $installDir .= "/";
-				$ht = str_replace("ErrorDocument 404 /rewrite.php", "ErrorDocument 404 ".$installDir."rewrite.php", $ht);
 				$ht = str_replace("<IfModule rewrite_module>", "<IfModule rewrite_module_deactivated>", $ht);
-				$success = $success && @file_put_contents(".htaccess", $ht);
 			}
+			$success = $success && @file_put_contents(".htaccess", $ht);
 
 			foreach ($arr_settings as $key => $value) {
 				array_push($arr_save, Array("name" => $key, "value" => $value));
