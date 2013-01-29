@@ -36,7 +36,7 @@ $SECURE_SERVER = str_replace("http://", "https://", str_replace($_SERVER["SERVER
 define ("DEFAULT_TEMPLATE", "templates/template.html");
 
 define ("DEBUG_MYSQL", 0);
-define ("PRAILS_HOME_PATH", "http://prails.googlecode.com/svn/trunk/");
+define ("PRAILS_HOME_PATH", "https://raw.github.com/AndCake/prails/master/");
 
 /**
  * Global configuration options include:
