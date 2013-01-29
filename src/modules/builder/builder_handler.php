@@ -1737,13 +1737,13 @@ class BuilderHandler
 				}
 				$query = preg_replace('/\s+LIMIT\s+([0-9]+)\s*,?\s*([0-9]+)\s*$/', '', $query);
 			}
-			$this->obj_data->str_prefix = "tbl_";
+			$this->obj_data->prefix = "tbl_";
 			if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
 				$query .= " LIMIT [offset], [limit]";
 				$arr_param["totals"] = $this->obj_data->query("SELECT COUNT(*) AS total FROM (".str_replace(" LIMIT [offset], [limit]", "", $query).") AS a WHERE 1=1");
 			}
 			$arr_param["result"] = $this->obj_data->query(str_replace(Array('[offset]', '[limit]'), Array(0, 1), $query));
-			$this->obj_data->str_prefix = "tbl_prailsbase_";
+			$this->obj_data->prefix = "tbl_prailsbase_";
 			$result = Array();
 			$arr_param["error"] = $this->obj_data->sql->lastError;
 			
@@ -1774,11 +1774,11 @@ class BuilderHandler
 				if ($loop == 0 && isset($_POST["sort"])) {
 					$query = str_replace(" LIMIT [offset], [limit]", " ORDER BY ".$_POST["sort"]." ".$_POST["dir"]." LIMIT [offset], [limit]", $query);
 				}
-				$this->obj_data->str_prefix = "tbl_";
+				$this->obj_data->prefix = "tbl_";
 				if (strtoupper(substr($query, 0, 7)) == "SELECT ") {
 					$arr_param["result"] = $this->obj_data->query(str_replace(Array('[offset]', '[limit]'), Array(if_set($_POST["start"], 0), if_set($_POST["limit"], 25)), $query));
 				}
-				$this->obj_data->str_prefix = "tbl_prailsbase_";
+				$this->obj_data->prefix = "tbl_prailsbase_";
 				$arr_param["error"] = $this->obj_data->sql->lastError;
 				$loop++;
 			} while (!empty($arr_param['error']) && isset($_POST['sort']) && $loop < 2);					
@@ -1994,12 +1994,12 @@ class BuilderHandler
 		if ($_POST["db"]) {
 			fwrite($fp, "---".$magic_border."\n");
 			$dbs = Array();
-			$oldPrefix = $this->obj_data->str_prefix;
-			$this->obj_data->str_prefix = "tbl_";
+			$oldPrefix = $this->obj_data->prefix;
+			$this->obj_data->prefix = "tbl_";
 			foreach ($_POST["db"] as $table) {
 				$dbs[$table] = $this->obj_data->get($table);
 			}
-			$this->obj_data->str_prefix = $oldPrefix;
+			$this->obj_data->prefix = $oldPrefix;
 			fwrite($fp, "A");
 			fwrite($fp, gzcompress(serialize($dbs), 9));
 			unset($dbs);
@@ -2083,8 +2083,8 @@ class BuilderHandler
 				if ($section[0] == "A") { // import database contents
 					// ignore DB contents explicitly on production so that nothing will be imported accidentally
 					if (ENV_PRODUCTION === true && !$dataRestore) continue;
-					$oldPrefix = $this->obj_data->str_prefix;
-					$this->obj_data->str_prefix = "tbl_";
+					$oldPrefix = $this->obj_data->prefix;
+					$this->obj_data->prefix = "tbl_";
 					foreach ($data as $table => $arr_db) {
 						if (DB_TYPE == SQLITE) {
 							$this->obj_data->remove($table, "1");
@@ -2095,7 +2095,7 @@ class BuilderHandler
 							$this->obj_data->add($table, $entry->getArrayCopy());
 						}
 					}
-					$this->obj_data->str_prefix = $oldPrefix;
+					$this->obj_data->prefix = $oldPrefix;
 				} else if ($section[0] == "D") {
 					// import database table
 					foreach ($data as $arr_table) {

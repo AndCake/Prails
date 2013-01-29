@@ -168,7 +168,7 @@ class Database {
 		if (strlen($sort) > 0) {
 			$sort = " ORDER BY ".$sort;
 		}
-		return $this->query("SELECT * FROM ".$table." WHERE ".if_set($filter, "1").$sort." LIMIT ".$start.", ".$limit);
+		return $this->query("SELECT * FROM ".$table." WHERE ".if_set($filter, "1=1").$sort." LIMIT ".$start.", ".$limit);
 	}
 	/** 
  	 * select($table[, $filter[, $sort[, $start[, $limit]]]]) -> Array
@@ -279,7 +279,7 @@ class Database {
 			$filter = $res;
 		}
 		
-		$query = "DELETE FROM ".$table." WHERE (".if_set($filter, "FALSE").")";
+		$query = "DELETE FROM ".$table." WHERE (".if_set($filter, "1=0").")";
 		$this->query($query);
 		$this->remoteQuery($query);
 	}
@@ -340,7 +340,7 @@ class Database {
 				if (preg_match("/[^\\\]'/", $data[$field])) {
 					$data[$column["Field"]] = $this->escape($data[$field]);
 				}
-				if (!preg_match('/^[0-9.-]+$/', $data[$field])) {
+				if (preg_match('/varchar|text|blob/i', $column["Type"])) {
 					$query .= $column["Field"]."='".$data[$field]."'";
 				} else {
 					$query .= $column["Field"]."=".$data[$field];
@@ -351,7 +351,7 @@ class Database {
 		// nothing needs to be updated... got no data.
 		if ($i == 0) return 0;
 	
-		$query .= " WHERE (".if_set($filter, "FALSE").")";
+		$query .= " WHERE (".if_set($filter, "1=0").")";
 		$this->query ( $query );
 		$this->remoteQuery($query);
 		
