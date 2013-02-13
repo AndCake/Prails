@@ -44,7 +44,6 @@
 		$new = false;
 		if (!file_exists($dir)) {
 			$new = true;
-			@mkdir($dir, 0755, true);
 		}
 		// do the actual stuff...
 		$tp = @fopen("prails.tar.bz2", "w+");
@@ -66,6 +65,10 @@
 			exec("mv prails ".$dir);
 		}
 		unlink("prails.tar.bz2");
+		if (!$new) {
+			if ($dir[strlen($dir) - 1] != '/') $dir .= "/";
+			$dir .= "prails/";
+		}
 		if (empty($_SERVER["SHELL"])) {
 			$server = "http://".$_SERVER['SERVER_NAME'].$_SERVER['PHP_SELF'];
 			$server = substr($server, 0, -strlen(basename($server)));

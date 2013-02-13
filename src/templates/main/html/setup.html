@@ -62,12 +62,16 @@ fieldset legend { font-weight: bold; }
 		<div class="form-field">
 			<label for="dbtype">* Type:</label>
 			<select name="db[type]" id="dbtype" size="1" onchange="this.value == 'MYSQL' && ($$('.mysql')[0].style.display='block') || ($$('.mysql')[0].style.display='none');">
-				<option value="SQLITE" <?=($arr_param['db']['type'] == 'SQLITE' ? 'selected="selected"' : '')?>>SQLite</option>
+				<c:if cond='class_exists("SQLite3")'>
+					<option value="SQLITE" <?=($arr_param['db']['type'] == 'SQLITE' ? 'selected="selected"' : '')?>>SQLite</option>
+				</c:if>
 				<option value="MYSQL" <?=($arr_param['db']['type'] == 'MYSQL' ? 'selected="selected"' : '')?>>MySQL</option>
-				<option value="POSTGRESQL" <?=($arr_param['db']['type'] == 'POSTGRESQL' ? 'selected="selected"' : '')?>>PostgreSQL</option>
+				<c:if cond='function_exists("pg_connect")'>
+					<option value="POSTGRESQL" <?=($arr_param['db']['type'] == 'POSTGRESQL' ? 'selected="selected"' : '')?>>PostgreSQL</option>
+				</c:if>
 			</select>
 		</div>
-		<div class="mysql" <?=($arr_param['db']['type'] == 'SQLITE' ? 'style="display:none;"' : '')?>>
+		<div class="mysql" <?=($arr_param['db']['type'] == 'SQLITE' && class_exists('SQLite3') ? 'style="display:none;"' : '')?>>
 			<div class="form-field">
 				<label for="dbhost">* Host name:</label>
 				<input id="dbhost" type="text" name="db[host]" value="#db.host" class="required" />

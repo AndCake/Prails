@@ -1,7 +1,7 @@
 <?php
 /**
  Prails Web Framework
- Copyright (C) 2010  Robert Kunze
+ Copyright (C) 2013  Robert Kunze
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
