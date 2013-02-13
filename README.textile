@@ -1,9 +1,28 @@
-h1. Prails
+pre..  
+	.-,--.               .     
+	 \|   )           o  |           
+	  |__' ,--..-.    .  | .--. 
+	 ,|    |  (   )   |  | `--. 
+	 `'    '   `-'`--' `-`-`--'
+  The PHP framework that makes you happy
 
-The PHP framework that makes you happy.
-
-"http://prails.org/":http://prails.org
+p. "Prails Homepage":http://prails.org
 
 h2. About
 
+Prails is an open-source PHP framework that is optimized for fast and efficient web development. It is designed to change the way you write PHP. And it's so easy that it's actually fun!
 The is the new official version of Prails. For more information, please visit the project's home page at "Prails.org":http://prails.org/ .
+
+h2. Getting started
+
+The typical XAMP setup (Linux/Mac OS X, Apache, MySQL, PHP) will do just fine, but you can also choose to go along without MySQL or even replace it by a PostgreSQL. In case you chose MySQL or PostgreSQL you'll need to create a new database and credentials for accessing that. 
+
+h3. Installation:
+
+1) download the installer and save it to a web server-accessible folder
+2) either call the script through your browser or give it executable rights via @chmod +x prails-*.php@ and run it from the console
+3) follow the instructions to complete the setup
+ 
+Installation complete! Congratulations! 
+
+Please find further information over at http://prails.org/
