@@ -45,7 +45,7 @@
 					  	if (!mergeOnly) {
 					    	  document.title = "Saving module "+$("m_name_#module.module_id").value+"...";
 					  	}
-					  	if (["empty", "main", "builder"].indexOf($('m_name_#module.module_id').getValue()) >= 0) {
+					  	if (["empty", "main", "builder"].indexOf($('m_name_#module.module_id').getValue().toLowerCase()) >= 0) {
 							$('m_name_#module.module_id').value = "_" + $('m_name_#module.module_id').getValue();
 						}
 						$("m_nameh_#module.module_id").value = $('m_name_#module.module_id').getValue();
