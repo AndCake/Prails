@@ -3,6 +3,12 @@ ServerSignature Off
 # remove the comment below if you need to turn this on explicitly
 #php_value short_open_tag 1 
 
+<FilesMatch "\.(htaccess|users|groups|log|prails)$">
+	Order Allow,Deny
+	Deny from all
+</FilesMatch>
+Options -Indexes
+
 # add compression types for static files
 AddType text/css css cssgz
 AddEncoding gzip cssgz

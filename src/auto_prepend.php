@@ -1,7 +1,7 @@
 <?php
 /**
     Prails Web Framework
-    Copyright (C) 2012  Robert Kunze
+    Copyright (C) 2013  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -17,19 +17,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 	
-	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	error_reporting(E_ALL & ~(E_STRICT|E_NOTICE));
 	register_shutdown_function("error_alert");
-    ini_set('display_errors', 0);
+	ini_set('display_errors', 0);
     
-    $logFile = fopen("log/framework.log", "a+");
+	$logFile = fopen("log/framework.log", "a+");
     
-    function findLine($arr_file, $regExp, &$startLine, $minLine) {
+	function findLine($arr_file, $regExp, &$startLine, $minLine) {
 		$found = false; 
 		while (!$found && $startLine > $minLine) {
 			$found = (preg_match($regExp, $arr_file[$startLine--], $arr_match) > 0);
 		}
-    	return Array($arr_match, $found);
-    }
+    		return Array($arr_match, $found);
+	}
 	
 	function error_alert() {
 		if (!ENV_PRODUCTION && file_exists(dirname(__FILE__)."/cache/debugger.do") && strpos($_SERVER["REQUEST_URI"], "event=builder:") === false) {
@@ -53,11 +53,11 @@
 				if ($pfound) $post = $post[1];
 
 				$classLine = $e["line"] - 1;
-				list($match, $cfound) = findLine($arr_file, "/\\s*class ([a-zA-Z_0-9]+)\\s+/", $classLine, 0);
+				list($match, $cfound) = findLine($arr_file, "/\\s*class ([a-zA-Z_0-9]+)(Handler|Data)?\\s+/U", $classLine, 0);
 				$class = preg_split("/[0-9]+/", $match[1]);
 
 				$module = $class[0];
-				switch ($class[1]) {
+				switch ($match[2]) {
 					case "Handler":
 						$type = "event";
 						$type = "module '".$module."', ".$type;

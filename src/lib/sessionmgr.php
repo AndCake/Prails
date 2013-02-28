@@ -16,6 +16,9 @@ class SessionManager extends Database {
 			ini_set('session.gc_divisor', 100);
 		}
 
+		ini_set('session.name', "psid");
+		ini_set('session.cookie_httponly', '1');		
+
 		// Register this object as the session handler
 		session_set_save_handler(
 			array( &$this, "open" ),

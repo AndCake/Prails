@@ -18,6 +18,7 @@
 */
 include("auto_prepend.php");
 header('P3P: CP="CAO PSA OUR"');
+header("X-Powered-By:");
 
 // check if we currently have too many visitors
 if (!$_COOKIE["visited"] && file_exists("cache/heavyload") && filemtime("cache/heavyload") > $_SERVER["REQUEST_TIME"] - 600) {
