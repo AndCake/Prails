@@ -14,8 +14,8 @@
         	<label for="cache_#handler.handler_id">output is cacheable <a title="if this is ticked, the result will be cached for all same GET requests to this event (until you remove it)." class="builder-help"> ? </a></label>
     	</div>
         <div style="float:left;width: 70%;">
-        	<input type="checkbox" name="schedule" value="1" onclick="if(this.checked){$('container_h_#handler.handler_id').schedule(this);}else{$('hschedule#handler.handler_id').value=$('jobdetails_#handler.handler_id').innerHTML='';}" id="job_#handler.handler_id"<?=(strlen($arr_param['handler']['hook']) <= 0 && strlen($arr_param['handler']['schedule']) > 0 ? " checked='checked'" : "")?> />
-        	<label for="job_#handler.handler_id">is a job <a title="a job will be called periodically - independent of page requests by users." class="builder-help"> ? </a><span id="jobdetails_#handler.handler_id"></span></label>
+		<input type="checkbox" name="schedule" value="1" onclick="if(this.checked){$('container_h_#handler.handler_id').schedule(this);}else{$('hschedule#handler.handler_id').value=$('jobdetails_#handler.handler_id').innerHTML='';}" id="job_#handler.handler_id"<?=(strlen($arr_param['handler']['hook']) <= 0 && strlen($arr_param['handler']['schedule']) > 0 ? " checked='checked'" : "")?> <? if (PHP_OS == 'WINNT') { echo "disabled='disabled'";} ?> />
+		<label for="job_#handler.handler_id">is a job <a title="a job will be called periodically - independent of page requests by users.<? if (PHP_OS == WINNT) { echo ' Please note: on Windows systems, this functionality is disabled.'; }?>" class="builder-help"> ? </a><span id="jobdetails_#handler.handler_id"></span></label>
         	<input type="hidden" name="handler[schedule]" value='#handler.schedule' id="hschedule#handler.handler_id" />
         	<br/>
         	<input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
@@ -61,6 +61,9 @@
 	</div>
 	<div style="display: none;" id="schedule_#handler.handler_id">
 		<div class="scheduler">
+			<c:if cond="PHP_OS == WINNT">
+				<div class="warning">Please note: All scheduling functionality is disabled on Windows servers.</div>
+			</c:if>
 			<div class="form-entry date">
 				<div class="label">
 					<label for="from">Active:</label>

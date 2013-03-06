@@ -15,12 +15,12 @@ The is the new official version of Prails. For more information, please visit th
 
 h2. Getting started
 
-The typical XAMP setup (Linux/Mac OS X, Apache, MySQL, PHP) will do just fine, but you can also choose to go along without MySQL or even replace it by a PostgreSQL. In case you chose MySQL or PostgreSQL you'll need to create a new database and credentials for accessing that. 
+The typical XAMP setup (Windows/Linux/MacOS X, Apache, MySQL, PHP) will do just fine, but you can also choose to go along without MySQL or even replace it by a PostgreSQL. In case you chose MySQL or PostgreSQL you'll need to create a new database and credentials for accessing that. 
 
 h3. Installation:
 
 1) download the installer and save it to a web server-accessible folder
-2) either call the script through your browser or give it executable rights via @chmod +x prails-*.php@ and run it from the console
+2) either call the script through your browser or on Linux/MacOS X give it executable rights via @chmod +x prails-*.php@ and run it from the console
 3) follow the instructions to complete the setup
  
 Installation complete! Congratulations! 

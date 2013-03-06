@@ -2,10 +2,10 @@
 <?php
 	function renderHTML() {
 		?><style type="text/css">body{color:white;}body *{color:black;}</style>
-		<h1>Prails Setup</h1><?php if (!is_writable("./")) {?><p style="color:red;">The current directory is not writable. Please make sure it is.</p><? } ?> 
+		<h1>Prails Setup</h1><?php if (!is_writable("./")) {?><p style="color:red;">The current directory is not writable. Please make sure it is.</p><?php } ?> 
 		<p>Please enter the directory Prails should be installed to.</p>
 		<form method="post" action=""><div class="form-entry"><label for="dir">Target:</label>
-		<input type="text" name="dir" id="dir" value="<?=(isset($_POST["dir"]) ? $_POST["dir"] : "./prails")?>"/></div>
+		<input type="text" name="dir" id="dir" value="<?php echo(isset($_POST["dir"]) ? $_POST["dir"] : "./prails");?>"/></div>
 		<button type="submit">Install</button>
 		</form><script type="text/javascript">document.getElementById('dir').focus();</script><?php
 	}
@@ -47,23 +47,47 @@
 		}
 		// do the actual stuff...
 		$tp = @fopen("prails.tar.bz2", "w+");
-		if (!$tp) { die("Unable to extract data! Please enable write access to the current directory.\n"); }
+		if (PHP_OS == "WINNT") 
+			$xp = @fopen("7za.exe", "w+");
+		if (!$tp || (!$xp && PHP_OS == "WINNT")) die("Unable to extract data! Please enable write access to the current directory.\n"); 
 		$fp = fopen(__FILE__, "r");
-		fseek($fp, __COMPILER_HALT_OFFSET__+1);
+		if (PHP_OS == "WINNT")
+			fseek($fp, __COMPILER_HALT_OFFSET__+1);
+		else
+			fseek($fp, __COMPILER_HALT_OFFSET__ + 1 + 692581);
 		$i = 0;
+		$mode = PHP_OS == "WINNT" ? 0 : 1;
 		while (!feof($fp)) {
 			$buffer = fread($fp, 10240);
 			if ($buffer[strlen($buffer)-1] == '=') $buffer .= fread($fp, 1);
-			fwrite($tp, decode($buffer));
+			$decoded = decode($buffer);
+			$i += strlen($decoded);
+			if ($mode == 1)
+				fwrite($tp, $decoded);
+			else if ($i < 587776) 
+				fwrite($xp, $decoded);
+			else {
+				$diff = $i - 587776;
+				fwrite($xp, substr($decoded, 0, strlen($decoded) - $diff));
+				fwrite($tp, substr($decoded, strlen($decoded) - $diff));
+				$mode = 1;
+			}
 		}
 		fclose($tp);
 		fclose($fp);
-		exec("tar xvjf prails.tar.bz2");
-		if ($dir == "./" || $dir == ".") {
+		if (PHP_OS == "WINNT") {
+			fclose($xp);
+			exec("7za.exe x prails.tar.bz2");
+			exec("7za.exe x prails.tar");
+			unlink("prails.tar");
+			rename("7za.exe", "prails/7za.exe");
+		} else 
+			exec("tar xvjf prails.tar.bz2");
+		if (!file_exists("prails")) die("Unable to extract Prails into directory.\n");
+		if ($dir == "./" || $dir == ".") 
 			exec("cd prails; mv * .[^.]* ..; cd ..; rm -rf prails");
-		} else {
-			exec("mv prails ".$dir);
-		}
+		else
+			rename("prails", $dir);
 		unlink("prails.tar.bz2");
 		if (!$new) {
 			if ($dir[strlen($dir) - 1] != '/') $dir .= "/";
@@ -81,7 +105,7 @@
 	}
 	if (empty($_SERVER["SHELL"])) {
 		// show the input form page
-		if (!$_POST["dir"]) {
+		if (!isset($_POST["dir"]) || empty($_POST["dir"])) {
 			renderHTML();
 			die();
 		} else {

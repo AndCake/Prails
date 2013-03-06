@@ -24,7 +24,7 @@
 		By double clicking an entry you edit this module. By right clicking you can change the module's options. </p>
 		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
 		can edit it.</p>
-		<? if (ENV_PRODUCTION !== true && $_SESSION["builder"]["group"] == "devel") { ?>
+		<? if (ENV_PRODUCTION !== true && $_SESSION["builder"]["group"] == "devel" && PHP_OS != "WINNT") { ?>
 		<p>You can also <a href="?event=builder:downloadProject">download</a> your project as source code files and edit them with your favorite IDE. In order to save the files back to the server, you need the synchronization script you'll find in the sync folder to be running while editing the files.</p>
 		<? } ?>
 		<br/><h2>Short Cuts:</h2>
@@ -325,7 +325,12 @@
 			</div>
 			<div class="panel-bottom">
 				<button type="button" onclick="backupNow();" style="float:left;">Backup now</button>
-				<button type="submit" name="save">Save</button>
+				<c:if cond="PHP_OS == 'WINNT'">
+					<span class="warning">Scheduling is disabled on Windows Servers.</span>
+					<button type="submit" name="save" disabled="disabled">Save</button>
+				<c:else/>
+					<button type="submit" name="save">Save</button>
+				</c:if>
 			</div>
 			</form>
 		</div>		

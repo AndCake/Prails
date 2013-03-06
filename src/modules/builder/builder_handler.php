@@ -220,8 +220,15 @@ class BuilderHandler
 						preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $libfile, $match);
 						if (strlen($match[1]) > 0) {
 							// unpack it to get contents
-							$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
-							exec("cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile));
+							if (PHP_OS == "WINNT") {
+								if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+									exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $libfile)));
+								else 
+									exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile));
+							} else {
+								$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+								exec("cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile));
+							}
 						}
 					}
 					$libname = $libPath . $arr_lib["name"] . (ENV_PRODUCTION === true ? "" : $arr_lib["library_id"]) . ".php";
@@ -378,7 +385,13 @@ class BuilderHandler
 				removeDir("templates/".strtolower($arr_param["module"]["name"]).$arr_param["module"]["module_id"], true);
 			}
 			removeDir("templates/".strtolower($arr_param["module"]["name"]), true);
-			exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
+			if (PHP_OS == "WINNT") {
+				exec("del 'cache\\handler_".$arr_param['module']['name'].":*'");
+				exec("del 'cache\\handler_".$arr_param['module']['name'].$module_id.":*'");
+				exec("del 'cache\\handler_".$arr_param['module']['name'].":*'");
+			} else {
+				exec("rm cache/handler_".$arr_param['module']['name'].":* cache/handler_".strtolower($arr_param['module']['name']).":* cache/handler_".strtolower($arr_param["module"]["name"]).$module_id.":* cache/handler_".$arr_param["module"]["name"].$module_id.":*");
+			}
 		}
 
 		if ($die) {
@@ -1163,8 +1176,15 @@ class BuilderHandler
 			preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $file, $match);
 			if (strlen($match[1]) > 0) {
 				// unpack it to get contents
-				$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
-				exec("cd ".dirname($file)."; ".$progs[$match[1]].basename($file));
+				if (PHP_OS == "WINNT") {
+					if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+						exec("cd ".dirname($file)."; ..\\7za.exe x ".basename($file)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $file)));
+					else 
+						exec("cd ".dirname($file)."; ..\\7za.exe x ".basename($file));
+				} else {
+					$progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+					exec("cd ".dirname($file)."; ".$progs[$match[1]].basename($file));
+				}
 				function getTree($root, $exclude = Array()) {
 					$tree = Array();
 					$dp = opendir($root);
@@ -2364,7 +2384,10 @@ class BuilderHandler
 		} else {
 			// first download the installer...
 			// clean cache first
-			exec("cd cache && rm -f * && cd ..");
+			if (PHP_OS == "WINNT")
+				exec("cd cache; del *; cd ..");
+			else
+				exec("cd cache && rm -f * && cd ..");
 			$version = trim(file_get_contents(PRAILS_HOME_PATH."version"));
 			
 			file_put_contents("cache/installer.php", file_get_contents(PRAILS_HOME_PATH."installer.php"));
@@ -2937,8 +2960,15 @@ class BuilderHandler
                                 preg_match('/((\.tar\.[a-zA-Z0-9]+)|(\.tgz)|(\.zip))$/mi', $libfile, $match);
                                 if (strlen($match[1]) > 0) {
 	                                // unpack it to get contents
-                                        $progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
-                                        exec("pushd;cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile)."; rm ".basename($libfile)."; popd");
+ 					if (PHP_OS == "WINNT") {
+						if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+							exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $libfile)));
+						else 
+							exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile));
+					} else {
+	                                       $progs = Array(".tar.bz2" => "tar -xvjf ", ".tar.gz" => "tar -xvzf ", ".tgz" => "tar -xvzf ", ".zip" => "unzip ");
+					       exec("pushd;cd ".dirname($libfile)."; ".$progs[$match[1]].basename($libfile)."; rm ".basename($libfile)."; popd");
+					}
                                 }
 			}
 		}
@@ -2950,8 +2980,18 @@ class BuilderHandler
 		}
 
 		// pack it into an archive
-		exec("pushd;cp sync.tar.bz2 ".$path."; cd ".$path."; tar xvjf sync.tar.bz2; rm sync.tar.bz2; popd");
-		exec("pushd;cd cache/download;tar cvjf ".preg_replace('/[^a-zA-Z0-9_]/', '_', PROJECT_NAME).".tar.bz2 ".basename($path).";popd");
+		copy("sync.tar.bz2", $path."sync.tar.bz2");
+		$dlName = preg_replace('/[^a-zA-Z0-9_]/', '_', PROJECT_NAME);
+		if (PHP_OS == "WINNT") {
+			exec("cd $path; ..\\7za.exe x sync.tar.bz2; ..\\7za.exe x sync.tar");
+			unlink($path."sync.tar");
+			unlink($path."sync.tar.bz2");
+
+			exec("cd cache\\download; ..\\7za.exe a -ttar $dlName.tar ".basename($path)."; ..\\7za.exe -tbzip2 $dlName.tar.bz2 $dlName.tar");
+		} else {
+			exec("pushd;cd ".$path."; tar xvjf sync.tar.bz2; rm sync.tar.bz2; popd");
+			exec("pushd;cd cache/download;tar cvjf $dlName.tar.bz2 ".basename($path).";popd");
+		} 
 		readfile(substr($path, 0, -1) . ".tar.bz2");
 		@unlink(substr($path, 0, -1) . ".tar.bz2");
 		die();

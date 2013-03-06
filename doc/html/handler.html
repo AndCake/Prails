@@ -64,8 +64,8 @@ Your Example Service
 <br/><br/>
 The following variables are always defined in a handler:
 <ul><li class='param'><code>$arr_param</code> (<span class='type'>Array</span>)<span class='divider'> - </span>an array containing the context that was given to the current event handler. Normally, this is an empty array. In case you use the <code><a href="Tools.html#invoke">invoke</a></code> method, however, you can pass a custom context as the second parameter.</li>
-<li class='param'><code>$data</code> (<span class='type'><a href='Database.html'>Database</a></span>)<span class='divider'> - </span>the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.</li>
-<li class='param'><code>$currentLang</code> (<span class='type'><a href='Language.html'>Language</a></span>)<span class='divider'> - </span>a reference to the language library, that let's you get access to content assets.</li>
+<li class='param'><code>$data</code> (<span class='type'>Database</span>)<span class='divider'> - </span>the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.</li>
+<li class='param'><code>$currentLang</code> (<span class='type'>Language</span>)<span class='divider'> - </span>a reference to the language library, that let's you get access to content assets.</li>
 <li class='param'><code>$SERVER</code> (<span class='type'>String</span>)<span class='divider'> - </span>the absolute URL to the page (without paths relative to the Prails directory)</li>
 <li class='param'><code>$SECURE_SERVER</code> (<span class='type'>String</span>)<span class='divider'> - </span>the absolute HTTPS URL to the page (without paths relative to the Prails directory)</li>
 </ul>

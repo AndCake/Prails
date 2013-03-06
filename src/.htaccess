@@ -1,7 +1,7 @@
 ServerSignature Off
 
-# remove the comment below if you need to turn this on explicitly
-#php_value short_open_tag 1 
+# make sure that PHP always uses the short open tag setting
+php_value short_open_tag 1 
 
 <FilesMatch "\.(htaccess|users|groups|log|prails)$">
 	Order Allow,Deny
