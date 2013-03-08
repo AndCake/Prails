@@ -63,7 +63,7 @@ function recurse_copy($src, $dst) {
 
 if ($_GET["version"]) {
 	$version = $_GET["version"];
-	$url = "http://prails.googlecode.com/files/prails-".$version.".tar.bz2";
+	$url = "https://raw.github.com/AndCake/prails/master/dist/prails-$version.tar.bz2";
 	if (!($fileContent=file_get_contents($url))) {
 		die("Error while downloading the Prails update.");
 	}

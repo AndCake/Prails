@@ -360,3 +360,26 @@ This method symmetrically encrypts a given string with a given key.
 
 This method decrypts a given string that was previously encrypted with the Caesar encryption method
 <br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='in' class='method-title'>in</a><div class='method'><span class='name'>in</span>(<span class='parameters'>$needle, $haystack</span>) &rarr; <span class='type'>Boolean</span></div>
+<ul><li class='param'><code>$needle</code> (<span class='type'>Mixed</span>)<span class='divider'> - </span>the needle to be search for</li>
+<li class='param'><code>$haystack</code> (<span class='type'>Mixed</span>)<span class='divider'> - </span>the haystack where to search the needle for</li>
+</ul>
+
+This method finds an element in an array, or a substring in a string or a number in another number. It also 
+works on objects, where it checks if the property given in <code>$needle</code> does exist in <code>$haystack</code>. The method
+returns <code>TRUE</code>, if the needle can be found in the haystack, while it returns <code>FALSE</code> if it can't. In case
+The haystack's data type is unknown, the function will return <code>NULL</code>.
+<br/><br/>
+<strong>Example:</strong>
+<pre>
+$myObject = new stdClass();
+$myObject-&gt;get = function() { return 2; };
+in("e", "Test") 				// === true
+in("a", "Perlin") 				// === false
+in("Carl", Array("Fred", "Carl", "Emma")) 	// === true
+in(2, 10) 					// === true
+in(11, 10) 					// === false
+in("get", $myObject)				// === true
+</pre>
+<br/><br/>

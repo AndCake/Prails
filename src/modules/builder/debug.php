@@ -120,10 +120,10 @@ if (is_array($json["variables"])) {
 echo "</table></div>";
 echo "<div style='float:left;width: 49%;height:99%;'><b>".$json["class"]." </b><br/><div style='border: 1px solid #ccc;height:100%;overflow: auto;white-space:nowrap;'>\n";
 for ($i = $start; $i < $end; $i++) {
-	$lines[$i] = str_replace(Array("Debugger::breakpoint();", "Debugger::wait(get_defined_vars());", "Debugger::wait();", "/*[END ACTUAL]*/"), "", $lines[$i]);
+	$lines[$i] = str_replace(Array("Debugger::breakpoint();", "Debugger::wait(get_defined_vars(), __LINE__);", "Debugger::wait();", "/*[END ACTUAL]*/"), "", $lines[$i]);
 	$lines[$i] = preg_replace('/(\s*)\$this->_callPrinter\s*\("[^"]+"\s*,\s*(.*)\)/i', '\1out(\2)', $lines[$i]);
 	$lines[$i] = preg_replace('/(\s*)\$this->obj_data->/i', '\1$data->', $lines[$i]);
-	if ($i == $json["line"] - 1) {
+	if ($i == $json["line"]) {
 		echo "<span id='selected' style='color:red;background-color: #ffc;'><span class='line-number'>".($i - $start + 1)."</span> ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."</span>";
 	} else {
 		echo "<span class='line-number'>".($i - $start + 1)."</span> ".str_replace(Array("<?", "&lt;?", "?>", "?&gt;", "<br>", "\n"), "", highlight_string("<?".$lines[$i]."?>", true))."";

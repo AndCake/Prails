@@ -1291,4 +1291,41 @@ function uncaesar($content, $key) {
         return $result;
 }
 
+/**
+ * in($needle, $haystack) -> Boolean
+ * - $needle (Mixed) - the needle to be search for
+ * - $haystack (Mixed) - the haystack where to search the needle for
+ *
+ * This method finds an element in an array, or a substring in a string or a number in another number. It also 
+ * works on objects, where it checks if the property given in `$needle` does exist in `$haystack`. The method
+ * returns `TRUE`, if the needle can be found in the haystack, while it returns `FALSE` if it can't. In case
+ * The haystack's data type is unknown, the function will return `NULL`.
+ * 
+ * *Example:*
+ * {{{
+ * $myObject = new stdClass();
+ * $myObject->get = function() { return 2; };
+ * in("e", "Test") 				// === true
+ * in("a", "Perlin") 				// === false
+ * in("Carl", Array("Fred", "Carl", "Emma")) 	// === true
+ * in(2, 10) 					// === true
+ * in(11, 10) 					// === false
+ * in("get", $myObject)				// === true
+ * }}}
+ **/
+function in($needle, $haystack) {
+	if (gettype($haystack) == "string") {
+		return strpos($haystack, $needle) !== false;
+	} else if (gettype($haystack) == "array") {
+		return in_array($needle, $haystack);
+	} else if (gettype($haystack) == "integer") {
+		return $haystack - $needle >= 0;
+	} else if (gettype($haystack) == "object") {
+		return isset($haystack->$needle);
+	}
+
+	// unrecognized type => return null instead of false
+	return null;
+}
+
 ?>

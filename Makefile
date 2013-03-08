@@ -1,5 +1,6 @@
 PVER=`cat version`
-PREFIX=prails-$(PVER)
+TARGET=dist/
+PREFIX=$(TARGET)prails-$(PVER)
 PBZ=$(PREFIX).tar.bz2
 PGZ=$(PREFIX).tar.gz
 PIN=$(PREFIX)-installer.php
@@ -15,9 +16,9 @@ help:
 all: clean build doc test
 
 clean:
-	@rm -f prails-$(PVER)-installer.php
-	@rm -f prails-$(PVER).tar.gz
-	@rm -f prails-$(PVER).tar.bz2
+	@rm -f $(PIN)
+	@rm -f $(PGZ)
+	@rm -f $(PBZ)
 
 doc:
 	@rm -f doc/html/*.html

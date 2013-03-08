@@ -32,7 +32,7 @@ class BuilderHandler
 		$_SESSION["builder"] = Array();
 		if (!$_SESSION["builder"]["user_id"])
 		{
-			if (ENV_PRODUCTION === true && (strpos($_GET["event"], "builder:") === false || $_GET["event"] == "builder:createResource")) {
+			if (ENV_PRODUCTION === true && (!in("builder:", $_GET["event"]) || $_GET["event"] == "builder:createResource")) {
 				$u_group = "cms";
 				$_SESSION["builder"]["name"] = "builder";
 				$_SESSION["builder"]["user_id"] = crc32("devel");
@@ -54,13 +54,13 @@ class BuilderHandler
 					{
 						list ($grp, $users) = explode("=", $group);
 						$users = explode(",", trim($users));
-						if (in_array($_SERVER["PHP_AUTH_USER"], $users))
+						if (in($_SERVER["PHP_AUTH_USER"], $users))
 						{
 							$u_group = $grp;
 							break;
 						}
 					}
-					if (in_array($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"]), $passwd))
+					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].USER_SALT), $passwd))
 					{
 						$_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
 						$_SESSION["builder"]["user_id"] = crc32("devel");
@@ -113,7 +113,6 @@ class BuilderHandler
 			$arr_param['users'][] = Array("name" => $usr, "group" => $userGroups[$usr]);
 		}
 		
-		$prailsServerBasePath = "http://prails.googlecode.com/svn/trunk/";
 		// check for new {Prails} version
 		$url = parse_url(PRAILS_HOME_PATH."version");
 		// check if we are online...
@@ -146,29 +145,41 @@ class BuilderHandler
 	/*<EVENT-HANDLERS>*/
 	function run($arr_param=null, $bol_invoke = true)
 	{
+		if (!function_exists("compileCode")) {
+			function compileCode($code) {
+				// returns the PHP code
+				if (strpos($code, "#\$MODE\$:Prails") === 0) {
+					return $code;
+				} else 
+					return $code;
+			}
+		}
 		if (!function_exists("makeDebuggable")) {
 			function makeDebuggable($code, $addBreakpoint = false) {
 				if (ENV_PRODUCTION === true) return $code;
-					if ($addBreakpoint) {
-						$debugStart = "Debugger::breakpoint();";
-					} else {
-						$debugStart = "Debugger::wait();";
-					}
+				if ($addBreakpoint) {
+					$debugStart = "Debugger::breakpoint();";
+				} else {
+					$debugStart = "Debugger::wait(get_defined_vars(), __LINE__);";
+				}
 	
-					$lines = explode("\n", $code);
-					foreach ($lines as $i=>$line) {
-						if (preg_match("/(\\{\\s*\$)|(;\\s*\$)/i", $line) && (!preg_match("/(^|\\s+)switch\\s*\\(/i", $line) ||
-								(preg_match("/^\\s*\\{/i", $line) && !preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))) {
-							$lines[$i] = $line . "Debugger::wait(get_defined_vars());";
-						}
+				$lines = explode("\n", $code);
+				foreach ($lines as $i=>$line) {
+					if (preg_match("/(\\{\\s*\$)|(;\\s*\$)|(\\}\\s*\$)/i", $line) && 
+					    (!preg_match("/(^|\\s+)switch\\s*\\(/i", $line) ||
+					    (preg_match("/^\\s*\\{/i", $line) && !preg_match("/(^|\s+)switch\s*\(/i", $lines[$i-1])))
+					) {
+						$lines[$i] = $line . "Debugger::wait(get_defined_vars(), __LINE__);";
 					}
-					$code = implode("\n", $lines);
-					if (strpos($code, "/*[ACTUAL]*/") !== false) {
-						$code = str_replace("/*[ACTUAL]*/", "/*[ACTUAL]*/".$debugStart, $code);
-						$last = strrpos($code, "/*[END POST-");
-						$code = substr($code, 0, $last) . preg_replace('/\/\*\[END POST-(\w+)\]\*\//', '\0'.$debugStart, substr($code, $last));
-					} else $code = $debugStart . $code;
-						return $code;
+				}
+				$code = implode("\n", $lines);
+				if (in("/*[ACTUAL]*/", $code)) {
+					$code = str_replace("/*[ACTUAL]*/", "/*[ACTUAL]*/".$debugStart, $code);
+					$last = strrpos($code, "/*[END POST-");
+					$code = substr($code, 0, $last) . preg_replace('/\/\*\[END POST-(\w+)\]\*\//', '\0'.$debugStart, substr($code, $last));
+				} else $code = $debugStart . $code;
+				$code = preg_replace('/(\breturn\s+)/m', 'Debugger::wait(get_defined_vars(), __LINE__);\0', $code);
+				return str_replace("\r", "", $code);
 			}
 		}
 		
@@ -221,7 +232,7 @@ class BuilderHandler
 						if (strlen($match[1]) > 0) {
 							// unpack it to get contents
 							if (PHP_OS == "WINNT") {
-								if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+								if (in($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
 									exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $libfile)));
 								else 
 									exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile));
@@ -294,7 +305,9 @@ class BuilderHandler
 				$handlers = Array();
 				if (is_array($arr_handlers)) foreach ($arr_handlers as $arr_handler)
 				{
-					$code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $arr_handler["code"]);
+					$code = $arr_handler["code"];
+					$code = compileCode($code);
+					$code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $code);
 					$code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
 					$code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
 					$handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arr_param = func_get_arg(0);\n".$code."\n}\n";
@@ -863,7 +876,7 @@ class BuilderHandler
 			$arr_param["decorators"] = $this->obj_data->selectDecoratorEventsFromUser($_SESSION["builder"]["user_id"]);
 			$arr_param["configurations"] = Array();
 			foreach ($arr_configs as $config) {
-				if (!in_array($config["name"], $arr_param['configurations'])) {
+				if (!in($config["name"], $arr_param['configurations'])) {
 					array_push($arr_param['configurations'], $config["name"]);
 				}
 			}
@@ -1177,7 +1190,7 @@ class BuilderHandler
 			if (strlen($match[1]) > 0) {
 				// unpack it to get contents
 				if (PHP_OS == "WINNT") {
-					if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+					if (in($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
 						exec("cd ".dirname($file)."; ..\\7za.exe x ".basename($file)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $file)));
 					else 
 						exec("cd ".dirname($file)."; ..\\7za.exe x ".basename($file));
@@ -1189,7 +1202,7 @@ class BuilderHandler
 					$tree = Array();
 					$dp = opendir($root);
 					while (($na = readdir($dp)) !== false) {
-						if ($na[0] != "." && !in_array($root.'/'.$na, $exclude)) {
+						if ($na[0] != "." && !in($root.'/'.$na, $exclude)) {
 							$tree[$na] = filesize($root.'/'.$na);
 							if (is_dir($root.'/'.$na)) {
 								$tree[$na] = getTree($root.'/'.$na);
@@ -1869,7 +1882,7 @@ class BuilderHandler
 		$arr_param["rules"] = $this->obj_data->listUrlRules();
 		$arr_rule = null;	
 		foreach ($arr_param["rules"] as $keys=>$rule) {
-			if (strpos($rule, "event=".$arr_param["handler"]["module"]["name"].":".$arr_param["handler"]["event"]) !== false) {
+			if (in("event=".$arr_param["handler"]["module"]["name"].":".$arr_param["handler"]["event"], $rule)) {
 				$arr_rule = Array($keys, $rule);
 				break;
 			}
@@ -1954,7 +1967,7 @@ class BuilderHandler
 				$arr_rule = null;
 				$arr_module["urls"] = Array();
 				foreach ($arr_rules as $keys=>$rule) {
-					if (strpos($rule, "event=".$arr_module["name"].":") !== false) {
+					if (in("event=".$arr_module["name"].":", $rule)) {
 						$arr_rule = Array("nice" => $keys, "original" => $rule);
 						array_push($arr_module["urls"], $arr_rule);
 					}
@@ -2074,7 +2087,7 @@ class BuilderHandler
 				$data = "";
 				while (!feof($fp)) {
 					$line = fgets($fp);
-					if (in_array(($mgc = preg_replace('/^.*(---[a-fA-F0-9]+)$/mi', '\1', $line)), $edge)) {
+					if (in(($mgc = preg_replace('/^.*(---[a-fA-F0-9]+)$/mi', '\1', $line)), $edge)) {
 						return $data . str_replace($mgc, '', $line);
 					} else {
 						$data .= $line;
@@ -2553,7 +2566,7 @@ class BuilderHandler
 	function flushLogs() {
 		$dp = opendir("log/");
 		while (($file = readdir($dp)) !== false) {
-			if ($file[0] != "." && strpos($file, ".log") !== false) {
+			if ($file[0] != "." && in(".log", $file)) {
 				@unlink("log/".$file);
 			}
 		}
@@ -2655,7 +2668,7 @@ class BuilderHandler
 		$dp = opendir("log/");
 		$arr_param["logs"] = Array();
 		while (($file = readdir($dp)) !== false) {
-			if ($file[0] != "." && strpos($file, ".log") !== false) {
+			if ($file[0] != "." && in(".log", $file)) {
 				array_push($arr_param["logs"], $file);
 			}
 		}
@@ -2699,7 +2712,7 @@ class BuilderHandler
 				$mime = "Folder";
 				if (is_file($base.$file)) {
 					$mime = mime_content_type($base.$file);
-					if (strpos($mime, "image/") !== false) {
+					if (in("image/", $mime)) {
 						list($width, $height) = getimagesize($base.$file);
 						$dim = $width."x".$height; 
 					}
@@ -2961,7 +2974,7 @@ class BuilderHandler
                                 if (strlen($match[1]) > 0) {
 	                                // unpack it to get contents
  					if (PHP_OS == "WINNT") {
-						if (in_array($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
+						if (in($match[1], Array(".tar.gz", ".tar.bz2", ".tgz"))) 
 							exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile)."; ..\\7za.exe x ".basename(str_replace($match[1], ".tar", $libfile)));
 						else 
 							exec("cd ".dirname($libfile)."; ..\\7za.exe x ".basename($libfile));
@@ -3270,7 +3283,7 @@ class BuilderHandler
 
 		if (false === eval($code)) {
 			// Get the maximum number of lines in $code to fix a border case
-			false !== strpos($code, "\r") && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
+			in("\r", $code) && $code = strtr(str_replace("\r\n", "\n", $code), "\r", "\n");
 			$braces = substr_count($code, "\n");
 
 			$code = ob_get_clean();

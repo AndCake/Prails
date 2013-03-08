@@ -88,6 +88,7 @@ class MainHandler
 			$arr_settings["MOD_REWRITE"] = ($_POST["rewrite"] != "false");
 			$arr_settings["IS_SETUP"] = true;
 			$arr_settings["FIRST_RUN"] = true;
+			$arr_settings["USER_SALT"] = $salt = "" . rand(1000, 9999) . "\$" . microtime(true);
 			
 			$ht = file_get_contents(".htaccess");
 			$installDir = dirname($_SERVER["SCRIPT_NAME"]);
@@ -126,7 +127,7 @@ class MainHandler
 			$users = Array();
 			foreach ($arr_user["name"] as $key=>$value) {
 				if (strlen($value) > 0 && strlen($arr_user["pass"][$key]) > 0) {
-					array_push($users, $value.":".md5($arr_user["pass"][$key]));
+					array_push($users, $value.":".md5($arr_user["pass"][$key].$salt));
 					if (!is_array($groups[$arr_user["group"][$key]])) {
 						$groups[$arr_user["group"][$key]] = Array();
 					}

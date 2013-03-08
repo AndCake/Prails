@@ -1,3 +1,20 @@
+V1.5.2 (March 6th, 2013)
+
+ * updated to latest Prototype.js version
+ * increased compatibility with Windows servers
+ * made Database class detect data types for updates more precisely
+ * fixed a bug where database contents could not be backuped nor exported/imported
+ * made sure the PRAILS_HOME_PATH now uses GitHub instead of GoogleCode
+ * created Makefile for easier build/test/clean
+ * made sure that SQLite and PostgreSQL are detected on setup (and the respective options only shown if available)
+ * fixed a bug in installer, leading it to install prails in wrong directory
+ * fixed a bug where creation of a ''Main'' module (upper-cased 'M') could lead to a broken Prails installation
+ * fixed a bug where compilation errors (syntax errors) in PHP were not reported correctly
+ * fixed a bug where the module was incorrectly identified as library in case an error occurred
+ * made session cookie more secure against attacks
+ * added access denial for directory listings
+
+
 V1.5.1 (January 6th, 2013)
 
  * added some more explanatory documentation for the foreach tag

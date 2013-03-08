@@ -2,12 +2,12 @@
 class Debugger {
 	static $keepRunning = true;
 	
-	static function wait($vars = null) {
+	static function wait($vars = null, $line = null) {
 		if (Debugger::$keepRunning) return;
 		$trace = debug_backtrace();
 		$tr = $trace[($vars === null ? 2 : 1)];
 		$tr["file"] = $trace[($vars === null ? 1 : 0)]["file"];
-		$tr["line"] = $trace[($vars === null ? 1 : 0)]["line"];
+		$tr["line"] = ($line === null ? $trace[($vars === null ? 1 : 0)]["line"] : $line);
 		$waitForStep = true;
 		while (!Debugger::$keepRunning && $waitForStep) {
 			$todo = @file_get_contents("cache/debugger.do");
