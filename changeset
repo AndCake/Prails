@@ -1,4 +1,4 @@
-V1.5.2 (March 6th, 2013)
+V1.5.2 (March 10th, 2013)
 
  * updated to latest Prototype.js version
  * increased compatibility with Windows servers
@@ -13,6 +13,10 @@ V1.5.2 (March 6th, 2013)
  * fixed a bug where the module was incorrectly identified as library in case an error occurred
  * made session cookie more secure against attacks
  * added access denial for directory listings
+ * added function 'in' as a unification for in_array, strpos and others
+ * fixed a display bug in debugger (line numbers were reported incorrectly)
+ * added salt to user password hashing for increased security
+ * added binaries
 
 
 V1.5.1 (January 6th, 2013)
