@@ -83,7 +83,12 @@ if ($_GET["version"]) {
 		die("Error while unpacking Prails update: package not found.");
 	}
 	
-	exec("tar xvjf ".$file."");
+	if (PHP_OS == "WINNT") {
+		exec("..\\7za.exe x ".$file);
+		exec("..\\7za.exe x ".str_replace(".bz2", "", $file));
+	} else {
+		exec("tar xvjf ".$file."");
+	}
 	if (!file_exists("prails")) {
 		die("Error while unpacking Prails update: unpacking failed.");
 	}
@@ -108,8 +113,12 @@ if ($_GET["version"]) {
 	if (!recurse_copy("prails", "..")) {
 	   die("Error installing new prails version.");
 	}
-    @unlink($file);
-    exec("rm -rf prails");	
+	@unlink($file);
+	if (PHP_OS == "WINNT") {
+		exec("rd /s /q prails");
+	} else {
+	    	exec("rm -rf prails");	
+	}
 	
 	// copy back the .groups and .users file
 	if (copy("backup.groups", "../.groups")) unlink("backup.groups"); else $warnings .= "Unable to restore groups. Backup stored in ".$dir."/backup.groups .<br/>";

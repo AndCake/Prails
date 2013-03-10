@@ -60,7 +60,7 @@ class BuilderHandler
 							break;
 						}
 					}
-					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].USER_SALT), $passwd))
+					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(defined(USER_SALT) ? USER_SALT : "")), $passwd))
 					{
 						$_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
 						$_SESSION["builder"]["user_id"] = crc32("devel");
