@@ -1,4 +1,5 @@
 V1.5.2 (March 10th, 2013)
+_Please note:_ If you get an HTTP 500 error after upgrading, please uncomment line 4 in Prails' .htaccess file.
 
  * updated to latest Prototype.js version
  * increased compatibility with Windows servers

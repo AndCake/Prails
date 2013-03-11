@@ -117,7 +117,7 @@ if ($_GET["event"]) {
 if ($profiler) $profiler->logEvent("page_no_cache_hit#".$_SERVER["REQUEST_URI"]);
 
 $endTime = microtime(true);
-if (ENV_PRODUCTION && !isset($_GET['prailsjob']) && $endTime - $startTime > 25 && array_shift(split(":", $_GET["event"])) !== "builder") {
+if (ENV_PRODUCTION && !isset($_GET['prailsjob']) && $endTime - $startTime > 25 && array_shift(explode(":", $_GET["event"])) !== "builder") {
 	// when we're on production and rendering of the current page took more than 25 seconds, report heavy load
 	touch("cache/heavyload");
 }
