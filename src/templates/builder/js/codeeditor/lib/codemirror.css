@@ -166,3 +166,39 @@ span.cm-link {text-decoration: underline;}
 
 div.CodeMirror span.CodeMirror-matchingbracket {color: #0f0;}
 div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
+
+/* Snow Theme */
+.cm-s-solarized .cm-keyword { color: #cb4b16; }
+.cm-s-solarized .cm-atom { color: #d33682; }
+.cm-s-solarized .cm-number { color: #d33682; }
+.cm-s-solarized .cm-def { color: #2aa198; }
+.cm-s-solarized .cm-variable { color: #268bd2; }
+.cm-s-solarized .cm-variable-2 { color: #b58900; }
+.cm-s-solarized .cm-variable-3 { color: #6c71c4; }
+.cm-s-solarized .cm-property { color: #2aa198; }
+.cm-s-solarized .cm-operator {color: #6c71c4;}
+.cm-s-solarized .cm-comment { color: #586e75; font-style:italic; }
+.cm-s-solarized .cm-string { color: #859900; }
+.cm-s-solarized .cm-string-2 { color: #b58900; }
+.cm-s-solarized .cm-meta { color: #859900; }
+.cm-s-solarized .cm-error,
+.cm-s-solarized .cm-invalidchar { color: #586e75; border-bottom: 1px dotted #dc322f; }
+.cm-s-solarized .cm-qualifier { color: #b58900; }
+.cm-s-solarized .cm-builtin { color: #d33682; }
+.cm-s-solarized .cm-bracket { color: #cb4b16; }
+.cm-s-solarized .CodeMirror-matchingbracket { color: #859900; }
+.cm-s-solarized .CodeMirror-nonmatchingbracket { color: #dc322f; }
+.cm-s-solarized .cm-tag { color: #93a1a1 }
+.cm-s-solarized .cm-attribute {  color: #2aa198; }
+.cm-s-solarized .cm-header { color: #586e75; }
+.cm-s-solarized .cm-quote { color: #93a1a1; }
+.cm-s-solarized .cm-hr { color: transparent; border-top: 1px solid #586e75; display: block; }
+.cm-s-solarized .cm-link { color: #93a1a1; cursor: pointer; }
+.cm-s-solarized .cm-special { color: #6c71c4; }
+.cm-s-solarized .cm-em { color: #999; text-decoration: underline; text-decoration-style: dotted; }
+.cm-s-solarized .cm-strong { color: #eee; }
+.cm-s-solarized .cm-tab:before { content: "➤"; color: #586e75; }
+.cm-s-solarized.cm-s-light .CodeMirror-focused .CodeMirror-selected { background: #eee8d5; color: inherit; }
+.cm-s-solarized.cm-s-light ::selection { background: #eee8d5; color: inherit; }
+.cm-s-solarized.cm-s-light .activeline { background: rgba(0, 0, 0, 0.05); }
+

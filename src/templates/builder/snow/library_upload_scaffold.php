@@ -1,0 +1,3 @@
+# here you can manage your includes...
+
+include_once "<?=(file_exists("lib/custom/".$libName."/".$libName) ? $libName."/" : "")?><?=$libName?>.php"

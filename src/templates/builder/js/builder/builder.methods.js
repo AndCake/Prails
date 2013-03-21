@@ -260,6 +260,7 @@ Builder = Object.extend(Builder || {}, {
         var initWin = function() {
             var cwin = document.getElementsByName(el.id)[0].contentWindow;
             cwin.init = function() {
+            	cwin.snow = window.snow;
                 cwin.prails = Object.clone(obj);
                 cwin.id = document.getElementsByName(el.id)[0].contentWindow.name;
                 cwin.el = el;

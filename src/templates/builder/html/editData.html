@@ -7,7 +7,7 @@
 
 	<label for="coded<?=(int)$arr_param["data"]["data_id"]?>">Data Code:</label><br/>
 	<input type="hidden" rel="coded<?=(int)$arr_param['data']['data_id']?>" id="hCoded<?=(int)$arr_param["data"]["data_id"]?>" name="data[code]" value="" />
-	<div style="border:1px solid #ccc;" rel="builder:editData&refresh=code&data_id=<?=(int)$arr_param["data"]["data_id"]?>" id="coded<?=(int)$arr_param["data"]["data_id"]?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'>#data.code</div>
+	<div style="border:1px solid #ccc;" rel="builder:editData&refresh=code&data_id=<?=(int)$arr_param["data"]["data_id"]?>" id="coded<?=(int)$arr_param["data"]["data_id"]?>" data-bespinoptions='{"syntax": "<?=(SNOW_MODE === true ? 'snow' : 'php')?>"<?=$defaultBespinOptions?>}'>#data.code</div>
 	<div style="clear:both;"></div>
 	<br/>
 	<script type="text/javascript">
@@ -68,7 +68,12 @@
 				$("coded<?=(int)$arr_param['data']['data_id']?>").down("iframe").up().style.height = (parseInt($("hformd<?=(int)$arr_param['data']['data_id']?>").parentNode.parentNode.style.height) - 150) + "px";
         		fr.txt.addKeywords(null, function(txt) {
         			var res = [];
-        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+        			<? if (SNOW_MODE === true) { ?>
+        				varName = /[a-zA-Z_][a-zA-Z_0-9]*\b/gi;
+        			<? } else { ?>
+        				varName = /\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi;
+        			<? } ?>
+        			var matches = txt.value.substr(0, txt.selectionEnd).match(varName);
         			if (matches) {
 	        			for (var a = 0; a < matches.length; a++) {
 	        				if ((","+res.join(",")+",").indexOf(matches[a]) < 0) {
@@ -79,7 +84,7 @@
         			return res;
         		});
 
-				fr.txt.addKeywords("\\$this->", ["query", "add", "set", "update", "get", "select", "ins", "insert", "remove", "del", "delete", "update", "edit"]);
+				fr.txt.addKeywords("<?=(SNOW_MODE === true ? '@|this.' : '\\$this->')?>", ["query", "add", "set", "update", "get", "select", "ins", "insert", "remove", "del", "delete", "update", "edit"]);
 		      	setTimeout(function() {
 						$('hCoded<?=(int)$arr_param["data"]["data_id"]?>').value = Builder.getCode("coded<?=(int)$arr_param["data"]["data_id"]?>");				
 		      	}, 1000);				

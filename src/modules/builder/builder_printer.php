@@ -1,7 +1,7 @@
 <?php
 /**
  Prails Web Framework
- Copyright (C) 2012  Robert Kunze
+ Copyright (C) 2013  Robert Kunze
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
@@ -51,8 +51,13 @@ class BuilderPrinter
        	    $obj_gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");
 
             $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
-            $obj_gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
-            $obj_gen->addStyleSheet("templates/builder/css/builder.css");
+            if (SNOW_MODE === true) {
+                $obj_gen->addStyleSheet("templates/builder/css/builder.css");
+                $obj_gen->addStyleSheet("templates/builder/css/xtheme-snow.css");
+            } else {
+                $obj_gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
+                $obj_gen->addStyleSheet("templates/builder/css/builder.css");
+            }
 
             $obj_gen->str_template = "templates/builder/template.html";
         }

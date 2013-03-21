@@ -30,13 +30,13 @@
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
-		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as PHP code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
+		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as <?=(SNOW_MODE === true ? "Snow" : "PHP")?> code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
 		<div rel="call:hcodehSet(#handler.handler_id)" id="hcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
 			<div class="x-tab" style="height:100%;" title="<?=$code['title']?>">
 				<!--[noeval]-->
-				<div style="border:0px solid #ccc;height:100%;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
+				<div style="border:0px solid #ccc;height:100%;" title="<?=$code['title']?>" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?><?=$code['id']?>" data-bespinoptions='{"syntax": "<?=(SNOW_MODE === true ? 'snow' : 'php')?>"<?=$defaultBespinOptions?>}'><?=htmlspecialchars($code["content"])?></div>
 				<!--[/noeval]-->
 			</div>
 		<? } ?>
@@ -131,7 +131,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php"<?=$defaultBespinOptions?>}' onload="$('container_h_#handler.handler_id').addKeywords"><?=htmlentities(file_get_contents("templates/builder/php/handler_form_empty.php"))?></div></div>	
+	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "<?=(SNOW_MODE === true ? 'snow' : 'php')?>"<?=$defaultBespinOptions?>}' onload="$('container_h_#handler.handler_id').addKeywords"><?=htmlentities(file_get_contents("templates/builder/".(SNOW_MODE === true ? "snow/handler_form_empty.snow" : "php/handler_form_empty.php")))?></div></div>	
 	<div id="template_#handler.handler_id" style="display:none;"><div title="[name]" class="hhtmlcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlentities(file_get_contents("templates/builder/php/output_empty.php"))?></div></div>	
 	<div style="clear:both;"></div>
 	<br/>
@@ -166,18 +166,33 @@
 		        var lastPos = 0;
 		        var codes = [];
 		        codes.push({title: "Default", id: "hcode_"+handlerId});
-		        var re = /\/\*\[BEGIN POST-([^\]]+)\]\*\//gi;
-				while(matches = re.exec(code)) {
-			        if (matches[1]) {
-			        	var match = matches[1];
-			        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
-			        	var start = code.indexOf("/"+"*[ACTUAL]*"+"/", matches.index) + ("/"+"*[ACTUAL]*"+"/").length + 1;
-			        	var end = code.indexOf("/"+"*[END ACTUAL]*"+"/", start);
-			        	cd["content"] = code.substr(start, end - start);
-			        	lastPos = code.indexOf("/"+"*[END POST-"+match+"]*"+"/\n", matches.index) + ("/"+"*[END POST-"+match+"]*"+"/\n").length;
-			        	codes.push(cd);
-			        }
-		        }
+		        <? if (SNOW_MODE === true) { ?>
+			        var re = /##\[BEGIN POST-([^\]]+)\]/gi;
+					while(matches = re.exec(code)) {
+				        if (matches[1]) {
+				        	var match = matches[1];
+				        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
+				        	var start = code.indexOf("#"+"#[ACTUAL]", matches.index) + ("#"+"#[ACTUAL]").length + 1;
+				        	var end = code.indexOf("#"+"#[END ACTUAL]", start);
+				        	cd["content"] = code.substr(start, end - start);
+				        	lastPos = code.indexOf("#"+"#[END POST-"+match+"]\n", matches.index) + ("#"+"#[END POST-"+match+"]\n").length;
+				        	codes.push(cd);
+				        }
+		        	}
+		        <? } else { ?>
+			        var re = /\/\*\[BEGIN POST-([^\]]+)\]\*\//gi;
+					while(matches = re.exec(code)) {
+				        if (matches[1]) {
+				        	var match = matches[1];
+				        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
+				        	var start = code.indexOf("/"+"*[ACTUAL]*"+"/", matches.index) + ("/"+"*[ACTUAL]*"+"/").length + 1;
+				        	var end = code.indexOf("/"+"*[END ACTUAL]*"+"/", start);
+				        	cd["content"] = code.substr(start, end - start);
+				        	lastPos = code.indexOf("/"+"*[END POST-"+match+"]*"+"/\n", matches.index) + ("/"+"*[END POST-"+match+"]*"+"/\n").length;
+				        	codes.push(cd);
+				        }
+		        	}
+		       	<? } ?>
 		        codes[0]["content"] = code.substr(lastPos);
 
 		        $A(codes).each(function(item) {
@@ -329,7 +344,11 @@
         	  if (titles[t]) return;
         	  titles[t] = true;
         	  if (t != "Default") {
-	        	  it = "/*[BEGIN POST-"+t+"]*/\nif (isset($_POST[\""+t+"\"])) { /*[ACTUAL]*/\n"+it+"/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-"+t+"]*/\n";
+        	  	  <? if (SNOW_MODE === true) { ?>
+	        	  	it = "##[BEGIN POST-"+t+"]\nif (isset($_POST[\""+t+"\"])) { ##[ACTUAL]\n"+it+"##[END ACTUAL]\nsession_write_close();\ndie();}\n##[END POST-"+t+"]\n";
+        	  	  <? } else { ?>
+	        	  	it = "/*[BEGIN POST-"+t+"]*/\nif (isset($_POST[\""+t+"\"])) { /*[ACTUAL]*/\n"+it+"/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-"+t+"]*/\n";
+	        	  <? } ?>
         	  }
               $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = it + $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value;
           });
@@ -384,13 +403,21 @@
  	      		return;
  	      	}
  		    Builder.applyBespin(item, function(fr) {
- 			    	$("container_h_#handler.handler_id").addKeywords = function(txt) {
+ 			    	$("container_h_#handler.handler_id").addKeywords = eventKeywordAdd = function(txt) {
  		        		txt.addKeywords(null, function(txt) {
  		        			var res = [];
- 		        			var matches = txt.getCode().match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+ 		        			<? if (SNOW_MODE === true) { ?>
+ 		        				var matches = txt.getCode().match(/[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+ 		        			<? } else { ?>
+ 		        				var matches = txt.getCode().match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
+ 		        			<? } ?>
  		        			if (matches) {
  			        			for (var a = 0; a < matches.length; a++) {
- 			        				if ((",$arr_param,$data,$SERVER,$SECURE_SERVER,$currentLang,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+ 			        				<? if (SNOW_MODE === true) { ?>
+ 			        					if ((',arguments,data,SERVER,SECURE_SERVER,currentLang,_GET,_POST,_REQUEST,_COOKIE,_SERVER,'+res.join(",") + ",").indexOf(matches[a]) < 0) {
+	 			        			<? } else { ?>
+	 			        				if ((",$arr_param,$data,$SERVER,$SECURE_SERVER,$currentLang,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
+	 			        			<? } ?>
  			        					res.push(matches[a]);
  			        				}
  			        			}
@@ -401,12 +428,22 @@
  			          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
  			          		arr.push(item.text);
  			          	});
- 			          	txt.addKeywords("\\$data->", arr);
- 			          	txt.addKeywords("Generator::", ["getInstance()"]);
- 			          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
- 			          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
- 			          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
- 			          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+ 			          	<? if (SNOW_MODE === true) { ?>
+ 			          		txt.addKeywords("data.", arr);
+ 			          		txt.addKeywords("Generator..", ["getInstance()"]);
+ 			          		txt.addKeywords("Generator..getInstance\\(\\).", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription(description)", "setIsAjax(true)", "setKeywords(keywords)", "addHeader(\"<meta name='robots' content='index, follow'/>\")", "getLanguage()"]);
+ 			          		langArr = ["getText(identifier)", "selectTextByIdentifier(identifier)", "listAllTextsFromRoot(rootIdentifier)", "findTextByContent(searchString)", "getAllTextsByIdentifier(identifier)"];
+ 			          		txt.addKeywords("Generator..getInstance\\(\\).getLanguage\\(\\).", langArr);
+ 			          		txt.addKeywords("currentLang", langArr);
+ 			          		txt.addKeywords(null, ["_SERVER", "_COOKIE", "_REQUEST", "_GET", "_POST", "data", "arguments", "SERVER", "SECURE_SERVER", "currentLang", "out params", "invoke event, params", "checkFields(toCheck, keys)", "Generator", "scaleEmbed embed, width, height", "isEmbed(embedCode)", "isExternalURL(string)", "if_set(a, b)", "set_var(a, b)", "getUserLanguage(allowedLanguages, defaultLanguage)", "wordCut(text, 200, \"...\")", "removeDir(path, true)", "hyperlink(text)", "timeDiff(time)", "toUTF8(string)", "jumpTo url", "createThumbnail(src, dest, 64, 64)", "getThumbnailFromEmbed(embed)", "sendMail(to, subject, content, fromName, fromAddress)", "doGet url", "doPost url, postData", "array_merge_recursive_distinct(arr1, arr2)", "one_of(a, b, ...)", "receiveFile fileName, targetPath"]);
+ 			          	<? } else { ?>
+	 			          	txt.addKeywords("\\$data->", arr);
+	 			          	txt.addKeywords("Generator::", ["getInstance()"]);
+	 			          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
+	 			          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+	 			          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
+	 			          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
+	 			         <? } ?>
  			          	txt.addKeywords(null, <?=json_encode($arr_param['configurations'])?>);
  		        	};
  		        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
@@ -631,30 +668,7 @@
 						if (!item) return;
 						pe.stop();
 				        Builder.applyBespin(item, function(fr) {
-					    	$("container_h_#handler.handler_id").addKeywords = function(txt) {
-				        		txt.addKeywords(null, function(txt) {
-				        			var res = [];
-				        			var matches = txt.value.substr(0, txt.selectionEnd).match(/\$[a-zA-Z_][a-zA-Z_0-9]*\b/gi);
-				        			if (matches) {
-					        			for (var a = 0; a < matches.length; a++) {
-					        				if ((",$arr_param,$data,$SERVER,$SECURE_SERVER,$currentLang,$_GET,$_POST,$_REQUEST,$_COOKIE,$_SERVER,"+res.join(",")+",").indexOf(matches[a]) < 0) {
-					        					res.push(matches[a]);
-					        				}
-					        			}
-				        			}
-				        			return res;
-				        		});
-					          	var arr = [];
-					          	$A(Builder.root.findChild("id", <?=(int)$_SESSION["module_id"]?>).datas).each(function(item) {
-					          		arr.push(item.text);
-					          	});
-					          	txt.addKeywords("\\$data->", arr);
-					          	txt.addKeywords("Generator::", ["getInstance()"]);
-					          	txt.addKeywords("Generator::getInstance\\(\\)->", ["getTitle()", "setTitle(\"New Title\")", "getDescription()", "setDescription($description)", "setIsAjax(true)", "setKeywords($keywords)", "addHeader(\"<meta name='robots' content='index, follow' />\")", "getLanguage()"]);
-					          	txt.addKeywords("Generator::getInstance\\(\\)->getLanguage\\(\\)->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
-					          	txt.addKeywords("\\$currentLang->", ["getText($identifier)", "selectTextByIdentifier($itentifier)", "listAllTextsFromRoot($rootIdentifier)", "findTextByContent($searchString)", "getAllTextsByIdentifier($identifier)"]);
-					          	txt.addKeywords(null, ["$_SERVER", "$_COOKIE", "$_REQUEST", "$_GET", "$_POST", "$data", "$arr_param", "$SERVER", "$SECURE_SERVER", "$currentLang", "out($arr_param)", "invoke($event, $arr_param)", "checkFields($arr_toCheck, $arr_keys)", "Generator", "scaleEmbed($embed, $width, $height)", "isEmbed($embed)", "isExternalURL($string)", "if_set($a, $b)", "set_var($a, $b)", "getUserLanguage($arr_allowedLanguages, $defaultLanguage)", "wordCut($text, 200, \"...\")", "removeDir($path, true)", "hyperlink($text)", "timeDiff($time)", "toUTF8($string)", "jumpTo($url)", "createThumbnail($src, $dest, 64, 64)", "getThumbnailFromEmbed($embed)", "sendMail($to, $subject, $content, $fromName, $fromAddress)", "doGet($url)", "doPost($url, $postData)", "array_merge_recursive_distinct($arr1, $arr2)", "one_of($a, $b, ...)", "receiveFile($fileName, $targetPath)"]);
-				        	};
+					    	$("container_h_#handler.handler_id").addKeywords = eventKeywordAdd;
 				        	$("container_h_#handler.handler_id").addKeywords(fr.txt);
 				        	
 							item.down("iframe").style.height = (parseInt($("hformh<?=(int)$arr_param['handler']['handler_id']?>").parentNode.parentNode.style.height) - 175) + "px";

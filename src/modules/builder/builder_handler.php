@@ -1,7 +1,7 @@
 <?php
 /**
  Prails Web Framework
- Copyright (C) 2012  Robert Kunze
+ Copyright (C) 2013  Robert Kunze
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
@@ -60,7 +60,7 @@ class BuilderHandler
 							break;
 						}
 					}
-					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(defined(USER_SALT) ? USER_SALT : "")), $passwd))
+					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(USER_SALT !== "USER_SALT" ? USER_SALT : "")), $passwd))
 					{
 						$_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
 						$_SESSION["builder"]["user_id"] = crc32("devel");
@@ -148,8 +148,9 @@ class BuilderHandler
 		if (!function_exists("compileCode")) {
 			function compileCode($code) {
 				// returns the PHP code
-				if (strpos($code, "#\$MODE\$:Prails") === 0) {
-					return $code;
+				if (SNOW_MODE === true) {
+					$sc = new SnowCompiler($code."\n");
+					return $sc->compile();
 				} else 
 					return $code;
 			}
@@ -173,7 +174,11 @@ class BuilderHandler
 					}
 				}
 				$code = implode("\n", $lines);
-				if (in("/*[ACTUAL]*/", $code)) {
+				if (in("//[ACTUAL]", $code)) {
+					$code = str_replace("//[ACTUAL]", "//[ACTUAL]\n".$debugStart, $code);
+					$last = strrpos($code, "//[END POST-");
+					$code = substr($code, 0, $last) . preg_replace('/\/\/\[END POST-(\w+)\]', '\0'.$debugStart, substr($code, $last));
+				} else if (in("/*[ACTUAL]*/", $code)) {
 					$code = str_replace("/*[ACTUAL]*/", "/*[ACTUAL]*/".$debugStart, $code);
 					$last = strrpos($code, "/*[END POST-");
 					$code = substr($code, 0, $last) . preg_replace('/\/\*\[END POST-(\w+)\]\*\//', '\0'.$debugStart, substr($code, $last));
@@ -247,7 +252,7 @@ class BuilderHandler
 						$libName = $libPath . $arr_lib["name"].(ENV_PRODUCTION === true ? "" : $arr_lib["library_id"])."_loader.php";
 					}
 					if (!file_exists($libname)) {
-						$content = "<"."?php\n".$arr_lib["code"]."\n?".">";
+						$content = "<"."?php\n".compileCode($arr_lib["code"])."\n?".">";
 						file_put_contents($libname, $content);
 					}
 					$libs .= "include_once('".$libname."');\n";
@@ -310,7 +315,7 @@ class BuilderHandler
 					$code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $code);
 					$code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
 					$code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
-					$handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arr_param = func_get_arg(0);\n".$code."\n}\n";
+					$handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arguments = func_get_args();\n	\$param = func_get_arg(0);\n	\$arr_param = func_get_arg(0);\n".$code."\n}\n";
 					$printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator, \$template) {\n";
 					$printer .= "  global \$SERVER, \$SECURE_SERVER;\n";
 					$printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
@@ -334,7 +339,7 @@ class BuilderHandler
 					$handlers[$arr_handler["event"]] = $arr_handler["html_code"];
 				}
 				if (is_array($arr_data)) foreach ($arr_data as $arr_d) {
-					$data .= "\nfunction ".$arr_d["name"]."() {\n".makeDebuggable($arr_d["code"], $bol_invoke["data"] == $arr_d["data_id"])."\n}\n";
+					$data .= "\nfunction ".$arr_d["name"]."() {\n\$arguments = func_get_args();\n".makeDebuggable(compileCode($arr_d["code"]), $bol_invoke["data"] == $arr_d["data_id"])."\n}\n";
 				}
 				$c = str_replace(
 					Array("empty", "Empty", "/*<CONFIGURATION>*/", "/*<LIBRARIES>*/", "/*<EVENT-HANDLERS>*/", "/*<PRINTER-METHODS>*/", "/*<DB-METHODS>*/", "/*<JAVASCRIPT-INCLUDES>*/", "/*<CSS-INCLUDES>*/"),
@@ -524,7 +529,7 @@ class BuilderHandler
 				$arr_module = $arr_data;
 				// also generate an nearly-empty home entry point
 				ob_start();
-				require ("templates/builder/php/handler_scaffold_home.php");
+				require ("templates/builder/".(SNOW_MODE === true ? 'snow' : 'php')."/handler_scaffold_home.php");
 				$code = ob_get_clean();
 				ob_start();
 				require ("templates/builder/php/handler_scaffold_home_html.php");
@@ -1230,7 +1235,7 @@ class BuilderHandler
 			$arr_param["library"]["fk_user_id"] = $_SESSION["builder"]["user_id"];
 			$arr_param["library"]["fk_module_id"] = 0;
 			ob_start();
-			require("templates/builder/php/library_upload_scaffold.php");
+			require("templates/builder/".(SNOW_MODE === true ? 'snow' : 'php')."/library_upload_scaffold.php");
 			$arr_param["library"]["code"] = ob_get_clean();
 			$_SESSION["library_id"] = $_GET["library_id"] = $this->obj_data->insertLibrary($arr_param["library"]);
 			$this->updateStream(Array("library" => $libName, "id" => $_GET['library_id']));
@@ -1585,7 +1590,7 @@ class BuilderHandler
 					$exists = ($this->obj_data->getDataFromName($data.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1), $_POST["scaffold"]["fk_module_id"]) != null);
 					if ($exists) continue;
 					ob_start();
-					@ require ("templates/builder/php/data_scaffold_".$data.".php");
+					@ require ("templates/builder/".(SNOW_MODE === true ? 'snow' : 'php')."/data_scaffold_".$data.".php");
 					$query = ob_get_clean();
 					$did = $this->obj_data->insertData($arr_data = Array(
 						"name"=>$data.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),
@@ -1603,10 +1608,10 @@ class BuilderHandler
 					$exists = ($this->obj_data->selectHandlerByNameAndModule($_POST["scaffold"]["fk_module_id"], $handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1)) != null);
 					if ($exists) continue;
 					ob_start();
-					@ require ("templates/builder/php/handler_scaffold_".$handler.".php");
+					@require ("templates/builder/".(SNOW_MODE === true ? 'snow' : 'php')."/handler_scaffold_".$handler.".php");
 					$code = ob_get_clean();
 					ob_start();
-					@ require ("templates/builder/php/handler_scaffold_".$handler."_html.php");
+					@require ("templates/builder/php/handler_scaffold_".$handler."_html.php");
 					$htmlcode = ob_get_clean();
 					$hid = $this->obj_data->insertHandler($arr_data = Array(
 						"event"=>$handler.strtoupper($arr_table["name"][0]).substr($arr_table["name"], 1),

@@ -2,8 +2,10 @@
 .form-field label { width: 150px; display: inline-block; _display: inline; }
 .form-field input[type="text"], .form-field input[type="password"], .form-field select { width: 200px; }
 .form-field .validate-valid-hint { display: inline-block; margin-left: 10px; }
+.form-field input[type='radio']+label { width: 50px; }
 fieldset { display: block; border: 1px solid #ccc; }
 fieldset legend { font-weight: bold; }
+p.info { font-size: 10px; color: #666; line-height: 1.56em; }
 </style>
 <script type="text/javascript">
 //<![CDATA[
@@ -54,6 +56,12 @@ fieldset legend { font-weight: bold; }
 				<option value="devel" <?=($arr_param['project']['env'] == 'devel' ? 'selected="selected"' : '')?>>Development</option>
 				<option value="prod" <?=($arr_param['project']['env'] == 'prod' ? 'selected="selected"' : '')?>>Production</option>
 			</select>
+		</div>
+		<div class="form-field">
+			<label for="snow">Snow Mode:</label>
+			<input type="radio" name="project[snow]" value="on" checked="checked" id="snow_on"/><label for="snow_on">on</label>
+			<input type="radio" name="project[snow]" value="off" id="snow_off"/><label for="snow_off">off</label>
+			<p class="info">Snow is a language very much like CoffeeScript that directly compiles to PHP. All this happens automatically for you in the background. To get some more details on the syntax, please have a look over at it's <a href="https://github.com/AndCake/snow" target="_new">GitHub project</a>.</p>
 		</div>
 	</fieldset>
 	

@@ -1,7 +1,7 @@
 <?php
 /**
     Prails Web Framework
-    Copyright (C) 2012  Robert Kunze
+    Copyright (C) 2013  Robert Kunze
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -88,6 +88,7 @@ class MainHandler
 			$arr_settings["MOD_REWRITE"] = ($_POST["rewrite"] != "false");
 			$arr_settings["IS_SETUP"] = true;
 			$arr_settings["FIRST_RUN"] = true;
+			$arr_settings["SNOW_MODE"] = ($arr_project['snow'] == 'on' ? true : false);
 			$arr_settings["USER_SALT"] = $salt = "" . rand(1000, 9999) . "\$" . microtime(true);
 			
 			$ht = file_get_contents(".htaccess");

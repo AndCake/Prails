@@ -1,0 +1,185 @@
+@import url(http://fonts.googleapis.com/css?family=Sofia|Ubuntu:300,700);
+
+.x-panel, .x-panel-body, .x-tab-panel-header, .x-tab-panel-footer, ul.x-tab-strip-top, .x-toolbar, .x-border-layout-ct, .x-tab-panel-body, .x-panel-header, .xtb-sep, .x-tab-strip-top .x-tab-right, .x-tab-strip-top .x-tab-left, .x-tab-strip-top .x-tab-strip-inner, .x-tree-node .x-tree-node-over, .x-tool, .x-btn-tl, .x-btn-tr, .x-btn-tc, .x-btn-ml, .x-btn-mr, .x-btn-mc, .x-btn-bl, .x-btn-br, .x-btn-bc, .x-menu, .x-menu-floating, .x-shadow .xsml, .x-shadow .xsmr, .x-shadow .xsmc, .x-shadow .xstl, .x-shadow .xstc, .x-shadow .xstr, .x-shadow .xsbl, .x-shadow .xsbc, .x-shadow .xsbr, .x-menu-item-active, .x-menu-item-active a.x-menu-item, .x-layout-collapsed, .x-menu-sep, .x-window-tl, .x-window-ml, .x-window-bl, .x-resizable-over .x-resizable-handle-north, .x-resizable-pinned .x-resizable-handle-north, .x-resizable-over .x-resizable-handle-south, .x-resizable-pinned .x-resizable-handle-south, .x-resizable-over .x-resizable-handle-north, .x-resizable-pinned .x-resizable-handle-north, .x-resizable-over .x-resizable-handle-east, .x-resizable-pinned .x-resizable-handle-east, .x-resizable-over .x-resizable-handle-west, .x-resizable-pinned .x-resizable-handle-west, .x-resizable-over .x-resizable-handle-northeast, .x-resizable-pinned .x-resizable-handle-northeast, .x-resizable-over .x-resizable-handle-southeast, .x-resizable-pinned .x-resizable-handle-southeast, .x-resizable-over .x-resizable-handle-southwest, .x-resizable-pinned .x-resizable-handle-southwest, .x-window-tc, .x-window-br, .x-window-plain .x-window-body, body.x-body-masked .x-window-plain .x-window-mc, .x-window-mr, .x-window-tr, .x-window-bc, .x-grid3-hd-row td, .x-tree-node .x-tree-selected, .x-grid3-cell-selected, .x-grid3-hd-over, td.sort-desc, td.sort-asc, td.x-grid3-hd-menu-open, .x-grid3-row, .x-grid3-header, .x-tab-strip .x-tab-strip-closable a.x-tab-strip-close, .ext-el-mask, td.x-grid3-hd-over .x-grid3-hd-inner, td.sort-desc .x-grid3-hd-inner, td.sort-asc .x-grid3-hd-inner, td.x-grid3-hd-menu-open .x-grid3-hd-inner, .x-grid3-hd-btn, .x-window-mc, .x-tab-strip-active span.x-tab-strip-text, .x-tab-strip span.x-tab-strip-text {
+	border: 0px solid #fff !important;
+	background: transparent none !important;
+	color: #414141 !important;
+}
+
+#qwbuilder_navarea > .x-panel-header {
+	display: none;
+}
+
+.x-layout-split {
+	background-color: #efefef !important;
+}
+
+ul.x-tab-strip li {
+	border: 1px solid white;
+	border-radius: 3px 3px 0 0;
+}
+
+ul.x-tab-strip li.x-tab-strip-active {
+	border: 1px solid #ddd;
+	border-bottom: 1px solid white;
+}
+
+.x-btn {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+}
+.x-btn.x-btn-over {
+	background-color: #e6e6e6;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #e6e6e6));
+	background: -webkit-linear-gradient(top, #ffffff,#e6e6e6);
+	background-image: -moz-linear-gradient(top, #ffffff,#e6e6e6);
+	background-image: -o-linear-gradient(top, #ffffff,#e6e6e6);
+	background-image: linear-gradient(top, #ffffff, #e6e6e6);
+}
+
+.x-menu {
+	background-color: #f0f0f0 !important;
+	border: 1px solid #ddd !important;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.15);
+}
+.x-menu-item-active {
+	background-color: #e6e6e6 !important;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #e6e6e6)) !important;
+	background: -webkit-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -moz-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -o-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: linear-gradient(top, #ffffff, #e6e6e6) !important;	
+}
+
+.x-tree-node-over, .x-tree-node .x-tree-selected {
+	background-color: #efefef !important;
+}
+
+.x-panel {
+	background-color: white !important;
+}
+
+.x-window .x-window-tl, .x-window .x-window-tr, .x-window .x-window-tc {
+	font-size: 16px;
+	color: black;
+	background-color: #e6e6e6 !important;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #e6e6e6)) !important;
+	background: -webkit-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -moz-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -o-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: linear-gradient(top, #ffffff, #e6e6e6) !important;	
+}
+.x-window .x-window-tl, .x-window .x-window-tr {
+	border-radius: 5px 5px 0 0;
+}
+.x-tab-strip .x-tab-strip-closable a.x-tab-strip-close, .x-window .x-tool-close {
+	background-image: url(../images/snow/close.png) !important;
+	background-position: -2px -2px !important;
+	margin-top: 2px;
+}
+.x-window .x-tool-close { margin-top: 4px; }
+.x-window {
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.15);
+	background: white;
+}
+.x-window-tl .x-window-header {
+	font-size: 16px;
+	color: black;	
+}
+
+.x-grid3-header {
+	border: 1px solid #ddd !important;
+	background-color: #e6e6e6 !important;
+	background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #e6e6e6)) !important;
+	background: -webkit-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -moz-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: -o-linear-gradient(top, #ffffff,#e6e6e6) !important;
+	background-image: linear-gradient(top, #ffffff, #e6e6e6) !important;
+}
+.x-grid3-row {
+	border: 1px solid #ededed !important;
+	border-top-color: white;
+}
+.x-grid3-cell-selected {
+	background-color: #efefef !important;
+}
+
+#sb_panel { border-left: 5px solid #efefef !important; }
+.x-layout-collapsed.x-layout-collapsed-east .x-tool.x-tool-expand-east { background-image: url(../images/snow/expand.png) !important; }
+#sb_panel .x-tool.x-tool-toggle.x-tool-collapse-east { background-image: url(../images/snow/collapse.png) !important; }
+body .package, body .x-window-tl .x-window-header.package { background-image: url(../images/snow/package.png) !important; }
+body .x-btn-text-icon .x-btn-icon-small-left .x-btn-text.add { background-image: url(../images/snow/add.png) !important; }
+body .edit { background-image: url(../images/snow/edit.png) !important; }
+body .delete { background-image: url(../images/snow/delete.png) !important; }
+body .run { background-image: url(../images/snow/run.png) !important; }
+body .save { background-image: url(../images/snow/save.png) !important; }
+body .urls, body .x-tab-with-icon .urls { background-image: url(../images/snow/url.png) !important; }
+body .form, body .x-tab-with-icon .form { background-image: url(../images/snow/form.png) !important; }
+body .debug, body .x-tab-with-icon .debug { background-image: url(../images/snow/debug.png) !important; }
+body .folder, body .x-tab-with-icon .folder, #qwbuilder_modulePanel .x-tree-node-el .x-tree-node-icon { background-image: url(../images/snow/editModule.png) !important; }
+body .x-tree-node-expanded .x-tree-node-icon { background-image: url(../images/snow/folder-open.png) !important; }
+body .x-tree-node-collapsed .x-tree-node-icon, body .x-menu-item-icon.folder { background-image: url(../images/snow/folder-closed.png) !important; }
+body .handler, body .x-tab-with-icon .handler, .x-tree-node-leaf .x-tree-node-icon { background-image: url(../images/snow/file.png) !important; }
+body .x-tab-with-icon .HelpTabIcon { background: url(../images/snow/help.png) 0 0 no-repeat !important; }
+body .options, body .x-tab-with-icon .options, body .config, body .x-tab-with-icon .config { background-image: url(../images/snow/options.png) !important; }
+body .user { background-image: url(../images/snow/user.png) !important; }
+body .resource, body .x-tab-with-icon .resource { background-image: url(../images/snow/resource.png) !important; }
+body .history { background-image: url(../images/snow/history.png) !important; }
+body .testcase, body .x-tab-with-icon .testcase { background-image: url(../images/snow/testcase.png) !important; }
+body .tagLib, body .x-tab-with-icon .tagLib { background-image: url(../images/snow/taglib.png) !important; }
+body .flush { background-image: url(../images/snow/clear.png) !important; }
+body .locale, body .x-tab-with-icon .locale { background-image: url(../images/snow/locale.png) !important; }
+body .stop { background-image: url(../images/snow/stop.png) !important; }
+body .step { background-image: url(../images/snow/step.png) !important; }
+body .play { background-image: url(../images/snow/play.png) !important; }
+body .x-tree-node .query img.x-tree-node-icon, body .data, body .x-tab-with-icon .data { background-image: url(../images/snow/data.png) !important; }
+body .table, body .x-tab-with-icon .table { background-image: url(../images/snow/table.png) !important; }
+body .library, body .x-tab-with-icon .library, body .x-window-tl .x-window-header.library { background-image: url(../images/snow/library.png) !important; }
+body .x-tbar-loading { background-image: url(../images/snow/reload.png) !important; }
+body .x-form-field-wrap .x-form-search-trigger { background: transparent url(../images/snow/search.png) center center no-repeat !important; opacity: 0.6; }
+body .x-form-field-wrap .x-form-search-trigger.x-form-trigger-over { opacity: 1; background-position: center center no-repeat !important; }
+
+body .x-tbar-page-prev, body .x-item-disabled .x-tbar-page-prev { background-image: url(../images/snow/previous.png) !important; }
+body .x-item-disabled .x-tbar-page-prev { opacity: 0.6; }
+body .x-tbar-page-first, body .x-item-disabled .x-tbar-page-first { background-image: url(../images/snow/first.png) !important; }
+body .x-item-disabled .x-tbar-page-next, body .x-tbar-page-next { background-image: url(../images/snow/next.png) !important; }
+body .x-item-disabled .x-tbar-page-last, body .x-tbar-page-last { background-image: url(../images/snow/last.png) !important; }
+
+.x-tab-strip .x-tab-strip-closable a.x-tab-strip-close {
+	opacity: 0;
+	-moz-opacity: 0;
+}
+
+.x-tab-strip .x-tab-strip-closable.x-tab-strip-over a.x-tab-strip-close {
+	opacity: 0.6;
+	-moz-opacity: 0.6;
+}
+body .x-window-tl .x-window-header {
+	background-position: 0 6px !important;
+	background-repeat: no-repeat !important;	
+}
+body .x-tab-strip .x-tab-with-icon span.x-tab-strip-text {
+	background-position: 0 3px !important;
+	background-repeat: no-repeat !important;
+}
+
+div#qwbuilder_headerPanel .x-panel-body, div#qwbuilder_headerPanel, div#qwbuilder_headerPanel h1 {
+	background: #414141 !important;
+	color: #4dbce9 !important;
+	font-family: "Sofia", cursive;
+	text-transform: none !important;
+	font-size: 24px;
+	text-shadow: 3px 3px 3px black;
+}
+div#qwbuilder_headerPanel .x-btn {
+	background-color: #bbb;
+}
+
+a, #qwbuilder_contentPanel a { color: #26ade4; }
+a:hover, #qwbuilder_contentPanel a:hover { color: #4dbce9; }
+.x-window-dlg .ext-mb-info { background-image:url(../images/snow/info.png) !important; }
+.x-window-dlg .ext-mb-warning { background-image:url(../images/snow/warning.png) !important; }
+.x-window-dlg .ext-mb-question { background-image:url(../images/snow/question.png) !important; }
+.x-window-dlg .ext-mb-error { background-image:url(../images/snow/error.png) !important; }

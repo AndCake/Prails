@@ -6,7 +6,7 @@
 	#user-list th { font-weight: bold; background: #efefef; padding: 5px; }
 </style>
 <div id="header" style="display:none;">
-<h1 style="margin-top:3px;letter-spacing:0.1em;text-transform:uppercase; padding-left:10px;"><img src="templates/builder/images/logo.png" style="margin-top: -7px;" height="24" align="absmiddle" /> Prails IDE</h1>
+<h1 style="margin-top:3px;letter-spacing:0.1em;text-transform:uppercase; padding-left:10px;"><img src="templates/builder/images/logo.png" style="margin-top: -7px;" height="24" align="absmiddle" /> Prails</h1>
 </div>
 <div id="help" style="display:none;">
 	<div style="padding:10px;">
@@ -948,6 +948,7 @@
 		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
 		window.Builder.noRewrite = <?=MOD_REWRITE ? "false" : "true"?>;
+		window.snow = <?=SNOW_MODE === true ? 'true' : 'false'?>;
 		window.profilerLogs = <?=(file_exists("log/profiler_system.log") ? "true" : "false")?>;
 		
 		(function() {
