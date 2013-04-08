@@ -1,0 +1,18 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:20%;"></div></div>
+
+<p>Now, as you can see, the text inside the P tag is still not optimally positioned on the page. We actually want it to be a part of the logo. Therefore we add a new style definition to get it into place.</p>
+
+<p>The new style definition should be for that specific P tag that follows directly after the H1 tag in the HTML code. For this, there is a special notation: <code>h1 + p {}</code>. This is called a selector rule. <span class="action" data-check="checkH1P()">Add this rule after the H1 style definition.</span></p>
+
+<p>The attribute we <span class="action" data-check="checkMargin()">define for this selector rule is: <code>margin: -15px 0 0 74px;</code>.</span> This tells the P element to move 15 pixels up and 74 pixels to the left. The two <code>0</code> there are the margins for the bottom and right side, where we don't want to move.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step1.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step2.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkH1P = function() { return true; }
+window.checkMargin = function() { return true; }
+</script>

@@ -57,7 +57,7 @@
 	<c:foreach var="files" name="file">
 		<tr>
 			<td width="220"><div class="#file.type">#file.name</div></td>
-			<td width="75"><%=round($file['size'] / 1024, 1)%> kB</td>
+			<td width="75"><?=round($file['size'] / 1024, 1)?> kB</td>
 			<td width="75">#file.dimensions</td>
 			<td width="120">#file.mime</td>
 			<td width="170">#file.lastModified[date]</td>
@@ -71,8 +71,8 @@
 </div>
 <div class="footer">
 	<div class="moptions">
-		<file multiple="multiple" progress="progress" onstart="$('progress-indicator').show();" target="?event=builder:fileBrowser&path=<%=$arr_param['path']%>&upload=1&name=" ondone="location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>';"><button>Upload Image(s)</button></file>
-		<button onclick="if (name=prompt('Enter folder name:')) {location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>&mkdir='+name;}">New Folder</button>
+		<file multiple="multiple" progress="progress" onstart="$('progress-indicator').show();" target="?event=builder:fileBrowser&path=<?=$arr_param['path']?>&upload=1&name=" ondone="location.href='?event=builder:fileBrowser&path=<?=$arr_param['path']?>';"><button>Upload Image(s)</button></file>
+		<button onclick="if (name=prompt('Enter folder name:')) {location.href='?event=builder:fileBrowser&path=<?=$arr_param['path']?>&mkdir='+name;}">New Folder</button>
 		<button onclick="if(confirm('Do you really want to delete that item?')){window.FileBrowserDialogue.deleteItems();}">Delete Selected</button>
 	</div>
 	<div class="actions">
@@ -157,7 +157,7 @@ var FileBrowserDialogue = {
 	    		}
 	
 	    		if (t.hasClassName("file")) {
-	          		var el = new Element("img", {src: "<%=$arr_param['base']%>"+t.innerHTML, className: "file"});
+	          		var el = new Element("img", {src: "<?=$arr_param['base']?>"+t.innerHTML, className: "file"});
 	          		el.style.left = (t.cumulativeOffset().left+20)+"px";
           			el.style.top = ((t.cumulativeOffset().top - t.up(".mtable").scrollTop)+20)+"px";
 	          		t.preview = el;
@@ -179,7 +179,7 @@ var FileBrowserDialogue = {
         	rowdblclick: function(grid, rowIdx, e) {
         		var rec = window.FileBrowserDialogue.grid.getSelectionModel().getSelected();
         		if (rec.data["tcol-0"].indexOf('"dir"') >= 0) {
-        			location.href='?event=builder:fileBrowser&path=<%=$arr_param["path"]%>'+rec.data["tcol-0"].replace(/<[^>]+>/gi, '')+"/";
+        			location.href='?event=builder:fileBrowser&path=<?=$arr_param["path"]?>'+rec.data["tcol-0"].replace(/<[^>]+>/gi, '')+"/";
         		} else {
         			FileBrowserDialogue.mySubmit();
         		}
@@ -188,7 +188,7 @@ var FileBrowserDialogue = {
     },
     mySubmit : function () {
     	var rec = window.FileBrowserDialogue.grid.getSelectionModel().getSelected();
-    	var URL = "<%=$arr_param['base']%>"+rec.data["tcol-0"].replace(/<[^>]+>/gi, ''); 
+    	var URL = "<?=$arr_param['base']?>"+rec.data["tcol-0"].replace(/<[^>]+>/gi, ''); 
         var win = tinyMCEPopup.getWindowArg("window");
 
         // insert information now
@@ -213,10 +213,10 @@ var FileBrowserDialogue = {
     	window.FileBrowserDialogue.deleting = 0;
     	$A(sels).each(function(rec) {
         	window.FileBrowserDialogue.deleting++;
-    		invoke(null, "builder:fileBrowser&path=<%=$arr_param['path']%>&delete="+rec.data['tcol-0'].replace(/<[^>]+>/gi, ''), null, false, function(){
+    		invoke(null, "builder:fileBrowser&path=<?=$arr_param['path']?>&delete="+rec.data['tcol-0'].replace(/<[^>]+>/gi, ''), null, false, function(){
     			window.FileBrowserDialogue.deleting--;
     			if (window.FileBrowserDialogue.deleting <= 0) {
-    	        	location.href='?event=builder:fileBrowser&path=<%=$arr_param['path']%>';    	    		    				
+    	        	location.href='?event=builder:fileBrowser&path=<?=$arr_param['path']?>';    	    		    				
     			}
     		});
     	});

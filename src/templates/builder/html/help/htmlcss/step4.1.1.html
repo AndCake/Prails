@@ -1,0 +1,13 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:73%;"></div></div>
+
+<p>In order to define our style for a button, we define it for all HTML tags that have the class attribute set to <code>btn</code> by writing before the first line: <code>.btn {}</code>. The <code>.</code> references all elements that have the class directly following the dot (in this instance "btn").</p>
+
+<p>Between the curly brackets, add the line <code>@button(rgb(165, 209, 51));</code>. This is again a Mixin. By means of the round brackets we can provide it with options. In this case, we tell it to generate a greenish button (the one option we provided it with). When we try it now, the text is still way too huge. The possible options and the template's definition can be found in the global module's styles.</p>
+
+<p>So to change the font size, we add the third parameter to the mixin options: <code>@button(rgb(165, 209, 51),, 16px);</code>. Because all links have are underlined by default, we tell it not to be by adding <code>text-decoration: none;</code>. Try to see how it looks like.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step4.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step4.2.html" class="next" rel="tutorials">next</a>
+</div>

@@ -1,0 +1,15 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:18%;"></div></div>
+
+<p>In Prails every request sent by the browser to get a page is handled by a so-called event handler. With the creation of the new module, Prails already generated our first event handler for us. <span class="action" title="Double-click ''Bakery'' in the personal navigation area" data-check="checkCollapsed()">Double-click the module name ("Bakery") on the left-hand side</span> below the "Global" module and it will open up all the event handlers that do exist for the selected module.</p>
+<p>As you then can see the generated event handler is called <code>home</code>. Let's see what it does. When you proceed with the following steps, a new tab, called "Bakery Home" will open in your browser, showing you what the event handler sends back to the browser. <span class="action" title="switch back to this tab once you looked at the ''Bakery Home'' tab." data-check="checkRun()">Select the home event handler and click the <code>Run</code> button above of it</span>.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step3.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkCollapsed = function() { return !Ext.getCmp("qwbuilder_detailsPanel").collapsed; }
+window.checkRun = function() { var x = Ext.getCmp("qwbuilder_handlerPanel").selModel; return x && x.selNode && x.selNode.text == "home"; }
+</script>

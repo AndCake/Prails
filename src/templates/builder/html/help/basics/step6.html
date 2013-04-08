@@ -1,0 +1,17 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:73%;"></div></div>
+
+<p>Other than color names, you can also use a very precise method: <em>color codes</em>. These usually consist of three values: one for defining how much red there should be in the color, one for the amount of green and one for blue. These values are mixed by the computer in order to get the actual color. This works just as it does in your paint palette.</p>
+<p>In order to use color codes, there is a special notation: <code>rgb(red, green, blue)</code>, whereas <code>red</code>, <code>green</code> and <code>blue</code> can be numbers between 0 (not in the resulting color) and 255 (maximum amount of that color is in the result).</p>
+<p>First we've done the <code>background-color</code> attribute. The second attribute that we want to change now is called <code>color</code>. Therefore, <span class="action" title="your line two should now look like that: <style>body { background-color: purple; color: rgb(255, 255, 0); }</style>" data-check="checkColor()">add a second attribute just behind the semicolon: <code>color: rgb(255, 255, 0);</code>. Now again, test it and see how it looks like.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step5.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step7.html" class="next" rel="tutorials">next</a>
+</div>
+<script type="text/javascript">
+window.checkColor = function checkColor() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<style>\s*body\s*\{\s*background(-color)?:\s*purple\s*;\s*color\s*:\s*rgb\s*\(\s*255\s*,\s*255\s*,\s*0\s*\)\s*;\s*\}\s*<\/style>/i) !== -1;
+};
+</script>

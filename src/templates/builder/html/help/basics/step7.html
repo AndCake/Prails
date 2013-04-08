@@ -1,0 +1,17 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:82%;"></div></div>
+
+<p>As you might remember, the first part of the style definition is always the HTML tag to be styled. Until now we just used the <code>body</code> tag.</p>
+<p>Now we want to add another style definition to our list. Let's make the headline bigger. Therefore we <span class="action" title="place the new style definition between the last '}' and the '</style>' tag." data-check="checkH1()">add another style definition in line 1: <code>h1 { font-size: 32px; }</code></span>. The H1 here means, that we want to change the style of the H1 HTML tag. The attribute we want to change is <code>font-size</code> and the size of the text should be 32 pixels.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step6.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step8.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkH1 = function checkH1() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/\s*\}\s*h1\s*\{\s*font-size\s*:\s*32px\s*;\s*\}\s*<\/style>/i) !== -1;
+}
+</script>

@@ -1,0 +1,16 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:47%;"></div></div>
+
+<p>Let's add those styles for the menu. First of all, <span class="action">go back to the module's styles</span>. Then we'll add an entry for the logo to stay left of whatever comes next (in our case it's the NAV tag). We do this writing: <code>#logo { float: left; }</code>. With #logo, we reference the tag with the ID "logo". So instead of the tag's name, here we are more specific and reference only the tag whose ID is "logo".</p>
+
+<p>Okay, now we need to tell the navigation to be on the right-hand side. Therefore, we <span class="action" data-check="checkNav()">add a style definition for the NAV tag: <code>nav { float: right; margin-top: 48px; }</code></span>. This is already pretty nice, but still doesn't look the way we intended it to. To make the menu appear in one line, without the bullet points and so on, we need to change the default style of the UL within the NAV tag. So, inside the nav style definition, <span class="action" data-check="checkUl()" title="so before the closing ''}'' of the NAV style definition.">add a style definition for the UL tag and set the attributes</span> <code>list-style-type: none;</code>, which removes the bullet points and <code>margin: 0px;</code>, which removes the margin it has by default.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step3.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step3.2.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+	window.checkNav = function() {return true;}
+	window.checkUl = function() { return true; }
+</script>

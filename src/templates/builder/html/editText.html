@@ -8,18 +8,13 @@
 <form id="hformx<?=$arr_param["texts"][0]['identifier']?>" method="post" action="" onsubmit="">
     <div class="formfield" style="white-space:nowrap;">
     	<label for="name">Text Identifier:</label><br/>
-    	<input type="hidden" name="texts[old_identifier]" value="<%=(strlen($arr_param['texts'][0]['identifier']) > 0 ? $arr_param['text']['path'].$arr_param['text']['name'] : '')%>" />
+    	<input type="hidden" name="texts[old_identifier]" value="<?=(strlen($arr_param['texts'][0]['identifier']) > 0 ? $arr_param['text']['path'].$arr_param['text']['name'] : '')?>" />
     	<input type="hidden" name="texts[identifier]" value="#text.path" />
         <? if (substr($arr_param["text"]["path"], 0, 4) == "cms.") { ?>
             <? $arr_param["text"]["type"] = $int_textType = 2; ?>
         <? } ?>
     	<input type="hidden" class="id-value" name="texts[texts_id]" value="<?=(int)$_SESSION['texts_id']?>" />
-    	<c:if cond="strlen($arr_param['texts'][0][identifier])>0 && false">
-        	<input type="hidden" id="text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>" name="texts[name]" value="#text.name" /> 
-   	    	<span style="font-size:10px;color:#999;">#text.path</span><span class="value">#text.name</span>    	
-        <c:else />
-        	<span style="font-size:10px;color:#999;">#text.path</span><input type="text" id="text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>" name="texts[name]" value="#text.name" />            	   
-    	</c:if>
+    	<span style="font-size:10px;color:#999;">#text.path</span><input type="text" id="text_name_<?=(int)$arr_param['texts'][0]['texts_id']?>" name="texts[name]" value="#text.name" />            	   
     </div>
     <div class="formfield">
         <label>Content Size:</label><br/>
@@ -31,13 +26,13 @@
 <? } ?>            
         </select>
     </div>
-    <c:if cond="$arr_param['text']['type'] == 2 && count($arr_param['decorators']) > 0">
+    <? if ($arr_param['text']['type'] == 2 && count($arr_param['decorators']) > 0) { ?>
         <div class="formfield">
             <label>Decorator:</label><br/>
             <select name="texts[decorator]" size="1">
                 <option value="">Please choose</option>
                 <c:foreach var="decorators" name="decorator">
-                    <c:if cond="$arr_param['text']['decorator'] == $arr_param['decorator']['name']">
+                    <c:if cond="#text.decorator == #decorator.name">
                         <option value="#decorator.name" selected="selected">#decorator.name</option>
                     <c:else />
                         <option value="#decorator.name">#decorator.name</option>
@@ -45,16 +40,16 @@
                 </c:foreach>
             </select>
         </div>
-    </c:if>
-    <c:if cond="$arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.'">
+    <? } ?>
+    <? if ($arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.') { ?>
         <div class="formfield">
             <label class="url" style="white-space:nowrap;"><?=$SERVER?>static/<span class='url_preview'><?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?></span>.html</label><br/>
             <a href="<?=$SERVER?>static/<?=preg_replace('#^cms/#', '', str_replace(".", "/", $arr_param["texts"][0]["identifier"]))?>.html" <?=($arr_param['texts'][0]['texts_id'] <= 0 ? 'style="color:#999;cursor:default;" onclick="return false;"': "")?> target="preview">Show this page</a>
         </div>
-    </c:if>
+    <? } ?>
 	<div style="clear:both;"></div>
     <br/>
-    <c:if cond="$arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.'">
+    <? if ($arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.') { ?>
     <div class="seo">
 	<div class="formfield">
 		<label>SEO Title:</label><br/>
@@ -66,7 +61,7 @@
 	</div>
 	<div style="clear:both;"></div>
     </div>
-    </c:if>
+    <? } ?>
     <div id="texts_tabs_<?=$arr_param['texts'][0]['identifier']?>">
     	<div class="x-tab" title="Contents" style="height: 100%;">    
 		    <div id="texts_<?=$arr_param["texts"][0]['identifier']?>" style="height:100%;padding-left: 10px;">
@@ -87,13 +82,13 @@
 		    <div id="texts_attr_<?=$arr_param['texts'][0]['identifier']?>" style="padding: 10px;">
 		    	<c:foreach var="custom_struct.data.id" name="value" key="key">
 		    		<div class="formfield" style="float:none;margin-top: 10px;">
-		    			<div class="label"><%=$arr_param['custom_struct']['data']['name'][$key]%> <a href="javascript:" title="ID: #local.value"> ? </a></div>
+		    			<div class="label" title="ID: #local.value"><?=$arr_param['custom_struct']['data']['name'][$key]?></div>
 		    			<div class="value">
-		    				<c:if cond="$arr_param['custom_struct']['data']['type'][$key] == 'text' || $arr_param['custom_struct']['data']['type'][$key] == 'html'">
-		    					<textarea id="l_<?=microtime(true)?><?=$key?>" class="<?=$arr_param['custom_struct']['data']['type'][$key] == 'html'?'wysiwyg':''?>" style="border: 1px solid #ccc;" rows="5" name="texts[custom][#local.value]"><%=$arr_param['text']['custom'][$value]%></textarea>
-		    				<c:else/>
-		    					<input name="texts[custom][#local.value]" value="<%=$arr_param['text']['custom'][$value]%>" type="<%=$arr_param['custom_struct']['data']['type'][$key]%>"/>
-		    				</c:if>
+		    				<? if ($arr_param['custom_struct']['data']['type'][$key] == 'text' || $arr_param['custom_struct']['data']['type'][$key] == 'html') { ?>
+		    					<textarea id="l_<?=microtime(true)?><?=$key?>" class="<?=$arr_param['custom_struct']['data']['type'][$key] == 'html'?'wysiwyg':''?>" style="border: 1px solid #ccc;" rows="5" name="texts[custom][#local.value]"><?=$arr_param['text']['custom'][$value]?></textarea>
+		    				<? } else { ?>
+		    					<input name="texts[custom][#local.value]" value="<?=$arr_param['text']['custom'][$value]?>" type="<?=$arr_param['custom_struct']['data']['type'][$key]?>"/>
+		    				<? } ?>
 		    			</div>
 		    		</div>
 		    	</c:foreach>
@@ -120,13 +115,13 @@
     		<c:foreach var="custom_struct.data.id" key="key" name="obj">
     			<tr>
     				<td><input name="custom[data][id][]" value="#local.obj"/></td>
-    				<td><input name="custom[data][name][]" value="<%=$arr_param['custom_struct']['data']['name'][$key]%>"/></td>
+    				<td><input name="custom[data][name][]" value="<?=$arr_param['custom_struct']['data']['name'][$key]?>"/></td>
     				<td><select name="custom[data][type][]">
 	    					<option value="" disabled="disabled">Select...</option>
-	    					<option value="string" <%=($arr_param['custom_struct']['data']['type'][$key] == 'string' ? 'selected="selected"' : '')%>>String</option> 
-	    					<option value="text" <%=($arr_param['custom_struct']['data']['type'][$key] == 'text' ? 'selected="selected"' : '')%>>Text</option> 
-	    					<option value="html" <%=($arr_param['custom_struct']['data']['type'][$key] == 'html' ? 'selected="selected"' : '')%>>HTML Text</option>
-	    					<option value="number" <%=($arr_param['custom_struct']['data']['type'][$key] == 'number' ? 'selected="selected"' : '')%>>Number</option> 
+	    					<option value="string" <?=($arr_param['custom_struct']['data']['type'][$key] == 'string' ? 'selected="selected"' : '')?>>String</option> 
+	    					<option value="text" <?=($arr_param['custom_struct']['data']['type'][$key] == 'text' ? 'selected="selected"' : '')?>>Text</option> 
+	    					<option value="html" <?=($arr_param['custom_struct']['data']['type'][$key] == 'html' ? 'selected="selected"' : '')?>>HTML Text</option>
+	    					<option value="number" <?=($arr_param['custom_struct']['data']['type'][$key] == 'number' ? 'selected="selected"' : '')?>>Number</option> 
 	    				</select>
 					</td>
 					<td>

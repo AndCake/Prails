@@ -1,0 +1,19 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:33%;"></div></div>
+
+<p>To complete the menu structure, we now need to tell HTML what content shall be clickable. For this, there's the <code>&lt;a&gt;</code> HTML tag, which stands for <u>a</u>nchor.</p>
+
+<p>For the A tag to work as a link, it requires an attribute, called <code>href="[link destination URL]"</code>. Clicking the A tag's content will bring the user to the URL specified in the HREF attribute. Attributes are always written as part of the opening tag and follow the tag's name. For the A tag, this looks like that: <code>&lt;a href="http://abc.io/"&gt;click me&lt;/a&gt;</code>.</p>
+
+<p><span class="action" title="The A should still be inside the LI: <li><a href='static/about.html'>About</a></li>" data-check="checkAboutA()">Now surround the <code>About</code> text with an A tag, so that it looks like this: <code>&lt;a href="static/about.html"&gt;About&lt;/a&gt;</code>.</span></p>
+
+<p><span class="action" data-check="checkAs()">Do the same with the other LIs</span>, so that every LI has an A tag with the text inside. For <code>Products &amp; Prices</code>, set the HREF attribute value to <code>Bakery/products</code>. For <code>Store Locator</code> set HREF to <code>static/stores.html</code> and for <code>Contact Us</code> set it to <code>Bakery/contact</code>. <span class="action">Test it.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step2.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step3.html" class="next" rel="tutorials">next</a>
+</div>
+<script type="text/javascript">
+window.checkAboutA = function() { return true; }
+window.checkAs = function() { return true; }
+</script>

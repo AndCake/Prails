@@ -114,7 +114,7 @@ body .x-btn-text-icon .x-btn-icon-small-left .x-btn-text.add { background-image:
 body .edit { background-image: url(../images/snow/edit.png) !important; }
 body .delete { background-image: url(../images/snow/delete.png) !important; }
 body .run { background-image: url(../images/snow/run.png) !important; }
-body .save { background-image: url(../images/snow/save.png) !important; }
+body .save, body .download { background-image: url(../images/snow/save.png) !important; }
 body .urls, body .x-tab-with-icon .urls { background-image: url(../images/snow/url.png) !important; }
 body .form, body .x-tab-with-icon .form { background-image: url(../images/snow/form.png) !important; }
 body .debug, body .x-tab-with-icon .debug { background-image: url(../images/snow/debug.png) !important; }
@@ -172,6 +172,7 @@ div#qwbuilder_headerPanel .x-panel-body, div#qwbuilder_headerPanel, div#qwbuilde
 	text-transform: none !important;
 	font-size: 24px;
 	text-shadow: 3px 3px 3px black;
+	font-weight: normal;
 }
 div#qwbuilder_headerPanel .x-btn {
 	background-color: #bbb;

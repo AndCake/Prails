@@ -1,0 +1,22 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:9%;"></div></div>
+
+<p>In order to create a static web page, we first need to create a container where it belongs to. Such a container is called a <em>Module</em>.</p>
+<p>On the left-hand side of your screen, you can see a list of Modules. Currently there is only one, the <code>Global</code> module. The global module can't be changed. For our page we'll need to create a new module.</p>
+<p>To do this, <span class="action" data-check="checkAdd()">first click the <code>Add</code> button</span>. In the center of the window, it will ask you for the module's name. <span class="action" data-check="checkCreated()">Enter <code>Bakery</code> and click at the <code>Save</code> button.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/index.html" class="prev" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step2.html" class="next" rel="tutorials">next</a>
+</div>
+<script type="text/javascript">
+window.checkAdd = function checkAdd() { return $$("*[id^='qwbuilder_startupPanel__tab_m_']").length > 0; };
+window.checkCreated = function checkCreated() {
+	for (var i = 1, len = Builder.root.childNodes.length; i < len; i++) {
+		if (Builder.root.childNodes[i].text.toLowerCase() == "bakery") {
+			return true;
+		}
+	}
+	return false;
+}
+</script>

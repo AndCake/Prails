@@ -1,2 +1,2 @@
-date("<?=(strlen($var["modifier"])>0 ? str_replace("\"", "\\\"", $var["modifier"]) : "m/d/Y H:i:s")?>", $arr_param
+date("<?=(strlen($var["modifier"])>0 ? str_replace("\"", "\\\"", $var["modifier"]) : "m/d/Y H:i:s")?>", <?=(SNOW_MODE === true ? 'param' : '$arr_param')?>
 <? $var["close"] = true; ?>

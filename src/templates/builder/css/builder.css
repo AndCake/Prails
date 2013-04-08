@@ -51,7 +51,7 @@ body .stop {  background-image: url(../images/stop.png) !important;  }
 body .run { background-image: url(../images/run.png) !important; }
 body .form { background-image: url(../images/form.png) !important; }
 body .resource { background-image: url(../images/resource.png) !important; }
-body .save { background-image: url(../images/save.gif) !important; }
+body .save, body .download { background-image: url(../images/save.gif) !important; }
 body .x-tree-node .query img.x-tree-node-icon, body .data { background-image: url(../images/default/grid/columns.gif) !important; } 
 body .tagLib { background-image: url(../images/taglib.gif) !important; }
 body .table { background-image: url(../images/table.gif) !important; }
@@ -90,6 +90,50 @@ div#sbmsglist p { margin: 1em 0 0 1em; }
 span.sbuser { font-weight:bold; color: #556677; }
 span.sbdate { font-size: 10px; vertical-align:middle; color: #999; }
 span.sbtext { font-size: 12px; font-family: "Courier New", "Lucida Console", monospace; }
+
+#tutorials {
+	padding: 10px;
+
+	p { 
+		margin-top: 0.75em; 
+
+		.action[title]::after, .action[title]:after {
+			content: "?";
+			display: inline-block;
+			font-size: 10px;
+			top: -5px;
+			position: relative;
+		}
+		.action { color: #3a3; }
+		em { font-style: italic; }
+		code { 
+			color: #333;
+			display: inline-block; 
+			background: #efefef; 
+			border: 1px solid #ccc; 
+			padding: 0 3px; 
+			border-radius: 3px; 
+			font-size: 11px; 
+		}
+	}
+	.progress {
+		height: 5px;
+		border: 1px solid #ccc;
+		.bar {
+			height: 5px;
+			background: #4dbce9;
+		}
+	}
+	.actions {
+		a.previous { }
+		a.next { 
+			float: right;
+			&[disabled] {
+				color: #666;
+			}
+		}
+	}
+}
 
 body a:hover {
 	background: transparent;

@@ -78,10 +78,13 @@
  *
  * The following variables are always defined in a handler:
  * - $arr_param (Array) - an array containing the context that was given to the current event handler. Normally, this is an empty array. In case you use the `[Tools]invoke` method, however, you can pass a custom context as the second parameter.
+ * - $param (Array) - alias for $arr_param
+ * - $arguments (Array) - an array containing all arguments that were given to the current event handler
  * - $data (Database) - the object that allows to access all data queries of the current module. Data queries from other modules cannot be accessed.
  * - $currentLang (Language) - a reference to the language library, that let's you get access to content assets.
  * - $SERVER (String) - the absolute URL to the page (without paths relative to the Prails directory)
  * - $SECURE_SERVER (String) - the absolute HTTPS URL to the page (without paths relative to the Prails directory)
+ * - $gen (Generator) - a reference to the current Generator instance.
  * 
  * In order to trigger generating the view, the following method exists:
  * out($arr_param[, $decorator[, $template]]) -> String

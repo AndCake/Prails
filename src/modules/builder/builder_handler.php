@@ -314,8 +314,9 @@ class BuilderHandler
 					$code = compileCode($code);
 					$code = preg_replace("/([^a-zA-Z0-9])out\s*\((.*)\)([^a-zA-Z0-9])/", "\$1\$this->_callPrinter(\"".$arr_handler["event"]."\", \$2)\$3", $code);
 					$code = preg_replace("/\\\$data->/", "\$this->obj_data->", $code);
+					$code = preg_replace("/\\\$gen->/", "\$this->gen->", $code);
 					$code = makeDebuggable($code, $bol_invoke["handler"] == $arr_handler["handler_id"]);
-					$handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arguments = func_get_args();\n	\$param = func_get_arg(0);\n	\$arr_param = func_get_arg(0);\n".$code."\n}\n";
+					$handler .= "\nfunction ".$arr_handler["event"]."() {\n  global \$SERVER, \$SECURE_SERVER, \$currentLang;\n	\$arguments = func_get_args();\n	\$arr_param = \$arguments[0];\n	\$param = &\$arr_param;\n".$code."\n}\n";
 					$printer .= "\nfunction ".$arr_handler["event"]."(\$arr_param, \$decorator, \$template) {\n";
 					$printer .= "  global \$SERVER, \$SECURE_SERVER;\n";
 					$printer .= "  \$arr_param[\"session\"] = &\$_SESSION;\n";
@@ -890,7 +891,7 @@ class BuilderHandler
 		
 		if ($_GET["handler_id"] <= 0 && $_GET["module_id"] > 0) {
 			$arr_param["handler"]["html_code"] = file_get_contents("templates/builder/php/output_empty.php");
-			$arr_param["handler"]["code"] = file_get_contents("templates/builder/php/handler_empty.php");
+			$arr_param["handler"]["code"] = file_get_contents("templates/builder/".(SNOW_MODE === true ? 'snow' : 'php')."/handler_empty.php");
 		}
 		
 		$code = $arr_param['handler']['html_code'];

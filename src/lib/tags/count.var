@@ -1,2 +1,2 @@
-count($arr_param<? 
+count(<?=(SNOW_MODE === true ? 'param' : '$arr_param')?><? 
 $var["close"] = true; ?>

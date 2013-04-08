@@ -68,7 +68,7 @@
 	(function(){
 		var otherTables = [];
 		<c:foreach var="tables" name="iTable">
-		<c:if cond="$iTable['table_id'] != $arr_param['table']['table_id']">
+		<? if ($iTable['table_id'] != $arr_param['table']['table_id']) { ?>
 		otherTables.push({
 			text: "#iTable.name",
 			handler: function() {
@@ -81,7 +81,7 @@
                 grid.getStore().insert(0, p);
 			}
 		});
-		</c:if>
+		<? } ?>
 		</c:foreach>
 		var grid = new Ext.grid.EditorGridPanel({
 			store: gridStore = new Ext.data.Store({

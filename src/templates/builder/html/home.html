@@ -20,13 +20,7 @@
 		      </div>
 		  <? } ?>
 		</p>
-		<p>Welcome to the Prails Framework. On the left hand side you can see your personal navigation area. Under "Modules" you can see all modules that do exist.
-		By double clicking an entry you edit this module. By right clicking you can change the module's options. </p>
-		<p>When editing a module, your navigation area will let you see the event handlers and data queries of the current module. By double-clicking either of them you 
-		can edit it.</p>
-		<? if (ENV_PRODUCTION !== true && $_SESSION["builder"]["group"] == "devel" && PHP_OS != "WINNT") { ?>
-		<p>You can also <a href="?event=builder:downloadProject">download</a> your project as source code files and edit them with your favorite IDE. In order to save the files back to the server, you need the synchronization script you'll find in the sync folder to be running while editing the files.</p>
-		<? } ?>
+		<p><strong>Quickstart Guide: </strong>Welcome to the Prails Framework. On the right hand side, you can find a tutorial introducing you to Prails. On the left hand side you can see your personal navigation area.</p>
 		<br/><h2>Short Cuts:</h2>
 		<table>
 			<tr><td>move one tab left</td><td>Ctrl+Alt+Left</td></tr>
@@ -153,14 +147,14 @@
 		
 		<p style="margin: 1em 0px;"><i>Please note:</i> you can only upload package files to a maximum size of <b><?=ini_get("post_max_size")?>B</b> each.</p>	
 	</fieldset>
-	<c:if cond="ENV_PRODUCTION === true">
+	<? if (ENV_PRODUCTION === true) { ?>
 	<form method="post" action="?event=builder:restore" id="restoreForm" onsubmit="return restoreDB();">
 	<fieldset style="width:382px;">
 		<legend>Restore Backup</legend>
 		<p>Please select the backup file you want to restore.</p>
 		<select name="file" size="6" style="width: 100%;">
 			<c:foreach var="backupList" name="item">
-				<option value="<%=$item%>"><%=$item%></option>
+				<option value="<?=$item?>"><?=$item?></option>
 			</c:foreach>
 		</select>
 		<input type="checkbox" name="dataRestore" value="1" id="dtRestore" /> <label for="dtRestore">also restore database contents</label>
@@ -168,7 +162,7 @@
 		<button type="submit">Start</button></div>
 	</fieldset>
 	</form>
-	</c:if>
+	<? } ?>
 	</div>
 --></div>
 <div id="library_upload_panel"><!-- <div style="padding: 10px;">
@@ -194,7 +188,7 @@
 	</fieldset>
 	</div>
  --></div>
-<c:if cond="ENV_PRODUCTION === true">
+<? if (ENV_PRODUCTION === true) { ?>
 <div id="replicate_panel" style="display: none;"><!--
 	<div style="padding: 10px;">
 		<h2>Replication</h2>
@@ -204,11 +198,11 @@
 			<c:input type="text" name="replicate[source]" value="" label="URL to source instance:" />
 			<c:input type="text" name="replicate[source_user]" value="" label="Remote user:" />
 			<c:input type="password" name="replicate[source_pass]" value="" label="Remote password:" />
-			<% /* need to do proxied HTTP request as source could be hosted somewhere else */ %>
+			<? /* need to do proxied HTTP request as source could be hosted somewhere else */ ?>
 			<button type="button" onclick="Replication.connect(this.up().select('input'));">Connect</button>
 		</fieldset>
 		<div id="replication_details" style="display:none;">
-		<% /* code replication settings */ %>
+		<? /* code replication settings */ ?>
 			<fieldset>
 				<legend>Remote Modules:</legend>
 				<select class="export" name="modules[]" multiple="multiple" size="5" id="repl_modules">
@@ -237,7 +231,7 @@
 				</div>
 			</fieldset>		
 
-			<% /* Data replication settings */ %>
+			<? /* Data replication settings */ ?>
 			<fieldset>
 				<legend>Remote Tables:</legend>
 				<select class="export" name="tables[]" multiple="multiple" size="5" id="repl_tables" style="height: 98px;">
@@ -266,7 +260,7 @@
 		</div>
 	</div> 
 --></div>
-</c:if>
+<? } ?>
 <div id="backup_panel" style="display: none;"><!-- 
 	<div style="padding: 10px;">
 		<h2>Schedule Backups</h2>
@@ -325,12 +319,12 @@
 			</div>
 			<div class="panel-bottom">
 				<button type="button" onclick="backupNow();" style="float:left;">Backup now</button>
-				<c:if cond="PHP_OS == 'WINNT'">
+				<? if (PHP_OS == 'WINNT') { ?>
 					<span class="warning">Scheduling is disabled on Windows Servers.</span>
 					<button type="submit" name="save" disabled="disabled">Save</button>
-				<c:else/>
+				<? } else { ?>
 					<button type="submit" name="save">Save</button>
-				</c:if>
+				<? } ?>
 			</div>
 			</form>
 		</div>		
@@ -371,12 +365,66 @@
 	</div>	
 </div>
 <div id="shoutbox" style="display:none;">
-	<div style="margin-left:3px;margin-top:3px;">
-	<form method="post" action="?event=builder:shout" onsubmit="try{window.dold = (new Date()).getTime();invoke('sbmsglist', 'builder:shout', this.serialize(), true);$('sbmsg').value='';$('sbmsg').blur();}catch(e){console.log(e);};return false;">
-		<input type="text" name="msg" id="sbmsg" value="GURU MEDITATION" style="width:190px;" onfocus="if(this.value == 'GURU MEDITATION')this.value='';" />
-		<input type="image" src="templates/builder/images/comment.png" style="margin-left:-20px;vertical-align:middle;" />
-	</form></div>
-	<div id="sbmsglist"></div>
+	<div id="tutorials">
+		<p>Do you want to learn how to use Prails?</p>
+		<p>Then just follow the easy step-by-step guide in this tutorial. In the end, you will have created a simple example web application: a shop for bakery goods that allows you to sell your own baked creations.</p>
+		<p>Throughout the tutorials, there will be <span class="action" title="a hint will appear here">green texts</span>, which indicate actions that you should do before progressing. A small ? next to it tells you can get further information by hovering your mouse over it.</p>
+		<p>What you'll learn:</p>
+		<ul>
+			<li><a href="templates/builder/html/help/basics/index.html" rel="tutorials" title="We're going through the basics of a web application. You will learn what a web page actually consists of and how to control basic aspects, like it's design.">Website basics</a></li>
+			<li><a href="templates/builder/html/help/htmlcss/index.html" rel="tutorials">HTML and CSS</a></li>
+			<li><a disabled="disabled" href="templates/builder/html/help/js/index.html" rel="tutorials">dynamic web pages</a></li>
+			<li><a disabled="disabled" href="templates/builder/html/help/<?=(SNOW_MODE === true ? 'snow' : 'php')?>/index.html" rel="tutorials">server-side scripting</a></li>
+		</ul>
+		<p>If you want to get started, hit the <code>next</code> link below.</p>
+		<div class="actions">
+			<a href="templates/builder/html/help/basics/index.html" class="next" rel="tutorials">next &gt;</a>
+		</div>
+	</div>
+	<script type="text/javascript">
+		window.getCodeForHandler = function(handler) {
+			result = null;
+			$$("form[id^='hformh'] input[id^='h_event_']").each(function(item) {
+				if (item.value == handler) {
+					var num = item.id.replace('h_event_', '');
+					result = Builder.getCode("html_codeh"+num+"html_"+num);
+				}
+			});
+			return result;
+		};
+		window.tutorialStart = $("tutorials").innerHTML;
+		addLoadEvent(function() {
+			if (window.nextInterval) clearInterval(window.nextInterval);
+			window.nextInterval = setInterval(function() {
+				$$("#tutorials .actions a.next").invoke("setAttribute", "disabled", "disabled");
+
+				var val = true;
+				var title = "";
+				$$("#tutorials p .action").each(function(item) {
+					if (item.getAttribute("data-check")) {
+						if (eval(item.getAttribute("data-check")) !== true) {
+							title = title + "\n" + item.innerText;
+							val = false;
+						}
+					}
+				});
+
+				if (val) {
+					$$("#tutorials .actions a.next").invoke("removeAttribute", "disabled");
+					$$("#tutorials .actions a.next").invoke("removeAttribute", "title");
+					clearInterval(window.nextInterval);
+				} else {
+					$$("#tutorials .actions a.next").invoke("setAttribute", "title", title);
+				}
+			}, 500);
+			$$("#tutorials .actions a").each(function(item) {
+				if (!item._clickSet) {
+					item._clickSet = true;
+					item.onload = 'localStorage.setItem("tutorial.lastPage", "'+item.href+'");';
+				}
+			});
+		});
+	</script>
 </div>
 <div id="usermgmt-form" style="display: none;">
 	<fieldset id="my-account">
@@ -696,46 +744,6 @@
 			}
 		}, 0.5);
 		
-		<? if (DEVELOPER_CHAT_ENABLED) { ?>
-		new PeriodicalExecuter(function(pe){
-			new Ajax.Updater("sbmsglist", "shout.box", {
-				method: "get",
-				requestHeaders: {
-					"If-Modified-Since": (new Date(window.dold)).toGMTString(),
-					"If-None-Match": window.detag 
-				}, 
-				onSuccess: function(req) {
-					var date = new Date(req.getHeader("Last-Modified"));
-					var dnew = date.getTime();
-					if (dnew <= window.dold) {
-						req.responseText = $("sbmsglist").innerHTML;
-					} else {
-						window.dold = dnew;
-						window.detag = req.getHeader("Etag");
-						if (!window.firstCall) {
-							Sound.enable();
-							Sound.play("templates/builder/snd/newmsg.mp3", {
-								replace: true
-							});
-							if ($("sb_panel-xcollapsed").visible() && $("sb_panel").hasClassName("x-panel-collapsed")) {
-								new PeriodicalExecuter(function(pe) {
-									if ($("sb_panel-xcollapsed").visible() && $("sb_panel").hasClassName("x-panel-collapsed")) {
-										$("sb_panel-xcollapsed").toggleClassName("x-layout-collapsed-over");
-									} else {
-										pe.stop();
-									}
-								}, 1);
-							}
-						}
-					}
-					window.firstCall = false;
-				},
-				on304: function(req) {
-					req.responseText = $("sbmsglist").innerHTML;
-				}
-			});
-		}, 4);
-		<? } ?>
 		module = new Ext.tree.TreeNode({
 			text: "Global",
 			leaf: true,
@@ -744,12 +752,13 @@
 			allowChildren: false
 		});
 		module.handlers = [];
+/*
 		module.handlers.push(new Ext.tree.TreeNode({
 			text: "home",
 			leaf: true,
 			id: "h_-1",
 			allowChildren: false
-		}));
+		}));*/
 		module.datas = [];
 		Builder.root.appendChild(module);		
 		<c:foreach var="modules" name="module">
@@ -766,7 +775,7 @@
 				module.handlers.push({
 					text: "#handler.event",
 					leaf: true,
-					cls: (<c:if cond="strlen($arr_param['handler']['hook'])>0">"handler-hook"<c:else/>null</c:if>),
+					cls: (<c:if cond="strlen(#handler.hook)>0">"handler-hook"<c:else/>null</c:if>),
 					id: "h_#handler.handler_id",
 					allowChildren: false
 				});
@@ -809,9 +818,9 @@
 				id: "l_#library.library_id",
 				allowChildren: ('#library.fk_resource_id' > 0)
 			});
-			<% if ($library["fk_resource_id"] > 0 && $library['resource']['resource_id'] > 0) { %>
+			<? if ($library["fk_resource_id"] > 0 && $library['resource']['resource_id'] > 0) { ?>
 				addLibTree(lib, (#library.resource.tree));
-			<% } %>
+			<? } ?>
 			Builder.libRoot.appendChild(lib);
 		</c:foreach>
 		<c:foreach var="tags" name="tag">
@@ -851,7 +860,7 @@
 	        var node = new Ext.tree.TreeNode(x={
 	           text: tmpName,
 			   expanded: expanded,
-		   expandable: (typeof(subNodes) == "string" ? false : true),
+			   expandable: (typeof(subNodes) == "string" ? false : true),
 	           id: pid+"."+nodeName,
 	           allowChildren: (typeof(subNodes) != "string"),
 	           leaf: (typeof(subNodes) == "string"),
@@ -936,16 +945,17 @@
 			}
 		});
 					
-		<% $found = false; %>
+		<? $found = false; ?>
 		<c:foreach var="texts" name="text" key="section">
-		    <% if ($section == 'cms' || $section == 'pages') { $found = true; } %> 
+		    <? if ($section == 'cms' || $section == 'pages') { $found = true; } ?> 
 		    Builder.langRoot.createSubNode("#local.section", <?=json_encode($arr_param["text"])?>, Builder.langRoot);
 		</c:foreach>
-		<c:if cond="!$found">
+		<? if (!$found) { ?>
 			Builder.langRoot.createSubNode("pages", {}, Builder.langRoot);
-		</c:if>
+		<? } ?>
 		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] != "devel" ? "false" : "true"?>;
 		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
+		window.Builder.prailsOS = "<?=PHP_OS?>";
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;
 		window.Builder.noRewrite = <?=MOD_REWRITE ? "false" : "true"?>;
 		window.snow = <?=SNOW_MODE === true ? 'true' : 'false'?>;
@@ -959,10 +969,10 @@
 			}
 		})();
 		Builder.init('<?=$_GET["open_nav"]?>');
-		<c:if cond="strlen($_GET['open_tree']) > 0">
+		<? if (strlen($_GET['open_tree']) > 0) { ?>
 			var l = Ext.getCmp("qwbuilder_langsPanel").getNodeById("text_.<?=$_GET['open_tree']?>");
 			Builder.editText({ident: '<?=strtolower($_GET["open_tree"])?>', text: (l && l.text) || "New Text"});
-		</c:if>
+		<? } ?>
 		window.document.body.observe("keydown", function(event) {
 			var input = event.target.nodeName.toUpperCase() == "INPUT" || event.target.nodeName.toUpperCase() == "TEXTAREA";
 			if (!input && (event.keyCode == 8 || (event.keyCode == 37 && (event.altKey || event.metaKey)))) {

@@ -1,0 +1,22 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:45%;"></div></div>
+
+<p><span class="action" data-check="checkH1()">Now change the headline text to "My Bakery"</span>, as it is the title that we want our web site to have. Make sure it is still surrounded by the H1 tag.</p>
+<p><span class="action" data-check="checkP()">Then update the text in the paragraph to be "Our finest bakery goods - shared".</span></p>
+<p><span class="action">Now save it and hit the <code>Run</code> button again</span> to see how it looks like. The new headline should still be a headline and the new paragraph text should not.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step4.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step5.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkH1 = function checkH1() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<h1>My Bakery<\/h1>/i) !== -1;
+}
+window.checkP = function checkP() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<p>Our finest bakery goods - shared(\.?)<\/p>/i) !== -1
+}
+</script>

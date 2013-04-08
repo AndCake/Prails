@@ -225,6 +225,7 @@ class Generator {
 			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
 		}		
     	unset($str_content, $tl);
+        $param = &$arr_param;
 		
         ob_start();
         require ($nname);

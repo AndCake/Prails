@@ -73,7 +73,8 @@ class TagLib {
 		}
 		
 		$html = $this->makeAllVars($html);
-		$html = str_replace(Array('<%', '%>', "<@", "@>"), Array("<?", "?>", "<?", "?>"), $html);
+		$c = SNOW_MODE === true ? "%" : "?";
+		$html = str_replace(Array('<%', '%>', "<@", "@>"), Array("<".$c, $c.">", "<?", "?>"), $html);
 		
 		$html = $this->integrate($html);
 			
@@ -92,12 +93,14 @@ class TagLib {
 		require($path);
 		$content = ob_get_contents();
 		ob_end_clean();
-		$content = str_replace(Array("@>", "<@", "%>", "<%"), Array("?>", "<?", "?>", "<?"), $content);
+		$c = SNOW_MODE === true ? "%" : "?";
+		$content = str_replace(Array("@>", "<@", "%>", "<%"), Array("?>", "<?", $c.">", "<".$c), $content);
 		return $content;
 	}
 	
 	private function makeAllVars($buffer) {
         preg_match_all("/(#|#!)([a-zA-Z_0-9]+[.][.A-Za-z0-9_]*[a-zA-Z0-9]*)(\[([a-zA-Z0-9]+)\](\[([^\]]+)\])?)?/", $buffer, $arr_matches);
+        $c = (SNOW_MODE === true ? "%" : "?");
         foreach ($arr_matches[2] as $key => $str_match) {
         	$toClose = false;
         	preg_match_all('/<!--\[noeval\]-->.*<!--\[\/noeval\]-->/sU', $buffer, $arr_test);
@@ -117,10 +120,19 @@ class TagLib {
             		$toClose = $var["close"]; 
             	} else
                 {
-                    $str_param = "(" . $arr_matches[4][$key] . ")\$arr_param";
+                	if (SNOW_MODE === true) {
+                		$str_param = $arr_matches[4][$key]."val(param";
+                		$toClose = true;
+                	} else {
+                    	$str_param = "(" . $arr_matches[4][$key] . ")\$arr_param";
+                    }
                 }
             } else {
-                $str_param = "\$arr_param";
+            	if (SNOW_MODE === true) {
+            		$str_param = "param";
+            	} else {
+                	$str_param = "\$arr_param";
+                }
             }
             foreach ($parts as $part) {
             	if (is_numeric($part)) {
@@ -133,7 +145,7 @@ class TagLib {
 			if ($arr_matches[1][$key] == "#!") {
 				$buffer = str_replace($arr_matches[0][$key], $str_param, $buffer);
 			} else {
-	            $buffer = str_replace($arr_matches[0][$key], "<"."?=".$str_param."?".">", $buffer);
+	            $buffer = str_replace($arr_matches[0][$key], "<".$c."=".$str_param.$c.">", $buffer);
 			}
         }
         return $buffer;		
@@ -207,7 +219,20 @@ class TagLib {
 	}
 	
 	private function integrate($content) {
-		return preg_replace('@(<\?[^=]([^?]|\?[^>])+)\?>\s*<\?([^=])@usix', "\\1\\3", $content);
+		$content = preg_replace('@(<\?[^=]([^?]|\?[^>])+)\?>\s*<\?([^=])@usix', "\\1\\3", $content);
+
+		if (SNOW_MODE === true) {
+			preg_match_all('@<%(([^%]|%[^>])*)%>@', $content, $matches);
+			if (is_array($matches[1]) && count($matches[1]) > 0) {
+				foreach ($matches[1] as $key => $value) {
+					$sc = new SnowCompiler(ltrim($value, "=") . "\n");
+					$result = $sc->compile();
+					$content = str_replace($matches[0][$key], "<?".($value[0] == "=" ? "=" . rtrim($result, ";\n\r") : $result) . "?>", $content);
+				}
+			}
+		}
+
+		return $content;
 	}
 }
 ?>

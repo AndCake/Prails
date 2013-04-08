@@ -1,0 +1,23 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:55%;"></div></div>
+
+<p>That was simple, wasn't it? Using HTML we declared the page structure. We will learn more about HTML later on. Now we will take a brief look at the page's design.</p>
+<p>Therefore we <span class="action" data-check="checkH1()">add a new HTML tag just before the H1 begin tag type: <code>&lt;style&gt;</code></span>. As you might have noticed while typing, the editor closed that tag automatically for you. The style tag is there to contain style information for the HTML tags.</p>
+<p>Between the opening and the closing <code>style</code> tags, <span class="action" title="Please note, that the precise spelling is very important here: for example writing 'background-colour' instead of 'background-color' would be incorrect." data-check="checkBody()">write the following text: <code>body { background-color: purple; }</code></span>. <span class="action">Test what the result looks like by hitting the <code>Save</code> button and changing back to the "Bakery Home" tab.</span></p>
+<p>Experiment a little with different color names. <span class="action" title="but just change the color name - keep the semicolon, the curly braces and everything else as it is.">Try <code>red</code>, <code>lightblue</code>, <code>teal</code> or any other color name that comes to your mind.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step4.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step5.1.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkH1 = function() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<style>[^<]*<\/style>/i) !== -1;
+};
+window.checkBody = function() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<style>\s*body\s*\{\s*background(-color)?:\s*(\w+)\s*;\s*\}\s*<\/style>/i) !== -1;
+}
+</script>

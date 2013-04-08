@@ -1,0 +1,18 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:63%;"></div></div>
+
+<p>This style definition is called CSS - short for Cascading Style Sheets. It is used to describe the design of the page.</p>
+<p>From what we wrote into the style tag, the word "body" means that we want to style all the HTML tags named <code>body</code> on the page. <code>body</code> here refers to an HTML element that always contains all the page's contents. Everything in our output code is in that body tag implicitly. That's why we didn't have to write it down in our HTML. The text within the curly braces is usually a set of attributes. In this instance, we defined that the body's background color attribute should be set to the given color.</p>
+<p>For now, <span class="action" data-check="checkColor()">set it back to <code>purple</code>.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step5.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step6.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkColor = function checkColor() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<style>\s*body\s*\{\s*background(-color)?:\s*purple\s*;\s*\}\s*<\/style>/i) !== -1;
+};
+</script>

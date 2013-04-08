@@ -9,17 +9,17 @@
 	<div style="float:left;width:50%;">
 		<div style="float:left;width: 30%;">
 			<input type="checkbox" name="handler[flag_ajax]" value="1" id="ajax_#handler.handler_id"<?=($arr_param["handler"]["flag_ajax"] == "1" ? " checked='checked'":"")?> />
-			<label for="ajax_#handler.handler_id">is AJAX event <a title="normally pages are wrapped in a base template. If you don't want that (mostly because the event is called via AJAX), tick this checkbox." class="builder-help"> ? </a></label><br/>
+			<label for="ajax_#handler.handler_id" title="normally pages are wrapped in a base template. If you don't want that (mostly because the event is called via AJAX), tick this checkbox.">is AJAX event</label><br/>
 			<input type="checkbox" name="handler[flag_cacheable]" value="1" id="cache_#handler.handler_id"<?=($arr_param["handler"]["flag_cacheable"] == "1" ? " checked='checked'":"")?> />
-        	<label for="cache_#handler.handler_id">output is cacheable <a title="if this is ticked, the result will be cached for all same GET requests to this event (until you remove it)." class="builder-help"> ? </a></label>
+        	<label for="cache_#handler.handler_id" title="if this is ticked, the result will be cached for all same GET requests to this event (until you remove it).">to be cached</label>
     	</div>
         <div style="float:left;width: 70%;">
 		<input type="checkbox" name="schedule" value="1" onclick="if(this.checked){$('container_h_#handler.handler_id').schedule(this);}else{$('hschedule#handler.handler_id').value=$('jobdetails_#handler.handler_id').innerHTML='';}" id="job_#handler.handler_id"<?=(strlen($arr_param['handler']['hook']) <= 0 && strlen($arr_param['handler']['schedule']) > 0 ? " checked='checked'" : "")?> <? if (PHP_OS == 'WINNT') { echo "disabled='disabled'";} ?> />
-		<label for="job_#handler.handler_id">is a job <a title="a job will be called periodically - independent of page requests by users.<? if (PHP_OS == WINNT) { echo ' Please note: on Windows systems, this functionality is disabled.'; }?>" class="builder-help"> ? </a><span id="jobdetails_#handler.handler_id"></span></label>
+		<label for="job_#handler.handler_id" title="a job will be called periodically - independent of page requests by users.<? if (PHP_OS == WINNT) { echo ' Please note: on Windows systems, this functionality is disabled.'; }?>">is a job<span id="jobdetails_#handler.handler_id"></span></label>
         	<input type="hidden" name="handler[schedule]" value='#handler.schedule' id="hschedule#handler.handler_id" />
         	<br/>
         	<input type="checkbox" name="hook" value="1" id="hook_#handler.handler_id"<?=(strlen($arr_param["handler"]["hook"]) > 0 ? " checked='checked'":"")?> onclick="if(!this.checked)$('hook_name#handler.handler_id').value='';$('hook_name#handler.handler_id').toggle();" />
-        	<label for="hook_#handler.handler_id">is a hook <a title="in order to be called as soon as a certain hook sink (defined via &lt;c:hook&gt; or HookCore::notify) is executed, tick this." class="builder-help"> ? </a></label>
+        	<label for="hook_#handler.handler_id" title="in order to be called as soon as a certain hook sink (defined via &lt;c:hook&gt; or HookCore::notify) is executed, tick this.">is a hook</label>
         	<input type="text" name="handler[hook]" value="#handler.hook" id="hook_name#handler.handler_id" style="<?=(strlen($arr_param["handler"]["hook"]) > 0 ? "" : "display:none;")?>" />
         </div>
 		<div style="clear:both;"></div>
@@ -30,7 +30,7 @@
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.next().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.next().show();this.parentNode.parentNode.style.width='49%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
-		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>">Handler Code <a title="In this area you can put your actual business logic as <?=(SNOW_MODE === true ? "Snow" : "PHP")?> code. You can call the String out(Array) function to call the output code. Return it to send it to the browser." class="builder-help"> ? </a>:</label><br/>
+		<label for="code<?=(int)$arr_param["handler"]["handler_id"]?>" title="In this area you can put your actual business logic as <?=(SNOW_MODE === true ? "Snow" : "PHP")?> code. You can call the String out(Array) function to call the output code. Return it to send it to the browser.">Handler Code:</label><br/>
 		<input type="hidden" id="hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[code]" value="" />
 		<div rel="call:hcodehSet(#handler.handler_id)" id="hcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['codes'])) foreach ($arr_param['codes'] as $code) { ?>
@@ -47,7 +47,7 @@
 			<a href="#" onclick="this.next().show();this.hide();this.parentNode.parentNode.previous().hide();this.parentNode.parentNode.style.width='100%';return false;" title="maximize code view"><img src="templates/builder/images/icon_maximize.gif" border="0" alt="maximize code view" /></a>
 			<a href="#" style="display:none;" onclick="this.previous().show();this.hide();this.parentNode.parentNode.previous().show();this.parentNode.parentNode.style.width='50%';return false;" title="minimize code view"><img src="templates/builder/images/icon_minimize.gif" border="0" alt="minimize code view" /></a>
 		</div>
-		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>">Output Code <a title="In this area you can put the HTML code to be presented to the user" class="builder-help"> ? </a>:</label><br/>
+		<label for="html_code<?=(int)$arr_param["handler"]["handler_id"]?>" title="In this area you can put the HTML code to be presented to the user">Output Code:</label><br/>
 		<input type="hidden" id="hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>" name="handler[html_code]" value="" />
 		<div rel="call:hhtmlcodehSet(#handler.handler_id)" id="hhtmlcodehcontainer#handler.handler_id" class="tab-list">
 		<? if (is_array($arr_param['html_codes'])) foreach ($arr_param['html_codes'] as $code) { ?>
@@ -61,9 +61,9 @@
 	</div>
 	<div style="display: none;" id="schedule_#handler.handler_id">
 		<div class="scheduler">
-			<c:if cond="PHP_OS == WINNT">
+			<? if (PHP_OS == WINNT) { ?>
 				<div class="warning">Please note: All scheduling functionality is disabled on Windows servers.</div>
-			</c:if>
+			<? } ?>
 			<div class="form-entry date">
 				<div class="label">
 					<label for="from">Active:</label>
@@ -577,7 +577,7 @@
 			}, "-", /*{
 				xtype: "button",
 				id: "handler.#handler.handler_id_versionTag.button",
-				text: "<%=!empty($arr_param['lastVersion']['tag']) ? '&lt;'.$arr_param['lastVersion']['tag'].'&gt;' : 'Tag version'%>",
+				text: "<?=!empty($arr_param['lastVersion']['tag']) ? '&lt;'.$arr_param['lastVersion']['tag'].'&gt;' : 'Tag version'?>",
 				iconCls: "bookmark",
 				disabled: (<?=(int)$arr_param["handler"]["handler_id"]?> <= 0 || <?=!empty($arr_param['lastVersion']['tag']) ? 'true' : 'false'?> ? true : false),
 				handler: function(e) {

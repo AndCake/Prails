@@ -1,2 +1,2 @@
-sprintf("%.2f", $arr_param
+sprintf("%.2f", <?=(SNOW_MODE === true ? 'param' : '$arr_param')?>
 <? $var["close"] = true; ?>

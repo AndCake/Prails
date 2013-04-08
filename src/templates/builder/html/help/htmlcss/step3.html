@@ -1,0 +1,18 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:40%;"></div></div>
+
+<p>When clicking any of our links right now, the user will see a 404 page, which means the server can't find the document that was requested. This is, because we did not yet create those pages. We will come to this later.</p>
+
+<p>First, we want to improve the design of our menu. We want to make it appear right of the logo and all in one line. To do this, we first have to turn the logo into one single element, rather than two independent ones. This will make styling the menu in relation to the logo a lot easier. <span class="action" data-check="checkDiv()" title="It should look like that: <div><h1>...</h1><p>...</p></div>">Wrap the H1 and P tag into one <code>&lt;div&gt;</code> tag.</span> The semantic meaning of a DIV tag is, that it represents a <em><u>div</u>ision</em> and is used purely to imply a logical grouping of the enclosed elements. Now, to identify it as our logo, we <span class="action" data-check="checkId()">give that DIV an extra attribute - just as with our A tags before: <code>&lt;div id="logo"&gt;</code></span>.</p>
+
+<p>Every HTML tag can in fact have an ID attribute. It's used to unambiguously refer to a specific tag in HTML. We will use that to only style the DIV that wraps the logo rather than all DIVs that we might create later on.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step2.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step3.1.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+window.checkDiv = function() { return true; }
+window.checkId = function() { return true; }
+</script>

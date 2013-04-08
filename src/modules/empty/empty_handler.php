@@ -14,6 +14,7 @@ class EmptyHandler extends AbstractHandler
    {
       $this->obj_data = new EmptyData();
       $this->str_lang = $str_lang;
+      $this->gen = Generator::getInstance();
       $this->obj_print = new EmptyPrinter($str_lang);
 	  $this->obj_parent = $this;		// by default each module is it's own parent
    }

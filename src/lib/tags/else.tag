@@ -19,8 +19,8 @@
  * }}}
  * Depending on the value in variable `value`, it will print out different messages.
  **/
-?><? if ($tag["attributes"]["cond"]) { ?>
-	<@ } else if (<?=$this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"]))?>) { @>
+?><? if ($tag["attributes"]["cond"]) { $code = $this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"])); ?>
+	<@ } else if (<? if (SNOW_MODE === true) { $sc = new SnowCompiler($code."\n"); echo rtrim($sc->compile(), ";\r\n"); } else { echo $code; } ?>) { @>
 <? } else { ?>
 	<@ } else { @>
 <? } ?>

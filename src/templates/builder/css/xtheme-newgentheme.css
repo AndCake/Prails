@@ -1761,3 +1761,5 @@ width:57px !important;
 .x-row-editor .x-btns .x-plain-body {
 	background-image:url(../images/newgentheme/grid/row-editor-btns.gif) !important;
 }
+
+#tutorials .progress .bar { background: #c60; }

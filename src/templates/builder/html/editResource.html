@@ -17,7 +17,7 @@
 		<? if ($arr_param["resource"]["resource_id"] > 0 || $_GET["module_id"] < 0) { ?>
 		<br/>
 		<label>Resource Path</label><br/>
-		<span style="font-size:11px;"><b>HTML: </b><pre>templates/<%=strtolower($arr_param['module']['name'])%>/#local.path/<span>#resource.name</span></pre><br/>
+		<span style="font-size:11px;"><b>HTML: </b><pre>templates/<?=strtolower($arr_param['module']['name'])?>/#local.path/<span>#resource.name</span></pre><br/>
 		<b>CSS:</b> <pre>../#local.path/<span>#resource.name</span></pre></span>
 		<? } ?>
 		<script type="text/javascript">

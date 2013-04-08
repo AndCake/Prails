@@ -341,6 +341,17 @@ window.Builder = Object.extend(window.Builder || {}, {
 							handler: function() {
 								Builder.addTab("templates/builder/html/showProfiler.html", "System Profiler", "sys-prof", "debug");
 							}
+						} : ""),
+						(Builder.isDeveloper && Builder.prailsOS != "WINNT" ? {
+							xtype: "button",
+							id: "sync-download",
+							disabled: Builder.productionEnvironment == true,
+							iconCls: "download",
+							text: "Download Project",
+							tooltip: "Download the project as source code files and edit them with your favorite IDE. In order to save the files back to the server, you need the synchronization script you'll find in the sync folder to be running while editing the files.",
+							handler: function() {
+								location.href = baseHref + '?event=builder:downloadProject';
+							}
 						} : "")
 						] : null)
 					}],
@@ -987,9 +998,28 @@ window.Builder = Object.extend(window.Builder || {}, {
 					id: "sb_panel",
 					autoScroll: true,
 					html: $("shoutbox").innerHTML,
-					title: "Developer Chat",
+					title: "Prails Tutorial",
 					collapsible: true,
-					width: 220
+					width: 300,
+					listeners: {
+						collapse: function(e) {
+							localStorage.setItem("tutorial.shown", false);
+						},
+						expand: function(e) {
+							localStorage.setItem("tutorial.shown", true);	
+						},
+						afterrender: function(e) {
+							if (localStorage.getItem("tutorial.lastPage")) {
+								invoke("tutorials", localStorage.getItem("tutorial.lastPage"), null, false, function(req) {
+									setTimeout(function() {
+										document.fire("dom:loaded");
+									}, 10);
+								});
+							} else {
+								document.fire("dom:loaded");
+							}
+						}
+					}
 				}
 			]
 		});
@@ -1051,12 +1081,15 @@ window.Builder = Object.extend(window.Builder || {}, {
 			}
 		}]);
 		Builder.dold = (new Date()).getTime();
-		
+		if (typeof(localStorage.getItem("tutorial.shown")) === "undefined" || localStorage.getItem("tutorial.shown") === null) {
+			window.localStorage.setItem("tutorial.shown", true);
+		}
+
 		if (openedPanel.length > 0) {
     		Ext.getCmp(openedPanel).expand(true);
 		}
 		setTimeout(function() {
-			Ext.getCmp("sb_panel").collapse();
+			!window.localStorage.getItem('tutorial.shown') && Ext.getCmp("sb_panel").collapse();
 		}, 3000);
 	    new PeriodicalExecuter(function(pe){
 	    	new Ajax.Request("builder.crc32", {

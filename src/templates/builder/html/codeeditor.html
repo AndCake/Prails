@@ -5,6 +5,7 @@
 	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/codemirror.css"/>
 	<link rel="stylesheet" type="text/css" href="../js/codeeditor/lib/util/enhanced-hint.css"/>
 	<script type="text/javascript" src="../js/codeeditor/lib/codemirror.js"></script>
+	<script type="text/javascript" src="../js/codeeditor/lib/util/emmet.min.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/closetag.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/foldcode.js"></script>
 	<script type="text/javascript" src="../js/codeeditor/lib/util/enhanced-hint.js"></script>
@@ -27,7 +28,6 @@
 		         url('../css/meslolgm-dz-regular-webfont.svg#MesloLGMDZRegular') format('svg');
 		    font-weight: normal;
 		    font-style: normal;
-		
 		}
 
 		html, body { margin: 0px; padding: 0px; font-size: 11px; }
@@ -195,6 +195,7 @@
 			matchBrackets: true,
 			mode: mode,
 			indentUnit: 4,
+			indentWithTabs: true,
 			tabSize: 4,
 			theme: (snow ? "solarized light" : "default"),
 			onGutterClick: txt.foldFunc,

@@ -1,0 +1,26 @@
+<h3>Website basics</h3>
+<div class="progress"><div class="bar" style="width:91%;"></div></div>
+
+<p>There are many, many more CSS properties you can use in order to change the look of a certain HTML element and it's contents. If you want to learn more about this, please take a look at the W3C's <a href="http://www.w3.org/TR/CSS2/propidx.html" target="_new">CSS property list</a>.</p>
+
+<p>Currently, every time we want to create a new page, we need to copy all our style definitions from our first page over to the next one. This is tedious and might also become very error-prone at times. Instead, we can apply the style definitions to every page of that module.</p>
+
+<p>In order to do this, <span class="action" title="Copy via CTRL+C or CMD+C, don't forget to copy everything between <style> and </style>.">copy everything between the style tag. Then click the "Modules" headline at the personal navigation area</span> and it will bring you back to the module list. There, <span class="action">select the <code>Bakery</code> module and hit the <code>Options</code> button</span>. The contents that open up in the center area contain an area called <em>CSS / LESS styles</em>. <span class="action" title="it's important to notice that the rendered page still looks the same, since we removed the styles from the output code but instead put it into the module's styles." data-check="checkStyles()">Paste the style contents there and save it.</span> <span class="action" data-check="checkRemoved()">Then go back to the home event handler and remove the style tag, including it's contents. After saving the event handler, check if your page still looks the same as before.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/basics/step7.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/basics/step9.html" class="next" rel="tutorials">finish</a>
+</div>
+
+<script type="text/javascript">
+window.checkStyles = function checkStyles() {
+	var field = $$("form[id^='hform'] input[id^='m_name_']")[0];
+	num = field && field.value.search(/^Bakery$/i) !== -1 && field.id.replace('m_name_', '') || 0;
+	var css = num != 0 && Builder.getCode("code"+num) || "";
+	return css.search(/^\s*body\s*\{\s*background(-color)?\s*:\s*purple\s*;\s*color\s*:\s*rgb\s*\(\s*255\s*,\s*255\s*,\s*0\s*\)\s*;\s*\}\s*h1\s*\{\s*font-size\s*:\s*32px\s*;\s*\}\s*$/i) !== -1;
+}
+window.checkRemoved = function checkRemoved() {
+	var code = getCodeForHandler("home");
+	return code && code.search(/<style>/i) === -1;
+}
+</script>

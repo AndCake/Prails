@@ -163,7 +163,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 
 function initAjaxLinks() {
 	$$("a[rel], a.ajax, a.modal, a.dialog").each(function(item) {
-		if ((item.hasClassName("modal") || item.hasClassName("dialog")) && !item._ajaxified) {
+		if ((item.hasClassName("modal") || item.hasClassName("dialog")) && !(item.disabled && item.getAttribute("disabled")) && !item._ajaxified) {
 			var params = {buttons: false};
 			item._ajaxified = true;
 			if (item.rel) {
@@ -218,7 +218,7 @@ function initAjaxLinks() {
 				}
 				event.stop();
 			});
-		} else if ($(item.rel) != null && !item._ajaxified) {
+		} else if ($(item.rel) != null && !(item.disabled && item.getAttribute("disabled")) && !item._ajaxified) {
 			item._ajaxified = true;
 			item.observe("click", function(event) {
 				invoke(this.rel, this.href, null, false, function(req) {

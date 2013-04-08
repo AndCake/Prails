@@ -1,0 +1,18 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:67%;"></div></div>
+
+<p>What is missing now, is the actual content of the page and a footer. Let's add those too. First, we declare everything we did before as being part of the header. Therefore, first go back to the Bakery home event handler and <span class="action" data-check="checkHeader()">write <code>&lt;header&gt;</code> before the <code>&lt;div id="logo"&gt;</code> and move the closing HEADER tag to the very end, after the NAV tag.</span></p>
+
+<p>Our actual content will come into a <code>&lt;section&gt;</code> tag just below everything else. <span class="action" data-check="checkContent()">Add that new tag. Inside it, write <code>&lt;div id="intro"&gt;{bakery.intro}a href="Bakery/products" class="btn"&gt;Browse Our Cakes&lt;/a&gt;&lt;/div&gt;&lt;div id="featured"&gt;{bakery.featured}&lt;/div&gt;&lt;div id="news"&gt;{bakery.news}&lt;/div&gt;</code></span>. The texts inside the curly brackets (e.g. <code>{bakery.intro}</code> or <code>{bakery.news}</code>) indicate that we do not want to specify the actual content programmatically, but let a content manager choose what he/she wants to put there. This makes it easier to manually change the contents without any programming skills. These things are called <em>Content Assets</em>.</p>
+
+<p>In the A tag for "Browse Our Cakes", you might have noticed another attribute, called "class", which we've not seen before. This defines that A tag to be part of a class of elements, that share the same thing: the class <code>btn</code>. We can use that in CSS to style all elements with that class. The difference between the ID attribute and the CLASS attribute is, that there can only be one tag with a certain ID, but there can many tags be in the same class.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step3.3.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step4.1.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script>
+	window.checkHeader = function() { return true; }
+	window.checkContent = function() { return true; }
+</script>
