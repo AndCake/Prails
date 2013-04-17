@@ -1,5 +1,5 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:7%;"></div></div>
+<div class="progress"><div class="bar" style="width:8%;"></div></div>
 
 <p>Images on a web page are an essential part of many designs. Be it logos, product images or tiny arrows in front of navigation items. In Prails, images are one kind of a <em>resource</em> that should be uploaded to Prails in order to use it. This is exactly what we're going to do now. Right now our page looks a little plain. We want to add a simple logo just in front of our headline.</p>
 
@@ -13,7 +13,33 @@
 </div>
 
 <script type="text/javascript">
-window.checkRes = function() { return true; };
-window.checkUploaded = function() { return true; };
-window.checkOpened = function() { return true; };
+window.checkRes = function() { 
+	var x = false; 
+	$$("li[id^='qwbuilder_startupPanel__tab_rm_']").each(function(item) {
+		if (item.down('.x-tab-strip-text').innerHTML == "Bakery Resources") x = true;
+	});
+	return x;
+};
+window.checkUploaded = function() { 
+	var x = false;
+	$$("*[id^='rm_']").each(function(item) {
+		if (item.id.search(/rm_[0-9]+_tree/gi) !== -1) {
+			if (item.down('.x-tree-node a.x-tree-node-anchor')) {
+				x = true;
+			}
+		}
+	}); 
+	return x;
+};
+window.checkOpened = function() {
+	var x = false;
+	$$("*[id^='rm_']").each(function(item) {
+		if (item.id.search(/rm_[0-9]+_container/gi) !== -1) {
+			if (item.down('.x-panel-body div[id="'+item.id.replace('_container', '_mediator_container')+'"]')) {
+				x = true;
+			}
+		}
+	});
+	return x;
+};
 </script>

@@ -1,0 +1,27 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:88%;"></div></div>
+
+<p>Let's create the about page. Therefore, first <span class="action" data-check="checkPage()">go back to the static content section in the personal navigation area. There, right-click at "pages" and choose "Add Text". As identifier, we simply enter <code>about</code>. For "Decorator", choose our newly created decorator <code>Bakery:decorate</code></span>.</p>
+
+<p>As page title we choose to use <code>About My Bakery</code>. The all content we put in the Word-like field is our about page's content. We simply <span class="action" data-check="checkContent()">generate some nice text over at <a href="http://www.blindtextgenerator.com/" target="_blank">BlindTextGenerator.com</a> and paste it as content. Mark something as a nice headline and save it.</span></p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step6.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step7.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+	window.checkPage = function() {
+		return $("hformxcms.about") && $("hformxcms.about").down("select[name='texts[decorator]']").value.toLowerCase() == 'bakery:decorate';
+	};
+
+	window.checkContent = function() {
+		var result = false;
+		$$("#qwbuilder_langsPanel .x-tree-node-leaf").each(function(item) {
+			if (item.down("a span").innerHTML == 'about') {
+				result = true;
+			}
+		});
+		return result;		
+	}
+</script>

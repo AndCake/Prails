@@ -46,9 +46,11 @@
 			$new = true;
 		}
 		// do the actual stuff...
-		$tp = @fopen("prails.tar.bz2", "w+");
+		$temp = "tmp".rand(1, 99999)."/";
+		@mkdir($temp, 0755, true);
+		$tp = @fopen($temp."prails.tar.bz2", "w+");
 		if (PHP_OS == "WINNT") 
-			$xp = @fopen("7za.exe", "w+");
+			$xp = @fopen($temp."7za.exe", "w+");
 		if (!$tp || (!$xp && PHP_OS == "WINNT")) die("Unable to extract data! Please enable write access to the current directory.\n"); 
 		$fp = fopen(__FILE__, "r");
 		if (PHP_OS == "WINNT")
@@ -77,18 +79,19 @@
 		fclose($fp);
 		if (PHP_OS == "WINNT") {
 			fclose($xp);
-			exec("7za.exe x prails.tar.bz2");
-			exec("7za.exe x prails.tar");
-			unlink("prails.tar");
-			rename("7za.exe", "prails/7za.exe");
+			exec("cd ".$temp.";7za.exe x prails.tar.bz2");
+			exec("cd ".$temp.";7za.exe x prails.tar");
+			unlink($temp."prails.tar");
+			rename($temp."7za.exe", $temp."prails/7za.exe");
 		} else 
-			exec("tar xvjf prails.tar.bz2");
-		if (!file_exists("prails")) die("Unable to extract Prails into directory.\n");
+			exec("cd ".$temp."; tar xvjf prails.tar.bz2");
+		if (!file_exists($temp."prails")) die("Unable to extract Prails into directory.\n");
 		if ($dir == "./" || $dir == ".") 
-			exec("cd prails; mv * .[^.]* ..; cd ..; rm -rf prails");
+			exec("cd ".$temp."prails; mv * .[^.]* ../..; cd ..; rm -rf prails");
 		else
-			rename("prails", $dir);
-		unlink("prails.tar.bz2");
+			rename($temp."prails", $dir);
+		unlink($temp."prails.tar.bz2");
+		rmdir($temp);
 		if (!$new) {
 			if ($dir[strlen($dir) - 1] != '/') $dir .= "/";
 			$dir .= "prails/";

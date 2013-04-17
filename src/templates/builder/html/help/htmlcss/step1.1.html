@@ -1,9 +1,9 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:13%;"></div></div>
+<div class="progress"><div class="bar" style="width:12%;"></div></div>
 
 <p>As you can see, the image has been uploaded and is now available for use. At the bottom, you can see the <code>Resource Path</code> section with HTML and CSS paths. We will use the <em>CSS</em> resource path in a second, so <span class="action">copy that path</span>.</p>
 
-<p>Now <span class="action" title="click at ''Modules'', then select the ''Bakery'' module and click the ''Options'' button" data-check="checkStyles()">go back to the module's styles</span>, where we will add the image to our design. Images can be placed in HTML or using CSS. In this instance, we're doing this using CSS, because the logo image is no actual content, but rather a part of the design.</p>
+<p>Now <span class="action" title="click at ''Modules'', then select the ''Bakery'' module and click the ''Options'' button">go back to the module's styles</span>, where we will add the image to our design. Images can be placed in HTML or using CSS. In this instance, we're doing this using CSS, because the logo image is no actual content, but rather a part of the design.</p>
 
 <p>We want the logo to be part of the headline. As such, we're <span class="action" data-check="checkImg()" title="add it between the ; and the }.">updating the H1 style definition</span> to include the following four lines: <code>background: url() center left no-repeat;</code>, <code>padding-left: 74px;</code>, <code>line-height: 64px;</code> and <code>margin: 0;</code>. Now, <span class="action" title="the background attribute should then look like that: background: url(here comes the path) center left no-repeat;" data-check="checkSrc()">add the copied CSS path from the resource path between the brackets.</span></p>
 
@@ -16,6 +16,17 @@
 
 <script type="text/javascript">
 window.checkStyles = function() { return true; };
-window.checkImg = function() { return true; };
-window.checkSrc = function() { return true; };
+window.checkImg = function() {
+	var code = getCodeForModule("Bakery");
+	var bg = /h1\s*\{[^\}]+background\s*:\s*url\s*\([^\)]*\)\s+center\s+left\s+no-repeat\s*;[^\}]+\}/;
+	var pl = /h1\s*\{[^\}]+padding-left\s*:\s*74px\s*;[^\}]+\}/;
+	var lh = /h1\s*\{[^\}]+line-height\s*:\s*64px\s*;[^\}]+\}/;
+	var m = /h1\s*\{[^\}]+margin\s*:\s*0(\w+)?\s*;[^\}]+\}/;
+	return (code.search(bg) !== -1 && code.search(pl) !== -1 && code.search(lh) !== -1 && code.search(m) !== -1);
+};
+window.checkSrc = function() {
+	var code = getCodeForModule("Bakery");
+	var bg = /h1\s*\{[^\}]+background\s*:\s*url\s*\([a-zA-Z0-9_\.\-\/ "']+\)\s+center\s+left\s+no-repeat\s*;[^\}]+\}/;
+	return code.search(bg) !== -1;
+};
 </script>

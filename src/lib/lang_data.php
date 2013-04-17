@@ -121,6 +121,7 @@ class LangData
 				try {
 					  $conf = getConfiguration();
 					  $conf["DEFAULT_LANGUAGE"] = (int)$arr_result["language_id"];
+					  $conf["DEFAULT_LANGUAGE_ABBR"] = $arr_result["abbreviation"];
 					  $toSave = Array();
 					  foreach ($conf as $name => $val) {
 					  	$toSave[] = Array("name" => $name, "value" => $val);
@@ -130,8 +131,7 @@ class LangData
 			}
 			$str_lang = $arr_result["abbreviation"];
 			$this->language_id = $arr_result["language_id"];
-//			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguage"] = $str_lang;
-//			$_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"] = $this->language_id;
+			setcookie("defaultLangAbbr", $str_lang);
 			setcookie("defaultLang", $this->language_id);
 		}
 	}

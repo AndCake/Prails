@@ -1,13 +1,16 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:73%;"></div></div>
+<div class="progress"><div class="bar" style="width:52%;"></div></div>
 
-<p>The last thing, that is missing, is the footer of our page. <span class="action"Go to the end of your output code and type <code>&lt;footer&gt;&amp;copy; 2013 My Bakery Company. All Rights Reserved.&lt;/footer&gt;</code></span>. There is this strange text in there: <code>&amp;copy;</code>, of which we already have seen a similar thing in our menu: <code>&amp;amp;</code>. These are called HTML entities, which are used to produce certain characters, in this instance a copyright symbol. There are many other such entities. You can find a list of HTML entities over at the <a href="http://www.w3schools.com/html/html_entities.asp" target="_new">W3 Schools</a>.</p>
-
-<p>Now let's get to some styling for the new things we added in the previous step. Go back to the module styles. First of all, we want that all our main page elements, the header, the content section and the footer always are below one another. Therefore, we add to our styles at the very bottom: <code>header, section, footer { .clearfix; }</code>.</p>
-
-<p>You might be wondering over the <code>.clearfix</code>, as it doesn't look like our normal <code>[attribute]: [value]</code> definition. In fact, this is a kind of template, called <em>Mixin</em>. It is used to generate a set of CSS attribute definitions. This happens automatically when it is sent to the client.</p>
+<p>The last thing, that is missing, is the footer of our page. <span class="action" data-check="checkFooter()">Go to the end of your output code and type <code>&lt;footer&gt;&amp;copy; 2013 My Bakery Company. All Rights Reserved.&lt;/footer&gt;</code></span>. There is this strange text in there: <code>&amp;copy;</code>, of which we already have seen a similar thing in our menu: <code>&amp;amp;</code>. These are called HTML entities, which are used to produce certain characters, in this instance a copyright symbol. There are many other such entities. You can find a list of HTML entities over at the <a href="http://www.w3schools.com/html/html_entities.asp" target="_new">W3 Schools</a>.</p>
 
 <div class="actions">
-	<a href="templates/builder/html/help/htmlcss/step4.html" class="ajax" rel="tutorials">back</a>
-	<a href="templates/builder/html/help/htmlcss/step4.1.1.html" class="next" rel="tutorials">next</a>
+	<a href="templates/builder/html/help/htmlcss/step4.0.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step4.1.0.html" class="next" rel="tutorials">next</a>
 </div>
+
+<script type="text/javascript">
+	window.checkFooter = function() {
+		var code = getCodeForHandler("home");
+		return code.search(/<footer\s*>\s*&copy;\s*2013((\s+\w+)+\.)+<\/footer>\s*/i) !== -1;
+	};
+</script>

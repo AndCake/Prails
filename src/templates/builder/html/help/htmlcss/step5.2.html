@@ -1,0 +1,22 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:80%;"></div></div>
+
+<p>For creating a decorator <span class="action" title="Click at ''Modules'' in the personal navigation area, then double-click the ''Bakery'' module.">go back to the list of event handlers at the Bakery module</span>. <span class="action" title="The decorator can have any name you may want to choose. However, it's easier to remember that it's a decorator if that information is part of it's name." data-check="checkHome()">Then click the <code>Add</code> button and enter a name for the decorator into the event handler name's field: <code>decorate</code>. Then move all the output code from the home event handler over to the new event handler</span>. But keep everything inside the SECTION tag in the home handler's output code.</p>
+
+<p>In the decorate event handler, now <span class="action" data-check="checkDecorator()">remove everything inside the SECTION tag and instead write there: <code>&lt;c:body/&gt;</code></span>. This by itself declares the event handler as a decorator. <span class="action">Save it</span>.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step5.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step5.3.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+	window.checkDecorator = function() {
+		var code = getCodeForHandler("decorate");
+		return code.search(/<\/header>\s*<section>\s*<c:body\s*\/>\s*<\/section>\s*<footer>/i) !== -1;
+	};
+	window.checkHome = function() {
+		var code = getCodeForHandler("home");
+		return code.search(/^\s*<div\s+id="intro"\s*>/i) !== -1 && code.search(/<\/div>\s*$/i) !== -1;
+	};
+</script>

@@ -50,12 +50,16 @@ class BuilderHandler
 						$val = trim($val);
 					}
 					$u_group = -1;
+					$primaryGroup = "devel";
 					foreach ($groups as $group)
 					{
 						list ($grp, $users) = explode("=", $group);
 						$users = explode(",", trim($users));
 						if (in($_SERVER["PHP_AUTH_USER"], $users))
 						{
+							if (in("[primary]", $grp)) {
+								$primaryGroup = $grp;
+							}
 							$u_group = $grp;
 							break;
 						}
@@ -63,7 +67,7 @@ class BuilderHandler
 					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(USER_SALT !== "USER_SALT" ? USER_SALT : "")), $passwd))
 					{
 						$_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
-						$_SESSION["builder"]["user_id"] = crc32("devel");
+						$_SESSION["builder"]["user_id"] = crc32($primaryGroup);
 						$_SESSION["builder"]["group"] = $u_group;
 					} else
 					{

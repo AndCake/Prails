@@ -1,9 +1,12 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:27%;"></div></div>
+<div class="progress"><div class="bar" style="width:20%;"></div></div>
 
-<p>Now that we have our logo, let's add a navigation menu for the user to navigate between the different pages that we will have in our application.</p>
-<p>In HTML, there is a special tag for marking up the main navigation menu. It is called <code>&lt;nav&gt;</code>. Go back to the home event handler and <span class="action" data-check="checkNav()">add that NAV tag below the P tag</span> - keep it empty for now. A NAV tag is of course not enough to give us the menu. We need to define the menu's content.</p>
+<p>Now that we have our logo, let's add a menu for the user to navigate between the different pages of our application.</p>
+
+<p>In HTML, there is the <code>&lt;nav&gt;</code> tag for marking up the main navigation menu. Go back to the home event handler and <span class="action" data-check="checkNav()">add that NAV tag below the P tag</span>. A NAV tag is of course not enough to give us the menu. We need to define the menu's content.</p>
+
 <p>Our main menu is actually a list of links to other pages. So for lists specifically, there are other tags: <code>&lt;ul&gt;</code> and <code>&lt;ol&gt;</code>, whereby UL is used for <u>u</u>nordered <u>l</u>ists and OL is used for <u>o</u>rdered <u>l</u>ists. Both tags are dependent a sub-tag: <code>&lt;li&gt;</code>, which stands for <u>l</u>ist <u>i</u>tem. UL and OL can't be used without at least one LI.</p>
+
 <p>So accordingly, <span class="action" title="The structure should then look like this: <nav><ul></ul></nav>" data-check="checkUL()">add a UL tag into the NAV tag</span>. <span class="action" title="the structure should then look like this:
 <nav><ul>
 	<li>About</li>
@@ -11,6 +14,7 @@
 	<li>Store Locator</li>
 	<li>Contact Us</li>
 </ul></nav>" data-check="checkLIs()">Then insert the following LIs into the UL tag: <code>&lt;li&gt;About&lt;/li&gt;</code>, <code>&lt;li&gt;Products &amp;amp; Prices&lt;/li&gt;</code>, <code>&lt;li&gt;Store Locator&lt;/li&gt;</code> and <code>&lt;li&gt;Contact Us&lt;/li&gt;</code>.</span> These will become our links.</p>
+
 <p>Try it out, how it looks like.</p>
 
 <div class="actions">
@@ -18,7 +22,16 @@
 	<a href="templates/builder/html/help/htmlcss/step2.1.html" class="next" rel="tutorials">next</a>
 </div>
 <script type="text/javascript">
-window.checkNav = function() { return true; }
-window.checkUL = function() { return true; }
-window.checkLIs = function() { return true; }
+window.checkNav = function() {
+	var code = getCodeForHandler("home");
+	return code.search(/<\/p>\s*<nav>([^<]|<[^\/]|<\/[^n]|<\/n[^a]|<\/na[^v]|<\/nav[^>])*<\/nav>/i) !== -1;
+}
+window.checkUL = function() {
+	var code = getCodeForHandler("home");
+	return code.search(/<nav>\s*<ul>([^<]|<[^\/]|<\/[^u]|<\/u[^l]|<\/ul[^>])*<\/ul>\s*<\/nav>/i) !== -1;	
+}
+window.checkLIs = function() { 	
+	var code = getCodeForHandler("home");
+	return code.search(/<nav>\s*<ul>\s*<li>\s*About\s*<\/li>\s*<li>\s*Products\s*&(amp;?)\s*Prices\s*<\/li>\s*<li>\s*Store\s+Locator\s*<\/li>\s*<li>\s*Contact\s+Us\s*<\/li>\s*<\/ul>\s*<\/nav>/i) !== -1;	
+}
 </script>

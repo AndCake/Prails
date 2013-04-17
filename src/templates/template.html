@@ -1,6 +1,6 @@
 <?php global $SERVER; ?>
 <!DOCTYPE HTML>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="<?=one_of($_COOKIE['defaultLangAbbr'], defined(DEFAULT_LANGUAGE_ABBR) && strlen(DEFAULT_LANGUAGE_ABBR) > 0 ? DEFAULT_LANGUAGE_ABBR : "en_us")?>" xml:lang="<?=one_of($_COOKIE['defaultLangAbbr'], defined(DEFAULT_LANGUAGE_ABBR) && strlen(DEFAULT_LANGUAGE_ABBR) > 0 ? DEFAULT_LANGUAGE_ABBR : "en_us")?>">
    	<head>
 		<title><?=$this->getTitle()?></title>
 		<meta name="description" content="<?=$this->getDescription()?>" />
@@ -9,7 +9,7 @@
 		<meta name="googlebot" content="index, follow" />
 		<meta http-equiv="content-encoding" content="compress, gzip" />
 		<meta http-equiv="expires" content="never" />
-		<meta http-equiv="content-language" content="en-us" />
+		<meta http-equiv="content-language" content="<?=one_of($_COOKIE['defaultLangAbbr'], defined(DEFAULT_LANGUAGE_ABBR) && strlen(DEFAULT_LANGUAGE_ABBR) > 0 ? DEFAULT_LANGUAGE_ABBR : "en_us")?>" />
 		<meta name="distribution" value="global" />
        	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
        	<link rel="shortcut icon" href="favicon.ico" />

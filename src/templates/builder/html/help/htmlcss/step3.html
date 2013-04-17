@@ -1,5 +1,5 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:40%;"></div></div>
+<div class="progress"><div class="bar" style="width:28%;"></div></div>
 
 <p>When clicking any of our links right now, the user will see a 404 page, which means the server can't find the document that was requested. This is, because we did not yet create those pages. We will come to this later.</p>
 
@@ -13,6 +13,12 @@
 </div>
 
 <script type="text/javascript">
-window.checkDiv = function() { return true; }
-window.checkId = function() { return true; }
+window.checkDiv = function() { 
+	var code = getCodeForHandler("home");
+	return code.search(/<div[^>]*>\s*<h1\b/i) !== -1 && code.search(/<\/p>\s*<\/div>/i) !== -1;
+}
+window.checkId = function() {
+	var code = getCodeForHandler("home");
+	return code.search(/<div\s+id\s*=\s*("logo"|'logo')\s*>/i) !== -1;
+}
 </script>

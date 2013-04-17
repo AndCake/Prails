@@ -1,5 +1,5 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:60%;"></div></div>
+<div class="progress"><div class="bar" style="width:40%;"></div></div>
 
 <p>When you try it out now, you'll notice, that the link's color is changing to gray if you move your mouse over it. That state is called <em>hover</em>. In CSS we can modify the style of that state as well. The following style definition <span class="action" title="just before the closing bracket of the style definition of A." data-check="checkHover()">inside the A tag will take care of it: <code>&amp;:hover { color: rgb(187, 135, 47); }</code>. </p>
 <p>But what does it do? The <code>&amp;</code> at the beginning means that whatever comes next is actually not for something inside the surrounding tag (in this case something inside the A's style definition), but actually an addition to the style definition itself. The <code>:hover</code> is called a pseudo attribute, as it refers to a specific state (the "hover" state) of a style definition. So in fact, we define the style for the "hover" state of the A tag.</p>
@@ -10,5 +10,8 @@
 </div>
 
 <script type="text/javascript">
-window.checkHover = function() { return true; }
+window.checkHover = function() {
+	var code = getCodeForModule("Bakery");
+	return code.search(/a\s*\{[^\}]*&:hover\s*\{\s*color\s*:\s*rgb\(187\s*,\s*135\s*,\s*47\s*\)\s*;\s*\}[^\}]*\}/i) !== -1;
+}
 </script>

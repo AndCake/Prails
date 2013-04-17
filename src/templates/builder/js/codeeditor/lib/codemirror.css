@@ -197,7 +197,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #f22;}
 .cm-s-solarized .cm-special { color: #6c71c4; }
 .cm-s-solarized .cm-em { color: #999; text-decoration: underline; text-decoration-style: dotted; }
 .cm-s-solarized .cm-strong { color: #eee; }
-.cm-s-solarized .cm-tab { display: inline-block; background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=) right center no-repeat; }
+.cm-s-solarized .cm-tab { opacity: 0.5; display: inline-block; background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=) right center no-repeat; }
 .cm-s-solarized.cm-s-light .CodeMirror-focused .CodeMirror-selected { background: #eee8d5; color: inherit; }
 .cm-s-solarized.cm-s-light ::selection { background: #eee8d5; color: inherit; }
 .cm-s-solarized.cm-s-light .activeline { background: rgba(0, 0, 0, 0.05); }

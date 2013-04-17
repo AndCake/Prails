@@ -1,0 +1,18 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:56%;"></div></div>
+
+<p>Now let's get to some styling for the new things we added in the previous step. Go back to the module styles. First of all, we want that all our main page elements, the header, the content section and the footer always are below one another. Therefore, we <span class="action" data-check="checkClearfix()">add to our styles at the very bottom: <code>header, section, footer { .clearfix; }</code></span>.</p>
+
+<p>You might be wondering over the <code>.clearfix</code>, as it doesn't look like our normal <code>[attribute]: [value]</code> definition. In fact, this is a kind of template, called <em>Mixin</em>. It is used to generate a set of CSS attribute definitions. This happens automatically right before the page is sent to the client.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step4.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step4.1.1.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+	window.checkClearfix = function() {
+		var code = getCodeForModule("Bakery");
+		return code.search(/header\s*,\s*section\s*,\s*footer\s*\{\s*\.clearfix(\(\s*\))?\s*;\s*\}/i) !== -1;
+	};
+</script>

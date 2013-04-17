@@ -116,6 +116,50 @@ span.sbtext { font-size: 12px; font-family: "Courier New", "Lucida Console", mon
 			font-size: 11px; 
 		}
 	}
+	.quiz > li {
+		font-weight: bold;
+		margin-top: 1em;
+
+		&.wrong {
+			color: red;
+		}
+		&.correct {
+			color: green;
+		}
+		ul {
+			list-style-type: none;
+			margin: 0;
+			padding: 0;
+
+			li { 
+				margin: 0;
+				padding: 0;
+				cursor: pointer;
+				font-weight: normal;
+				vertical-align: top;
+				line-height: 17px;
+
+				&::before {
+					width: 15px;
+					height: 15px;
+					display: inline-block;
+					border: 1px solid #ccc;
+					content: " ";
+					margin-right: 5px;
+					line-height: 15px;
+					text-align: center;
+					vertical-align: middle;
+				}
+				&.selected::before {
+					content: "x";
+				}
+				&:hover::before {
+					content: "x";
+					color: #ccc;
+				}
+			}
+		}
+	}
 	.progress {
 		height: 5px;
 		border: 1px solid #ccc;

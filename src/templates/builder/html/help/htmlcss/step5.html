@@ -1,15 +1,20 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:86%;"></div></div>
+<div class="progress"><div class="bar" style="width:72%;"></div></div>
 
-<p>Now we have a nice homepage. But what about the other pages? In order to not copy &amp; paste everything or even create everything anew, Prails has a concept, called <em>decorators</em>. This means, an event handler can decorate itself with the result of another event handler. This decoration usually is something like the header and footer, sometimes additional navigation elements, whereas the content remains at the actual event handler that was called. Now, in order to prepare for creating new pages that all share our header including the navigation menu and the footer, we'll create such a decorator.</p>
+<p>When you try it out, you'll notice, that the different content areas, so the news, the featured area and the introduction are all just below one another. Not particularily nice... Let's change that.</p>
 
-<p>Therefore, go <span class="action" title="Click at ''Modules'' in the personal navigation area, then double-click the ''Bakery'' module.">back to the list of event handlers at the Bakery module</span>. <span class="action">Then click the <code>Add</code> button and enter a name for the decorator into the event handler name's field: <code>decorate</code>. Then move all the output code from the home event handler over to the new event handler. But keep everything inside the SECTION tag in the home handler's output code.</p>
+<p><span class="action" data-check="checkDP()">Go to the Bakery module styles and add a new rule for both: <code>#news, #featured { .dp50; } </code></span>. This <code>.dp50;</code> is, as you might have guessed another mixin, which is responsible for making an element taking 50% of the available space and make all following content float right of it. As both are 50%, they take all the available space, but share it in one line.</p>
 
-<p>In the decorate event handler, now remove everything inside the SECTION tag and instead write there: <code>&lt;c:body/&gt;</code>. This by itself declares the event handler as a decorator. Save it and go back to the home event handler.</p>
-
-<p>Here we still have to use it. For this, make the output code column smaller again, by pressing the <code>-</code> button right of it. Once the Handler code column is visible again, change it's last line to <code>&lt;- out param, "Bakery:decorate"</code>, which will tell the home event handler when run, that it should use the decorate event handler from the Bakery module for it's decoration.</p>
+<p>There are also other flavors of this mixin, for example <code>.dp33;</code>, <code>.dp25;</code> or <code>.dp20;</code> but you can also have it even more flexible than that using the configurable mixin <code>@dp(48%);</code>, whereas you can set the 48% to anything of your liking.</p>
 
 <div class="actions">
-	<a href="templates/builder/html/help/htmlcss/step4.2.html" class="ajax" rel="tutorials">back</a>
-	<a href="templates/builder/html/help/htmlcss/step6.html" class="next" rel="tutorials">next</a>
+	<a href="templates/builder/html/help/htmlcss/step4.3.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step5.1.html" class="next" rel="tutorials">next</a>
 </div>
+
+<script type="text/javascript">
+	window.checkDP = function() {
+		var code = getCodeForModule("Bakery");
+		return code.search(/\s*#news\s*,\s*#featured\s*\{\s*\.dp50\s*;\s*\}/i) !== -1;		
+	}
+</script>

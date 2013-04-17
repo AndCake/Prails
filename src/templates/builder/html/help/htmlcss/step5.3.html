@@ -1,0 +1,18 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:84%;"></div></div>
+
+<p>We still have to make use of the decorator. Therefore, <span class="action">go back to the home event handler</span>. <span class="action">Make the output code column smaller again</span>, by pressing the <code>-</code> button right of it. Once the Handler code column is visible again, <span class="action" data-check="checkOut()">change it's last line to <code>&lt;- out param, "Bakery:decorate"</code></span>. This will tell the home event handler when run, that it should use the decorate event handler from the Bakery module for it's decoration.</p>
+
+<p>We will take a deeper look into how the handler code (on the left hand-side  works and many of it's possibilities in the "Server-side Scripting" tutorial.</p>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step5.2.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/htmlcss/step6.html" class="next" rel="tutorials">next</a>
+</div>
+
+<script type="text/javascript">
+	window.checkOut = function() {
+		var code = getCodeForHandler("home", true);
+		return code.search(/<-\s*out\s+param,\s*"Bakery:decorate"/) !== -1;
+	};
+</script>

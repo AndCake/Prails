@@ -163,7 +163,7 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 
 function initAjaxLinks() {
 	$$("a[rel], a.ajax, a.modal, a.dialog").each(function(item) {
-		if ((item.hasClassName("modal") || item.hasClassName("dialog")) && !(item.disabled && item.getAttribute("disabled")) && !item._ajaxified) {
+		if ((item.hasClassName("modal") || item.hasClassName("dialog")) && !item._ajaxified) {
 			var params = {buttons: false};
 			item._ajaxified = true;
 			if (item.rel) {
@@ -178,6 +178,10 @@ function initAjaxLinks() {
 			}
 			if (item.getAttribute("title")) params["title"] = item.getAttribute("title");
 			item.observe("click", function(event) {
+				event.stop();
+				if (this.disabled || this.getAttribute("disabled")) {
+					return false;
+				}
 				if (this.getAttribute("href").indexOf('#') >= 0) {
 					var el = $$(this.getAttribute("href").replace(location.href.replace(/#(.*)$/gi, ''), ''))[0];
 					if (el) {
@@ -216,41 +220,49 @@ function initAjaxLinks() {
 						});
 					}
 				}
-				event.stop();
 			});
-		} else if ($(item.rel) != null && !(item.disabled && item.getAttribute("disabled")) && !item._ajaxified) {
+		} else if ($(item.rel) != null && !item._ajaxified) {
 			item._ajaxified = true;
 			item.observe("click", function(event) {
+				event.stop();
+				if (this.disabled || this.getAttribute("disabled")) {
+					return false;
+				}
 				invoke(this.rel, this.href, null, false, function(req) {
+					var it = this;
 					setTimeout(function() {
 						document.fire("dom:loaded");	
-						try { eval(item.onload); } catch(e){window.console && console.log(e.message);};
+						try { typeof(it.onload) == 'string' && eval(it.onload) || typeof(it.onload) == 'function' && it.onload.call(it); } catch(e){window.console && console.log(e.message);};
 					}, 10);
 				});
-				event.stop();
 			});
 		} else if (!item._ajaxified) {
 			item._ajaxified = true;
 			var callback = function(req) {
-				if (item.onload) {
-					try { eval(item.onload); } catch(e){window.console && console.log(e.message);};
+				if (this.onload) {
+					try { typeof(this.onload) == 'string' && eval(this.onload) || typeof(this.onload) == 'function' && this.onload.call(this); } catch(e){window.console && console.log(e.message);};
 				}
 			};
 			if (item.href.indexOf("#") >= 0) {
 				var el = $(item.href.replace(/^([^#]*#)/gi, ''));
 				if (el) {
 					item.observe("click", function(event) {
-						invoke(el, this.href, callback);
 						event.stop();
+						if (this.disabled || this.getAttribute("disabled")) {
+							return false;
+						}
+						invoke(el, this.href, callback.call(this));
 					});
 				}
 
 			}
 			item.observe("click", function(event) {
-				invoke(this.href, callback);
 				event.stop();
+				if (this.disabled || this.getAttribute("disabled")) {
+					return false;
+				}
+				invoke(this.href, callback.call(this));
 			});
-			
 		}
 	});
 }
@@ -267,6 +279,7 @@ function initWysiwyg() {
 		    theme_advanced_toolbar_location : "top",
 	        theme_advanced_toolbar_align : "left",		    
 		    skin : "o2k7",
+		    use_native_selects: true,
 	        skin_variant : "silver",
 	        readonly: ((item.disabled || item.getAttribute("disabled")) && 1) || 0,
 	        plugins: "style,table,advimage,inlinepopups,searchreplace,contextmenu,paste,media,fullscreen,advlist",

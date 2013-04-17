@@ -144,7 +144,9 @@ function updateConfiguration($arr_configuration, $module = false) {
 			if ($value == (string)(int)$value) $var = intval($value);
 		} else if (gettype($value) == "string") {  
 			$var = "\"".$value."\"";
-		} else {
+		} else if (empty($value)) {
+      $var = "\"\"";
+    } else {
 			$var = $value;
 		}
 		array_push($settings, "\"".$conf["name"]."\" => ".$var);

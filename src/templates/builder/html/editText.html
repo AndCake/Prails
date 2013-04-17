@@ -52,7 +52,7 @@
     <? if ($arr_param['text']['type'] == 2 && substr($arr_param['text']['path'], 0, 4) == 'cms.') { ?>
     <div class="seo">
 	<div class="formfield">
-		<label>SEO Title:</label><br/>
+		<label>Page Title:</label><br/>
 		<input type="text" name="texts[title]" value="#text.title" style="width:200px;" />
 	</div>
 	<div class="formfield">
@@ -160,7 +160,7 @@
 			    width: "auto",
 			    defaults: {
 			    	width: "auto",
-				    autoScroll: true,
+				    autoScroll: false,
 			    	closable: false,
 				    listeners: {
 				    	activate: function(p) {}
@@ -168,7 +168,6 @@
 			    },
 			    deferredRender: false,
 			    height: (parseInt($("hformx<?=$arr_param['texts'][0]['identifier']?>").parentNode.parentNode.style.height) - 170),
-			    autoScroll: true,
 			    autoTabs: true
 			});
 			$("cadefbtn").observe('click', function(event){
@@ -308,11 +307,8 @@
 				           		}
 				           		
 				           		// add the node to the tree
-				           		console.log("found path: "+part+"; tree:", tree);
 			           			Builder.langRoot.createSubNode(data["texts[identifier]"].split(".").pop(), tree, Builder.langRoot.findChild("id", "text_."+part, true));
-			           			console.log("tried to create node");
 			           			// and re-open the tab
-			           			console.log("trying to close x_<?=$arr_param["texts"][0]['identifier']?>");
 			           			Builder.closeTab("x_<?=$arr_param["texts"][0]['identifier']?>");
 			           			Builder.editText({ident: data['texts[identifier]'], text: data["texts[identifier]"].split(".").pop()});
                                 //loadURL("?event=builder:home&open_nav=qwbuilder_langsPanel&open_tree="+data["texts[identifier]"]);
@@ -320,7 +316,7 @@
 				        }
 				    });
 				}
-			}, {
+			}, "-", {
 			    xtype: "button",
 			    text: "Add Language",
 			    iconCls: "locale",
@@ -396,7 +392,7 @@
 					});
 			        langWin.show();
 			    }
-			}, {
+			}, "-", {
 			    xtype: "button",
 			    text: "Edit Language",
 			    iconCls: "edit",
@@ -419,7 +415,7 @@
 			         <? } ?>
 			       ]
 			    }
-		    }, {
+		    }, "-", {
                 text: "Delete Language",
                 iconCls: "delete",
                 menu: {

@@ -38,6 +38,7 @@
 			<li><a href="http://prails.org/static/documentation.html" target="_api">API Documentation</a></li>
 			<li><a href="javascript:(function(){var s=document.createElement('script');s.src='templates/builder/js/langhelper.js';document.body.appendChild(s);})();">CMS Helper Bookmarklet</a></li>
 		</ul>
+		<p>To install the CMS Helper Bookmarklet, drag the link into the Bookmarks Bar of your browser. When you are viewing a page in a Prails development environment, you can then click that Bookmark and it will show you all content assets and allow you to edit them.</p>
 	</div>
 </div>
 <div id="export_panel" style="display: none;">
@@ -373,8 +374,8 @@
 		<ul>
 			<li><a href="templates/builder/html/help/basics/index.html" rel="tutorials" title="We're going through the basics of a web application. You will learn what a web page actually consists of and how to control basic aspects, like it's design.">Website basics</a></li>
 			<li><a href="templates/builder/html/help/htmlcss/index.html" rel="tutorials">HTML and CSS</a></li>
-			<li><a disabled="disabled" href="templates/builder/html/help/js/index.html" rel="tutorials">dynamic web pages</a></li>
-			<li><a disabled="disabled" href="templates/builder/html/help/<?=(SNOW_MODE === true ? 'snow' : 'php')?>/index.html" rel="tutorials">server-side scripting</a></li>
+			<li><a href="templates/builder/html/help/js/index.html" rel="tutorials">dynamic web pages</a></li>
+			<li><a href="templates/builder/html/help/<?=(SNOW_MODE === true ? 'snow' : 'php')?>/index.html" rel="tutorials">server-side scripting</a></li>
 		</ul>
 		<p>If you want to get started, hit the <code>next</code> link below.</p>
 		<div class="actions">
@@ -382,15 +383,26 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		window.getCodeForHandler = function(handler) {
+		window.getCodeForHandler = function(handler, scode) {
+			if (typeof(scode) === 'undefined') scode = false;
 			result = null;
 			$$("form[id^='hformh'] input[id^='h_event_']").each(function(item) {
-				if (item.value == handler) {
+				if (item.value.toLowerCase() == handler.toLowerCase()) {
 					var num = item.id.replace('h_event_', '');
-					result = Builder.getCode("html_codeh"+num+"html_"+num);
+					result = Builder.getCode((scode ? "codeh"+num+"hcode_" : "html_codeh"+num+"html_")+num);
 				}
 			});
 			return result;
+		};
+		window.getCodeForModule = function(mod) {
+ 			result = null;
+ 			$$("form[id^='hform'] input[id^='m_name_']").each(function(item) {
+ 				if (item.value.toLowerCase() == mod.toLowerCase()) {
+					var num = item.id.replace('m_name_', '');
+					result = Builder.getCode("code"+num);
+ 				}
+ 			});
+ 			return result;
 		};
 		window.tutorialStart = $("tutorials").innerHTML;
 		addLoadEvent(function() {
@@ -953,7 +965,7 @@
 		<? if (!$found) { ?>
 			Builder.langRoot.createSubNode("pages", {}, Builder.langRoot);
 		<? } ?>
-		window.Builder.isDeveloper = <?=$_SESSION["builder"]["group"] != "devel" ? "false" : "true"?>;
+		window.Builder.isDeveloper = <?=in_array($_SESSION["builder"]["group"], Array("cms", "admin")) ? "false" : "true"?>;
 		window.Builder.isAdmin = <?=($_SESSION["builder"]["group"] == "admin" || $_SESSION["builder"]["name"] == "admin") ? "true" : "false"?>;
 		window.Builder.prailsOS = "<?=PHP_OS?>";
 		window.Builder.productionEnvironment = <?=(ENV_PRODUCTION ? "true" : "false")?>;

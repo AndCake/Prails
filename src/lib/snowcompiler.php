@@ -1,5 +1,7 @@
 <?php
 class SnowCompiler {
+	const VERSION = '0.0.3';
+
 	protected $ebnf = '
 {
 	"T_NULL": "null\\\\b",
@@ -23,9 +25,10 @@ class SnowCompiler {
 	"T_RETURN": ["[ ]*<-\\\\s*", "<T_SIMPLE_EXPRESSION>"],
 	"T_FNCALL": {"|": ["<T_FNDOCALL>", "<T_FNPLAINCALL>", "<T_FN_CHAINCALL>"]},
 	"T_FNDOCALL": ["do\\\\s+", "<T_FNNAME>"],
-	"T_FNCSCALL": ["<T_FNNAME>", "[ ]+", "<T_FN_PARAMETERS>"],
+	"T_FNCSCALL": ["<T_FNNAME>", "[ ]+", "<T_FN_PARAMETERS1>"],
 	"T_FNPLAINCALL": ["(new\\\\s+)?", "<T_FNNAME>", "\\\\s*\\\\(\\\\s*", "<T_FN_PARAMETERS>", "\\\\s*\\\\)"],
 	"T_FN_CHAINCALL": ["<T_CHAIN_EXPRESSION>", {"+": ["->", "<T_FNNAME>", "\\\\s*\\\\(\\\\s*", "<T_FN_PARAMETERS>", "\\\\s*\\\\)"]}],
+	"T_FN_PARAMETERS1": ["<T_SIMPLE_EXPRESSION>", {"*": ["\\\\s*,\\\\s*", "<T_SIMPLE_EXPRESSION>"]}],
 	"T_FN_PARAMETERS": {"?": ["<T_SIMPLE_EXPRESSION>", {"*": ["\\\\s*,\\\\s*", "<T_SIMPLE_EXPRESSION>"]}]},
 	"T_CONST_DEF": ["<T_CONST>", "\\\\s*=\\\\s*", "<T_SIMPLE_EXPRESSION>"],
 	"T_CONST": ["!", "<T_UPPERCASE_IDENTIFIER>"],
@@ -41,8 +44,8 @@ class SnowCompiler {
 	"T_PCONDITION": {"|": [["\\\\s*\\\\(\\\\s*", "<T_CONDITION>", "\\\\s*\\\\)"], "<T_CONDITION>"]},
 	"T_CONDITION": ["<T_CONDITION_PART>", {"*": ["<T_BOOL_OP>", "<T_CONDITION_PART>"]}],
 	"T_CONDITION_PART": {"|": ["<T_PCOMPARISON>", [{"?": ["<T_BOOL_NEGATION>"]}, {"|": ["<T_EMPTY>", "<T_EXISTS>", "<T_SIMPLE_EXPRESSION>"]}]]},
-	"T_EMPTY": ["<T_IDENTIFIER>", "\\\\?\\\\?"],
-	"T_EXISTS": ["<T_IDENTIFIER>", "\\\\?"],
+	"T_EMPTY": [{"|": ["<T_IDENTIFIER>", "<T_CONST>"]}, "\\\\?\\\\?"],
+	"T_EXISTS": [{"|": ["<T_IDENTIFIER>", "<T_CONST>"]}, "\\\\?"],
 	"T_WHILE": ["while\\\\s+", "<T_PCONDITION>", "<T_INDENTED_EXPRESSIONS>"],
 	"T_PCOMPARISON": {"|": [["\\\\s*\\\\(\\\\s*", "<T_COMPARISON>", "\\\\s*\\\\)"], "<T_COMPARISON>"]},
 	"T_COMPARISON": {"|": ["<T_EQUALS_COMPARISON>", "<T_NEQUALS_COMPARISON>", "<T_GT_COMPARISON>", "<T_LT_COMPARISON>"]},
@@ -71,7 +74,7 @@ class SnowCompiler {
 	"T_BOOL_OR": "\\\\s+or\\\\s+",
 	"T_BOOL_NEGATION": "\\\\s*not\\\\s+",
 	"T_BOOLEAN_LITERAL": "true|false",
-	"T_NUMBER_LITERAL": {"|": ["<T_HEX_NUMBER>", "<T_OCT_NUMBER>", "<T_FLOAT_NUMBER>", "<T_DEC_NUMBER>"]},
+	"T_NUMBER_LITERAL": [{"|": ["<T_HEX_NUMBER>", "<T_OCT_NUMBER>", "<T_FLOAT_NUMBER>", "<T_DEC_NUMBER>"]}],
 	"T_HEX_NUMBER": "(0x[0-9A-Fa-f]+)",
 	"T_OCT_NUMBER": "(0[0-7]+[1L]?)",
 	"T_FLOAT_NUMBER": "(-?[0-9]*\\\\.[0-9]+)",
@@ -83,10 +86,24 @@ class SnowCompiler {
 	"T_GT": "\\\\s*>\\\\s*",
 	"T_LT": "\\\\s*<\\\\s*"
 }';
-	protected $mapRules = '{
+	protected $mapRules = '';
+# ${c} - special command: create recursive chain
+# \x.y - look in tree at position x and in x look at position y
+# ${\x?a/b} - if \x is not empty, replace this expression with a, else with b (either one can be left empty)
+# ${R\x/a/b} - replace a in \x with b
+# ${E\x/a/b} - evaluate/compile everything from \x that is in the first match group of a and replace it with b
+	protected $language = null;
+	protected $mapping = null;
+	protected $code = null;
+	protected $stack = null;
+	protected $successStack = null;
+	protected $indentationLevel = 0;
+
+	function __construct($code) {
+		$this->mapRules = '{
 	"T_IF": "if (\\\\2) {\\\\3;\\n}\\\\4\\\\5\\n",
 	"T_NEWLINE": ";\\n",
-	"T_TRY_CATCH": "try {\\\\2;\\n} catch (Exception \\\\5) {\\\\6;\\n}${\\\\7.3? finally {\\\\7.3;\\n}/}",
+	"T_TRY_CATCH": "try {\\\\2;\\n} catch (Exception \\\\5) {'.(PHP_VERSION_ID >= 50500 ? '' : '\\n\\t$catchGuard = true\\\\7.3').'\\\\6;\\n}'.(PHP_VERSION_ID >= 50500 ? '${\\\\7.3? finally {\\\\7.3;\\n}/}' : '\\nif(!isset($catchGuard)) {\\\\7.3;\\n} else {\\n\\tunset($catchGuard);\\n}\\n').'",
 	"T_CLASS": "class \\\\2\\\\3 {\\\\4\\n}",
 	"T_MULTILINE_COMMENT": "/*${R\\\\1/#/}*/",
 	"T_SINGLELINE_COMMENT": "//${R\\\\1/#/}",
@@ -97,8 +114,8 @@ class SnowCompiler {
 	"T_LOOP_CONTROL": "\\\\1",
 	"T_COMPLEX_OPERATION": "\\\\1\\\\2",
 	"T_COMPLEX_STRING_OPERATION": "\\\\1 . \\\\2.2",
-	"T_EXISTS": "isset(\\\\1)",
-	"T_EMPTY": "(isset(\\\\1) && !empty(\\\\1))",
+	"T_EXISTS": "${\\\\1.2?defined(\'\\\\1\')/isset(\\\\1)}",
+	"T_EMPTY": "(${\\\\1.2?defined(\'\\\\1\') && strlen(\\\\1) > 0/isset(\\\\1) && !empty(\\\\1)})",
 	"T_FN_DEF": "function \\\\2(\\\\3.2) {\\\\4;}",
 	"T_EQUALS_COMPARISON": "\\\\1 === \\\\3",
 	"T_NEQUALS_COMPARISON": "\\\\1 !== \\\\3",
@@ -129,19 +146,6 @@ class SnowCompiler {
 	"T_STRING_LITERAL_TQUOTE": "<<<EOF\\n${E\\\\2/\\\\{([^}]+)\\\\}/\\\\1}\\nEOF",
 	"T_FN_CHAINCALL": "${c}"
 }';
-# ${c} - special command: create recursive chain
-# \x.y - look in tree at position x and in x look at position y
-# ${\x?a/b} - if \x is not empty, replace this expression with a, else with b (either one can be left empty)
-# ${R\x/a/b} - replace a in \x with b
-# ${E\x/a/b} - evaluate/compile everything from \x that is in the first match group of a and replace it with b
-	protected $language = null;
-	protected $mapping = null;
-	protected $code = null;
-	protected $stack = null;
-	protected $successStack = null;
-	protected $indentationLevel = 0;
-
-	function __construct($code) {
 		$this->language = json_decode($this->ebnf, true);
 		$this->mapping = json_decode($this->mapRules, true);
 		$this->code = $code;
@@ -369,6 +373,8 @@ class SnowCompiler {
 							if ($matches) {
 								$resultTree[] = $result;
 								$checkPos += $result["len"];
+							} else {
+								$resultTree[] = null;
 							}
 						} else {
 							foreach ($subRule as $subsubRule) {
@@ -387,6 +393,8 @@ class SnowCompiler {
 									$resultTree[] = $result;
 									$checkPos += $result["len"];
 									break;
+								} else {
+									$resultTree[] = null;
 								}
 							}
 						}
@@ -408,6 +416,8 @@ class SnowCompiler {
 								if ($matches) {
 									$checkPos += $result["len"];
 									$resultTree[] = $result;
+								} else {
+									$resultTree[] = null;
 								}
 							} else {
 								$oldCheckPos = $checkPos;
@@ -430,6 +440,7 @@ class SnowCompiler {
 										$checkPos += $result["len"];
 										$resultTree[] = $result;
 									} else {
+										$resultTree[] = null;
 										if ($debug) echo str_repeat("\t", $depth)."Failed quantifier multi rule: ".json_encode($subsubRule)."\n";
 										break;
 									}

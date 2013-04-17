@@ -1,5 +1,5 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:33%;"></div></div>
+<div class="progress"><div class="bar" style="width:24%;"></div></div>
 
 <p>To complete the menu structure, we now need to tell HTML what content shall be clickable. For this, there's the <code>&lt;a&gt;</code> HTML tag, which stands for <u>a</u>nchor.</p>
 
@@ -14,6 +14,17 @@
 	<a href="templates/builder/html/help/htmlcss/step3.html" class="next" rel="tutorials">next</a>
 </div>
 <script type="text/javascript">
-window.checkAboutA = function() { return true; }
-window.checkAs = function() { return true; }
+window.checkAboutA = function() {
+	var code = getCodeForHandler("home");
+	return (code.search(/<ul>\s*<li>\s*<a\s+href=['"]static\/about.html['"]\s*>\s*About\s*<\/a>\s*<\/li>/i) !== -1);
+}
+window.checkAs = function() {
+	var code = getCodeForHandler("home");
+	var result = true;
+	result = result && (code.search(/<ul>\s*<li>\s*<a\s+href=["']static\/about.html["']\s*>\s*About\s*<\/a>\s*<\/li>/i) !== -1);
+	result = result && code.search(/<li>\s*<a\s+href=["']Bakery\/products["']\s*>\s*Products\s*&(amp;)?\s*Prices\s*<\/a>\s*<\/li>/i) !== -1;
+	result = result && code.search(/<li>\s*<a\s+href=["']static\/stores.html["']\s*>\s*Store\s+Locator\s*<\/a>\s*<\/li>/i) !== -1;
+	result = result && code.search(/<li>\s*<a\s+href=["']Bakery\/contact["']\s*>\s*Contact\s+Us\s*<\/a>\s*<\/li>/i) !== -1;	
+	return result;
+}
 </script>

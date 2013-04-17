@@ -1,0 +1,89 @@
+<h3>HTML and CSS</h3>
+<div class="progress"><div class="bar" style="width:100%;"></div></div>
+
+<p>Congratulations! You've just finished the HTML and CSS introduction!</p>
+
+<p>To see what you learnt, here a small challenge for you:</p>
+<ol class="quiz">
+	<li>What is HTML used for?
+		<ul>
+			<li>Website design</li>
+			<li class="correct">Content Structure</li>
+			<li>Database access</li>
+		</ul>
+	</li>
+	<li>What is CSS used for?
+		<ul>
+			<li class="correct">Website design</li>
+			<li>Content Structure</li>
+			<li>Database access</li>
+		</ul>
+	</li>
+	<li>What is a decorator?
+		<ul>
+			<li>a navigation generator</li>
+			<li>a content asset rendering a full page</li>
+			<li class="correct">An event handler with a special tag</li>
+		</ul>
+	</li>
+	<li>What is a content asset?
+		<ul>
+			<li>An image or any other static file</li>
+			<li class="correct">A text available for content management</li>
+			<li>markup text in curly brackets</li>
+		</ul>
+	</li>
+</ol>
+
+<div class="actions">
+	<a href="templates/builder/html/help/htmlcss/step6.1.html" class="ajax" rel="tutorials">back</a>
+	<a href="templates/builder/html/help/js/index.html" class="next" rel="tutorials">continue with dynamic web pages</a>
+</div>
+
+<script type="text/javascript">
+	window.resetQuiz = function() {
+		$$("ol.quiz>li").each(function(item){
+			item.removeClassName("wrong");
+			item.removeClassName("correct");
+			item.select(".selected").invoke("removeClassName", "selected");
+		});
+	};
+	setTimeout(function() {
+		$$(".actions a.next").each(function(item) {
+			item.disabled = true;
+			item.setAttribute("disabled", "disabled");
+		});
+		$$("ol.quiz li ul li").each(function(item) {
+			item.observe("click", function(event) {
+				if (this.up("li").hasClassName("wrong") || this.up("li").hasClassName("correct")) {
+					event.stop();
+					return false;
+				}
+				this.addClassName("selected");
+				if (this.hasClassName("correct")) {
+					this.up("li").addClassName("correct");
+				} else {
+					this.up("li").addClassName("wrong");
+				}
+			});
+		});
+		window.quizInt = setInterval(function() {
+			if ($$("ol.quiz>li.correct").length == $$("ol.quiz>li").length) {
+				clearInterval(quizInt);
+				$$(".actions a.next").each(function(item) {
+					item.disabled = false;
+					item.removeAttribute("disabled");
+				});
+				Ext.Msg.alert("Info", "Congratulations! You successfully solved the challenge!");
+			} else if ($$("ol.quiz>li.correct, ol.quiz>li.wrong").length == $$("ol.quiz>li").length) {
+				$$(".actions a.next").each(function(item) {
+					item.disabled = true;
+					item.setAttribute("disabled", "disabled");
+				});
+				Ext.Msg.alert("Info", "Some of the questions were not answered successfully. Try again.", function(){
+					window.resetQuiz();
+				});
+			}
+		}, 250);
+	}, 100);
+</script>

@@ -1,7 +1,7 @@
 <h3>HTML and CSS</h3>
-<div class="progress"><div class="bar" style="width:53%;"></div></div>
+<div class="progress"><div class="bar" style="width:36%;"></div></div>
 
-<p>Now, to make the line items appear in a single line, we use that same trick again: <span class="action" data-check="checkLi()">add an LI style definition into the UL style definition</span>. Then <span class="action" data-check="checkFloat()">add the two attributes: <code>float: left;</code></span> to make the menu appear in a line and <span class="action" data-check="checkMargin()">add <code>margin-left: 20px;</code></span> to give us some spacing between the menu items.</p>
+<p>Now, to make the line items appear in a single line, we use that same trick again: <span class="action" data-check="checkLi()">add an LI style definition into the UL style definition</span>. Then <span class="action">add the two attributes: <code>float: left;</code></span> to make the menu appear in a line and <span class="action">add <code>margin-left: 20px;</code></span> to give us some spacing between the menu items.</p>
 
 <p>That looks more like, it! The link's color is still not quite right, though. Let's change that too: <span class="action" data-check="checkColor()">add a style definition for the A tag and set the <code>color</code> attribute to <code>yellow</code></span>. </p>
 
@@ -11,8 +11,15 @@
 </div>
 
 <script type="text/javascript">
-window.checkLi = function() { return true; }
-window.checkFloat = function() { return true; }
-window.checkMargin = function() { return true; }
-window.checkColor = function() { return true; }
+window.checkLi = function() {
+	var code = getCodeForModule("Bakery");
+	var result = code.search(/\bnav\s*\{[^\}]*ul\s*\{[^\}]*li\s*\{/i) !== -1;
+	result = result && code.search(/\bli\s*\{[^\}]*float\s*:\s*left\s*;[^\}]*\}/i) !== -1;
+	result = result && code.search(/\bli\s*\{[^\}]*margin-left\s*:\s*20px\s*;[^\}]*\}/i) !== -1;
+	return result;	
+}
+window.checkColor = function() {
+	var code = getCodeForModule("Bakery");
+	return code.search(/li\s*\{[^\}]*\ba\s*\{\s*color\s*:\s*yellow\s*;\s*\}/i) !== -1;
+}
 </script>

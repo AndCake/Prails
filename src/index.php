@@ -68,11 +68,11 @@ if (!$_COOKIE["visited"]) {
 	setcookie("visited", "1", $_SERVER["REQUEST_TIME"] + 600, dirname($_SERVER['PHP_SELF']));
 }
 
-$__cacheName = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]) . ".".one_of($_SESSION["LangData_LANGUAGE_SETTING"]["currentLanguageId"], $_COOKIE['defaultLanguage'], DEFAULT_LANGUAGE);
+$__cacheName = "cache/page_".md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"]) . ".".one_of($_COOKIE['defaultLang'], DEFAULT_LANGUAGE);
 // check if we have a cache entry for current request
 if (file_exists($__cacheName)) {
 	// yes, but is it too old?
-	if (filectime($__cacheName) < ($_SERVER["REQUEST_TIME"] - 3600)) {
+	if (filemtime($__cacheName) < ($_SERVER["REQUEST_TIME"] - 3600)) {
 		// yes, remove it
 		@unlink($__cacheName);
 	} else if (!$_SERVER["HTTPS"] && $_SERVER["SERVER_PORT"] == 80 && $_SERVER["REQUEST_METHOD"] != "POST" && HTML_CACHE_ENABLED) {
