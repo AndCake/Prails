@@ -1,3 +1,22 @@
+V1.6.0 (April 17th, 2013)
+
+ * fixed a bug in initial setup in case the prails directory already existed
+ * fixed a bug with saving global configuration options if no value is given
+ * fixed a bug with language cookie not used for cached pages
+ * updated to latest Snow version
+ * added the possibility to have multiple teams working on different projects without interfering
+ * added two introduction tutorials
+ * removed developer chat
+ * removed unnecessary scroll bars for static content section's multiline fields
+ * updated display of tabs in code editors (are less invasive now)
+ * fixed a bug in static content section's multiline fields where the drop down box would remain open, although it should close
+ * fixed bug #2
+ * added first part of an interactive Prails tutorial (web site basics and HTML&CSS)
+ * added Zen-Coding/Emmet plugin for CodeMirror
+ * Fixed a bug with logging in at a newly installed Prails environment (salt was incorrectly applied)
+ * added "Snow mode" (http://github.com/AndCake/snow for more information) including a new theme for IDE and code editors
+
+ 
 V1.5.2 (March 10th, 2013)
 _Please note:_ If you get an HTTP 500 error after upgrading, please uncomment line 4 in Prails' .htaccess file.
 
