@@ -131,7 +131,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "<?=(SNOW_MODE === true ? 'snow' : 'php')?>"<?=$defaultBespinOptions?>}' onload="$('container_h_#handler.handler_id').addKeywords"><?=htmlentities(file_get_contents("templates/builder/".(SNOW_MODE === true ? "snow/handler_form_empty.snow" : "php/handler_form_empty.php")))?></div></div>	
+	<div id="endpoint_#handler.handler_id" style="display:none;"><div title="[name]" class="hcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "<?=(SNOW_MODE === true ? 'snow' : 'php')?>"<?=$defaultBespinOptions?>}' onload="$('container_h_#handler.handler_id').addKeywords"><?=htmlentities(file_get_contents("templates/builder/".(SNOW_MODE === true ? "snow/handler_form_empty.php" : "php/handler_form_empty.php")))?></div></div>	
 	<div id="template_#handler.handler_id" style="display:none;"><div title="[name]" class="hhtmlcodeh" rel="builder:editHandler&refresh=code&handler_id=<?=(int)$arr_param["handler"]["handler_id"]?>" id="html_codeh<?=(int)$arr_param['handler']['handler_id']?>[name]" data-bespinoptions='{"syntax": "php", "html": true<?=$defaultBespinOptions?>}'><?=htmlentities(file_get_contents("templates/builder/php/output_empty.php"))?></div></div>	
 	<div style="clear:both;"></div>
 	<br/>
@@ -174,7 +174,7 @@
 				        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
 				        	var start = code.indexOf("#"+"#[ACTUAL]", matches.index) + ("#"+"#[ACTUAL]").length + 1;
 				        	var end = code.indexOf("#"+"#[END ACTUAL]", start);
-				        	cd["content"] = code.substr(start, end - start);
+				        	cd["content"] = code.substr(start, end - start).split("\n\t").join("\n");
 				        	lastPos = code.indexOf("#"+"#[END POST-"+match+"]\n", matches.index) + ("#"+"#[END POST-"+match+"]\n").length;
 				        	codes.push(cd);
 				        }
@@ -345,7 +345,8 @@
         	  titles[t] = true;
         	  if (t != "Default") {
         	  	  <? if (SNOW_MODE === true) { ?>
-	        	  	it = "##[BEGIN POST-"+t+"]\nif (isset($_POST[\""+t+"\"])) { ##[ACTUAL]\n"+it+"##[END ACTUAL]\nsession_write_close();\ndie();}\n##[END POST-"+t+"]\n";
+        	  	  	it = it.split("\n").join("\n\t");
+	        	  	it = "##[BEGIN POST-"+t+"]\nif _POST[\""+t+"\"]?\n\t##[ACTUAL]\n\t"+it+"\n\t##[END ACTUAL]\n\tdo session_write_close\n\tdo die\n##[END POST-"+t+"]\n";
         	  	  <? } else { ?>
 	        	  	it = "/*[BEGIN POST-"+t+"]*/\nif (isset($_POST[\""+t+"\"])) { /*[ACTUAL]*/\n"+it+"/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-"+t+"]*/\n";
 	        	  <? } ?>

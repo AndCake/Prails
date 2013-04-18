@@ -181,13 +181,13 @@ class BuilderHandler
 				if (in("//[ACTUAL]", $code)) {
 					$code = str_replace("//[ACTUAL]", "//[ACTUAL]\n".$debugStart, $code);
 					$last = strrpos($code, "//[END POST-");
-					$code = substr($code, 0, $last) . preg_replace('/\/\/\[END POST-(\w+)\]', '\0'.$debugStart, substr($code, $last));
+					$code = substr($code, 0, $last) . $debugStart . substr($code, $last);
 				} else if (in("/*[ACTUAL]*/", $code)) {
 					$code = str_replace("/*[ACTUAL]*/", "/*[ACTUAL]*/".$debugStart, $code);
 					$last = strrpos($code, "/*[END POST-");
-					$code = substr($code, 0, $last) . preg_replace('/\/\*\[END POST-(\w+)\]\*\//', '\0'.$debugStart, substr($code, $last));
+					$code = substr($code, 0, $last) . $debugStart . substr($code, $last);
 				} else $code = $debugStart . $code;
-				$code = preg_replace('/(\breturn\s+)/m', 'Debugger::wait(get_defined_vars(), __LINE__);\0', $code);
+				$code = preg_replace('/(\breturn\s+)/m', 'Debugger::wait(get_defined_vars(), __LINE__);\1', $code);
 				return str_replace("\r", "", $code);
 			}
 		}
@@ -812,27 +812,53 @@ class BuilderHandler
 						$key = array_pop(array_keys($_POST['code']));
 					} else $key = "";
 					$code = $handler["code"];
-					preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
-					$lastPos = 0;
-					$codes = Array();
-					array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
-					$added = false;
-					if (is_array($matches) && is_array($matches[1])) {         
-						foreach ($matches[1] as $match) {
-							$cd = Array(
-								"title" => $match[0],
-								"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
-							);
-							if ($cd["title"] == $key) {
-								$cd["content"] = $_POST['code'][$key];
-								$added = true;
-							} else {
-								$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
-								$end = strpos($code, "/*[END ACTUAL]*/", $start);
-								$cd["content"] = substr($code, $start, $end - $start);
+					if (SNOW_MODE === true) {
+						preg_match_all('/##\[BEGIN POST-([^\]]+)\]/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+						$lastPos = 0;
+						$codes = Array();
+						array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
+						$added = false;
+						if (is_array($matches) && is_array($matches[1])) {         
+							foreach ($matches[1] as $match) {
+								$cd = Array(
+									"title" => $match[0],
+									"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+								);
+								if ($cd["title"] == $key) {
+									$cd["content"] = $_POST['code'][$key];
+									$added = true;
+								} else {
+									$start = strpos($code, "##[ACTUAL]", $match[1]) + strlen("##[ACTUAL]\n\t");
+									$end = strpos($code, "##[END ACTUAL]", $start);
+									$cd["content"] = implode("\n", explode("\n\t", ltrim(substr($code, $start, $end - $start))));
+								}
+								$lastPos = strpos($code, "##[END POST-".$match[0]."]", $match[1]) + strlen("##[END POST-".$match[0]."]\n");
+								array_push($codes, $cd);
 							}
-							$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
-							array_push($codes, $cd);
+						}
+					} else {
+						preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+						$lastPos = 0;
+						$codes = Array();
+						array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
+						$added = false;
+						if (is_array($matches) && is_array($matches[1])) {         
+							foreach ($matches[1] as $match) {
+								$cd = Array(
+									"title" => $match[0],
+									"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+								);
+								if ($cd["title"] == $key) {
+									$cd["content"] = $_POST['code'][$key];
+									$added = true;
+								} else {
+									$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+									$end = strpos($code, "/*[END ACTUAL]*/", $start);
+									$cd["content"] = substr($code, $start, $end - $start);
+								}
+								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+								array_push($codes, $cd);
+							}
 						}
 					}
 					if ($key == "") {
@@ -841,12 +867,17 @@ class BuilderHandler
 						if (!$added) {
 							array_push($codes, Array("title" => $key, "content" => $_POST['code'][$key]));
 						}
-						$codes[0]["content"] = substr($code, $lastPos);
+						$codes[0]["content"] = ltrim(substr($code, $lastPos));
 					}
 					// re-build it and store it into the handler field
 					$code = "";
 					for ($i = 1; $i < count($codes); $i++) {
-						$code .= "/*[BEGIN POST-".$codes[$i]["title"]."]*/\nif (isset(\$_POST[\"".$codes[$i]["title"]."\"])) { /*[ACTUAL]*/\n".$codes[$i]["content"]."/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-".$codes[$i]["title"]."]*/\n";
+						if (SNOW_MODE === true) {
+							$codes[$i]["content"] = implode("\n\t", explode("\n", $codes[$i]["content"]));
+							$code .= "##[BEGIN POST-".$codes[$i]["title"]."]\nif _POST[\"".$codes[$i]["title"]."\"]?\n\t##[ACTUAL]\n\t".$codes[$i]["content"]."\n\t##[END ACTUAL]\n\tdo session_write_close\n\tdo die\n##[END POST-".$codes[$i]["title"]."]\n";
+						} else {
+							$code .= "/*[BEGIN POST-".$codes[$i]["title"]."]*/\nif (isset(\$_POST[\"".$codes[$i]["title"]."\"])) { /*[ACTUAL]*/\n".$codes[$i]["content"]."/*[END ACTUAL]*/\nsession_write_close();\ndie();}\n/*[END POST-".$codes[$i]["title"]."]*/\n";
+						}
 					}
 					$code .= $codes[0]["content"];
 					$arr_data["code"] = $code;
@@ -920,24 +951,41 @@ class BuilderHandler
 		$arr_param["html_codes"] = $codes;
 		
 		$code = $arr_param["handler"]["code"];
-		preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
 		$lastPos = 0;
 		$codes = Array();
 		array_push($codes, Array("title" => "Default", "id" => "hcode_".$arr_param["handler"]["handler_id"]));
-		if (is_array($matches) && is_array($matches[1])) {         
-			foreach ($matches[1] as $match) {
-				$cd = Array(
-					"title" => $match[0],
-					"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
-				);
-				$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
-				$end = strpos($code, "/*[END ACTUAL]*/", $start);
-				$cd["content"] = substr($code, $start, $end - $start);
-				$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
-				array_push($codes, $cd);
+		if (SNOW_MODE === true) {
+			preg_match_all('/##\[BEGIN POST-([^\]]+)\]/mi', $code, $matches, PREG_OFFSET_CAPTURE);
+			if (is_array($matches) && is_array($matches[1])) {         
+				foreach ($matches[1] as $match) {
+					$cd = Array(
+						"title" => $match[0],
+						"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+					);
+					$start = strpos($code, "##[ACTUAL]", $match[1]) + strlen("##[ACTUAL]\n\t");
+					$end = strpos($code, "##[END ACTUAL]", $start);
+					$cd["content"] = join("\n", explode("\n\t", ltrim(substr($code, $start, $end - $start))));
+					$lastPos = strpos($code, "##[END POST-".$match[0]."]", $match[1]) + strlen("##[END POST-".$match[0]."]\n");
+					array_push($codes, $cd);
+				}
+			}
+		} else {
+			preg_match_all('/\/\*\[BEGIN POST-([^\]]+)\]\*\//mi', $code, $matches, PREG_OFFSET_CAPTURE);
+			if (is_array($matches) && is_array($matches[1])) {         
+				foreach ($matches[1] as $match) {
+					$cd = Array(
+						"title" => $match[0],
+						"id" => "code_".$match[0].$arr_param["handler"]["handler_id"] 
+					);
+					$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
+					$end = strpos($code, "/*[END ACTUAL]*/", $start);
+					$cd["content"] = substr($code, $start, $end - $start);
+					$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+					array_push($codes, $cd);
+				}
 			}
 		}
-		$codes[0]["content"] = substr($code, $lastPos);
+		$codes[0]["content"] = ltrim(substr($code, $lastPos));
 		$arr_param["codes"] = $codes;
 						
 		if ($_GET["refresh"]) {
@@ -2590,13 +2638,39 @@ class BuilderHandler
 			if (strlen($data['password']) > 0 && $data["password"] == $data["password2"]) {
 				$users = file(".users");
 				$result = Array();
+				$updated = false;
 				foreach ($users as $user) {
 					list($name, $password) = explode(":", $user);
-					if ($name == $_SESSION['builder']['name']) {
-						array_push($result, $name.":".md5($data["password"]));
-					} else array_push($result, $user);
+					if (($name == $_SESSION['builder']['name'] && !isset($_POST['user']['name'])) || ($name == $_POST['user']['name'] && ($_SESSION['builder']['group'] == 'admin' || $_SESSION['builder']['name'] == "admin"))) {
+						array_push($result, $name.":".md5($data["password"].(USER_SALT !== "USER_SALT" ? USER_SALT : "")));
+						$updated = true;
+					} else if (strlen(trim($user)) > 0) array_push($result, $user);
 				}
-				file_put_contents(".users", join("\n", $result));
+				if (!$updated && $_POST['user']['name'] && ($_SESSION['builder']['group'] == 'admin' || $_SESSION['builder']['name'] == "admin")) 
+					array_push($result, $_POST['user']['name'].":".md5($data['password'].(USER_SALT !== "USER_SALT" ? USER_SALT : "")));
+				file_put_contents(".users", preg_replace('/[\\n]{2,}/', "\n", join("\n", $result)));
+
+				if ($_POST['groups'] && ($_SESSION['builder']['group'] == 'admin' || $_SESSION['builder']['name'] == "admin")) {
+					$groups = $_POST["groups"];
+					$list = file(".groups");
+					$result = Array();
+					foreach ($list as $line) {
+						list($grp, $users) = explode("=", trim($line));
+						if (in($data['name'], explode(",", $users)) && !in($grp, $groups)) {
+							$users = preg_replace('/'.$data['name'].'(,?)/i', "", $users);
+						} else if (in($grp, $groups) && !in($data['name'], explode(",", $users))) {
+							$users .= ','.$data['name'];
+							$groups = array_diff($groups, Array($grp));
+						} else {
+							$groups = array_diff($groups, Array($grp));
+						}
+						array_push($result, $grp . "=" . $users);
+					}
+					foreach ($groups as $grp) {
+						array_push($result, $grp . "=" . $data['name']);
+					}
+					file_put_contents(".groups", preg_replace('/[\\n]{2,}/', "\n", join("\n", $result)));
+				}
 				die("success");
 			}
 		} else if ($_POST["users"]) {
@@ -2617,7 +2691,7 @@ class BuilderHandler
 						}
 						$groups[$data["group"][$key]][] = $user;
 					} else {
-						$newUsers[] = $user.":".md5($data["pass"][$key]);
+						$newUsers[] = $user.":".md5($data["pass"][$key].(USER_SALT !== "USER_SALT" ? USER_SALT : ""));
 						$groups[$data["group"][$key]][] = $user;
 					}
 				}
