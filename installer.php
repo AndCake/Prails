@@ -172,11 +172,11 @@ if ($_GET["version"]) {
 	if (!@file_put_contents("../.htaccess", $file)) {
 	   $warnings .= "Unable to re-integrate custom .htaccess rules into the newer file. Backup stored in ".$dir."/backup.htaccess .<br/>";
 	}
-    if (!file_get_contents("http://".$_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'].dirname($_SERVER['SCRIPT_NAME'])."/../index.php")) {
+    if (!@file_get_contents("http://".$_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'].dirname($_SERVER['SCRIPT_NAME'])."/../index.php")) {
         // problem with htaccess
         // try to resolve it...
-        file_put_contents(str_replace('php_value short_open_tag 1', '', $file));
-        if (!file_get_contents("http://".$_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'].dirname($_SERVER['SCRIPT_NAME'])."/../index.php")) {
+        file_put_contents("../.htaccess", str_replace('php_value short_open_tag 1', '', $file));
+        if (!@file_get_contents("http://".$_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'].dirname($_SERVER['SCRIPT_NAME'])."/../index.php")) {
             die("Error in .htaccess file. Please manually check it!");
         }
     }
