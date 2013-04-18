@@ -189,10 +189,12 @@ function initAjaxLinks() {
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();
 						});
-                                                setTimeout(function() {
-                                                        document.fire("dom:loaded");
-                                                        try { eval(item.onload); } catch(e){};
-                                                }, 10);
+						var me = this;
+                        setTimeout(function() {
+                                document.fire("dom:loaded");
+                                var loaded = me.onload || me.getAttribute("onload");
+                                try { typeof(loaded) == 'string' && eval(loaded) || typeof(loaded) == 'function' && loaded.call(it); } catch(e){};
+                        }, 10);
 					}
 				} else {
 					var suffix = this.getAttribute("href").split(".").pop();
@@ -202,11 +204,14 @@ function initAjaxLinks() {
 						window.currentDialog.element.observe("ui:dialog:after:close", function(obj) {
 							window.currentDialog.element.remove();
 						});
+						var me = this;
 						setTimeout(function() {
-							document.fire("dom:loaded");	
-							try { eval(item.onload); } catch(e){};
+							document.fire("dom:loaded");
+							var loaded = me.onload || me.getAttribute("onload");
+							try { typeof(loaded) == 'string' && eval(loaded) || typeof(loaded) == 'function' && loaded.call(it); } catch(e){};
 						}, 10);
 					} else {
+						var me = this;
 						invoke(null, this.getAttribute("href"), null, false, function(req) {
 							params["content"] = req.responseText;
 							window.currentDialog = new S2.UI.Dialog(params).open();
@@ -215,7 +220,8 @@ function initAjaxLinks() {
 							});
 							setTimeout(function() {
 								document.fire("dom:loaded");	
-								try { eval(item.onload); } catch(e){};
+								var loaded = me.onload || me.getAttribute("onload");
+								try { typeof(loaded) == 'string' && eval(loaded) || typeof(loaded) == 'function' && loaded.call(it); } catch(e){};
 							}, 10);
 						});
 					}
@@ -228,19 +234,22 @@ function initAjaxLinks() {
 				if (this.disabled || this.getAttribute("disabled")) {
 					return false;
 				}
+				var me = this;
 				invoke(this.rel, this.href, null, false, function(req) {
 					var it = this;
 					setTimeout(function() {
-						document.fire("dom:loaded");	
-						try { typeof(it.onload) == 'string' && eval(it.onload) || typeof(it.onload) == 'function' && it.onload.call(it); } catch(e){window.console && console.log(e.message);};
+						document.fire("dom:loaded");
+						var loaded = me.onload || me.getAttribute("onload");
+						try { typeof(loaded) == 'string' && eval(loaded) || typeof(loaded) == 'function' && loaded.call(it); } catch(e){window.console && console.log(e.message);};
 					}, 10);
 				});
 			});
 		} else if (!item._ajaxified) {
 			item._ajaxified = true;
 			var callback = function(req) {
-				if (this.onload) {
-					try { typeof(this.onload) == 'string' && eval(this.onload) || typeof(this.onload) == 'function' && this.onload.call(this); } catch(e){window.console && console.log(e.message);};
+				if (this.onload || this.getAttribute("onload")) {
+					var loaded = this.onload || this.getAttribute("onload");
+					try { typeof(loaded) == 'string' && eval(loaded) || typeof(loaded) == 'function' && loaded.call(this); } catch(e){window.console && console.log(e.message);};
 				}
 			};
 			if (item.href.indexOf("#") >= 0) {
@@ -251,7 +260,7 @@ function initAjaxLinks() {
 						if (this.disabled || this.getAttribute("disabled")) {
 							return false;
 						}
-						invoke(el, this.href, callback.call(this));
+						invoke(el, this.href, callback.bind(this));
 					});
 				}
 
@@ -261,7 +270,7 @@ function initAjaxLinks() {
 				if (this.disabled || this.getAttribute("disabled")) {
 					return false;
 				}
-				invoke(this.href, callback.call(this));
+				invoke(this.href, callback.bind(this));
 			});
 		}
 	});

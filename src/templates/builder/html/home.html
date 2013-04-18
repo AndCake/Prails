@@ -430,9 +430,9 @@
 				}
 			}, 500);
 			$$("#tutorials .actions a").each(function(item) {
-				if (!item._clickSet) {
-					item._clickSet = true;
-					item.onload = 'localStorage.setItem("tutorial.lastPage", "'+item.href+'");';
+				if (!item._cclickSet) {
+					item._cclickSet = true;
+					item.setAttribute("onload", 'localStorage.setItem("tutorial.lastPage", "'+item.href+'");');
 				}
 			});
 		});
