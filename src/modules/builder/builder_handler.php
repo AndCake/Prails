@@ -854,9 +854,9 @@ class BuilderHandler
 								} else {
 									$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
 									$end = strpos($code, "/*[END ACTUAL]*/", $start);
-									$cd["content"] = substr($code, $start, $end - $start);
+									$cd["content"] = ltrim(substr($code, $start, $end - $start));
 								}
-								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
 								array_push($codes, $cd);
 							}
 						}
@@ -979,8 +979,8 @@ class BuilderHandler
 					);
 					$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
 					$end = strpos($code, "/*[END ACTUAL]*/", $start);
-					$cd["content"] = substr($code, $start, $end - $start);
-					$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/\n", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
+					$cd["content"] = ltrim(substr($code, $start, $end - $start));
+					$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
 					array_push($codes, $cd);
 				}
 			}
