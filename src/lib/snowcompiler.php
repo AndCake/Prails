@@ -148,7 +148,7 @@ class SnowCompiler {
 }';
 		$this->language = json_decode($this->ebnf, true);
 		$this->mapping = json_decode($this->mapRules, true);
-		$this->code = $code;
+		$this->code = trim($code);
 		$this->stack = Array();
 		$this->indentationLevel = 0;
 		$this->successStack = Array();

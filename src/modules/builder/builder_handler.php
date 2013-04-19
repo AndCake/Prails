@@ -369,13 +369,13 @@ class BuilderHandler
 								"id" => md5("html_".$match[0].$arr_param["handler"]["handler_id"]) 
 							);
 							$start = $match[1] + strlen("".$match[0].">\n");
-							$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-							$val = substr($code, $start, $end - $start);
+							$end = strpos($code, "</part-".$match[0].">", $match[1]);
+							$val = ltrim(substr($code, $start, $end - $start));
 							$lastPos = $end + strlen("</part-".$match[0].">\n");
 							file_put_contents("templates/".$mod."/html/".$key.".".$match[0].".html", $val);
 						}
 					}
-					$value = substr($code, $lastPos);
+					$value = ltrim(substr($code, $lastPos));
 					
 					file_put_contents("templates/".$mod."/html/".$key.".html", $value);
 				}
@@ -785,10 +785,10 @@ class BuilderHandler
 								$added = true;
 							} else {
 								$start = $match[1] + strlen("".$match[0].">\n");
-								$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-								$cd["content"] = substr($code, $start, $end - $start);
+								$end = strpos($code, "</part-".$match[0].">", $match[1]);
+								$cd["content"] = trim(substr($code, $start, $end - $start));
 							}
-							$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+							$lastPos = strpos($code, "</part-".$match[0].">", $match[1]) + strlen("</part-".$match[0].">\n");
 							array_push($codes, $cd);
 						}
 					}
@@ -798,7 +798,7 @@ class BuilderHandler
 						if (!$added) {
 							array_push($codes, Array("title" => $key, "content" => $_POST['html_code'][$key]));
 						}
-						$codes[0]["content"] = substr($code, $lastPos);
+						$codes[0]["content"] = trim(substr($code, $lastPos));
 					}
 					// re-build it and store it into the handler field
 					$html = "";
@@ -830,7 +830,7 @@ class BuilderHandler
 								} else {
 									$start = strpos($code, "##[ACTUAL]", $match[1]) + strlen("##[ACTUAL]\n\t");
 									$end = strpos($code, "##[END ACTUAL]", $start);
-									$cd["content"] = implode("\n", explode("\n\t", ltrim(substr($code, $start, $end - $start))));
+									$cd["content"] = implode("\n", explode("\n\t", trim(substr($code, $start, $end - $start))));
 								}
 								$lastPos = strpos($code, "##[END POST-".$match[0]."]", $match[1]) + strlen("##[END POST-".$match[0]."]\n");
 								array_push($codes, $cd);
@@ -854,7 +854,7 @@ class BuilderHandler
 								} else {
 									$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
 									$end = strpos($code, "/*[END ACTUAL]*/", $start);
-									$cd["content"] = ltrim(substr($code, $start, $end - $start));
+									$cd["content"] = trim(substr($code, $start, $end - $start));
 								}
 								$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
 								array_push($codes, $cd);
@@ -862,12 +862,12 @@ class BuilderHandler
 						}
 					}
 					if ($key == "") {
-						$codes[0]["content"] = $_POST['code'];
+						$codes[0]["content"] = trim($_POST['code']);
 					} else {
 						if (!$added) {
-							array_push($codes, Array("title" => $key, "content" => $_POST['code'][$key]));
+							array_push($codes, Array("title" => $key, "content" => trim($_POST['code'][$key])));
 						}
-						$codes[0]["content"] = ltrim(substr($code, $lastPos));
+						$codes[0]["content"] = trim(substr($code, $lastPos));
 					}
 					// re-build it and store it into the handler field
 					$code = "";
@@ -941,13 +941,13 @@ class BuilderHandler
 					"id" => "html_".$match[0].$arr_param["handler"]["handler_id"] 
 				);
 				$start = $match[1] + strlen("".$match[0].">\n");
-				$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-				$cd["content"] = substr($code, $start, $end - $start);
-				$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+				$end = strpos($code, "</part-".$match[0].">", $match[1]);
+				$cd["content"] = trim(substr($code, $start, $end - $start));
+				$lastPos = strpos($code, "</part-".$match[0].">", $match[1]) + strlen("</part-".$match[0].">\n");
 				array_push($codes, $cd);
 			}
 		}
-		$codes[0]["content"] = substr($code, $lastPos);
+		$codes[0]["content"] = trim(substr($code, $lastPos));
 		$arr_param["html_codes"] = $codes;
 		
 		$code = $arr_param["handler"]["code"];
@@ -964,7 +964,7 @@ class BuilderHandler
 					);
 					$start = strpos($code, "##[ACTUAL]", $match[1]) + strlen("##[ACTUAL]\n\t");
 					$end = strpos($code, "##[END ACTUAL]", $start);
-					$cd["content"] = join("\n", explode("\n\t", ltrim(substr($code, $start, $end - $start))));
+					$cd["content"] = join("\n", explode("\n\t", trim(substr($code, $start, $end - $start))));
 					$lastPos = strpos($code, "##[END POST-".$match[0]."]", $match[1]) + strlen("##[END POST-".$match[0]."]\n");
 					array_push($codes, $cd);
 				}
@@ -979,13 +979,13 @@ class BuilderHandler
 					);
 					$start = strpos($code, "/*[ACTUAL]*/", $match[1]) + strlen("/*[ACTUAL]*/") + 1;
 					$end = strpos($code, "/*[END ACTUAL]*/", $start);
-					$cd["content"] = ltrim(substr($code, $start, $end - $start));
+					$cd["content"] = trim(substr($code, $start, $end - $start));
 					$lastPos = strpos($code, "/*[END POST-".$match[0]."]*/", $match[1]) + strlen("/*[END POST-".$match[0]."]*/\n");
 					array_push($codes, $cd);
 				}
 			}
 		}
-		$codes[0]["content"] = ltrim(substr($code, $lastPos));
+		$codes[0]["content"] = trim(substr($code, $lastPos));
 		$arr_param["codes"] = $codes;
 						
 		if ($_GET["refresh"]) {
@@ -3008,13 +3008,13 @@ class BuilderHandler
 		                                        "title" => $match[0],
 		                                );
 		                                $start = $match[1] + strlen("".$match[0].">\n");
-		                                $end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-		                                $cd["content"] = substr($code, $start, $end - $start);
-		                                $lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+		                                $end = strpos($code, "</part-".$match[0].">", $match[1]);
+		                                $cd["content"] = ltrim(substr($code, $start, $end - $start));
+		                                $lastPos = strpos($code, "</part-".$match[0].">", $match[1]) + strlen("</part-".$match[0].">\n");
 						file_put_contents($path."modules/".$mod['name']."/server/templates/".$handler['event'].".".$cd['title'].".html", $cd['content']);
                         		}
 		                }
-                		$code = substr($code, $lastPos);
+                		$code = ltrim(substr($code, $lastPos));
 				file_put_contents($path."modules/".$mod['name']."/server/templates/".$handler['event'].".html", $code);
 			}
 			$datas = $this->obj_data->listDatas($mod['module_id']);
@@ -3289,13 +3289,13 @@ class BuilderHandler
 									"title" => $match[0],
 								);
 								$start = $match[1] + strlen("".$match[0].">\n");
-								$end = strpos($code, "</part-".$match[0].">\n", $match[1]);
-								$cd["content"] = substr($code, $start, $end - $start);
-								$lastPos = strpos($code, "</part-".$match[0].">\n", $match[1]) + strlen("</part-".$match[0].">\n");
+								$end = strpos($code, "</part-".$match[0].">", $match[1]);
+								$cd["content"] = ltrim(substr($code, $start, $end - $start));
+								$lastPos = strpos($code, "</part-".$match[0].">", $match[1]) + strlen("</part-".$match[0].">\n");
 								$result["modules/".$handler['module']['name']."/server/templates/".$handler['event'].".".$cd['title'].".html"] = $cd['content'];
                        		}
 		                }
-                		$code = substr($code, $lastPos);
+                		$code = ltrim(substr($code, $lastPos));
 						$result["modules/".$handler['module']['name']."/server/templates/".$handler['event'].".html"] = $code;
 					}
 					break;

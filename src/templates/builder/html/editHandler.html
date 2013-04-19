@@ -174,7 +174,7 @@
 				        	var cd = {title: matches[0], id: "code_"+match+handlerId}; 
 				        	var start = code.indexOf("#"+"#[ACTUAL]", matches.index) + ("#"+"#[ACTUAL]").length + 1;
 				        	var end = code.indexOf("#"+"#[END ACTUAL]", start);
-				        	cd["content"] = code.substr(start, end - start).split("\n\t").join("\n");
+				        	cd["content"] = code.substr(start, end - start).split("\n\t").join("\n").replace(/^\s*|\s*$/gi, "");
 				        	lastPos = code.indexOf("#"+"#[END POST-"+match+"]\n", matches.index) + ("#"+"#[END POST-"+match+"]\n").length;
 				        	codes.push(cd);
 				        }
@@ -193,7 +193,7 @@
 				        }
 		        	}
 		       	<? } ?>
-		        codes[0]["content"] = code.substr(lastPos);
+		        codes[0]["content"] = code.substr(lastPos).replace(/^\s*|\s*$/gi, "");
 
 		        $A(codes).each(function(item) {
 		        	Builder.setCode("codeh"+handlerId+item.id, item.content);
@@ -325,7 +325,7 @@
           $('hHtmlCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
           var titles = {};
           $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hhtmlcodeh").each(function(item) {
-        	  var it = Builder.getCode(item);
+        	  var it = Builder.getCode(item).replace(/^\s*|\s*$/gi, "");;
         	  var t = item.title;
         	  if (titles[t]) return;
         	  titles[t] = true;
@@ -339,7 +339,7 @@
           var titles = {};
           $('hCodeh<?=(int)$arr_param["handler"]["handler_id"]?>').value = "";
           $('container_h_<?=$arr_param['handler']['handler_id']?>').select(".tab-list .hcodeh").each(function(item) {
-        	  var it = Builder.getCode(item);
+        	  var it = Builder.getCode(item).replace(/^\s*|\s*$/gi, "");
         	  var t = item.title;
         	  if (titles[t]) return;
         	  titles[t] = true;
