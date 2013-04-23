@@ -217,12 +217,13 @@ class Generator {
      */
     function includeTemplate($str_name, $arr_param = null, $bol_parseLanguage = true) {
 		$startTime = time()+microtime();
-		$nname = "cache/".md5($str_name);
+		$nname = "cache/".md5($str_name).microtime(true);
 		$tl = new TagLib($str_name);
 		$str_content = $tl->compile(file_get_contents($str_name));
 		if (!file_put_contents($nname, $str_content, LOCK_EX)) {
 			global $log;
-			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory.");
+			$error = error_get_last();
+			$log->fatal("Unable to create cache entry! Please enable write access to all files and folders within the Prails directory." . $error['message'] . $error['line']);
 		}		
     	unset($str_content, $tl);
         $param = &$arr_param;

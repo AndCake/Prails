@@ -35,6 +35,7 @@ class TagLib {
 	private $depth = 0;
 	private $html = "";
 	private $template = "";
+	public $debugMode = false;
 	
 	public function TagLib($template = "") {
 		$this->template = $template;

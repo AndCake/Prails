@@ -21,6 +21,7 @@ $arr_database = Array
 (
 	// language tables
 	"language"=>Array(
+		"fk_user_id" => "BIGINT NOT NULL",
 		"name"=>"VARCHAR(255)",
 		"abbreviation"=>"VARCHAR(255)",
 		"isDefault" => "TINYINT NOT NULL",

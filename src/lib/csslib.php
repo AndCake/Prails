@@ -73,7 +73,9 @@ class CSSLib {
 			preg_match_all('@url\(["\']{0,1}([^)\'"]+)["\']{0,1}\)@', $content, $matches);
 			if (count($matches[1]) > 0) {
 				foreach ($matches[1] as $pos=>$match) {
-					$content = str_replace($matches[0][$pos], "url(\"../".($fpath.str_replace(basename($match), "", $match)).basename($match)."\")", $content);
+					if (strpos($match, "data:") !== 0 && strpos($match, "http:") !== 0 && strpos($match, "https:") !== 0) {
+						$content = str_replace($matches[0][$pos], "url(\"../".($fpath.str_replace(basename($match), "", $match)).basename($match)."\")", $content);
+					}
 				}
 			}
 			$content = "\n\n/* FETCHED FROM FILE ".$style." */\n".$content;

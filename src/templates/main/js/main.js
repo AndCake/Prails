@@ -101,6 +101,9 @@ function invoke(element, event, parameters, post, onSuccess, showIndicator) {
 				onSuccess = event;
 				break;
 			case "object":
+				showIndicator = onSuccess;
+				onSuccess = post;
+				post = parameters;
 				parameters = event;
 				break;
 			case "boolean":
