@@ -1,7 +1,7 @@
 <?php
 /**
  Prails Web Framework
- Copyright (C) 2012  Robert Kunze
+ Copyright (C) 2013  Robert Kunze
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -98,6 +98,7 @@ class LangData
 {
 	var $obj_sql;
 	var $language_id;
+	var $uid;
 
 	var $arr_item_cache;
 
@@ -106,6 +107,10 @@ class LangData
 		$this->obj_sql = new Database("tbl_prailsbase_");
 		$this->setLanguage($str_lang);
 		$this->arr_item_cache = Array();
+		if (IS_SETUP)
+			$this->uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
+		else
+			$this->uid = -1;
 	}
 	
         /**
@@ -116,8 +121,8 @@ class LangData
          **/
 	function setLanguage($str_lang) {
 		if (IS_SETUP) {
-			$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-			$arr_result = @array_pop($this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$uid." AND ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
+			
+			$arr_result = @array_pop($this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$this->uid." AND ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
 			if (strlen($str_lang) <= 0 && DEFAULT_LANGUAGE != $arr_result["language_id"]) {
 				try {
 					  $conf = getConfiguration();
@@ -208,8 +213,7 @@ class LangData
 	 * this method will return a list of all currently existing languages, ordered by language name.
 	 **/
 	function listLanguages() {
-		$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-		return $this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=$uid ORDER BY name");
+		return $this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$this->uid." ORDER BY name");
 	}
 	 
 	/**
@@ -218,8 +222,7 @@ class LangData
 	 * get a list of all content assets across all languages
 	 **/
 	function listTexts() {
-		$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=$uid GROUP BY a.identifier, a.texts_id, a.fk_language_id, a.content");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=".$this->uid." GROUP BY a.identifier, a.texts_id, a.fk_language_id, a.content");
 		$arr_return = Array();
 		foreach ($arr_result as $arr_entry) {
 			$parts = explode(".", $arr_entry["identifier"]);
@@ -244,8 +247,7 @@ class LangData
 	 * folder to be listed for a menu or create an order on those.
 	 **/
 	function listAllTextsFromRoot($rootNode) {
-		$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=$uid AND a.identifier LIKE '".$rootNode.".%'");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=".$this->uid." AND a.identifier LIKE '".$rootNode.".%'");
 		foreach($arr_result as &$item) {
 			$item["custom"] = $this->_decodeCustom($item["custom"]);
 		}
@@ -259,8 +261,7 @@ class LangData
 	 * Returns all content assets that contain the keyword in some way - regardless of active language.
 	 **/
 	function findTextByContent($word) {
-		$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=$uid AND content LIKE '%".$word."%'");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND a.fk_user_id=".$this->uid." AND content LIKE '%".$word."%'");
 		$arr_return = Array();
 		foreach ($arr_result as $res) {
 			array_push($arr_return, Array("id" => "text_.".$res['identifier'], "name" => $res["identifier"], "type" => "text", "custom" => $this->_decodeCustom($res["custom"])));
@@ -275,8 +276,7 @@ class LangData
 	 * This method fetches all content assets across all languages it exists in that have the given identifier.
 	 **/
 	function getAllTextsByIdentifier($ident) {
-		$uid = if_set($_SESSION['builder']['user_id'], crc32("devel"));
-		$texts = $this->obj_sql->query("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id AND b.fk_user_id=$uid WHERE 1=1");
+		$texts = $this->obj_sql->query("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id AND b.fk_user_id=".$this->uid." WHERE 1=1");
 		foreach ($texts as &$text) {
 			$text["default"] = $text["isDefault"];
 			$text["custom"] = $this->_decodeCustom($text["custom"]);

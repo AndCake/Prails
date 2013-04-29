@@ -154,7 +154,7 @@ class BuilderHandler
 				// returns the PHP code
 				if (SNOW_MODE === true) {
 					$sc = new SnowCompiler($code."\n");
-					return $sc->compile();
+					return $sc->compile().";";
 				} else 
 					return $code;
 			}

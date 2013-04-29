@@ -1254,7 +1254,9 @@ window.Replication = {
 		invoke(null, "builder:replication", Replication.credentials + data + "&start=1", true, function(req) {
 			// replication completed...
 			if (req.responseText == "success") {
-				Ext.Msg.alert("Replication Status", "The replication completed successfully.");
+				Ext.Msg.alert("Replication Status", "The replication completed successfully.", function() {
+					location.href.reload();
+				});
 				$("replication_details").down("button").disabled = false;
 				packageWindow.close();
 			} else {

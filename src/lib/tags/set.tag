@@ -19,4 +19,4 @@
  * #local.test  ==> will output Hello, World!
  * }}}
  **/
-?><@ $arr_param["<?=$this->makeVar(if_set($tag['attributes']['scope'], 'local'))?>"]["<?=$tag['attributes']['name']?>"] = <? $code = $this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["value"])); if (SNOW_MODE === true) { $sc = new SnowCompiler($code."\n"); echo rtrim($sc->compile(), ";\r\n"); } else { echo $code; } ?>; @>
+?><@ $arr_param["<?=$this->makeVar(if_set($tag['attributes']['scope'], 'local'))?>"]["<?=$tag['attributes']['name']?>"] = <? $code = $this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["value"])); if (SNOW_MODE === true) { $sc = new SnowCompiler($code); echo rtrim($sc->compile(), ";\r\n"); } else { echo $code; } ?>; @>
