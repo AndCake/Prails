@@ -7,6 +7,8 @@
       <dd><?=phpversion()?></dd>
       <dt>Modules Available:</dt>
       <dd><?=count($arr_param["modules"])?></dd>
+      <dt>Snow Mode:</dt>
+      <dd><?=SNOW_MODE === true ? "enabled" : "disabled"?></dd>
    </dl>
    <a href="?event=builder:home" class="global-home-left-nav-button">Launch IDE</a>      
 </div>

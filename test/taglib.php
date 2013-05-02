@@ -1,6 +1,5 @@
 <?php
 echo ".";
-include("../test/libTest.php");
 include("lib/taglib.php");
 
 function taglibTest() {

@@ -81,22 +81,60 @@ class Database {
     function escape($str) {
     	return $this->sql->escape($str);
     }
+
+    function _parseQuery($args) {
+    	$query = $args[0];
+    	$ignoreS = false;
+    	$ignoreD = false;
+    	while ($cursor < strlen($query)) {
+    		$c = $query[$cursor];
+    		if ($c == '"') $ignoreD = !$ignoreD;
+    		else if ($c == "'")
+    			$ignoreS = !$ignoreS;
+    		else if ($c == '%' && !$ignoreS && !$ignoreD) {
+    			$num = "";
+    			$pre = substr($query, 0, $cursor);
+    			do {
+	    			$c = $query[++$cursor];
+	    			if (is_numeric($c)) $num .= $c;
+	    		} while (is_numeric($c));
+	    		$post = substr($query, $cursor);
+	    		$val = $args[intval($num)];
+    			if (!is_numeric($val) && !is_null($val) && !is_bool($val)) $val = "'" . $this->escape($val) . "'";
+    			if (is_null($val)) $val = "NULL";
+    			if (is_bool($val)) $val = $val ? "1" : "0";
+    			$query = $pre . $val . $post;
+    			$cursor += strlen($val) - (strlen($num) + 1);
+    			unset($pre, $post, $val);
+    		}
+    		$cursor++;
+    	}
+
+    	return $query;
+    }
  
 	/**
-	 * query($query) -> Array
+	 * query($query, ...) -> Array
 	 * - $query (String) - The complete SQL query to be sent to the database.
 	 *
-	 * Sends a query to the database and returns it's result. _Hint:_ you need to add the 
-	 * table's prefix manually (which is always "tbl_"). The method will return an array 
-	 * of `DBEntry` objects, or an empty Array in case the query has no result set.
+	 * Sends a query to the database and returns it's result. All parameters following the 
+	 * actual query are parameters to that query which can be specified by using `%n`. The
+	 * `n` references the parameter handed over after the query. So %1 will insert the value
+	 * of the first parameter after the query.
+	 *
+	 * _Hint:_ you need to add the table's prefix manually (which is always "tbl_"). 
+	 * The method will return an array of `DBEntry` objects, or an empty Array in case 
+	 * the query has no result set.
 	 * 
      * *Example:* 
      * {{{
-     * $arr_result = $this->query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+     * $uid = 4;
+     * $result = $this->query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+     * $users = $this->query("SELECT *, %2 AS time FROM tbl_user WHERE user_id=%1", $uid, time());
      * }}}
-     * The result in `$arr_result` will look like that:
+     * The results for both instances will look like that:
      * {{{
-     * $arr_result = Array(
+     * $result = Array(
      *      0 => Array(
      *          "user_id" => "4",
      *          "photo" => "test.jpg",
@@ -113,13 +151,23 @@ class Database {
      *     ),
      *     ...
      * );
+     * $users = Array(
+     * 		0 => Array(
+     *			"user_id" => "4",
+     *			"photo" => "test.jpg",
+     *			"time" => 1234567890
+     * 		)
+     * );
      * }}}
+     * Please note, that for the sake of security and protection against SQL injection, you should always pass values into a query using the 
 	 **/
-	function query($query) {
+	function query() {
     	global $profiler;
+    	$args = func_get_args();
+    	$query = $this->_parseQuery($args);
 
       	// dump query if needed
-    	if ($this->dumpSqlQuery != 0) echo ($query."<br/>");
+    	if ($this->dumpSqlQuery != 0) echo $query."<br/>";
     	$this->sql->setPrefix($this->prefix);
     	if ($profiler) $profiler->logEvent("queryStart");
     	$result = $this->sql->query($query, ($this->isCached ? DB_CACHE_TTL : 0));
@@ -129,6 +177,7 @@ class Database {
     	
     	return $result;
 	}
+	/** This method is deprecated! */
 	function SqlQuery($query) { return $this->query($query); }
 
 	 
@@ -188,7 +237,7 @@ class Database {
 			$table = $this->prefix . $table;
 		}
 		$pkfield = str_replace($this->prefix, "", $table)."_id";
-		return @array_pop($this->query("SELECT * FROM ".$table." WHERE ".$pkfield."=".if_set($id, "0")));
+		return @array_pop($this->query("SELECT * FROM ".$table." WHERE ".$pkfield."=%1", if_set($id, "0")));
 	}
 	
 	/**
@@ -233,6 +282,7 @@ class Database {
 		
 		return $this->affectedId;
 	}
+	/** This method is deprecated! */
 	function InsertQuery($table, $data) { return $this->add($table, $data); }
 	
 	/** 
@@ -283,6 +333,7 @@ class Database {
 		$this->query($query);
 		$this->remoteQuery($query);
 	}
+	/** This method is deprecated! */
 	function DeleteQuery($table, $filter) { $this->remove($table, $filter); }
 	/** 
      * delete($table, $filter) -> void
@@ -357,6 +408,7 @@ class Database {
 		
 		return $this->affectedRows;
 	} 
+	/** This method is deprecated! */
 	function UpdateQuery($table, $data, $filter) { return $this->update($table, $data, $filter); }
 	
 	/** 

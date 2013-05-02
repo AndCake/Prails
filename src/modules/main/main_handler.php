@@ -65,7 +65,7 @@ class MainHandler
     	
 		/** BEGIN_CODE **/    	
    $arr_param = Array(
-      "modules" => $this->obj_data->listModules()
+      "modules" => $this->obj_data->listModules(if_set($_SESSION['builder']['user_id'], crc32("devel")))
    );
    return $this->_callPrinter("home", $arr_param);
 

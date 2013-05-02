@@ -55,20 +55,15 @@ class MySQL extends Cacheable {
 		global $arr_dbs;
 		global $log;
 		$id = count($this->links);
-		$this->links[$id]["link"] = @mysql_connect($arr_dbs[$db]["host"], $arr_dbs[$db]["user"], $arr_dbs[$db]["pass"]);
+
+		$this->links[$id]["link"] = $link = new mysqli($arr_dbs[$db]["host"], $arr_dbs[$db]["user"], $arr_dbs[$db]["pass"], $arr_dbs[$db]["name"]);
 		$this->links[$id]["overrides"] = $arr_dbs[$db]["table_overrides"];
 		$this->links[$id]["name"] = $arr_dbs[$db]["name"];
-		if ($this->links[$id]["link"]) {
-			if ( @mysql_select_db ($arr_dbs[$db]["name"], $this->links[$id]["link"]) ) {
-				return (TRUE);
-			} else {
-				$mySqlError .= mysql_error () . " Error code: " . mysql_errno();
-				$log->fatal($mySqlError);
-				return false;
-			}
+		if ($link) {
+			return (TRUE);
 		} else {
 			// set error code and leave method
-			$mySqlError .= mysql_error () . " Error code: " . mysql_errno();
+			$mySqlError .= $link->connect_error . " Error code: " . $link->connect_errno;
 			$log->fatal($mySqlError);
 		}
 
@@ -105,13 +100,14 @@ class MySQL extends Cacheable {
 		return false;
 	}
 
-	function escape($str) {
-		return str_replace(Array("'", "\\"), Array("''", "\\\\"), $str);
+	function escape($str, $linkId = 0) {
+		$link = $this->links[$linkId]["link"];
+		return $link->escape_string($str);
 	}
 
-	function query($query, $cacheTime = 0) {
+	function query($query, $cacheTime = 0, $linkId = 0) {
 		global $profiler;
-		$link = $this->links[0]["link"];
+		$link = $this->links[$linkId]["link"];
 
 		$query = $this->_prepareQuery($query);
 
@@ -122,27 +118,27 @@ class MySQL extends Cacheable {
 			// if we currently have no connection, connect
 			if (!$link) {
 				$this->connect();
-				$link = $this->links[0]["link"];
+				$link = $this->links[$linkId]["link"];
 				$query = $this->_prepareQuery($query);
 			}
 
 			if ($profiler) $profiler->logEvent("query_no_cache_hit");
 			 
 			// send SQL statement to database
-			$queryResult = @mysql_query ($query, $link);
+			$queryResult = $link->query($query);
 			// if query successful
 			if ($queryResult) {
-				$this->affectedId = @mysql_insert_id ();
+				$this->affectedId = $link->insert_id;
 				$resultCounter = 0;
 				$result = Array ();
 
-				if (is_resource($queryResult)) {
-					$this->affectedRows = @mysql_num_rows ($queryResult);
-					while ($fetchedResult = @mysql_fetch_array ($queryResult, MYSQL_ASSOC)) {
+				if ($queryResult !== true) {
+					$this->affectedRows = $link->affected_rows;
+					while ($fetchedResult = $queryResult->fetch_array(MYSQLI_ASSOC)) {
 						// remove slashes if needed
 						if ($this->stripSlashes) {
 							foreach ($fetchedResult as &$val) {
-								if (gettype ($val) == "string" ) {
+								if (gettype($val) == "string" ) {
 									$val = stripslashes($val);
 								}
 							}
@@ -151,7 +147,7 @@ class MySQL extends Cacheable {
 						$result[] = new DBEntry($fetchedResult, 0, "ArrayIterator", $this->prefix);
 					}
 	
-					@mysql_free_result($queryResult);
+					$queryResult->close();
 					if ($profiler) $profiler->logEvent("query_add_cache"); 
 					$this->setCache($query, $result, $this->prefix);
 				} else {
@@ -161,7 +157,7 @@ class MySQL extends Cacheable {
 
 				return ($result);
 			} else {
-				$mySqlError .= mysql_error () . " Error-Code: " . mysql_errno ();
+				$mySqlError .= $link->connect_error . " Error code: " . $link->connect_errno;
 				$this->lastError = $mySqlError;
 				pushError($mySqlError);
 			}

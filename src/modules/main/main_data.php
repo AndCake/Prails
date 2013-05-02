@@ -24,8 +24,8 @@ class MainData extends Database
       parent::Database();
    }
    
-	function listModules() {
-		return $this->SqlQuery("SELECT * FROM tbl_prailsbase_module WHERE 1=1 ORDER BY name ASC");
+	function listModules($uid = -1) {
+		return $this->query("SELECT * FROM tbl_prailsbase_module WHERE fk_user_id=%1 ORDER BY name ASC", $uid);
 	}
 }
 ?>
