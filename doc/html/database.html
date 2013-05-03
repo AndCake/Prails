@@ -47,21 +47,28 @@ printf("Escaped string: %s\n", $escaped_item);
 </pre>
 <br/><br/>
 <br/><br/>
-<div class='method-type'>Method</div><a name='query' class='method-title'>query</a><div class='method'><span class='name'>query</span>(<span class='parameters'>$query</span>) &rarr; <span class='type'>Array</span></div>
+<div class='method-type'>Method</div><a name='query' class='method-title'>query</a><div class='method'><span class='name'>query</span>(<span class='parameters'>$query, ...</span>) &rarr; <span class='type'>Array</span></div>
 <ul><li class='param'><code>$query</code> (<span class='type'>String</span>)<span class='divider'> - </span>The complete SQL query to be sent to the database.</li>
 </ul>
 
-Sends a query to the database and returns it's result. <u>Hint:</u> you need to add the 
-table's prefix manually (which is always "tbl_"). The method will return an array 
-of <code>DBEntry</code> objects, or an empty Array in case the query has no result set.
+Sends a query to the database and returns it's result. All parameters following the 
+actual query are parameters to that query which can be specified by using <code>%n</code>. The
+<code>n</code> references the parameter handed over after the query. So %1 will insert the value
+of the first parameter after the query.
+<br/><br/>
+ <u>Hint:</u> you need to add the table's prefix manually (which is always "tbl_"). 
+The method will return an array of <code>DBEntry</code> objects, or an empty Array in case 
+the query has no result set.
 <br/><br/>
 <strong>Example:</strong> 
 <pre>
-$arr_result = $this-&gt;query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+$uid = 4;
+$result = $this-&gt;query("SELECT * FROM tbl_user LEFT JOIN tbl_story ON fk_user_id=user_id WHERE NOT ISNULL(photo)");
+$users = $this-&gt;query("SELECT *, %2 AS time FROM tbl_user WHERE user_id=%1", $uid, time());
 </pre>
-The result in <code>$arr_result</code> will look like that:
+The results for both instances will look like that:
 <pre>
-$arr_result = Array(
+$result = Array(
      0 =&gt; Array(
          "user_id" =&gt; "4",
          "photo" =&gt; "test.jpg",
@@ -78,7 +85,15 @@ $arr_result = Array(
     ),
     ...
 );
+$users = Array(
+		0 =&gt; Array(
+		"user_id" =&gt; "4",
+		"photo" =&gt; "test.jpg",
+		"time" =&gt; 1234567890
+		)
+);
 </pre>
+Please note, that for the sake of security and protection against SQL injection, you should always pass values into a query using the 
 <br/><br/>
 <br/><br/>
 <div class='method-type'>Method</div><a name='get' class='method-title'>get</a><div class='method'><span class='name'>get</span>(<span class='parameters'>$table[, $filter[, $sort[, $start[, $limit]]]]</span>) &rarr; <span class='type'>Array</span></div>

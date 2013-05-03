@@ -2211,7 +2211,7 @@ class BuilderHandler
 					foreach ($data["languages"] as $lang) {
 						$id = $lang["language_id"];
 						unset($lang["language_id"]);
-						@unset($lang["fk_user_id"]);
+						unset($lang["fk_user_id"]);
 						$id2 = 0;
 						$langs = Generator::getInstance()->obj_lang->listLanguages();
 						foreach ($langs as $lg) {

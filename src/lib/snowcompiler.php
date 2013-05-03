@@ -54,8 +54,8 @@ class SnowCompiler {
 	"T_COMPARISON": {"|": ["<T_EQUALS_COMPARISON>", "<T_NEQUALS_COMPARISON>", "<T_GT_COMPARISON>", "<T_LT_COMPARISON>"]},
 	"T_EQUALS_COMPARISON": ["<T_CONDITION_EXPRESSION>", "\\\\s+(is|==)\\\\s+", "<T_CONDITION_EXPRESSION>"],
 	"T_NEQUALS_COMPARISON": ["<T_CONDITION_EXPRESSION>", "\\\\s+(isnt|!=)\\\\s+", "<T_CONDITION_EXPRESSION>"],
-	"T_GT_COMPARISON": ["<T_CONDITION_EXPRESSION>", {"|": ["<T_GT>", "<T_GTE>"]}, "<T_CONDITION_EXPRESSION>"],
-	"T_LT_COMPARISON": ["<T_CONDITION_EXPRESSION>", {"|": ["<T_LTE>", "<T_LT>"]}, "<T_CONDITION_EXPRESSION>"],
+	"T_GT_COMPARISON": ["<T_CONDITION_EXPRESSION>", {"|": ["\\\\s*>(=?)\\\\s*"]}, "<T_CONDITION_EXPRESSION>"],
+	"T_LT_COMPARISON": ["<T_CONDITION_EXPRESSION>", {"|": ["\\\\s*<(=?)\\\\s*"]}, "<T_CONDITION_EXPRESSION>"],
 	"T_PARAMETERS": ["<T_PARAMETER>", {"*": ["\\\\s*,\\\\s*", "<T_PARAMETER>"]}],
 	"T_PARAMETER": ["<T_IDENTIFIER>", {"?": ["\\\\s*=\\\\s*", "<T_LITERAL>"]}],
 	"T_LITERAL": {"|": ["<T_REGEXP_LITERAL>", "<T_ARRAY_LITERAL>", "<T_BOOLEAN_LITERAL>", "<T_NULL>", "<T_STRING_LITERAL>", "<T_NUMBER_LITERAL>"]},
@@ -83,11 +83,7 @@ class SnowCompiler {
 	"T_FLOAT_NUMBER": "(-?[0-9]*\\\\.[0-9]+)",
 	"T_DEC_NUMBER": "(-?[0-9]+)",
 	"T_REGEXP_LITERAL": "/([^/]+)/[imsxADSUXJu]*",
-	"T_NEWLINE": "[ \\t]*[\\r\\n]+|\\\\s*$",
-	"T_GTE": "\\\\s*>=\\\\s*",
-	"T_LTE": "\\\\s*<=\\\\s*",
-	"T_GT": "\\\\s*>\\\\s*",
-	"T_LT": "\\\\s*<\\\\s*"
+	"T_NEWLINE": "[ \\t]*[\\r\\n]+|\\\\s*$"
 }';
 	protected $mapRules = '';
 # ${c} - special command: create recursive chain
@@ -101,6 +97,7 @@ class SnowCompiler {
 	protected $stack = null;
 	protected $successStack = null;
 	protected $indentationLevel = 0;
+	protected $maxMatch = null;
 
 	function __construct($code, $complete = true) {
 		$this->mapRules = '{
@@ -111,8 +108,8 @@ class SnowCompiler {
 	"T_CLASS_FN_DEF": "\\\\1\\\\2",
 	"T_MULTILINE_COMMENT": "/*${R\\\\1/#/}*/",
 	"T_SINGLELINE_COMMENT": "//${R\\\\1/#/}",
-	"T_BOOL_AND": "&&",
-	"T_BOOL_OR": "||",
+	"T_BOOL_AND": " && ",
+	"T_BOOL_OR": " || ",
 	"T_BOOL_NEGATION": "!",
 	"T_INCDEC": "\\\\1\\\\2",
 	"T_LOOP_CONTROL": "\\\\1",
@@ -158,6 +155,7 @@ class SnowCompiler {
 		$this->stack = Array();
 		$this->indentationLevel = 0;
 		$this->successStack = Array();
+		$this->maxMatch = Array(0, null);
 	}
 
 	function compile($debug = false) {
@@ -166,7 +164,15 @@ class SnowCompiler {
 			if ($tree["len"] < strlen($this->code)) {
 				$lines = explode("\n", $this->code);
 				$line = count(explode("\n", substr($this->code, $tree["len"])));
-				throw new Exception("Error at line ".$line." while parsing input: \"".$lines[$line - 1]."\"");
+				if ($this->maxMatch[2] > 0) {
+					$lines = explode("\n", substr($this->code, 0, $this->maxMatch['error']));
+					$line = count($lines);
+					$pre = array_pop($lines);
+					$post = array_shift(explode("\n", substr($this->code, $this->maxMatch['error'])));
+					$nl = str_repeat("-", strlen($pre)) . "^";
+					throw new Exception("Unexpected character while trying to parse ".$this->maxMatch[1]." at line ".($line).": \n" . $pre . $post . "\n" . $nl);
+				}
+				throw new Exception("Error at line ".($line)." while parsing input: \"".$lines[$line - 1]."\"");
 			}
 			$result = $this->doMapping($tree);
 			unset($tree);
@@ -178,24 +184,29 @@ class SnowCompiler {
 	}
 
 	function buildChain($chain, $last, $root, $template) {
-		$offset = 1;
+		$offset1 = $offset2 = 1;
 		if (!empty($last)) {
 			if (count($last) > 1) {
 				$slice = array_pop($last[1]);
 			} else {
 				$slice = array_pop($last[0]);
-				$offset = 1;
 			}
 		} else {
-			$slice = array_splice($chain, count($chain) - 5, 5);
+			$c = count($chain) - 5;
+			$slice = array_splice($chain, $c < 0 ? 0 : $c, 5);
+
+			if ($slice[0]["T_FNNAME"]) {
+				$offset1 = $offset2 = 0;
+			}
 		}
-		$template = $this->getValue($slice[$offset])."(";
+		$template = $this->getValue($slice[$offset1])."(";
+
 		if (count($chain) > 0) {
 			$template .= $this->buildChain($chain, null, $root, $template);
 		} else {
 			$template .= $root;
 		}
-		$params = $this->getValue($slice[2 + $offset]);
+		$params = $this->getValue($slice[2 + $offset2]);
 		if (!empty($params)) {
 			$template .= ", ".$params;
 		}
@@ -354,6 +365,10 @@ class SnowCompiler {
 				$this->stack[$pos] = array_diff($this->stack[$pos], Array($ruleName));
 			} else {
 				if ($debug) echo str_repeat("\t", $depth)."Rule ".$ruleName." does not apply at pos ".$pos."\n";
+				if ($this->maxMatch['dirty']) {
+					$this->maxMatch['dirty'] = false;
+					$this->maxMatch[1] = $ruleName;
+				}
 				$res = false;
 			}
 			return $res;
@@ -382,6 +397,7 @@ class SnowCompiler {
 			$matches = true;
 			$resultTree = Array();
 			$checkPos = $pos;
+			$matchLen = 0;
 			foreach ($rule as $modifier => $subRule) {
 				if (in_array($modifier, Array("+", "?", "*", "|"), true)) {
 					# complex rule
@@ -398,9 +414,7 @@ class SnowCompiler {
 							}
 						} else {
 							foreach ($subRule as $subsubRule) {
-								if ($debug) {
-									echo str_repeat("\t", $depth)."| multi rule: ".json_encode($subsubRule)."\n";
-								}
+								if ($debug) echo str_repeat("\t", $depth)."| multi rule: ".json_encode($subsubRule)."\n";
 								if ($checkPos >= strlen($this->code)) {
 									if ($debug) echo str_repeat("\t", $depth)."Cancelled | multi rule!\n";
 									$matches = false;
@@ -491,8 +505,15 @@ class SnowCompiler {
 					$matches = true;
 					if ($result == false) {
 						if ($debug) echo str_repeat("\t", $depth)."Failed simple multi rule: ".json_encode($subRule)."\n";
+						if ($checkPos >= $this->maxMatch[0]) {
+							$this->maxMatch[0] = $checkPos;
+							$this->maxMatch[2] = $matchLen;
+							$this->maxMatch['dirty'] = true;
+							$this->maxMatch['error'] = $checkPos;
+						}
 						return false;
 					}
+					$matchLen++;
 					if ($debug) echo str_repeat("\t", $depth)."Success simple multi rule: ".json_encode($subRule)."\n";
 					$resultTree[] = $result;
 					$checkPos += $result["len"];
