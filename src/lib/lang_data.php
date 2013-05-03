@@ -122,7 +122,7 @@ class LangData
 	function setLanguage($str_lang) {
 		if (IS_SETUP) {
 			
-			$arr_result = @array_pop($this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$this->uid." AND ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
+			$arr_result = @array_pop($this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE (fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0)) AND ".(strlen($str_lang) > 0 ? "abbreviation='".$str_lang."'" : "isDefault=1")));
 			if (strlen($str_lang) <= 0 && DEFAULT_LANGUAGE != $arr_result["language_id"]) {
 				try {
 					  $conf = getConfiguration();
@@ -213,7 +213,7 @@ class LangData
 	 * this method will return a list of all currently existing languages, ordered by language name.
 	 **/
 	function listLanguages() {
-		return $this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$this->uid." ORDER BY name");
+		return $this->obj_sql->query("SELECT * FROM ".tbl_prailsbase_language." WHERE fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0) ORDER BY name");
 	}
 	 
 	/**
@@ -222,7 +222,7 @@ class LangData
 	 * get a list of all content assets across all languages
 	 **/
 	function listTexts() {
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND b.fk_user_id=".$this->uid." GROUP BY a.identifier, a.texts_id, a.fk_language_id, a.content");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND (b.fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel").") AND b.fk_user_id=0) GROUP BY a.identifier, a.texts_id, a.fk_language_id, a.content");
 		$arr_return = Array();
 		foreach ($arr_result as $arr_entry) {
 			$parts = explode(".", $arr_entry["identifier"]);
@@ -247,7 +247,7 @@ class LangData
 	 * folder to be listed for a menu or create an order on those.
 	 **/
 	function listAllTextsFromRoot($rootNode) {
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND b.fk_user_id=".$this->uid." AND a.identifier LIKE '".$rootNode.".%'");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND (b.fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND b.fk_user_id=0)) AND a.identifier LIKE '".$rootNode.".%'");
 		foreach($arr_result as &$item) {
 			$item["custom"] = $this->_decodeCustom($item["custom"]);
 		}
@@ -261,7 +261,7 @@ class LangData
 	 * Returns all content assets that contain the keyword in some way - regardless of active language.
 	 **/
 	function findTextByContent($word) {
-		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND b.fk_user_id=".$this->uid." AND content LIKE '%".$word."%'");
+		$arr_result = $this->obj_sql->query("SELECT a.* FROM tbl_prailsbase_texts AS a, tbl_prailsbase_language AS b WHERE a.fk_language_id=b.language_id AND (b.fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND b.fk_user_id=0)) AND content LIKE '%".$word."%'");
 		$arr_return = Array();
 		foreach ($arr_result as $res) {
 			array_push($arr_return, Array("id" => "text_.".$res['identifier'], "name" => $res["identifier"], "type" => "text", "custom" => $this->_decodeCustom($res["custom"])));
@@ -276,7 +276,7 @@ class LangData
 	 * This method fetches all content assets across all languages it exists in that have the given identifier.
 	 **/
 	function getAllTextsByIdentifier($ident) {
-		$texts = $this->obj_sql->query("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE b.fk_user_id=".$this->uid."");
+		$texts = $this->obj_sql->query("SELECT * FROM tbl_prailsbase_language AS b LEFT JOIN tbl_prailsbase_texts AS a ON identifier='".$ident."' AND b.language_id=a.fk_language_id WHERE b.fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND b.fk_user_id=0)");
 		foreach ($texts as &$text) {
 			$text["default"] = $text["isDefault"];
 			$text["custom"] = $this->_decodeCustom($text["custom"]);
@@ -351,14 +351,14 @@ class LangData
 	function updateLanguage($id, $arr_data) {
 		$arr_data["isDefault"] = $arr_data["default"];
 //		$arr_languages = $this->listLanguages();
-        $this->obj_sql->update(tbl_prailsbase_language, Array("isDefault" => "0"), "fk_user_id=".$this->uid."");
+        $this->obj_sql->update(tbl_prailsbase_language, Array("isDefault" => "0"), "fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0)");
 /*
         foreach ($arr_languages as $lang) {
 			if ($lang["isDefault"] == 0 && $id == $lang["language_id"]) {
 				$arr_data["isDefault"] = 1;
 			}
 		}//*/
-		$this->obj_sql->update(tbl_prailsbase_language, $arr_data, "language_id=".(int)$id." AND fk_user_id=".$this->uid."");
+		$this->obj_sql->update(tbl_prailsbase_language, $arr_data, "language_id=".(int)$id." AND fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0)");
 	}
 
 	function insertLanguage($arr_data) {
@@ -370,7 +370,7 @@ class LangData
       if ($arr_data["isDefault"] == 1 && $count > 0) {
           // if the to-be-created language should be the new default, then 
           // set all other default languages to non-default
-          $this->obj_sql->update(tbl_prailsbase_language, Array("isDefault" => "0"), "fk_user_id=".$this->uid."");
+          $this->obj_sql->update(tbl_prailsbase_language, Array("isDefault" => "0"), "fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0)");
       }
       $id = $this->obj_sql->add(tbl_prailsbase_language, $arr_data);
       return $id;
@@ -378,11 +378,11 @@ class LangData
    
    function deleteLanguage($id) {
       $this->obj_sql->delete(tbl_prailsbase_texts, "fk_language_id=".(int)$id." OR fk_language_id=0");      
-   	  $this->obj_sql->delete(tbl_prailsbase_language, "language_id=".(int)$id." AND fk_user_id=".$this->uid."");
+   	  $this->obj_sql->delete(tbl_prailsbase_language, "language_id=".(int)$id." AND (fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0))");
    }
 
    function deleteLanguageOnly($id) {
-      $this->obj_sql->delete(tbl_prailsbase_language, "language_id=".(int)$id." AND fk_user_id=".$this->uid."");
+      $this->obj_sql->delete(tbl_prailsbase_language, "language_id=".(int)$id." AND (fk_user_id=".$this->uid." OR (".$this->uid."=".crc32("devel")." AND fk_user_id=0))");
    }
    
    function _encodeCustom($data) {

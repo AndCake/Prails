@@ -1,3 +1,21 @@
+V1.6.2 (May 3rd, 2013)
+
+ * fixed a bug in input.tag in conjunction with Snow -> fixed #4
+ * fixed a bug in builder_handler
+ * fixed a few bugs with user-specific content asset management
+ * fixed a bug with embedded images in LESS code
+ * fixed a bug where client-side invoke did not behave according to the documentation
+ * removed a notice message from being issued from PHP when using the taglib
+ * some code cleanup
+ * added support for parameterized DB queries
+ * added unit tests for parameterized DB queries.
+ * upgraded old MySQL interface to use MySQLi
+ * updated to latest Snow compiler (has better error reporting)
+ * updated query documentation
+ * made sure that the IDE is reloaded after successful replication
+ * database cache is now turned off by default
+
+
 V1.6.1 (April 18th, 2013)
 
  * Updated functionality to add/update Prails users via API (requires admin rights)
