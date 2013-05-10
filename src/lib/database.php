@@ -84,13 +84,14 @@ class Database {
 
     function _parseQuery($args) {
     	$query = $args[0];
+    	if (count($args) <= 1) return $query;
     	$ignoreS = false;
     	$ignoreD = false;
+    	$cursor = 0;
     	while ($cursor < strlen($query)) {
     		$c = $query[$cursor];
-    		if ($c == '"') $ignoreD = !$ignoreD;
-    		else if ($c == "'")
-    			$ignoreS = !$ignoreS;
+    		if ($c == '"' && $query[$cursor - 1] != '\\') $ignoreD = !$ignoreD;
+    		else if ($c == "'" && $query[$cursor - 1] != '\\') $ignoreS = !$ignoreS;
     		else if ($c == '%' && !$ignoreS && !$ignoreD) {
     			$num = "";
     			$pre = substr($query, 0, $cursor);
@@ -99,12 +100,14 @@ class Database {
 	    			if (is_numeric($c)) $num .= $c;
 	    		} while (is_numeric($c));
 	    		$post = substr($query, $cursor);
-	    		$val = $args[intval($num)];
-    			if (!is_numeric($val) && !is_null($val) && !is_bool($val)) $val = "'" . $this->escape($val) . "'";
-    			if (is_null($val)) $val = "NULL";
-    			if (is_bool($val)) $val = $val ? "1" : "0";
-    			$query = $pre . $val . $post;
-    			$cursor += strlen($val) - (strlen($num) + 1);
+	    		if (intval($num) > 0) {
+		    		$val = $args[intval($num)];
+	    			if (!is_numeric($val) && !is_null($val) && !is_bool($val)) $val = "'" . $this->escape($val) . "'";
+	    			if (is_null($val)) $val = "NULL";
+	    			if (is_bool($val)) $val = $val ? "1" : "0";
+	    			$query = $pre . $val . $post;
+	    			$cursor += strlen($val) - (strlen($num) + 1);
+	    		}
     			unset($pre, $post, $val);
     		}
     		$cursor++;

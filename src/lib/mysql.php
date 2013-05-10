@@ -102,7 +102,18 @@ class MySQL extends Cacheable {
 
 	function escape($str, $linkId = 0) {
 		$link = $this->links[$linkId]["link"];
-		return $link->escape_string($str);
+		if ($link) {
+			return $link->escape_string($str);
+		} else {
+			if (is_array($str)) return array_map(__METHOD__, $str); 
+			if (!empty($str) && is_string($str))
+				return str_replace(
+					array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), 
+					array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), 
+					$str
+				); 
+			return $str;
+		}
 	}
 
 	function query($query, $cacheTime = 0, $linkId = 0) {
