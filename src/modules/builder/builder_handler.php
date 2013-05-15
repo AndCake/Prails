@@ -38,25 +38,23 @@ class BuilderHandler
 				$_SESSION["builder"]["user_id"] = crc32("devel");
 				$_SESSION["builder"]["group"] = $u_group;
 			} else {
-				if (! isset ($_SERVER["PHP_AUTH_USER"]))
-				{
+				if (isset($_SERVER["HTTP_AUTHORIZATION"]) && !empty($_SERVER["HTTP_AUTHORIZATION"])) {
+					list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+				}
+				if (!isset($_SERVER["PHP_AUTH_USER"]) || empty($_SERVER["PHP_AUTH_USER"])) {
 					$this->logout();
-				} else
-				{
+				} else {
 					$passwd = file(".users");
 					$groups = file(".groups");
-					foreach ($passwd as & $val)
-					{
+					foreach ($passwd as & $val) {
 						$val = trim($val);
 					}
 					$u_group = -1;
 					$primaryGroup = "devel";
-					foreach ($groups as $group)
-					{
+					foreach ($groups as $group) {
 						list ($grp, $users) = explode("=", $group);
 						$users = explode(",", trim($users));
-						if (in($_SERVER["PHP_AUTH_USER"], $users))
-						{
+						if (in($_SERVER["PHP_AUTH_USER"], $users)) {
 							if (in("[primary]", $grp)) {
 								$primaryGroup = $grp;
 							}
@@ -64,13 +62,11 @@ class BuilderHandler
 							break;
 						}
 					}
-					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(USER_SALT !== "USER_SALT" ? USER_SALT : "")), $passwd))
-					{
+					if (in($_SERVER["PHP_AUTH_USER"].":".md5($_SERVER["PHP_AUTH_PW"].(USER_SALT !== "USER_SALT" ? USER_SALT : "")), $passwd)) {
 						$_SESSION["builder"]["name"] = $_SERVER["PHP_AUTH_USER"];
 						$_SESSION["builder"]["user_id"] = crc32($primaryGroup);
 						$_SESSION["builder"]["group"] = $u_group;
-					} else
-					{
+					} else {
 						$this->logout();
 					}
 				}

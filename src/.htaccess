@@ -18,7 +18,10 @@ ErrorDocument 404 /rewrite.php
 
 <IfModule rewrite_module>
 	RewriteEngine on
-	
+
+	# make sure HTTP auth also works on CGI & FastCGI
+	RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
 	RewriteCond %{REQUEST_FILENAME} \.users [OR]
 	RewriteCond %{REQUEST_FILENAME} \.groups [OR]
 	RewriteCond %{REQUEST_FILENAME} .+\.prails$ [OR]
