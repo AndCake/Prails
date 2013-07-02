@@ -828,70 +828,12 @@ function sendMail($to, $subject, $content, $fromname, $fromaddress, $attachments
  * }}}
  * This example will print out the complete response from the remote server. The request to that remote server will have a timeout value of 10 seconds and contain an additional HTTP header.
  **/
-function doGet($url, $user=null, $pass=null, $timeout = null, $headers, &$response = null) {
-    if (is_array($user)) {
-        $options = $user;
-        $user = $options["user"];
-        $pass = $options["password"];
-        $timeout = $options["timeout"];
-        $headers = $options["headers"];
-        $response = $options["response"];
-    }
-    if ($timeout == null) $timeout = 30;
-    if ($response == null) $response = Array();
-    if ($headers == null) $headers = Array();
-    if (!$url_info = parse_url($url)) {
-        pushError("could not read data from url '".$url."'");
-        return false;
-    }
-    switch ($url_info["scheme"]) {
-        case "https": $scheme = "ssl://"; $port = 443; break;
-        case "http":
-        default: $scheme = ""; $port = 80; break;
-    }
-    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, $timeout);
-    if (!$da)  {
-        pushError($errstr." (".$errno.")");
-        return false;
-    }
-    $path = $url_info["path"];
-    if (strlen($url_info["query"]) > 0) $path .= "?".$url_info["query"];
-    $content = "GET ".$path." HTTP/1.0\r\n";
-    $content .= "Host: ".$url_info["host"]."\r\n";
-    $content .= "User-Agent: Prails Web Framework\r\n";
-    if (!empty($user) && !empty($pass)) {
-        $content .= "Authorization: Basic ".base64_encode($user.":".$pass)."\r\n";
-    }
-    if (is_string($headers)) $content .= $headers; else foreach ($headers as $key => $entry) {
-        $content .= $key.": ".$entry."\r\n";
-    }
-    $content .= "Connection: close\r\n\r\n";
-    fwrite ($da, $content);
-    $result = "";
-    $content = "";
-    $header = "";
-    while (!feof($da)) {
-        $result .= @fgets($da, 128);
-    }
-    list($header, $content) = split("\r\n\r\n", $result);
-    if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
-        $aux = split("\r\n", $content); 
-        for ($i = 0; $i < count($aux); $i++) {
-            if ($i == 0 || ($i % 2 == 0)) {
-                $aux[$i] = "";
-            }
-        }
-        $content = implode("", $aux);
-    }
-    $result = chop($content);
-    $hdata = explode("\n", $header);
-    $response["headers"] = Array();
-    foreach ($hdata as $h) {
-    	list($key, $value) = explode(":", $h);
-    	$response["headers"][$key] = $value;
-    }
-    $response["body"] = $result;
-    return $result;
+function doGet($url, $user=null, $pass=null, $timeout = null, $headers = null, &$response = null) {
+    return HTTPClient::doGet($url, $user, $pass, $timeout, $headers, $response);
+}
+
+function doPut($url, $arr_data = null, $user = null, $pass = null, $timeout = null, $headers = null, &$response = null) {
+    return HTTPClient::doPut($url, $arr_data, $user, $pass, $timeout, $headers, $response);
 }
 
 /**
@@ -936,82 +878,8 @@ function doGet($url, $user=null, $pass=null, $timeout = null, $headers, &$respon
  * This example shows how to do a more complex POST with custom headers to be sent and a lowered timeout value (only 5 seconds).
  * The response is stored into the `$response` variable and after the successful post, printed out.
  **/
-function doPost($url, $arr_post = Array(), $user = null, $pass = null, $timeout = null, $headers = null, &$response = Array())
-{
-    if (is_array($user)) {
-        $options = $user;
-        $user = $options["user"];
-        $pass = $options["password"];
-        $timeout = $options["timeout"];
-        $headers = $options["headers"];
-        $response = $options["response"];
-    }
-    if ($timeout == null) $timeout = 30;
-    if ($response == null) $response = Array();
-    if ($headers == null) $headers = Array();
- 
-    if (!$url_info = parse_url($url)) {
-        pushError("could not post data to url '".$url."'");
-        return false;
-    }
-    // update scheme and port for socket compatibility
-    switch ($url_info["scheme"]) {
-        case "https": $scheme = "ssl://"; $port = 443; break;
-        case "http":
-        default: $scheme = ""; $port = 80; break;
-    }
-    $da = fsockopen($scheme . $url_info["host"], $port, $errno, $errstr, $timeout);
-    if (!$da) {
-        pushError($errstr." (".$errno.")");
-        return false;
-    }
-    $postdata = is_string($arr_post) ? $arr_post : http_build_query($arr_post);
-    if (is_string($headers)) {
-    	$headerdata = $headers;
-    } else {
-	    $headerdata = "";
-		foreach ($headers as $key=>$value) {
-			$headerdata .= $key.": ".$value."\r\n";
-		}
-    }
-    $content = "POST ".$url_info["path"].(strlen($url_info["query"])>0?"?".$url_info["query"]:"")." HTTP/1.1\r\n";
-    $content .= "Host: ".$url_info["host"]."\r\n";
-	if ($user !== null && $pass !== null) {
-		$content .= "Authorization: Basic ".base64_encode($user.":".$pass)."\r\n";
-	}
-    $content .= $headerdata;
-    $content .= "Content-Type: application/x-www-form-urlencoded\r\n";
-    $content .= "Content-Length: ".strlen($postdata)."\r\n";
-    $content .= "Connection: close\r\n\r\n";
-    $content .= $postdata;
-    fwrite ($da, $content);
-    $response = "";
-    $content = "";
-    $header = "";
-    while (!feof($da)) {
-        $response .= @fgets($da, 128);
-    }
-    $response = split("\r\n\r\n", $response);
-    $header = $response[0];
-    $content = $response[1];
-    if (!(strpos($header, "Transfer-Encoding: chunked") === false)) {
-        $aux = split("\r\n", $content);
-        for ($i = 0; $i < count($aux); $i++) {
-            if ($i == 0 || ($i % 2 == 0)) {
-                $aux[$i] = "";
-            }
-        }
-        $content = implode("", $aux);
-    }
-    $content = chop($content);
-    $hdata = explode("\n", $header);
-    $response["headers"] = Array();
-    foreach ($hdata as $h) {
-    	list($key, $value) = explode(":", $h);
-    	$response["headers"][$key] = $value;
-    }
-    $response["body"] = $content;
-    return $content;
+function doPost($url, $arr_post = Array(), $user = null, $pass = null, $timeout = null, $headers = null, &$response = Array()) {
+   return HTTPClient::doPost($url, $arr_post, $user, $pass, $timeout, $headers, $response);
 }
 
 /**

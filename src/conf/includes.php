@@ -23,6 +23,7 @@ include "conf/database.php";
 
 // include tools
 include "lib/smtp.php";
+include "lib/httpclient.php";
 include "lib/tools.php";
 include "lib/quartz.php";
 include "lib/debug/logger.php";

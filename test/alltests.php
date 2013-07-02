@@ -5,6 +5,7 @@ include("../test/libTest.php");
 try {
 	require_once("../test/taglib.php");
 	require_once("../test/database.php");
+	require_once("../test/httpclient.php");
 } catch(Exception $e) {
 	array_push($errors, $e->getMessage());
 }

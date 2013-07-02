@@ -1,0 +1,123 @@
+<html>
+	<head>
+		<title>Class HTTPClient</title>
+		<link rel="stylesheet" type="text/css" href="styles.css"/>
+	</head>
+	<body><div class="page">
+		<h1>Class HTTPClient</h1><br/><br/>
+This class provides means to easily open a server-side HTTP(S) connection and query / send data.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='open' class='method-title'>open</a><div class='method'><span class='name'>open</span>(<span class='parameters'>$method, $url[, $user, $password]</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$method</code> (<span class='type'>String</span>)<span class='divider'> - </span>The HTTP method to use, such as "GET", "POST", "PUT", "DELETE", etc.</li>
+<li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>The URL to which to send the request.</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>The optional user name to use for authentication purposes.</li>
+<li class='param'><code>$password</code> (<span class='type'>String</span>)<span class='divider'> - </span>The optional password to use for authentication purposes.</li>
+</ul>
+
+Initializes a request. 
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='setRequestHeader' class='method-title'>setRequestHeader</a><div class='method'><span class='name'>setRequestHeader</span>(<span class='parameters'>$header, $value</span>) &rarr; <span class='type'>void</span></div>
+<ul><li class='param'><code>$header</code> (<span class='type'>String</span>)<span class='divider'> - </span>The name of the header whose value is to be set.</li>
+<li class='param'><code>$value</code> (<span class='type'>String</span>)<span class='divider'> - </span>The value to set as the body of the header.</li>
+</ul>
+
+Sets the value of an HTTP request header. You must call setRequestHeader() 
+after open(), but before send(). 
+<br/><br/>
+_Please note_: Calling setRequestHeader with that name again will override 
+any previously set header with the same name.
+<br/><br/>
+<strong>Example:</strong>
+<br/><br/>
+<pre>
+$hc = new HTTPClient();
+$hc-&gt;open("POST", "http://plain-webservice.example.org/echo");
+$hc-&gt;setRequestHeader("Content-Type", "text/plain");
+$result = $hc-&gt;send("Hello World!");
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='send' class='method-title'>send</a><div class='method'><span class='name'>send</span>(<span class='parameters'>[$data]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$data</code> (<span class='type'>String</span> | <span class='type'>Array</span>)<span class='divider'> - </span>the data to be sent (optional)</li>
+</ul>
+
+Sends the request. This method doesn't return until the response has arrived. Please note, that 
+sending data will automatically add a <code>Content-Length</code> header to the request. This method should
+be called after the request has been initialized through calling the open() method.
+<br/><br/>
+<strong>Example:</strong>
+<br/><br/>
+<pre>
+$hc = new HTTPClient();
+$hc-&gt;open("GET", "http://www.google.com/");
+$response = $hc-&gt;send();
+echo $hc-&gt;getResponseHeader("Content-Type") . "&lt;br/&gt;" . $response;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='getResponseHeaders' class='method-title'>getResponseHeaders</a><div class='method'><span class='name'>getResponseHeaders</span>(<span class='parameters'></span>) &rarr; <span class='type'>Array</span></div>
+<br/><br/>
+Returns all the response headers as an associative array, or <code>null</code> if no response has been received. 
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='getResponseHeader' class='method-title'>getResponseHeader</a><div class='method'><span class='name'>getResponseHeader</span>(<span class='parameters'>$name</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$name</code> (<span class='type'>String</span>)<span class='divider'> - </span>Name of the response header to retrieve</li>
+</ul>
+
+Returns the string containing the text of the specified header, or <code>null</code> if either the response 
+has not yet been received or the header doesn't exist in the response.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='doGet' class='method-title'>doGet</a><div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $user, $password[, $timeout[, $headers[, &$response]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>doGet</span>(<span class='parameters'>$url[, $options]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to fetch data from</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>the username to authenticate with</li>
+<li class='param'><code>$password</code> (<span class='type'>String</span>)<span class='divider'> - </span>the password to authenticate with</li>
+<li class='param'><code>$headers</code> (<span class='type'>String</span> | <span class='type'>Array</span>)<span class='divider'> - </span>additional header information to be sent. Array as key-value pairs.</li>
+<li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
+<li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
+<li class='param'><code>$options</code> (<span class='type'>Array</span>)<span class='divider'> - </span>contains an array with key-value pairs defining the above parameters. This is just for convenience.</li>
+</ul>
+
+A static short-cut function for triggering a GET request. The function returns the data fetched from the (other) server.
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='doPost' class='method-title'>doPost</a><div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>doPost</span>(<span class='parameters'>$url[, $postData[, $options]]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to POST to</li>
+<li class='param'><code>$postData</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>data to be posted. Array as key-value pairs.</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>null</code>, no authorization header will be sent (default).</li>
+<li class='param'><code>$pass</code> (<span class='type'>String</span>)<span class='divider'> - </span>password to connect with (for basic HTTP authentication). If <code>null</code>, then no authorization header will be sent (default).</li>
+<li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
+<li class='param'><code>$headers</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>additional headers to be sent as part of the request. Array as key-value pairs.</li>
+<li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
+<li class='param'><code>$options</code> (<span class='type'>Array</span>)<span class='divider'> - </span>contains an array with key-value pairs defining the above parameters. This is just for convenience.</li>
+</ul>
+
+A static short-cut function for triggering a POST request. It returns the server's reply body as a <code>String</code>.
+<br/><br/>
+<strong>Example:</strong>
+<br/><br/>
+<pre>
+// execute a POST request to http://svc.example.org/find with the POST data &query=my+search+term
+$result = HTTPClient::doPost("http://svc.example.org/find", Array("query" =&gt; "my search term"));
+echo $result;
+</pre>
+<br/><br/>
+<br/><br/>
+<div class='method-type'>Method</div><a name='doPut' class='method-title'>doPut</a><div class='method'><span class='name'>doPut</span>(<span class='parameters'>$url[, $putData[, $user, $pass[, $timeout[, $headers[, &$response]]]]]</span>) &rarr; <span class='type'>String</span></div>
+<div class='method'><span class='name'>doPut</span>(<span class='parameters'>$url[, $putData[, $options]]</span>) &rarr; <span class='type'>String</span></div>
+<ul><li class='param'><code>$url</code> (<span class='type'>String</span>)<span class='divider'> - </span>URL to PUT to</li>
+<li class='param'><code>$putData</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>data to be put. Array as key-value pairs.</li>
+<li class='param'><code>$user</code> (<span class='type'>String</span>)<span class='divider'> - </span>user name to connect with (for basic HTTP authentication). If <code>null</code>, no authorization header will be sent (default).</li>
+<li class='param'><code>$pass</code> (<span class='type'>String</span>)<span class='divider'> - </span>password to connect with (for basic HTTP authentication). If <code>null</code>, then no authorization header will be sent (default).</li>
+<li class='param'><code>$timeout</code> (<span class='type'>Number</span>)<span class='divider'> - </span>connection timeout in seconds. Defaults to <code>30</code> seconds.</li>
+<li class='param'><code>$headers</code> (<span class='type'>Array</span> | <span class='type'>String</span>)<span class='divider'> - </span>additional headers to be sent as part of the request. Array as key-value pairs.</li>
+<li class='param'><code>$response</code> (<span class='type'>Array</span>)<span class='divider'> - </span>if provided, this array will receive the complete response data (including headers). The array will contain a <code>headers</code> key and a <code>body</code> key. The first one containing a key-value pair of all headers the server responded with, the latter one a string containing the response data.</li>
+<li class='param'><code>$options</code> (<span class='type'>Array</span>)<span class='divider'> - </span>contains an array with key-value pairs defining the above parameters. This is just for convenience.</li>
+</ul>
+
+A static short-cut function for triggering a PUT request. This method returns the server's reply as a <code>String</code>.
+<br/><br/>
