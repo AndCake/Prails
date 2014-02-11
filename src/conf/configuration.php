@@ -163,10 +163,10 @@ function getConfiguration($module = false) {
     } else {
         $settingsName = "\$arr_".$module."_settings";
         if (is_array($GLOBALS[$settingsName])) {
-            return $GLOBAL[$settingsName];
+            return $GLOBALS[$settingsName];
         } else {
             $settingsName = "\$arr_".constant(strtoupper($module))."_settings";
-            return $GLOBAL[$settingsName];
+            return $GLOBALS[$settingsName];
         }
     }
 }

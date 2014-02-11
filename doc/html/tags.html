@@ -11,7 +11,7 @@ easy to use, create and understand.
 <br/><br/>
 A series of control tags are pre-defined in Prails and can be used in any template and output code.
 <br/><br/>
-<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span>  [cond="&lt;php-condition&gt;"]/&gt;</div>
+<div class='method-type'>Tag</div><a name='else' class='method-title'>else</a><div class='method'>&lt;c:<span class='name'>else</span> [ cond="&lt;php-condition&gt;"]/&gt;</div>
 <br/><br/>
 Used together with <code><a href="Tags.html#if">if</a></code> or <code><a href="Tags.html#foreach">foreach</a></code> to render something in an alternative branch of 
 execution. Needs to be written within the respective if/loop tag's body. In case the condition 
@@ -22,7 +22,7 @@ the <code><a href="Tags.html#else">else</a></code> tag.
 <pre>
 &lt;c:if cond="#local.value &gt; 123"&gt;
    It's larger than 123!
-&lt;c:else cond="#local.value &lt; 120"&gt;
+&lt;c:else cond="#local.value &lt; 120"/&gt;
    It's smaller than 120!
 &lt;c:else/&gt;
    It's between 120 and 123!

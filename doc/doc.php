@@ -217,6 +217,10 @@ function parseWikiCode($desc, $ignoreBullets = false) {
 	$desc = preg_replace('/\\s*_([^_]+)_\\s/', ' <u>\\1</u> ', $desc);
 	$desc = preg_replace('/\\!\\[([^\\]]+)\\]\\(([^\\)]+)\\)/', '<a href="\\2" class="dialog image" title="\\1"><img src="\\2" alt="\\1" border="0"/><span class="caption">\\1</span></a>', $desc);
 	$desc = preg_replace('/!\\(([^\\) ]+)(?: ([^\\)]*))?\\)/', '<a href="\\1" target="_blank">\\2</a>', $desc);
+	$desc = preg_replace('/####\\s+(.*)$/m', '<h4>\\1</h4>', $desc);
+	$desc = preg_replace('/###\\s+(.*)$/m', '<h3>\\1</h3>', $desc);
+	$desc = preg_replace('/##\\s+(.*)$/m', '<h2>\\1</h2>', $desc);
+	$desc = preg_replace('/#\\s+(.*)$/m', '<h1>\\1</h1>', $desc);
 	if (!$ignoreBullets) {
 		$desc = preg_replace('/^\\s*-\\s+(.+)$/', '<li>\\1</li>', $desc);
 	}
