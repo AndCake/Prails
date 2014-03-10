@@ -7,29 +7,29 @@
 		<h1>Architecture</h1><br/><br/>
 <h2>General Architecture Overview</h2>
 <a href="static/images/doc/architecture-overview2.png" class="dialog image" title="General Architecture Overview"><img src="static/images/doc/architecture-overview2.png" alt="General Architecture Overview" border="0"/><span class="caption">General Architecture Overview</span></a>
-The Prails Web Framework consists of a variety of components that act very closely together while keeping re-usability as high as possible. The framework itself is built of five main components, called agents. These are the Request Worker agent, the Generator agent, the Modules agent, the Global Libraries agent and last the Database Manager agent. I will shortly explain how these interact in order to render a dynamic web page.
+The Prails Web Framework consists of a variety of components that act very closely together while keeping re-usability as high as possible. The framework itself is built of five main components, called agents. These are the Request Worker agent, the OutputGenerator agent, the Modules agent, the Global Libraries agent and last the Database Manager agent. I will shortly explain how these interact in order to render a dynamic web page.
 <br/><br/>
 <h3>The Request worker</h3>
 <a href="static/images/doc/architecture-overview-request_worker2.png" class="dialog image" title="The Request worker"><img src="static/images/doc/architecture-overview-request_worker2.png" alt="The Request worker" border="0"/><span class="caption">The Request worker</span></a>
-The Request Worker takes the current request from the user and decides what needs to be done next. Therefore it first creates the environment needed to execute whatever comes next. If a completely processed template (called runlet) does exist for the current request, then the Request Worker communicates with the Generator agent in order to re-parse it and thus to re-evaluate dynamic contents found in the respective runlet. These runlets are for most parts pure static HTML, but they may also contain dynamic contents. If you want to know more about templates and runlets, have a look at Chapter 2: The Generator.
+The Request Worker takes the current request from the user and decides what needs to be done next. Therefore it first creates the environment needed to execute whatever comes next. If a completely processed template (called runlet) does exist for the current request, then the Request Worker communicates with the OutputGenerator agent in order to re-parse it and thus to re-evaluate dynamic contents found in the respective runlet. These runlets are for most parts pure static HTML, but they may also contain dynamic contents. If you want to know more about templates and runlets, have a look at Chapter 2: The OutputGenerator.
 <br/><br/>
-If no such runlet exists, it will check which module to load next and directly run the respective event handler from this module. This decision is made using the URL parameter event. "Directly" means in this case, that if the event parameter is set, the standard Global Library is asked to invoke the respective event, else the home event of the main module is invoked by default. As soon as the event result is returned by the module, it is given to the Generator to create a runlet of it.
+If no such runlet exists, it will check which module to load next and directly run the respective event handler from this module. This decision is made using the URL parameter event. "Directly" means in this case, that if the event parameter is set, the standard Global Library is asked to invoke the respective event, else the home event of the main module is invoked by default. As soon as the event result is returned by the module, it is given to the OutputGenerator to create a runlet of it.
 <br/><br/>
 The Request Worker is also able to do some basic load balancing if needed. Therefore it can call an external service script, which returns the number of current users. If this exceeds a defined threshold, the request can be redirected to a different server. This feature will be available shortly as plugin and is currently disabled.
 <br/><br/>
-<h3>The Generator</h3>
-<a href="static/images/doc/architecture-overview-generator2.png" class="dialog image" title="The Generator"><img src="static/images/doc/architecture-overview-generator2.png" alt="The Generator" border="0"/><span class="caption">The Generator</span></a>
-The Generator agent is responsible for general output related processing and generation. Thus it plays a major role in the processing of almost every request. It consists of two main components: first the Content Generator agent and second the Template Engine. The generator itself is also responsible for handling registered Javascript and CSS files.
+<h3>The OutputGenerator</h3>
+<a href="static/images/doc/architecture-overview-generator2.png" class="dialog image" title="The OutputGenerator"><img src="static/images/doc/architecture-overview-generator2.png" alt="The OutputGenerator" border="0"/><span class="caption">The OutputGenerator</span></a>
+The OutputGenerator agent is responsible for general output related processing and generation. Thus it plays a major role in the processing of almost every request. It consists of two main components: first the Content OutputGenerator agent and second the Template Engine. The OutputGenerator itself is also responsible for handling registered Javascript and CSS files.
 <br/><br/>
 The following two sections will explain what the different components do and what they are supposed to be used for.
 <br/><br/>
-<h4>Content Generator</h4>
+<h4>Content OutputGenerator</h4>
 Currently this component contains a set of methods for controlling the base template, which is mainly independent of the actual template engine. These methods are used to set the page's title, meta descriptions, keywords, minifying and packing of CSS and JS files and other header information.
 <br/><br/>
-Javascript files registered in the Generator are minimized and packed together into one, static file, stored in the Javascript Cache. For every used combination of Javascript files registered, a different Javascript Cache file is created. The CSS files are first collected into one file then existent LESS code is compiled. Afterwards the resulting CSS is minified and stored in the CSS Cache. Minification of Javascript code and CSS code is both only turned on in production environments (ENV_PRODUCTION set to true).
+Javascript files registered in the OutputGenerator are minimized and packed together into one, static file, stored in the Javascript Cache. For every used combination of Javascript files registered, a different Javascript Cache file is created. The CSS files are first collected into one file then existent LESS code is compiled. Afterwards the resulting CSS is minified and stored in the CSS Cache. Minification of Javascript code and CSS code is both only turned on in production environments (ENV_PRODUCTION set to true).
 <br/><br/>
 <h4>Template Engine</h4>
-The Template Engine is the most complex part in the Generator agent. It manages the include of templates, their compilation and the evaluation. It also takes care of caching the resulting runlets.
+The Template Engine is the most complex part in the OutputGenerator agent. It manages the include of templates, their compilation and the evaluation. It also takes care of caching the resulting runlets.
 <br/><br/>
 So what are runlets actually? Runlets are in fact compiled and decorated templates. If not otherwise specified, the normal way of an event is, that it's content is wrapped into a main template, which is not much more than a very general page skeleton in HTML. It contains some placeholders for Javascript, CSS files, placeholders for meta data, like the author and the page's title and finally the placeholder for the actual page's content. When all placeholders are filled, the resulting content is writing to the cache as a runlet. If caching is disabled, the runlet will be instantly removed after evaluation. So a runlet is in fact a static and complete HTML page with one exception: it may contain some more dynamic code too. Sometimes it may be quite difficult to decide what needs to be dynamic until the end and what not. There is a rule of thumb, which says: only things that are directly dependent on session data should be dynamic in a runlet. This is mostly because no contextual information is existent at the evaluation time of the runlet, but only session data (and all standard library tools). Note that dynamic code in runlets only makes sense if caching is enabled for this page.
 <br/><br/>
@@ -46,7 +46,7 @@ Within a template you can use a special PHP opening/closing tag, in order to kee
        &lt;div class="username"&gt;&lt;b&gt;Hello, #user.name&lt;/b&gt;&lt;/div&gt;
 &lt;!! } else { !!&gt;
        &lt;div class="username"&gt;Who are you?&lt;/div&gt;
-&lt;!! } !!&gt; 	
+&lt;!! } !!&gt;
 </pre>
 This code would in a runlet look like:
 <pre>

@@ -82,7 +82,7 @@ class BuilderHandler
 		$arr_param["libraries"] = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
 		$arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
 		$arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
-		$arr_param["texts"] = Generator::getInstance()->getLanguage()->listTexts();
+		$arr_param["texts"] = OutputGenerator::getInstance()->getLanguage()->listTexts();
 		$arr_param["backup"] = Quartz::getJob("backupjob");
 		$arr_param["backupList"] = Array();
 		if (!is_dir("static/backups")) {
@@ -150,7 +150,7 @@ class BuilderHandler
 				// returns the PHP code
 				if (SNOW_MODE === true) {
 					$sc = new SnowCompiler($code."\n");
-					return $sc->compile().";";
+					return $sc->compile(false, false).";";
 				} else 
 					return $code;
 			}
@@ -327,13 +327,13 @@ class BuilderHandler
 					$printer .= "  \$arr_param[\"local\"] = array_merge(is_array(\$arr_param[\"local\"]) ? \$arr_param[\"local\"] : Array(), \$arr_param);\n";
 					if ($arr_handler["flag_ajax"] == "1")
 					{
-						$printer .= "  Generator::getInstance()->setIsAjax();\n";
+						$printer .= "  OutputGenerator::getInstance()->setIsAjax();\n";
 					}
 					if ($arr_handler["flag_cacheable"] == "1" && ENV_PRODUCTION === true) {
-						$printer .= "  Generator::getInstance()->setIsCachable();\n";
+						$printer .= "  OutputGenerator::getInstance()->setIsCachable();\n";
 					}
 					$printer .= "  \$decoration = (strlen(\$decorator)>0 ? invoke(\$decorator, \$arr_param) : \"<!--[content]-->\");\n";
-					$printer .= "  \$str_content = Generator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"]."\".(strlen(\$template) > 0 && strtolower(\$template) != \"default\" ? \".\".\$template : \"\").\".html\", \$arr_param);\n";
+					$printer .= "  \$str_content = OutputGenerator::getInstance()->includeTemplate(\"templates/".$mod."/html/".$arr_handler["event"]."\".(strlen(\$template) > 0 && strtolower(\$template) != \"default\" ? \".\".\$template : \"\").\".html\", \$arr_param);\n";
 					$printer .= "  \$str_content = str_replace(\"<!--[content]-->\", \$str_content, \$decoration);\n";
 					$printer .= "  return \$str_content;\n}\n";
 
@@ -1906,7 +1906,7 @@ class BuilderHandler
 		$arr_param["moduleResult"] = $this->obj_data->findModuleByName($query, $_SESSION["builder"]["user_id"]);
 		$arr_param["tagResult"] = $this->obj_data->findTagByName($query, $_SESSION["builder"]["user_id"]);
 		$arr_param["tableResult"] = $this->obj_data->findTableByName($query, $_SESSION["builder"]["user_id"]);
-		$arr_param["textResult"] = Generator::getInstance()->getLanguage()->findTextByContent($query);
+		$arr_param["textResult"] = OutputGenerator::getInstance()->getLanguage()->findTextByContent($query);
 
 		$arr_param["result"] = Array();
 		if (is_array($arr_param["handlerResult"]))$arr_param["result"] = $arr_param["handlerResult"];
@@ -2070,9 +2070,9 @@ class BuilderHandler
 			fwrite($fp, "---".$magic_border."\n");
 			$arr_content = Array();
 			$arr_content["texts"] = Array();
-			$arr_content["languages"] = Generator::getInstance()->obj_lang->listLanguages();
+			$arr_content["languages"] = OutputGenerator::getInstance()->obj_lang->listLanguages();
 			foreach ($_POST["translations"] as $root) {
-				array_push($arr_content["texts"], Generator::getInstance()->obj_lang->listAllTextsFromRoot($root));
+				array_push($arr_content["texts"], OutputGenerator::getInstance()->obj_lang->listAllTextsFromRoot($root));
 			}
 			fwrite($fp, "C");
 			fwrite($fp, gzcompress(serialize($arr_content), 9));
@@ -2209,15 +2209,15 @@ class BuilderHandler
 						unset($lang["language_id"]);
 						unset($lang["fk_user_id"]);
 						$id2 = 0;
-						$langs = Generator::getInstance()->obj_lang->listLanguages();
+						$langs = OutputGenerator::getInstance()->obj_lang->listLanguages();
 						foreach ($langs as $lg) {
 							if ($lg["name"] == $lang["name"]) {
 								$id2 = $lg["language_id"];
-								Generator::getInstance()->obj_lang->deleteLanguage($lg["language_id"]);
+								OutputGenerator::getInstance()->obj_lang->deleteLanguage($lg["language_id"]);
 								break;
 							}
 						}
-						$languageMapping["new"][$id] = Generator::getInstance()->obj_lang->insertLanguage($lang);
+						$languageMapping["new"][$id] = OutputGenerator::getInstance()->obj_lang->insertLanguage($lang);
 						$languageMapping["old"][$id2] = $languageMapping["new"][$id]; 
 					}
 					foreach ($data["texts"] as $texts) {
@@ -2226,7 +2226,7 @@ class BuilderHandler
 							$id = 0;
 							unset($text["texts_id"]);
 							$text["fk_language_id"] = $languageMapping["new"][$text["fk_language_id"]];
-							Generator::getInstance()->obj_lang->insertText($text);
+							OutputGenerator::getInstance()->obj_lang->insertText($text);
 						}
 					}
 				} else if ($section[0] == "T") {
@@ -2363,12 +2363,12 @@ class BuilderHandler
 		if ($_GET["check"] == "1") {
 			// update / insert texts
 			$arr_data = $_POST["texts"];
-			Generator::getInstance()->obj_lang->updateTexts($arr_data);
+			OutputGenerator::getInstance()->obj_lang->updateTexts($arr_data);
 			if ($arr_data["type"] == '2') {
 				$this->flushWebCache(true);
 			}
 		} else if ($_GET["check"] == "2") {
-			Generator::getInstance()->obj_lang->updateTextType($_POST["id"], $_POST["type"]);
+			OutputGenerator::getInstance()->obj_lang->updateTextType($_POST["id"], $_POST["type"]);
 			die("success");
 		} else if ($_GET["check"] == "cadef") {
 			$this->obj_data->updateCustom("texts", $_POST["custom"]);
@@ -2376,10 +2376,10 @@ class BuilderHandler
 		}
 		
 		if ($_GET["ident"]) {
-			$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($_GET["ident"]);
+			$arr_param["texts"] = OutputGenerator::getInstance()->obj_lang->getAllTextsByIdentifier($_GET["ident"]);
 			$_SESSION["texts_id"] = $_GET["texts_id"] = $arr_param["texts"][0]["texts_id"];
 		} else {
-			$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsById($_GET["texts_id"]);
+			$arr_param["texts"] = OutputGenerator::getInstance()->obj_lang->getAllTextsById($_GET["texts_id"]);
 		}
 
 		if ($_GET["path"] && $_GET["texts_id"] == 0) {
@@ -2387,7 +2387,7 @@ class BuilderHandler
 			if ($_GET["ident"]) {
 				$arr_param["text"]["path"] = substr($_GET["path"], 0, strrpos($_GET["path"], ".")+1);
 				$arr_param["text"]["name"] = substr($_GET["path"], strrpos($_GET["path"], ".")+1);
-				$arr_param["texts"] = Generator::getInstance()->obj_lang->getAllTextsByIdentifier($arr_param["text"]["path"]);
+				$arr_param["texts"] = OutputGenerator::getInstance()->obj_lang->getAllTextsByIdentifier($arr_param["text"]["path"]);
 				$arr_param["texts"][0]["identifier"] = $_GET["path"];
 			}
 		} else {
@@ -2412,10 +2412,10 @@ class BuilderHandler
 	
 	function deleteText() {
 	   if ($_GET["ident"]) {
-		   Generator::getInstance()->getLanguage()->deleteTextByIdentifier($_GET["ident"]);
+		   OutputGenerator::getInstance()->getLanguage()->deleteTextByIdentifier($_GET["ident"]);
 		   die("success");
 	   } else if ($_GET["section"]) {
-		   Generator::getInstance()->getLanguage()->deleteSection($_GET["section"]);
+		   OutputGenerator::getInstance()->getLanguage()->deleteSection($_GET["section"]);
 		   die("success");
 	   }
 	}
@@ -2428,16 +2428,16 @@ class BuilderHandler
 		   $arr_data["default"] = $_POST["lang_default"];
 		   
 		   if ($_GET["language_id"] > 0) {
-			   Generator::getInstance()->getLanguage()->updateLanguage($_GET["language_id"], $arr_data);
+			   OutputGenerator::getInstance()->getLanguage()->updateLanguage($_GET["language_id"], $arr_data);
 		   } else {
-			   $_SESSION["language_id"] = $_GET["language_id"] = Generator::getInstance()->getLanguage()->insertLanguage($arr_data);
+			   $_SESSION["language_id"] = $_GET["language_id"] = OutputGenerator::getInstance()->getLanguage()->insertLanguage($arr_data);
 		   }
 		   
 		   header("Content-Type: application/json");
 		   
 		   die("{success: true}");
 		} else if ($_GET["delete"] > 0) {
-		   Generator::getInstance()->getLanguage()->deleteLanguage($_GET["language_id"]);
+		   OutputGenerator::getInstance()->getLanguage()->deleteLanguage($_GET["language_id"]);
 		   die("success");
 		}
 	}
@@ -2827,7 +2827,7 @@ class BuilderHandler
 		$arr_param["libraries"] = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
 		$arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
 		$arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
-		$arr_param["translations"] = Generator::getInstance()->getLanguage()->listTexts();
+		$arr_param["translations"] = OutputGenerator::getInstance()->getLanguage()->listTexts();
 		
 		$toPost = Array("modules" => Array(), "libraries" => Array(), "tags" => Array(), "tables" => Array(), "translations" => Array(), "db" => Array(), "images" => 1);
 		foreach ($arr_param["modules"] as $mod) {
@@ -2895,7 +2895,7 @@ class BuilderHandler
 			$arr_param["libraries"] = $this->obj_data->listLibrariesFromUser($_SESSION["builder"]["user_id"]);
 			$arr_param["tags"] = $this->obj_data->listTagsFromUser($_SESSION["builder"]["user_id"]);
 			$arr_param["tables"] = $this->obj_data->listTablesFromUser($_SESSION["builder"]["user_id"]);
-			$arr_translations = Generator::getInstance()->getLanguage()->listTexts();
+			$arr_translations = OutputGenerator::getInstance()->getLanguage()->listTexts();
 			$arr_result = Array();
 			foreach ($arr_param as $key => $value) {
 				$arr_result[$key] = Array();

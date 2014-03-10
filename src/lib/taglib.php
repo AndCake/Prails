@@ -227,7 +227,7 @@ class TagLib {
 			if (is_array($matches[1]) && count($matches[1]) > 0) {
 				foreach ($matches[1] as $key => $value) {
 					$sc = new SnowCompiler(ltrim($value, "=") . "\n");
-					$result = $sc->compile();
+					$result = $sc->compile(false, false);
 					$content = str_replace($matches[0][$key], "<?".($value[0] == "=" ? "=" . rtrim($result, ";\n\r") : $result) . "?>", $content);
 				}
 			}

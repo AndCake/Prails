@@ -18,56 +18,57 @@ class MainPrinter
 {
     var $obj_lang;
     var $str_base;
+    var $gen;
 
     function MainPrinter($str_lang)
     {
-        $obj_gen = Generator::getInstance();
+        $this->gen = OutputGenerator::getInstance();
 		if (IS_SETUP) {
 	        $this->obj_lang = new LangData($str_lang);
-	        $obj_gen->setLanguage($str_lang);
+	        $this->gen->setLanguage($str_lang);
 		}
 
         /*<CSS-INCLUDES>*/
-        $obj_gen->addStyleSheet("templates/main/css/main.css");
-        $obj_gen->addStyleSheet("templates/main/css/controls.css");
-        $obj_gen->addStyleSheet("templates/main/css/s2-ui.css");
+        $this->gen->addStyleSheet("templates/main/css/main.css");
+        $this->gen->addStyleSheet("templates/main/css/controls.css");
+        $this->gen->addStyleSheet("templates/main/css/s2-ui.css");
         /*</CSS-INCLUDES>*/
-        $obj_gen->addStyleSheet("templates/main/css/global.css");
+        $this->gen->addStyleSheet("templates/main/css/global.css");
 
         /*<JAVASCRIPT-INCLUDES>*/
-        $obj_gen->addJavaScript("templates/main/js/prototype.js");
-        $obj_gen->addJavaScript("templates/main/js/s2.js");
-        $obj_gen->addJavaScript("templates/main/js/modernizr.min.js");
-        $obj_gen->addJavaScript("templates/main/js/main.js");
-        $obj_gen->addJavaScript("templates/main/js/fileselector.js");
-        $obj_gen->addJavaScript("templates/main/js/validator.js");
-        $obj_gen->addJavaScript("templates/main/js/overlabels.js");
-        $obj_gen->addJavaScript("templates/main/js/base64.js");
-        $obj_gen->addJavaScript("templates/main/js/cookie.js");
-        $obj_gen->addJavaScript("templates/main/js/jquery.js");
-        $obj_gen->addJavaScript("templates/main/js/jquery-ui.js");
+        $this->gen->addJavaScript("templates/main/js/prototype.js");
+        $this->gen->addJavaScript("templates/main/js/s2.js");
+        $this->gen->addJavaScript("templates/main/js/modernizr.min.js");
+        $this->gen->addJavaScript("templates/main/js/main.js");
+        $this->gen->addJavaScript("templates/main/js/fileselector.js");
+        $this->gen->addJavaScript("templates/main/js/validator.js");
+        $this->gen->addJavaScript("templates/main/js/overlabels.js");
+        $this->gen->addJavaScript("templates/main/js/base64.js");
+        $this->gen->addJavaScript("templates/main/js/cookie.js");
+        $this->gen->addJavaScript("templates/main/js/jquery.js");
+        $this->gen->addJavaScript("templates/main/js/jquery-ui.js");
         /*</JAVASCRIPT-INCLUDES>*/
-        $obj_gen->addJavaScript("templates/main/js/global.js");
+        $this->gen->addJavaScript("templates/main/js/global.js");
 		
 		if (!ENV_PRODUCTION) {
-			$obj_gen->addJavaScript("templates/main/js/testing/testing.js");
+			$this->gen->addJavaScript("templates/main/js/testing/testing.js");
 		}
 
-        $obj_gen->setTitle("Prails Home");
-        $obj_gen->setDescription("To develop web applications at extreme speed");
-        $obj_gen->setKeywords(explode(",", "web development,php,framework"));
+        $this->gen->setTitle("Prails Home");
+        $this->gen->setDescription("To develop web applications at extreme speed");
+        $this->gen->setKeywords(explode(",", "web development,php,framework"));
 
         $this->str_base = "?";
     }
 
     function home($arr_param) {
-        $str_content = Generator::getInstance()->includeTemplate("templates/main/html/home.html", $arr_param);
+        $str_content = $this->gen->includeTemplate("templates/main/html/home.html", $arr_param);
         return $str_content;
     }
     
     function pageNotFound($arr_param) {
-		Generator::getInstance()->setTitle(PROJECT_NAME." - 404: Page not found");
-    	return Generator::getInstance()->includeTemplate("templates/main/html/404.html", $arr_param);
+		$this->gen->setTitle(PROJECT_NAME." - 404: Page not found");
+    	return $this->gen->includeTemplate("templates/main/html/404.html", $arr_param);
     }
     
     function cmsHandler($arr_param) {
@@ -76,21 +77,21 @@ class MainPrinter
         if (strlen($arr_param["text"]["decorator"]) > 0) {
             $decorator = invoke($arr_param["text"]["decorator"], null, true);
         } else {
-			Generator::getInstance()->setIsCachable(true);        	
+			$this->gen->setIsCachable(true);        	
         }
         
 		if (strlen($arr_param["text"]["title"]) > 0) {
-			Generator::getInstance()->setTitle($arr_param['text']['title']);
+			$this->gen->setTitle($arr_param['text']['title']);
 		}
 		if (strlen($arr_param['text']['description']) > 0) {
-			Generator::getInstance()->setDescription($arr_param['text']['description']);
+			$this->gen->setDescription($arr_param['text']['description']);
 		}
         
 		return str_replace("<!--[content]-->", $arr_param["text"]["content"], $decorator);
     }
     
     function setup($arr_param) {
-    	return Generator::getInstance()->includeTemplate("templates/main/html/setup.html", $arr_param);
+    	return $this->gen->includeTemplate("templates/main/html/setup.html", $arr_param);
     }
 }
 ?>

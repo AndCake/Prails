@@ -18,190 +18,191 @@ class BuilderPrinter
 {
     var $obj_lang;
     var $str_base;
+    var $gen;
 
     function BuilderPrinter($str_lang)
     {
         $this->obj_lang = new LangData("builder", $str_lang);
-        $obj_gen = Generator::getInstance();
-        $obj_gen->setLanguage($str_lang);
+        $this->gen = OutputGenerator::getInstance();
+        $this->gen->setLanguage($str_lang);
 
         $event = explode(":", $_GET["event"]);
         if ($event[0] == "builder")
         {
-        	$obj_gen->addJavaScript("templates/main/js/prototype.js");
-        	$obj_gen->addJavaScript("templates/main/js/s2.js");
-        	$obj_gen->addJavaScript("templates/builder/js/ext-base.js");
-            $obj_gen->addJavaScript("templates/builder/js/ext.js");
-            $obj_gen->addJavaScript("templates/builder/js/ext.ux/ux.util.js");
+        	$this->gen->addJavaScript("templates/main/js/prototype.js");
+        	$this->gen->addJavaScript("templates/main/js/s2.js");
+        	$this->gen->addJavaScript("templates/builder/js/ext-base.js");
+            $this->gen->addJavaScript("templates/builder/js/ext.js");
+            $this->gen->addJavaScript("templates/builder/js/ext.ux/ux.util.js");
 
-			$obj_gen->addJavaScript("templates/builder/js/fisheye_menu.js");
-            $obj_gen->addJavaScript("templates/builder/js/fileselector.js");
-    	    $obj_gen->addJavaScript("templates/builder/js/jslint.js");
+			$this->gen->addJavaScript("templates/builder/js/fisheye_menu.js");
+            $this->gen->addJavaScript("templates/builder/js/fileselector.js");
+    	    $this->gen->addJavaScript("templates/builder/js/jslint.js");
 
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.methods.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.module.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.resource.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.tag.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.table.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.data.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.handler.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.library.js");
-            $obj_gen->addJavaScript("templates/builder/js/builder/builder.lang.js");
-       	    $obj_gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.methods.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.module.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.resource.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.tag.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.table.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.data.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.handler.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.library.js");
+            $this->gen->addJavaScript("templates/builder/js/builder/builder.lang.js");
+       	    $this->gen->addJavaScript("templates/builder/js/builder/builder.testcases.js");
 
-            $obj_gen->addStyleSheet("templates/builder/css/ext-all.css");
+            $this->gen->addStyleSheet("templates/builder/css/ext-all.css");
             if (SNOW_MODE === true) {
-                $obj_gen->addStyleSheet("templates/builder/css/builder.css");
-                $obj_gen->addStyleSheet("templates/builder/css/xtheme-snow.css");
+                $this->gen->addStyleSheet("templates/builder/css/builder.css");
+                $this->gen->addStyleSheet("templates/builder/css/xtheme-snow.css");
             } else {
-                $obj_gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
-                $obj_gen->addStyleSheet("templates/builder/css/builder.css");
+                $this->gen->addStyleSheet("templates/builder/css/xtheme-newgentheme.css");
+                $this->gen->addStyleSheet("templates/builder/css/builder.css");
             }
 
-            $obj_gen->str_template = "templates/builder/template.html";
+            $this->gen->str_template = "templates/builder/template.html";
         }
         $this->str_base = "?module=builder";
     }
 
     function home($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/home.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/home.html", $arr_param, false);
     }
 
     /*<PRINTER-METHODS>*/
     function listModules($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/listModules.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/listModules.html", $arr_param, false);
     }
     function editModule($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editModule.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editModule.html", $arr_param, false);
     }
     function moduleHistory($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/moduleHistory.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/moduleHistory.html", $arr_param, false);
     }
     function listHandlers()
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/listHandlers.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/listHandlers.html", $arr_param, false);
     }
     function editHandler($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editHandler.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editHandler.html", $arr_param, false);
     }
     function handlerHistory($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/handlerHistory.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/handlerHistory.html", $arr_param, false);
     }
     function listDatas()
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/listDatas.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/listDatas.html", $arr_param, false);
     }
     function editData($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editData.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editData.html", $arr_param, false);
     }
     function dataModel($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/dataModel.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/dataModel.html", $arr_param, false);
     }
     function dataHistory($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/dataHistory.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/dataHistory.html", $arr_param, false);
     }
     function editLibrary($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editLibrary.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editLibrary.html", $arr_param, false);
     }
     function libraryHistory($arr_param) {
         $arr_param['session'] = &$_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/libraryHistory.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/libraryHistory.html", $arr_param, false);
     }
     function editTag($arr_param)
     {
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editTag.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editTag.html", $arr_param, false);
     }
 
     function listResources($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/listResources.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/listResources.html", $arr_param, false);
     }
 
     function editResource($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editResource.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editResource.html", $arr_param, false);
     }
 
     function editTable($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editTable.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editTable.html", $arr_param, false);
     }
 
     function editConfiguration($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editConfiguration.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/editConfiguration.html", $arr_param, false);
     }
 
     function queryTest($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/queryTest.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/queryTest.html", $arr_param, false);
     }
 	
 	function niceUrl($arr_param) 
 	{
         $arr_param["session"] = $_SESSION;
-        return Generator::getInstance()->includeTemplate("templates/builder/html/niceUrl.html", $arr_param, false);
+        return $this->gen->includeTemplate("templates/builder/html/niceUrl.html", $arr_param, false);
 	}
     function editText($arr_param)
     {
         $arr_param["session"] = $_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editText.html", $arr_param, false);
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/editText.html", $arr_param, false);
     }
 	
 	function listTestcase($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/listTestcase.html", $arr_param, false);		
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/listTestcase.html", $arr_param, false);		
 	}
 	
 	function editTestcase($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editTestcase.html", $arr_param, false);		
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/editTestcase.html", $arr_param, false);		
 	}
 	
 	function debug($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/debug.html", $arr_param, false);		
 	}
 	
 	function editUser($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/editUser.html", $arr_param, false);		
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/editUser.html", $arr_param, false);		
 	}
 	
 	function showLog($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setIsAjax(true);
-        return Generator::getInstance()->includeTemplate("templates/builder/html/showLog.html", $arr_param, false);		
+        $this->gen->setIsAjax(true);
+        return $this->gen->includeTemplate("templates/builder/html/showLog.html", $arr_param, false);		
 	}
 	
 	function fileBrowser($arr_param) {
         $arr_param["session"] = &$_SESSION;
-        Generator::getInstance()->setTitle("Media Browser");
-        return Generator::getInstance()->includeTemplate("templates/builder/html/fileBrowser.html", $arr_param, false);
+        $this->gen->setTitle("Media Browser");
+        return $this->gen->includeTemplate("templates/builder/html/fileBrowser.html", $arr_param, false);
 	}
 /*</PRINTER-METHODS>*/
 }

@@ -17,13 +17,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/** Class Generator
+/** Class OutputGenerator
  * 
  * This class is used to manage all output-related meta information, like what caching policy applies to the current page, 
  * the HTML header information being sent to the client, the stylesheets to be used for rendering the page, javascripts, 
  * and the ouput policy.
  **/
-class Generator {
+class OutputGenerator {
     static $obj_instance;
 
     var $str_template;
@@ -44,7 +44,7 @@ class Generator {
     var $bol_isAjax;
     var $str_cacheId;
 
-    function Generator() {
+    function __construct() {
         $this->int_time = 0;
         $this->str_template = DEFAULT_TEMPLATE;
         $this->str_title = "";
@@ -58,16 +58,16 @@ class Generator {
     }
 
     /** 
-     * getInstance() -> Generator
+     * getInstance() -> OutputGenerator
      * 
      * This is a static method that will create a generator and return it. In case an existing generator is found, that one will be returned.
      **/
     static function getInstance() {
-        if (Generator :: $obj_instance) {
-            return Generator :: $obj_instance;
+        if (OutputGenerator :: $obj_instance) {
+            return OutputGenerator :: $obj_instance;
         } else {
-            Generator :: $obj_instance = new Generator();
-            return Generator :: $obj_instance;
+            OutputGenerator :: $obj_instance = new OutputGenerator();
+            return OutputGenerator :: $obj_instance;
         }
     }
 

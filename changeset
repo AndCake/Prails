@@ -1,3 +1,13 @@
+V1.6.3 (March 10th, 2014)
+
+ * fixed a bug where it was not possible to install Prails on Windows hosts
+ * fixed an incompatibility with PHP >= 5.5.0
+ * updated to latest Snow compiler version
+ * PLEASE NOTE: This version of Prails replaces the Generator class with one that is called OutputGenerator in order to increase compatibility with the latest PHP version. If you are actively accessing this class, please update your code!
+ * update documentation
+ * added HTTPClient class including documentation and tests; doGet, doPost and doPut now use HTTPClient
+
+
 V1.6.2 (May 3rd, 2013)
 
  * fixed a bug in input.tag in conjunction with Snow -> fixed #4

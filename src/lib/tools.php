@@ -515,7 +515,7 @@ function jumpTo ($url = "?", $clientSide = true) {
 		header ("Location: ".$url);
 		die();
 	} else {
-		Generator::getInstance()->setIsAjax(true);
+		OutputGenerator::getInstance()->setIsAjax(true);
 		echo "<meta http-equiv='refresh' content='0;url=".$url."'/><script type='text/javascript'>location.href='".$url."';</script>";
 		session_write_close();
 		die();
@@ -893,20 +893,20 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
 {
 	global $log, $profiler;
     
-	$cacheFile = "cache/handler_".$str_event.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"].serialize($arr_param)).".".Generator::getInstance()->obj_lang->language_id;
+	$cacheFile = "cache/handler_".$str_event.md5($_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"].serialize($arr_param)).".".OutputGenerator::getInstance()->obj_lang->language_id;
 	if (file_exists($cacheFile)) {
 		if (filemtime($cacheFile) >= $_SERVER["REQUEST_TIME"] - 3600) {
 			if ($profiler) $profiler->logEvent("event_cache_hit#".$str_event);
 			$log->trace("Fetching handler from cache ".$str_event."( ".$arr_param." )");
 			$data = json_decode(file_get_contents($cacheFile.".state"), true);
-			Generator::getInstance()->str_title = $data["title"];
-			Generator::getInstance()->str_description = $data["description"];			
-			Generator::getInstance()->arr_styles = $data["styles"];
-	    	Generator::getInstance()->arr_noCacheStyles = $data["ncstyles"];
-	    	Generator::getInstance()->arr_js = $data["js"];
-	    	Generator::getInstance()->arr_header = $data["headers"];
-	    	Generator::getInstance()->arr_noCacheJS = $data["ncjs"];
-       		Generator::getInstance()->bol_isCachable = $data["cache"];	    	
+			OutputGenerator::getInstance()->str_title = $data["title"];
+			OutputGenerator::getInstance()->str_description = $data["description"];			
+			OutputGenerator::getInstance()->arr_styles = $data["styles"];
+	    	OutputGenerator::getInstance()->arr_noCacheStyles = $data["ncstyles"];
+	    	OutputGenerator::getInstance()->arr_js = $data["js"];
+	    	OutputGenerator::getInstance()->arr_header = $data["headers"];
+	    	OutputGenerator::getInstance()->arr_noCacheJS = $data["ncjs"];
+       		OutputGenerator::getInstance()->bol_isCachable = $data["cache"];	    	
        		
 			return file_get_contents($cacheFile);
 		} else {
@@ -918,8 +918,8 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
     global $__handlerCache;
 	if (!is_array($__handlerCache)) $__handlerCache = Array();
 	
-	$oldCache = Generator::getInstance()->bol_isCachable;
-	if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = false;
+	$oldCache = OutputGenerator::getInstance()->bol_isCachable;
+	if (!$keepCacheSettings) OutputGenerator::getInstance()->bol_isCachable = false;
 	
 	list($module, $event) = explode(":", $str_event);
 	$log->trace("Invoking ".$str_event."( ".$arr_param." )");
@@ -936,23 +936,23 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
             $__handlerCache[$module] = $obj_module;
         }
         if (method_exists($obj_module, $event) && ($result = $obj_module->$event($arr_param)) !== false) {
-        	if (Generator::getInstance()->bol_isCachable) {
+        	if (OutputGenerator::getInstance()->bol_isCachable) {
         		file_put_contents($cacheFile.".state", json_encode(Array(
-        			"styles" => Generator::getInstance()->arr_styles,
-        			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
-        			"js" => Generator::getInstance()->arr_js,
-       				"headers" => Generator::getInstance()->arr_header,
-        			"ncjs" => Generator::getInstance()->arr_noCacheJS,
-       				"cache" => Generator::getInstance()->bol_isCachable,
-        			"description" => Generator::getInstance()->str_description,
-       				"title" => Generator::getInstance()->str_title      		
+        			"styles" => OutputGenerator::getInstance()->arr_styles,
+        			"ncstyles" => OutputGenerator::getInstance()->arr_noCacheStyles,
+        			"js" => OutputGenerator::getInstance()->arr_js,
+       				"headers" => OutputGenerator::getInstance()->arr_header,
+        			"ncjs" => OutputGenerator::getInstance()->arr_noCacheJS,
+       				"cache" => OutputGenerator::getInstance()->bol_isCachable,
+        			"description" => OutputGenerator::getInstance()->str_description,
+       				"title" => OutputGenerator::getInstance()->str_title      		
         		)));
         		file_put_contents($cacheFile, $result);
         	}
-       		if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
+       		if (!$keepCacheSettings) OutputGenerator::getInstance()->bol_isCachable = $oldCache;
             return $result;
         } else if (!method_exists($obj_module, $event)) {
-       		if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
+       		if (!$keepCacheSettings) OutputGenerator::getInstance()->bol_isCachable = $oldCache;
         	return invoke("main:pageNotFound", $arr_param);
         } else {
             pushError("Error generating event result. Maybe the handler for this event does not exist.");
@@ -974,20 +974,20 @@ function invoke($str_event, $arr_param = null, $keepCacheSettings = false)
         	$result = invoke("main:pageNotFound", $arr_param);
         }
         
-       	if (Generator::getInstance()->bol_isCachable) {
+       	if (OutputGenerator::getInstance()->bol_isCachable) {
        		file_put_contents($cacheFile.".state", json_encode(Array(
-       			"styles" => Generator::getInstance()->arr_styles,
-       			"ncstyles" => Generator::getInstance()->arr_noCacheStyles,
-       			"js" => Generator::getInstance()->arr_js,
-       			"headers" => Generator::getInstance()->arr_header,
-       			"ncjs" => Generator::getInstance()->arr_noCacheJS,
-       			"cache" => Generator::getInstance()->bol_isCachable,
-   				"description" => Generator::getInstance()->str_description,
-   				"title" => Generator::getInstance()->str_title      		
+       			"styles" => OutputGenerator::getInstance()->arr_styles,
+       			"ncstyles" => OutputGenerator::getInstance()->arr_noCacheStyles,
+       			"js" => OutputGenerator::getInstance()->arr_js,
+       			"headers" => OutputGenerator::getInstance()->arr_header,
+       			"ncjs" => OutputGenerator::getInstance()->arr_noCacheJS,
+       			"cache" => OutputGenerator::getInstance()->bol_isCachable,
+   				"description" => OutputGenerator::getInstance()->str_description,
+   				"title" => OutputGenerator::getInstance()->str_title      		
        		)));
        		file_put_contents($cacheFile, $result);
        	}
-       	if (!$keepCacheSettings) Generator::getInstance()->bol_isCachable = $oldCache;
+       	if (!$keepCacheSettings) OutputGenerator::getInstance()->bol_isCachable = $oldCache;
         return $result;
     }
 

@@ -18,4 +18,4 @@
  * }}}
  *
  **/
-?><@ if (<? $code = $this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"])); if (SNOW_MODE === true) { $sc = new SnowCompiler($code); echo rtrim($sc->compile(), ";\r\n"); } else { echo $code; } ?>) { @><?=$tag["body"]?><@ } @>
+?><@ if (<? $code = $this->makeAllVars(preg_replace('/#(\\w+\\.\\w+)/m', '#!\\1', $tag["attributes"]["cond"])); if (SNOW_MODE === true) { $sc = new SnowCompiler($code, false); echo rtrim($sc->compile(false, false), ";\r\n"); } else { echo $code; } ?>) { @><?=$tag["body"]?><@ } @>

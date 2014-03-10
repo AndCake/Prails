@@ -331,8 +331,11 @@ class LangData
 	}
 	 
 	function insertText($arr_data) {
-		$arr_data["custom"] = $this->_encodeCustom($arr_data["custom"]);
-		$this->obj_sql->add(tbl_prailsbase_texts, $arr_data);
+		$existing = $this->selectTextByIdentifier($arr_data["identifier"]);
+		if (empty($existing["texts_id"])) {
+			$arr_data["custom"] = $this->_encodeCustom($arr_data["custom"]);
+			$this->obj_sql->add(tbl_prailsbase_texts, $arr_data);
+		}
 	}
 	 
 	function deleteTexts($id) {

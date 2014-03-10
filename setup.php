@@ -79,8 +79,10 @@
 		fclose($fp);
 		if (PHP_OS == "WINNT") {
 			fclose($xp);
-			exec("cd ".$temp.";7za.exe x prails.tar.bz2");
-			exec("cd ".$temp.";7za.exe x prails.tar");
+			chdir($temp);
+			exec("7za.exe x prails.tar.bz2");
+			exec("7za.exe x prails.tar");
+			chdir("..");
 			unlink($temp."prails.tar");
 			rename($temp."7za.exe", $temp."prails/7za.exe");
 		} else 

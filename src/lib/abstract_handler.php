@@ -84,7 +84,7 @@
  * - $currentLang (Language) - a reference to the language library, that let's you get access to content assets.
  * - $SERVER (String) - the absolute URL to the page (without paths relative to the Prails directory)
  * - $SECURE_SERVER (String) - the absolute HTTPS URL to the page (without paths relative to the Prails directory)
- * - $gen (Generator) - a reference to the current Generator instance.
+ * - $gen (OutputGenerator) - a reference to the current OutputGenerator instance.
  * 
  * In order to trigger generating the view, the following method exists:
  * out($arr_param[, $decorator[, $template]]) -> String

@@ -27,18 +27,6 @@ ErrorDocument 404 /rewrite.php
 	RewriteCond %{REQUEST_FILENAME} .+\.prails$ [OR]
 	RewriteCond %{REQUEST_FILENAME} \.htaccess
 	RewriteRule ^(.*)$ index.php?event=builder:home [L]
-
-	RewriteCond %{HTTP:Accept-encoding} gzip
-	RewriteCond %{REQUEST_FILENAME}gz -f
-	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
-	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
-	RewriteRule ^(.*)\.css $1.cssgz [L]
-
-	RewriteCond %{HTTP:Accept-encoding} gzip
-	RewriteCond %{REQUEST_FILENAME}gz -f
-	RewriteCond %{HTTP_USER_AGENT} !.*^Mozilla/4.* [OR]
-	RewriteCond %{HTTP_USER_AGENT} .*MSI?E.*
-	RewriteRule ^(.*)\.js $1.jsgz [L] 
 		
 	#--START_CUSTOM--#
 	#--END_CUSTOM--#

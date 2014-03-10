@@ -44,7 +44,7 @@ class MainHandler
 		}
 		$_GET = $result;
         
-		$obj_gen = Generator::getInstance();
+		$obj_gen = OutputGenerator::getInstance();
         $this->obj_print = new MainPrinter($this->str_lang);
     }
 
@@ -196,7 +196,7 @@ class MainHandler
     
     
     function cmsHandler() {
-        $arr_param["text"] = Generator::getInstance()->getLanguage()->selectTextByIdentifier("cms.".str_replace("/", ".", $_GET["page"]));
+        $arr_param["text"] = OutputGenerator::getInstance()->getLanguage()->selectTextByIdentifier("cms.".str_replace("/", ".", $_GET["page"]));
         
         if (!$arr_param["text"]["texts_id"]) {
             return $this->pageNotFound();
